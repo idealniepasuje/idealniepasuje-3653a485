@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
+import { logError } from '@/lib/errorLogger';
 
 interface AuthContextType {
   user: User | null;
@@ -45,13 +46,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         .single();
       
       if (error) {
-        console.error('Error fetching user type:', error);
+        logError('AuthContext.fetchUserType', error);
         return null;
       }
       
       return data?.user_type as 'candidate' | 'employer' | null;
     } catch (error) {
-      console.error('Error fetching user type:', error);
+      logError('AuthContext.fetchUserType', error);
       return null;
     }
   };

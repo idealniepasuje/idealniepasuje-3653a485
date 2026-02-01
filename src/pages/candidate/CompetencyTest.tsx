@@ -14,6 +14,7 @@ import { agreementScale } from "@/data/additionalQuestions";
 import { getLevel, getFeedback } from "@/data/feedbackData";
 import { useQuestionTimer } from "@/hooks/useQuestionTimer";
 import { QuestionTimer } from "@/components/QuestionTimer";
+import { logError } from "@/lib/errorLogger";
 
 const CompetencyTest = () => {
   const { competencyCode } = useParams<{ competencyCode: string }>();
@@ -53,7 +54,7 @@ const CompetencyTest = () => {
         .single();
 
       if (error && error.code !== "PGRST116") {
-        console.error("Error fetching answers:", error);
+        logError("CompetencyTest.fetchExistingAnswers", error);
       }
       
       if (data?.competency_answers && competencyCode) {
@@ -68,7 +69,7 @@ const CompetencyTest = () => {
       
       setTestResults(data);
     } catch (error) {
-      console.error("Error:", error);
+      logError("CompetencyTest.fetchExistingAnswers", error);
     } finally {
       setLoading(false);
     }
@@ -122,7 +123,7 @@ const CompetencyTest = () => {
 
       if (error) throw error;
     } catch (error) {
-      console.error("Error saving:", error);
+      logError("CompetencyTest.saveProgress", error);
       toast.error("Nie udało się zapisać postępu");
     } finally {
       setSaving(false);

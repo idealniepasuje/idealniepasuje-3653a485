@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Sparkles, LogOut, ArrowLeft, Users, ChevronRight, Target, Heart, Briefcase } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { logError } from "@/lib/errorLogger";
 
 const EmployerCandidates = () => {
   const { user, signOut, loading: authLoading } = useAuth();
@@ -35,12 +36,12 @@ const EmployerCandidates = () => {
         .order("overall_percent", { ascending: false });
 
       if (matchError) {
-        console.error("Error fetching matches:", matchError);
+        logError("EmployerCandidates.fetchMatches", matchError);
       } else {
         setMatches(matchData || []);
       }
     } catch (error) {
-      console.error("Error:", error);
+      logError("EmployerCandidates.fetchMatches", error);
     } finally {
       setLoading(false);
     }

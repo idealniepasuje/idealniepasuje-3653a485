@@ -8,6 +8,7 @@ import { Sparkles, LogOut, MessageSquare, Brain, Lightbulb, Target, RefreshCw, U
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { competencyTests } from "@/data/competencyQuestions";
+import { logError } from "@/lib/errorLogger";
 
 const CandidateDashboard = () => {
   const { user, signOut, loading: authLoading } = useAuth();
@@ -37,12 +38,12 @@ const CandidateDashboard = () => {
         .single();
 
       if (error && error.code !== "PGRST116") {
-        console.error("Error fetching results:", error);
+        logError("CandidateDashboard.fetchTestResults", error);
       }
       
       setTestResults(data);
     } catch (error) {
-      console.error("Error:", error);
+      logError("CandidateDashboard.fetchTestResults", error);
     } finally {
       setLoading(false);
     }
