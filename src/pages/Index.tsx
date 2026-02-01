@@ -225,7 +225,7 @@ const Index = () => {
       <section className="py-12 bg-accent/10">
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto text-center">
-            <p className="text-sm text-muted-foreground">
+      <p className="text-sm text-foreground/80">
               <strong className="text-foreground">To narzędzie jest prototypem</strong> opartym na ankietach i niskobudżetowych rozwiązaniach. Testujemy założenia i sprawdzamy, czy rozwiązanie działa we właściwy sposób. Dziękujemy za udział – Twoje odpowiedzi realnie wpływają na rozwój projektu.
             </p>
           </div>
