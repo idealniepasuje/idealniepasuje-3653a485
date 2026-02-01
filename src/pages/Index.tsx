@@ -1,9 +1,24 @@
+import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ArrowRight, Users, Building2, Sparkles, Target, Heart, CheckCircle2, ClipboardList, Search, Handshake } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Index = () => {
+  const { user, userType, loading } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!loading && user && userType) {
+      if (userType === "employer") {
+        navigate("/employer/dashboard");
+      } else {
+        navigate("/candidate/dashboard");
+      }
+    }
+  }, [user, userType, loading, navigate]);
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
