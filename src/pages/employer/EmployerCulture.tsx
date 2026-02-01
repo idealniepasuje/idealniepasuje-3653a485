@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -12,6 +12,8 @@ import { toast } from "sonner";
 import { employerCultureQuestions, cultureDimensions } from "@/data/cultureQuestions";
 import { agreementScale } from "@/data/additionalQuestions";
 import { getLevel, getFeedback } from "@/data/feedbackData";
+import { useQuestionTimer } from "@/hooks/useQuestionTimer";
+import { QuestionTimer } from "@/components/QuestionTimer";
 
 const EmployerCulture = () => {
   const { user, loading: authLoading } = useAuth();
@@ -47,7 +49,7 @@ const EmployerCulture = () => {
     setDimensionScores(scores); setShowResults(true);
   };
 
-  const handleNext = async () => {
+  const handleNext = useCallback(async () => {
     if (currentQuestionIndex < questions.length - 1) { setCurrentQuestionIndex(i => i + 1); }
     else {
       setSaving(true);
@@ -61,7 +63,22 @@ const EmployerCulture = () => {
       await supabase.from("employer_profiles").update({ culture_answers: answers, culture_completed: true, profile_completed: true, culture_relacja_wspolpraca: scores.relacja_wspolpraca, culture_elastycznosc_innowacyjnosc: scores.elastycznosc_innowacyjnosc, culture_wyniki_cele: scores.wyniki_cele, culture_stabilnosc_struktura: scores.stabilnosc_struktura, culture_autonomia_styl_pracy: scores.autonomia_styl_pracy, culture_wlb_dobrostan: scores.wlb_dobrostan }).eq("user_id", user!.id);
       setSaving(false); calculateResults(answers); toast.success("Profil ukończony!");
     }
-  };
+  }, [currentQuestionIndex, questions, answers, user]);
+
+  const handleTimeUp = useCallback(() => {
+    const currentQ = questions[currentQuestionIndex];
+    if (!answers[currentQ.id]) {
+      setAnswers(prev => ({ ...prev, [currentQ.id]: 3 }));
+    }
+    handleNext();
+  }, [currentQuestionIndex, questions, answers, handleNext]);
+
+  const { timeLeft, progress: timerProgress } = useQuestionTimer({
+    duration: 13,
+    onTimeUp: handleTimeUp,
+    questionId: questions[currentQuestionIndex]?.id || "",
+    enabled: !showResults && !loading && !authLoading,
+  });
 
   if (authLoading || loading) return <div className="min-h-screen flex items-center justify-center"><Sparkles className="w-12 h-12 text-accent animate-pulse" /></div>;
   const currentQuestion = questions[currentQuestionIndex];
@@ -87,6 +104,9 @@ const EmployerCulture = () => {
       <main className="container mx-auto px-4 py-8 max-w-2xl">
         <h1 className="text-2xl font-bold mb-2">Kultura organizacji pracy</h1><Progress value={((currentQuestionIndex + 1) / questions.length) * 100} className="h-2 mb-6" />
         <Card><CardContent className="pt-6">
+          <div className="mb-4">
+            <QuestionTimer timeLeft={timeLeft} progress={timerProgress} />
+          </div>
           <p className="text-xs text-muted-foreground mb-2">Oceń, na ile poniższe stwierdzenie opisuje Waszą organizację</p>
           <h3 className="text-lg font-semibold mb-4">{currentQuestion.text}</h3>
           <RadioGroup value={answers[currentQuestion.id]?.toString()} onValueChange={(v) => setAnswers(p => ({...p, [currentQuestion.id]: parseInt(v)}))} className="space-y-2">

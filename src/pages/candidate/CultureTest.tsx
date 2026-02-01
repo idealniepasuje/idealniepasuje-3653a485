@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,6 +12,8 @@ import { toast } from "sonner";
 import { candidateCultureQuestions, cultureDimensions } from "@/data/cultureQuestions";
 import { agreementScale } from "@/data/additionalQuestions";
 import { getLevel, getFeedback } from "@/data/feedbackData";
+import { useQuestionTimer } from "@/hooks/useQuestionTimer";
+import { QuestionTimer } from "@/components/QuestionTimer";
 
 const CultureTest = () => {
   const { user, loading: authLoading } = useAuth();
@@ -140,7 +142,7 @@ const CultureTest = () => {
     }
   };
 
-  const handleNext = async () => {
+  const handleNext = useCallback(async () => {
     if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex(prev => prev + 1);
       await saveProgress();
@@ -149,7 +151,22 @@ const CultureTest = () => {
       calculateAndShowResults(answers);
       toast.success("Test kultury ukończony!");
     }
-  };
+  }, [currentQuestionIndex, questions.length, answers]);
+
+  const handleTimeUp = useCallback(() => {
+    const currentQ = questions[currentQuestionIndex];
+    if (answers[currentQ.id] === undefined) {
+      setAnswers(prev => ({ ...prev, [currentQ.id]: 3 }));
+    }
+    handleNext();
+  }, [currentQuestionIndex, questions, answers, handleNext]);
+
+  const { timeLeft, progress: timerProgress } = useQuestionTimer({
+    duration: 13,
+    onTimeUp: handleTimeUp,
+    questionId: questions[currentQuestionIndex]?.id || "",
+    enabled: !showResults && !loading && !authLoading,
+  });
 
   const handlePrevious = () => {
     if (currentQuestionIndex > 0) {
@@ -256,6 +273,9 @@ const CultureTest = () => {
 
         <Card>
           <CardHeader>
+            <div className="mb-4">
+              <QuestionTimer timeLeft={timeLeft} progress={timerProgress} />
+            </div>
             <CardDescription className="text-xs text-muted-foreground mb-2">
               Oceń, na ile zgadzasz się z poniższym stwierdzeniem
             </CardDescription>
