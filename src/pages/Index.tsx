@@ -49,7 +49,7 @@ const Index = () => {
                 </Button>
               </Link>
               <Link to="/register?type=employer">
-                <Button size="lg" variant="outline" className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 gap-2 w-full sm:w-auto">
+                <Button size="lg" variant="outline" className="bg-primary-foreground/10 backdrop-blur-sm border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/20 gap-2 w-full sm:w-auto">
                   <Building2 className="w-5 h-5" />
                   Jestem pracodawcą
                   <ArrowRight className="w-4 h-4" />
