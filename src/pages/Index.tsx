@@ -214,7 +214,7 @@ const Index = () => {
                 <div className="w-14 h-14 rounded-full bg-accent/10 flex items-center justify-center mx-auto mb-4">
                   <value.icon className="w-7 h-7 text-accent" />
                 </div>
-                <h4 className="font-bold mb-2">{value.title}</h4>
+                <h3 className="font-bold mb-2 text-base">{value.title}</h3>
                 <p className="text-sm text-muted-foreground">{value.description}</p>
               </div>
             ))}
