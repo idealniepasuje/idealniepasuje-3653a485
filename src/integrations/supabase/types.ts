@@ -14,13 +14,261 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      candidate_test_results: {
+        Row: {
+          adaptacja_score: number | null
+          additional_completed: boolean | null
+          all_tests_completed: boolean | null
+          competency_answers: Json | null
+          competency_tests_completed: boolean | null
+          created_at: string
+          culture_answers: Json | null
+          culture_autonomia_styl_pracy: number | null
+          culture_elastycznosc_innowacyjnosc: number | null
+          culture_relacja_wspolpraca: number | null
+          culture_stabilnosc_struktura: number | null
+          culture_test_completed: boolean | null
+          culture_wlb_dobrostan: number | null
+          culture_wyniki_cele: number | null
+          determinacja_score: number | null
+          experience: string | null
+          id: string
+          industry: string | null
+          komunikacja_score: number | null
+          myslenie_analityczne_score: number | null
+          out_of_the_box_score: number | null
+          position_level: string | null
+          updated_at: string
+          user_id: string
+          wants_to_change_industry: string | null
+          work_description: string | null
+        }
+        Insert: {
+          adaptacja_score?: number | null
+          additional_completed?: boolean | null
+          all_tests_completed?: boolean | null
+          competency_answers?: Json | null
+          competency_tests_completed?: boolean | null
+          created_at?: string
+          culture_answers?: Json | null
+          culture_autonomia_styl_pracy?: number | null
+          culture_elastycznosc_innowacyjnosc?: number | null
+          culture_relacja_wspolpraca?: number | null
+          culture_stabilnosc_struktura?: number | null
+          culture_test_completed?: boolean | null
+          culture_wlb_dobrostan?: number | null
+          culture_wyniki_cele?: number | null
+          determinacja_score?: number | null
+          experience?: string | null
+          id?: string
+          industry?: string | null
+          komunikacja_score?: number | null
+          myslenie_analityczne_score?: number | null
+          out_of_the_box_score?: number | null
+          position_level?: string | null
+          updated_at?: string
+          user_id: string
+          wants_to_change_industry?: string | null
+          work_description?: string | null
+        }
+        Update: {
+          adaptacja_score?: number | null
+          additional_completed?: boolean | null
+          all_tests_completed?: boolean | null
+          competency_answers?: Json | null
+          competency_tests_completed?: boolean | null
+          created_at?: string
+          culture_answers?: Json | null
+          culture_autonomia_styl_pracy?: number | null
+          culture_elastycznosc_innowacyjnosc?: number | null
+          culture_relacja_wspolpraca?: number | null
+          culture_stabilnosc_struktura?: number | null
+          culture_test_completed?: boolean | null
+          culture_wlb_dobrostan?: number | null
+          culture_wyniki_cele?: number | null
+          determinacja_score?: number | null
+          experience?: string | null
+          id?: string
+          industry?: string | null
+          komunikacja_score?: number | null
+          myslenie_analityczne_score?: number | null
+          out_of_the_box_score?: number | null
+          position_level?: string | null
+          updated_at?: string
+          user_id?: string
+          wants_to_change_industry?: string | null
+          work_description?: string | null
+        }
+        Relationships: []
+      }
+      employer_profiles: {
+        Row: {
+          accepted_industries: string[] | null
+          company_name: string | null
+          created_at: string
+          culture_answers: Json | null
+          culture_autonomia_styl_pracy: number | null
+          culture_completed: boolean | null
+          culture_elastycznosc_innowacyjnosc: number | null
+          culture_relacja_wspolpraca: number | null
+          culture_stabilnosc_struktura: number | null
+          culture_wlb_dobrostan: number | null
+          culture_wyniki_cele: number | null
+          id: string
+          industry: string | null
+          position_level: string | null
+          profile_completed: boolean | null
+          req_adaptacja: number | null
+          req_determinacja: number | null
+          req_komunikacja: number | null
+          req_myslenie_analityczne: number | null
+          req_out_of_the_box: number | null
+          required_experience: string | null
+          requirements_completed: boolean | null
+          role_completed: boolean | null
+          role_description: string | null
+          role_responsibilities: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          accepted_industries?: string[] | null
+          company_name?: string | null
+          created_at?: string
+          culture_answers?: Json | null
+          culture_autonomia_styl_pracy?: number | null
+          culture_completed?: boolean | null
+          culture_elastycznosc_innowacyjnosc?: number | null
+          culture_relacja_wspolpraca?: number | null
+          culture_stabilnosc_struktura?: number | null
+          culture_wlb_dobrostan?: number | null
+          culture_wyniki_cele?: number | null
+          id?: string
+          industry?: string | null
+          position_level?: string | null
+          profile_completed?: boolean | null
+          req_adaptacja?: number | null
+          req_determinacja?: number | null
+          req_komunikacja?: number | null
+          req_myslenie_analityczne?: number | null
+          req_out_of_the_box?: number | null
+          required_experience?: string | null
+          requirements_completed?: boolean | null
+          role_completed?: boolean | null
+          role_description?: string | null
+          role_responsibilities?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          accepted_industries?: string[] | null
+          company_name?: string | null
+          created_at?: string
+          culture_answers?: Json | null
+          culture_autonomia_styl_pracy?: number | null
+          culture_completed?: boolean | null
+          culture_elastycznosc_innowacyjnosc?: number | null
+          culture_relacja_wspolpraca?: number | null
+          culture_stabilnosc_struktura?: number | null
+          culture_wlb_dobrostan?: number | null
+          culture_wyniki_cele?: number | null
+          id?: string
+          industry?: string | null
+          position_level?: string | null
+          profile_completed?: boolean | null
+          req_adaptacja?: number | null
+          req_determinacja?: number | null
+          req_komunikacja?: number | null
+          req_myslenie_analityczne?: number | null
+          req_out_of_the_box?: number | null
+          required_experience?: string | null
+          requirements_completed?: boolean | null
+          role_completed?: boolean | null
+          role_description?: string | null
+          role_responsibilities?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      match_results: {
+        Row: {
+          candidate_user_id: string
+          competence_percent: number | null
+          created_at: string
+          culture_percent: number | null
+          employer_user_id: string
+          extra_percent: number | null
+          id: string
+          match_details: Json | null
+          overall_percent: number | null
+          status: string | null
+          updated_at: string
+        }
+        Insert: {
+          candidate_user_id: string
+          competence_percent?: number | null
+          created_at?: string
+          culture_percent?: number | null
+          employer_user_id: string
+          extra_percent?: number | null
+          id?: string
+          match_details?: Json | null
+          overall_percent?: number | null
+          status?: string | null
+          updated_at?: string
+        }
+        Update: {
+          candidate_user_id?: string
+          competence_percent?: number | null
+          created_at?: string
+          culture_percent?: number | null
+          employer_user_id?: string
+          extra_percent?: number | null
+          id?: string
+          match_details?: Json | null
+          overall_percent?: number | null
+          status?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          email: string | null
+          full_name: string | null
+          id: string
+          updated_at: string
+          user_id: string
+          user_type: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          updated_at?: string
+          user_id: string
+          user_type: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          updated_at?: string
+          user_id?: string
+          user_type?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_user_type: { Args: { user_uuid: string }; Returns: string }
     }
     Enums: {
       [_ in never]: never
