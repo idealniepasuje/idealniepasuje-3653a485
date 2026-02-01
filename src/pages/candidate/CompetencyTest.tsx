@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,9 +9,11 @@ import { Sparkles, ArrowLeft, ArrowRight, CheckCircle2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { competencyTests, competencyQuestions, getQuestionsByCompetency } from "@/data/competencyQuestions";
+import { competencyTests, getQuestionsByCompetency } from "@/data/competencyQuestions";
 import { agreementScale } from "@/data/additionalQuestions";
 import { getLevel, getFeedback } from "@/data/feedbackData";
+import { useQuestionTimer } from "@/hooks/useQuestionTimer";
+import { QuestionTimer } from "@/components/QuestionTimer";
 
 const CompetencyTest = () => {
   const { competencyCode } = useParams<{ competencyCode: string }>();
@@ -127,7 +129,7 @@ const CompetencyTest = () => {
     }
   };
 
-  const handleNext = async () => {
+  const handleNext = useCallback(async () => {
     if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex(prev => prev + 1);
       await saveProgress();
@@ -137,7 +139,23 @@ const CompetencyTest = () => {
       calculateAndShowResults(answers);
       toast.success("Test ukończony!");
     }
-  };
+  }, [currentQuestionIndex, questions.length, answers]);
+
+  const handleTimeUp = useCallback(() => {
+    // Auto-select middle option (3) if no answer given
+    const currentQ = questions[currentQuestionIndex];
+    if (answers[currentQ.id] === undefined) {
+      setAnswers(prev => ({ ...prev, [currentQ.id]: 3 }));
+    }
+    handleNext();
+  }, [currentQuestionIndex, questions, answers, handleNext]);
+
+  const { timeLeft, progress: timerProgress } = useQuestionTimer({
+    duration: 13,
+    onTimeUp: handleTimeUp,
+    questionId: questions[currentQuestionIndex]?.id || "",
+    enabled: !showResults && !loading && !authLoading,
+  });
 
   const handlePrevious = () => {
     if (currentQuestionIndex > 0) {
@@ -257,6 +275,9 @@ const CompetencyTest = () => {
 
         <Card>
           <CardHeader>
+            <div className="mb-4">
+              <QuestionTimer timeLeft={timeLeft} progress={timerProgress} />
+            </div>
             <CardDescription className="text-xs text-muted-foreground mb-2">
               Oceń, na ile zgadzasz się z poniższym stwierdzeniem
             </CardDescription>
