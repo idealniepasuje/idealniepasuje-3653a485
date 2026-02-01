@@ -43,6 +43,7 @@ const Index = () => {
         </div>
       </header>
 
+      <main>
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 overflow-hidden gradient-hero">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-accent/10 via-transparent to-transparent" />
@@ -251,6 +252,7 @@ const Index = () => {
           </div>
         </div>
       </section>
+      </main>
 
       {/* Footer */}
       <footer className="py-8 bg-primary">
