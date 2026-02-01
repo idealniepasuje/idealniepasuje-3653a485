@@ -15,6 +15,7 @@ import EmployerDashboard from "./pages/employer/EmployerDashboard";
 import EmployerRole from "./pages/employer/EmployerRole";
 import EmployerRequirements from "./pages/employer/EmployerRequirements";
 import EmployerCulture from "./pages/employer/EmployerCulture";
+import EmployerCandidates from "./pages/employer/EmployerCandidates";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -38,6 +39,7 @@ const App = () => (
             <Route path="/employer/role" element={<EmployerRole />} />
             <Route path="/employer/requirements" element={<EmployerRequirements />} />
             <Route path="/employer/culture" element={<EmployerCulture />} />
+            <Route path="/employer/candidates" element={<EmployerCandidates />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
