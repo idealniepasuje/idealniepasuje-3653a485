@@ -10,6 +10,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { industries, experienceLevels, positionLevels, industryChangeOptions } from "@/data/additionalQuestions";
+import { logError } from "@/lib/errorLogger";
 
 const CandidateAdditional = () => {
   const { user, loading: authLoading } = useAuth();
@@ -48,7 +49,7 @@ const CandidateAdditional = () => {
         .single();
 
       if (error && error.code !== "PGRST116") {
-        console.error("Error fetching data:", error);
+        logError("CandidateAdditional.fetchExistingData", error);
       }
       
       if (data) {
@@ -61,7 +62,7 @@ const CandidateAdditional = () => {
         });
       }
     } catch (error) {
-      console.error("Error:", error);
+      logError("CandidateAdditional.fetchExistingData", error);
     } finally {
       setLoading(false);
     }
@@ -95,7 +96,7 @@ const CandidateAdditional = () => {
       setShowSuccess(true);
       toast.success("Dziękujemy za wypełnienie wszystkich testów!");
     } catch (error) {
-      console.error("Error saving:", error);
+      logError("CandidateAdditional.handleSubmit", error);
       toast.error("Nie udało się zapisać danych");
     } finally {
       setSaving(false);

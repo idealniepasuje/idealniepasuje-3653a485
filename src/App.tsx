@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -31,15 +32,17 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
-            <Route path="/candidate/dashboard" element={<CandidateDashboard />} />
-            <Route path="/candidate/test/competency/:competencyCode" element={<CompetencyTest />} />
-            <Route path="/candidate/test/culture" element={<CultureTest />} />
-            <Route path="/candidate/additional" element={<CandidateAdditional />} />
-            <Route path="/employer/dashboard" element={<EmployerDashboard />} />
-            <Route path="/employer/role" element={<EmployerRole />} />
-            <Route path="/employer/requirements" element={<EmployerRequirements />} />
-            <Route path="/employer/culture" element={<EmployerCulture />} />
-            <Route path="/employer/candidates" element={<EmployerCandidates />} />
+            {/* Candidate routes - protected and validated */}
+            <Route path="/candidate/dashboard" element={<ProtectedRoute allowedUserType="candidate"><CandidateDashboard /></ProtectedRoute>} />
+            <Route path="/candidate/test/competency/:competencyCode" element={<ProtectedRoute allowedUserType="candidate"><CompetencyTest /></ProtectedRoute>} />
+            <Route path="/candidate/test/culture" element={<ProtectedRoute allowedUserType="candidate"><CultureTest /></ProtectedRoute>} />
+            <Route path="/candidate/additional" element={<ProtectedRoute allowedUserType="candidate"><CandidateAdditional /></ProtectedRoute>} />
+            {/* Employer routes - protected and validated */}
+            <Route path="/employer/dashboard" element={<ProtectedRoute allowedUserType="employer"><EmployerDashboard /></ProtectedRoute>} />
+            <Route path="/employer/role" element={<ProtectedRoute allowedUserType="employer"><EmployerRole /></ProtectedRoute>} />
+            <Route path="/employer/requirements" element={<ProtectedRoute allowedUserType="employer"><EmployerRequirements /></ProtectedRoute>} />
+            <Route path="/employer/culture" element={<ProtectedRoute allowedUserType="employer"><EmployerCulture /></ProtectedRoute>} />
+            <Route path="/employer/candidates" element={<ProtectedRoute allowedUserType="employer"><EmployerCandidates /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

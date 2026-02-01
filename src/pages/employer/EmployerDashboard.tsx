@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Sparkles, LogOut, Building2, FileText, Users, Settings, ChevronRight, CheckCircle2, Target, Heart } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { logError } from "@/lib/errorLogger";
 
 const EmployerDashboard = () => {
   const { user, signOut, loading: authLoading } = useAuth();
@@ -38,7 +39,7 @@ const EmployerDashboard = () => {
         .single();
 
       if (profileError && profileError.code !== "PGRST116") {
-        console.error("Error fetching profile:", profileError);
+        logError("EmployerDashboard.fetchData.profile", profileError);
       }
       
       setEmployerProfile(profile);
@@ -51,12 +52,12 @@ const EmployerDashboard = () => {
         .order("overall_percent", { ascending: false });
 
       if (matchError) {
-        console.error("Error fetching matches:", matchError);
+        logError("EmployerDashboard.fetchData.matches", matchError);
       } else {
         setMatches(matchData || []);
       }
     } catch (error) {
-      console.error("Error:", error);
+      logError("EmployerDashboard.fetchData", error);
     } finally {
       setLoading(false);
     }
