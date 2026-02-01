@@ -265,35 +265,20 @@ export type Database = {
       }
     }
     Views: {
-      profiles_public: {
-        Row: {
-          created_at: string | null
-          full_name: string | null
-          id: string | null
-          updated_at: string | null
-          user_id: string | null
-          user_type: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          full_name?: string | null
-          id?: string | null
-          updated_at?: string | null
-          user_id?: string | null
-          user_type?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          full_name?: string | null
-          id?: string | null
-          updated_at?: string | null
-          user_id?: string | null
-          user_type?: string | null
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Functions: {
+      get_profile_public: {
+        Args: { target_user_id: string }
+        Returns: {
+          created_at: string
+          full_name: string
+          id: string
+          updated_at: string
+          user_id: string
+          user_type: string
+        }[]
+      }
       get_user_type: { Args: { user_uuid: string }; Returns: string }
     }
     Enums: {
