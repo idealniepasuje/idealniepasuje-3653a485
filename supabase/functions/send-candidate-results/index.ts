@@ -245,7 +245,7 @@ const handler = async (req: Request): Promise<Response> => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from: "idealniepasuje <noreply@idealnyserwisrekrutacyjny.pl>",
+        from: "idealniepasuje <noreply@idealniepasuje.pl>",
         to: [candidate_email],
         subject: "Twoje wyniki testów - idealniepasuje",
         html: emailHtml,
