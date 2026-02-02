@@ -160,7 +160,8 @@
       "profileCompleteEmail": "W ciągu 24h otrzymasz na swojego maila wiadomość z wynikiem wykonanych testów.",
       "profileCompleteMatch": "Jeśli w naszej bazie pojawi się zapotrzebowanie na Twoje kompetencje, od razu poinformujemy Cię mailowo o dopasowaniu z pracodawcą.",
       "searchingMatches": "Szukamy idealnych dopasowań",
-      "searchingMatchesDescription": "Teraz cała robota jest po naszej stronie. Będziemy szukać dla Ciebie idealnego pracodawcy. Gdy pojawi się dopasowana oferta, otrzymasz powiadomienie."
+      "searchingMatchesDescription": "Teraz cała robota jest po naszej stronie. Będziemy szukać dla Ciebie idealnego pracodawcy. Gdy pojawi się dopasowana oferta, otrzymasz powiadomienie.",
+      "shareFeedback": "Podziel się opinią"
     },
     "matches": {
       "title": "Dopasowani pracodawcy",

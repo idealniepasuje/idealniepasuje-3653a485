@@ -152,40 +152,79 @@ const CandidateDashboard = () => {
           <p className="text-muted-foreground">{t("candidate.dashboard.introSubtitle")}</p>
         </div>
 
-        {/* Compact Introduction card with gradient */}
-        <Card className="mb-8 overflow-hidden border-0 shadow-lg bg-gradient-to-br from-cta via-cta/90 to-accent/80">
-          <CardContent className="p-5">
-            <div className="flex items-start gap-4">
-              <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
-                <Sparkles className="w-5 h-5 text-primary" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <h2 className="text-base font-bold text-primary mb-2">{t("candidate.dashboard.introTitle")}</h2>
-                <p className="text-primary/85 text-sm mb-3 leading-relaxed">
-                  {t("candidate.dashboard.introGreetingShort")}
-                </p>
-                <div className="flex flex-wrap gap-2 mb-3">
-                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/15 text-primary text-xs font-medium">
-                    <ClipboardList className="w-3 h-3" />
-                    {t("candidate.dashboard.introBadge1")}
-                  </span>
-                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/15 text-primary text-xs font-medium">
-                    <Heart className="w-3 h-3" />
-                    {t("candidate.dashboard.introBadge2")}
-                  </span>
-                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/15 text-primary text-xs font-medium">
-                    <Briefcase className="w-3 h-3" />
-                    {t("candidate.dashboard.introBadge3")}
-                  </span>
+        {/* Show intro card only when tests are NOT completed */}
+        {!testResults?.all_tests_completed && (
+          <Card className="mb-8 overflow-hidden border-0 shadow-lg bg-gradient-to-br from-cta via-cta/90 to-accent/80">
+            <CardContent className="p-5">
+              <div className="flex items-start gap-4">
+                <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
+                  <Sparkles className="w-5 h-5 text-primary" />
                 </div>
-                <p className="text-xs text-primary/80 flex items-center gap-1.5">
-                  <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
-                  {t("candidate.dashboard.introReminderShort")}
-                </p>
+                <div className="flex-1 min-w-0">
+                  <h2 className="text-base font-bold text-primary mb-2">{t("candidate.dashboard.introTitle")}</h2>
+                  <p className="text-primary/85 text-sm mb-3 leading-relaxed">
+                    {t("candidate.dashboard.introGreetingShort")}
+                  </p>
+                  <div className="flex flex-wrap gap-2 mb-3">
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/15 text-primary text-xs font-medium">
+                      <ClipboardList className="w-3 h-3" />
+                      {t("candidate.dashboard.introBadge1")}
+                    </span>
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/15 text-primary text-xs font-medium">
+                      <Heart className="w-3 h-3" />
+                      {t("candidate.dashboard.introBadge2")}
+                    </span>
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/15 text-primary text-xs font-medium">
+                      <Briefcase className="w-3 h-3" />
+                      {t("candidate.dashboard.introBadge3")}
+                    </span>
+                  </div>
+                  <p className="text-xs text-primary/80 flex items-center gap-1.5">
+                    <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
+                    {t("candidate.dashboard.introReminderShort")}
+                  </p>
+                </div>
               </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Show celebration card when tests ARE completed */}
+        {testResults?.all_tests_completed && (
+          <Card className="mb-8 overflow-hidden border-0 shadow-xl bg-gradient-to-r from-accent via-accent/90 to-primary/80">
+            <CardContent className="p-5 md:p-6">
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 rounded-full bg-primary-foreground/20 flex items-center justify-center shrink-0">
+                  <PartyPopper className="w-6 h-6 text-primary-foreground" />
+                </div>
+                <div className="flex-1 min-w-0 text-primary-foreground">
+                  <h2 className="text-lg font-bold mb-2">{t("candidate.dashboard.profileCompleteTitle")}</h2>
+                  <p className="text-sm mb-3 opacity-95">{t("candidate.dashboard.profileCompleteDescription")}</p>
+                  <div className="space-y-1.5 text-sm opacity-90 mb-4">
+                    <p className="flex items-start gap-2">
+                      <Mail className="w-4 h-4 mt-0.5 shrink-0" />
+                      {t("candidate.dashboard.profileCompleteEmail")}
+                    </p>
+                    <p className="flex items-start gap-2">
+                      <CheckCircle2 className="w-4 h-4 mt-0.5 shrink-0" />
+                      {t("candidate.dashboard.profileCompleteMatch")}
+                    </p>
+                  </div>
+                  <Link to="/candidate/feedback">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      className="bg-primary-foreground/10 border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/20 backdrop-blur-sm"
+                    >
+                      <MessageSquare className="w-4 h-4 mr-2" />
+                      {t("candidate.dashboard.shareFeedback")}
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         <Card className="mb-8 border-accent/20 bg-accent/5">
           <CardContent className="pt-6">
@@ -319,31 +358,6 @@ const CandidateDashboard = () => {
 
         {testResults?.all_tests_completed && (
           <>
-            {/* Profile completed celebration */}
-            <Card className="mb-8 overflow-hidden border-0 shadow-xl bg-gradient-to-br from-success/90 via-accent to-primary">
-              <CardContent className="p-6 md:p-8">
-                <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
-                  <div className="w-16 h-16 rounded-full bg-background/20 flex items-center justify-center shrink-0">
-                    <PartyPopper className="w-8 h-8 text-primary-foreground" />
-                  </div>
-                  <div className="flex-1 text-primary-foreground">
-                    <h2 className="text-xl md:text-2xl font-bold mb-3">{t("candidate.dashboard.profileCompleteTitle")}</h2>
-                    <p className="mb-4 opacity-95">{t("candidate.dashboard.profileCompleteDescription")}</p>
-                    <div className="space-y-2 text-sm opacity-90">
-                      <p className="flex items-start gap-2">
-                        <Mail className="w-4 h-4 mt-0.5 shrink-0" />
-                        {t("candidate.dashboard.profileCompleteEmail")}
-                      </p>
-                      <p className="flex items-start gap-2">
-                        <CheckCircle2 className="w-4 h-4 mt-0.5 shrink-0" />
-                        {t("candidate.dashboard.profileCompleteMatch")}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
             {/* Matches section */}
             <section>
               <div className="flex items-center justify-between mb-4">
