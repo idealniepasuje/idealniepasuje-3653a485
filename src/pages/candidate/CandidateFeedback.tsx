@@ -6,9 +6,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { ArrowLeft, Send, MessageSquare, Star, ThumbsUp, ThumbsDown, Heart } from "lucide-react";
+import { ArrowLeft, Send, MessageSquare, Heart, ThumbsUp, Lightbulb } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { LogOut } from "lucide-react";
@@ -21,14 +20,10 @@ const CandidateFeedback = () => {
   const [submitted, setSubmitted] = useState(false);
   
   const [answers, setAnswers] = useState({
-    overall_experience: "",
-    would_recommend: "",
-    ease_of_use: "",
-    test_clarity: "",
-    time_spent: "",
-    most_useful: "",
-    improvements: "",
-    additional_comments: ""
+    likes_solution: "",
+    likes_reason: "",
+    would_change: "",
+    change_reason: ""
   });
 
   const handleSignOut = async () => { await signOut(); navigate("/"); };
@@ -37,12 +32,14 @@ const CandidateFeedback = () => {
     e.preventDefault();
     if (!user) return;
     
+    if (!answers.likes_solution || !answers.would_change) {
+      toast.error("Proszę odpowiedzieć na oba pytania");
+      return;
+    }
+    
     setLoading(true);
     try {
-      // For now, we'll store feedback in a simple way
-      // In production, you'd want a dedicated feedback table
       console.log("Feedback submitted:", { user_id: user.id, ...answers });
-      
       setSubmitted(true);
       toast.success(t("candidate.feedback.thankYou"));
     } catch (error) {
@@ -137,145 +134,79 @@ const CandidateFeedback = () => {
           </Card>
 
           <form onSubmit={handleSubmit}>
-            <Card className="mb-6">
-              <CardHeader>
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <Star className="w-5 h-5 text-cta" />
-                  {t("candidate.feedback.overallExperience")}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <RadioGroup
-                  value={answers.overall_experience}
-                  onValueChange={(value) => setAnswers(prev => ({ ...prev, overall_experience: value }))}
-                  className="grid grid-cols-5 gap-2"
-                >
-                  {[1, 2, 3, 4, 5].map((rating) => (
-                    <div key={rating} className="flex flex-col items-center">
-                      <RadioGroupItem value={String(rating)} id={`rating-${rating}`} className="sr-only" />
-                      <Label
-                        htmlFor={`rating-${rating}`}
-                        className={`w-12 h-12 rounded-full border-2 flex items-center justify-center cursor-pointer transition-all ${
-                          answers.overall_experience === String(rating)
-                            ? "bg-cta border-cta text-primary"
-                            : "border-muted-foreground/30 hover:border-accent"
-                        }`}
-                      >
-                        {rating}
-                      </Label>
-                      <span className="text-xs text-muted-foreground mt-1">
-                        {rating === 1 ? t("candidate.feedback.poor") : rating === 5 ? t("candidate.feedback.excellent") : ""}
-                      </span>
-                    </div>
-                  ))}
-                </RadioGroup>
-              </CardContent>
-            </Card>
-
+            {/* Question 1: Do you like the solution? */}
             <Card className="mb-6">
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
                   <ThumbsUp className="w-5 h-5 text-success" />
-                  {t("candidate.feedback.wouldRecommend")}
+                  Czy podoba Ci się nasze rozwiązanie?
                 </CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="space-y-4">
                 <RadioGroup
-                  value={answers.would_recommend}
-                  onValueChange={(value) => setAnswers(prev => ({ ...prev, would_recommend: value }))}
-                  className="space-y-2"
+                  value={answers.likes_solution}
+                  onValueChange={(value) => setAnswers(prev => ({ ...prev, likes_solution: value }))}
+                  className="flex gap-4"
                 >
-                  <div className="flex items-center space-x-3 p-3 rounded-lg border hover:bg-muted/50 transition-colors">
-                    <RadioGroupItem value="yes" id="recommend-yes" />
-                    <Label htmlFor="recommend-yes" className="flex-1 cursor-pointer">{t("candidate.feedback.yesDefinitely")}</Label>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="tak" id="likes-yes" />
+                    <Label htmlFor="likes-yes" className="cursor-pointer font-medium">Tak</Label>
                   </div>
-                  <div className="flex items-center space-x-3 p-3 rounded-lg border hover:bg-muted/50 transition-colors">
-                    <RadioGroupItem value="maybe" id="recommend-maybe" />
-                    <Label htmlFor="recommend-maybe" className="flex-1 cursor-pointer">{t("candidate.feedback.maybe")}</Label>
-                  </div>
-                  <div className="flex items-center space-x-3 p-3 rounded-lg border hover:bg-muted/50 transition-colors">
-                    <RadioGroupItem value="no" id="recommend-no" />
-                    <Label htmlFor="recommend-no" className="flex-1 cursor-pointer">{t("candidate.feedback.noNotReally")}</Label>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="nie" id="likes-no" />
+                    <Label htmlFor="likes-no" className="cursor-pointer font-medium">Nie</Label>
                   </div>
                 </RadioGroup>
+                
+                {answers.likes_solution && (
+                  <div className="pt-2">
+                    <Label className="text-sm text-muted-foreground mb-2 block">Uzasadnij:</Label>
+                    <Textarea
+                      value={answers.likes_reason}
+                      onChange={(e) => setAnswers(prev => ({ ...prev, likes_reason: e.target.value }))}
+                      placeholder="Napisz dlaczego..."
+                      rows={3}
+                    />
+                  </div>
+                )}
               </CardContent>
             </Card>
 
-            <Card className="mb-6">
-              <CardHeader>
-                <CardTitle className="text-lg">{t("candidate.feedback.easeOfUse")}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <RadioGroup
-                  value={answers.ease_of_use}
-                  onValueChange={(value) => setAnswers(prev => ({ ...prev, ease_of_use: value }))}
-                  className="space-y-2"
-                >
-                  <div className="flex items-center space-x-3 p-3 rounded-lg border hover:bg-muted/50 transition-colors">
-                    <RadioGroupItem value="very_easy" id="ease-very-easy" />
-                    <Label htmlFor="ease-very-easy" className="flex-1 cursor-pointer">{t("candidate.feedback.veryEasy")}</Label>
-                  </div>
-                  <div className="flex items-center space-x-3 p-3 rounded-lg border hover:bg-muted/50 transition-colors">
-                    <RadioGroupItem value="easy" id="ease-easy" />
-                    <Label htmlFor="ease-easy" className="flex-1 cursor-pointer">{t("candidate.feedback.easy")}</Label>
-                  </div>
-                  <div className="flex items-center space-x-3 p-3 rounded-lg border hover:bg-muted/50 transition-colors">
-                    <RadioGroupItem value="neutral" id="ease-neutral" />
-                    <Label htmlFor="ease-neutral" className="flex-1 cursor-pointer">{t("candidate.feedback.neutral")}</Label>
-                  </div>
-                  <div className="flex items-center space-x-3 p-3 rounded-lg border hover:bg-muted/50 transition-colors">
-                    <RadioGroupItem value="difficult" id="ease-difficult" />
-                    <Label htmlFor="ease-difficult" className="flex-1 cursor-pointer">{t("candidate.feedback.difficult")}</Label>
-                  </div>
-                </RadioGroup>
-              </CardContent>
-            </Card>
-
-            <Card className="mb-6">
-              <CardHeader>
-                <CardTitle className="text-lg">{t("candidate.feedback.mostUseful")}</CardTitle>
-                <CardDescription>{t("candidate.feedback.optional")}</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Textarea
-                  value={answers.most_useful}
-                  onChange={(e) => setAnswers(prev => ({ ...prev, most_useful: e.target.value }))}
-                  placeholder={t("candidate.feedback.mostUsefulPlaceholder")}
-                  rows={3}
-                />
-              </CardContent>
-            </Card>
-
-            <Card className="mb-6">
-              <CardHeader>
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <ThumbsDown className="w-5 h-5 text-warning" />
-                  {t("candidate.feedback.improvements")}
-                </CardTitle>
-                <CardDescription>{t("candidate.feedback.optional")}</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Textarea
-                  value={answers.improvements}
-                  onChange={(e) => setAnswers(prev => ({ ...prev, improvements: e.target.value }))}
-                  placeholder={t("candidate.feedback.improvementsPlaceholder")}
-                  rows={3}
-                />
-              </CardContent>
-            </Card>
-
+            {/* Question 2: Would you change something? */}
             <Card className="mb-8">
               <CardHeader>
-                <CardTitle className="text-lg">{t("candidate.feedback.additionalComments")}</CardTitle>
-                <CardDescription>{t("candidate.feedback.optional")}</CardDescription>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <Lightbulb className="w-5 h-5 text-cta" />
+                  Czy coś byś zmienił w naszym rozwiązaniu?
+                </CardTitle>
               </CardHeader>
-              <CardContent>
-                <Textarea
-                  value={answers.additional_comments}
-                  onChange={(e) => setAnswers(prev => ({ ...prev, additional_comments: e.target.value }))}
-                  placeholder={t("candidate.feedback.additionalCommentsPlaceholder")}
-                  rows={4}
-                />
+              <CardContent className="space-y-4">
+                <RadioGroup
+                  value={answers.would_change}
+                  onValueChange={(value) => setAnswers(prev => ({ ...prev, would_change: value }))}
+                  className="flex gap-4"
+                >
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="tak" id="change-yes" />
+                    <Label htmlFor="change-yes" className="cursor-pointer font-medium">Tak</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="nie" id="change-no" />
+                    <Label htmlFor="change-no" className="cursor-pointer font-medium">Nie</Label>
+                  </div>
+                </RadioGroup>
+                
+                {answers.would_change && (
+                  <div className="pt-2">
+                    <Label className="text-sm text-muted-foreground mb-2 block">Uzasadnij:</Label>
+                    <Textarea
+                      value={answers.change_reason}
+                      onChange={(e) => setAnswers(prev => ({ ...prev, change_reason: e.target.value }))}
+                      placeholder={answers.would_change === "tak" ? "Co byś zmienił i dlaczego?" : "Dlaczego uważasz, że nic nie trzeba zmieniać?"}
+                      rows={3}
+                    />
+                  </div>
+                )}
               </CardContent>
             </Card>
 
@@ -283,7 +214,7 @@ const CandidateFeedback = () => {
               type="submit" 
               size="lg" 
               className="w-full gap-2"
-              disabled={loading || !answers.overall_experience}
+              disabled={loading || !answers.likes_solution || !answers.would_change}
             >
               {loading ? t("common.saving") : (
                 <>
