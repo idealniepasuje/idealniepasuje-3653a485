@@ -226,7 +226,7 @@ const CompetencyTest = () => {
             <CardTitle className="text-lg leading-relaxed">{currentQuestion.text}</CardTitle>
           </CardHeader>
           <CardContent>
-            <RadioGroup value={answers[currentQuestion.id]?.toString()} onValueChange={(value) => handleAnswer(parseInt(value))} className="space-y-3">
+            <RadioGroup value={answers[currentQuestion.id]?.toString() || ""} onValueChange={(value) => handleAnswer(parseInt(value))} className="space-y-3">
               {localizedAgreementScale.map((option) => (
                 <div key={option.value} className="flex items-center space-x-3 p-3 rounded-lg border border-border hover:bg-muted/50 transition-colors cursor-pointer">
                   <RadioGroupItem value={option.value.toString()} id={`option-${option.value}`} />
