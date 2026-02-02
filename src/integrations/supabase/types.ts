@@ -131,6 +131,36 @@ export type Database = {
         }
         Relationships: []
       }
+      employer_feedback: {
+        Row: {
+          change_reason: string | null
+          created_at: string
+          id: string
+          likes_reason: string | null
+          likes_solution: string
+          user_id: string
+          would_change: string
+        }
+        Insert: {
+          change_reason?: string | null
+          created_at?: string
+          id?: string
+          likes_reason?: string | null
+          likes_solution: string
+          user_id: string
+          would_change: string
+        }
+        Update: {
+          change_reason?: string | null
+          created_at?: string
+          id?: string
+          likes_reason?: string | null
+          likes_solution?: string
+          user_id?: string
+          would_change?: string
+        }
+        Relationships: []
+      }
       employer_profiles: {
         Row: {
           accepted_industries: string[] | null
