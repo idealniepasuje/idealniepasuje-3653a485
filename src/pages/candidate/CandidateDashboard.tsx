@@ -146,6 +146,23 @@ const CandidateDashboard = () => {
       </header>
 
       <main className="container mx-auto px-4 py-8">
+        {/* Introduction section */}
+        <Card className="mb-8 border-primary/20 bg-primary/5">
+          <CardHeader>
+            <CardTitle className="text-xl">{t("candidate.dashboard.introTitle")}</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p>{t("candidate.dashboard.introGreeting")}</p>
+            <p className="font-medium">{t("candidate.dashboard.introBeforeYou")}</p>
+            <ul className="list-disc list-inside space-y-1 text-muted-foreground">
+              <li>{t("candidate.dashboard.introPoint1")}</li>
+              <li>{t("candidate.dashboard.introPoint2")}</li>
+              <li>{t("candidate.dashboard.introPoint3")}</li>
+            </ul>
+            <p className="text-sm italic text-muted-foreground">{t("candidate.dashboard.introReminder")}</p>
+          </CardContent>
+        </Card>
+
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-2">{t("candidate.dashboard.welcome")}</h1>
           <p className="text-muted-foreground">{t("candidate.dashboard.honestReminder")}</p>

@@ -126,6 +126,13 @@
   },
   "candidate": {
     "dashboard": {
+      "introTitle": "Wstęp i wprowadzenie",
+      "introGreeting": "Cześć, to właśnie teraz rozpoczynasz tworzenie swojego profilu w naszym prototypie serwisu rekrutacyjnego. Odpowiedzi na pytania zajmą Ci ok 50 minut, zatem znajdź dla siebie miejsce, gdzie nikt Ci nie będzie przeszkadzał w tym czasie.",
+      "introBeforeYou": "Przed Tobą:",
+      "introPoint1": "5 formularzy kompetencji, których wyniki będą odzwierciedlać poszukiwane preferencje zawodowe potencjalnego kandydata",
+      "introPoint2": "Badanie kultury pracy, czyli jakie warunki i atmosfera panuje w Twojej firmie",
+      "introPoint3": "Pytania o doświadczenia potencjalnego kandydata i wymagane branżę lub staż pracy jeśli stanowisko tego wymaga",
+      "introReminder": "Pamiętaj - nie ma dobrych, ani złych odpowiedzi. Badamy dopasowanie firmy do idealnego kandydata. Bądź szczery, a więcej na tym zyskasz i odnajdziesz igłę w stogu siana :)",
       "welcome": "Witaj w panelu kandydata!",
       "honestReminder": "Pamiętaj: nie ma dobrych ani złych odpowiedzi. Szczerość zwiększa jakość dopasowania.",
       "profileTitle": "Twój profil kandydata",

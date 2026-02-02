@@ -126,6 +126,13 @@
   },
   "candidate": {
     "dashboard": {
+      "introTitle": "Introduction",
+      "introGreeting": "Hi, you're now starting to create your profile in our recruitment service prototype. Answering the questions will take about 50 minutes, so find a place where no one will disturb you during this time.",
+      "introBeforeYou": "Before you:",
+      "introPoint1": "5 competency forms whose results will reflect the professional preferences of a potential candidate",
+      "introPoint2": "Work culture assessment - what conditions and atmosphere are in your company",
+      "introPoint3": "Questions about potential candidate's experience and required industry or work experience if the position requires it",
+      "introReminder": "Remember - there are no right or wrong answers. We're assessing the match between the company and the ideal candidate. Be honest and you'll gain more and find a needle in a haystack :)",
       "welcome": "Welcome to the candidate dashboard!",
       "honestReminder": "Remember: there are no right or wrong answers. Honesty improves match quality.",
       "profileTitle": "Your candidate profile",
