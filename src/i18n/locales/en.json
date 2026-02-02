@@ -275,6 +275,7 @@
       "profileCompleteDescription": "Your profile is fully ready to match you with the ideal candidate. Don't worry, we'll take care of the hard work.",
       "profileCompleteEmail": "Within 24 hours, you'll receive an email with a summary of the completed forms.",
       "profileCompleteMatch": "If a candidate matching your expectations appears in our database, we'll immediately notify you by email.",
+      "shareFeedback": "Share your feedback",
       "roleDescription": "Role description",
       "roleDescriptionSubtitle": "Describe the position and responsibilities",
       "requirements": "Requirements",
@@ -313,6 +314,15 @@
       "profileCompletedDescription": "We're now working on finding the ideal candidate. When we find one, you'll receive a notification.",
       "completedMessage": "Profile completed!",
       "matchesGenerated": "Found {{count}} matched candidates!"
+    },
+    "feedback": {
+      "title": "Share your feedback",
+      "subtitle": "Your feedback will help us improve the tool for employers.",
+      "whyImportant": "We're developing our idea and checking if it works in a way that connects the right candidate with the right employer. Every feedback from you is valuable to us!",
+      "submit": "Submit feedback",
+      "thankYou": "Thank you for your feedback!",
+      "thankYouTitle": "Thank you for your feedback!",
+      "thankYouDescription": "Your response is very valuable to us and will help us improve the tool."
     },
     "candidates": {
       "title": "Matched candidates",

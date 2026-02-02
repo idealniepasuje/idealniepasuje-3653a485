@@ -67,6 +67,22 @@ const EmployerCulture = () => {
     }
   };
 
+  const sendEmployerResultsEmail = async () => {
+    if (!user?.email) return;
+    try {
+      await supabase.functions.invoke('send-employer-results', {
+        body: {
+          employer_user_id: user.id,
+          employer_email: user.email,
+          feedback_url: 'https://idealniepasuje.lovable.app/employer/feedback'
+        }
+      });
+      console.log('Employer results email sent');
+    } catch (error) {
+      console.error('Error sending employer results email:', error);
+    }
+  };
+
   const handleNext = useCallback(async () => {
     if (currentQuestionIndex < questions.length - 1) { setCurrentQuestionIndex(i => i + 1); }
     else {
@@ -82,6 +98,9 @@ const EmployerCulture = () => {
       
       // Generate matches automatically after profile completion
       await generateMatches();
+      
+      // Send results email to employer
+      await sendEmployerResultsEmail();
       
       setSaving(false); calculateResults(answers); toast.success(t("employer.culture.completedMessage"));
     }

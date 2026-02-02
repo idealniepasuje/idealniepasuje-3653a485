@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { LogOut, Building2, FileText, Users, Settings, ChevronRight, CheckCircle2, Heart, Sparkles, ClipboardList, Briefcase, PartyPopper, Mail } from "lucide-react";
+import { LogOut, Building2, FileText, Users, Settings, ChevronRight, CheckCircle2, Heart, Sparkles, ClipboardList, Briefcase, PartyPopper, Mail, MessageSquare } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { logError } from "@/lib/errorLogger";
@@ -137,7 +137,7 @@ const EmployerDashboard = () => {
                 <div className="flex-1 min-w-0 text-primary-foreground">
                   <h2 className="text-lg font-bold mb-2">{t("employer.dashboard.profileCompleteTitle")}</h2>
                   <p className="text-sm mb-3 opacity-95">{t("employer.dashboard.profileCompleteDescription")}</p>
-                  <div className="space-y-1.5 text-sm opacity-90">
+                  <div className="space-y-1.5 text-sm opacity-90 mb-4">
                     <p className="flex items-start gap-2">
                       <Mail className="w-4 h-4 mt-0.5 shrink-0" />
                       {t("employer.dashboard.profileCompleteEmail")}
@@ -147,6 +147,16 @@ const EmployerDashboard = () => {
                       {t("employer.dashboard.profileCompleteMatch")}
                     </p>
                   </div>
+                  <Link to="/employer/feedback">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      className="bg-primary-foreground/10 border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/20 backdrop-blur-sm"
+                    >
+                      <MessageSquare className="w-4 h-4 mr-2" />
+                      {t("employer.dashboard.shareFeedback")}
+                    </Button>
+                  </Link>
                 </div>
               </div>
             </CardContent>

@@ -275,6 +275,7 @@
       "profileCompleteDescription": "Twój profil jest w pełni gotowy do dopasowania idealnego kandydata. Nie martw się, my zajmiemy się brudną robotą.",
       "profileCompleteEmail": "W ciągu 24h otrzymasz na swojego maila wiadomość z podsumowaniem wypełnionych formularzy.",
       "profileCompleteMatch": "Jeśli w naszej bazie pojawi się kandydat spełniający Twoje oczekiwania, od razu poinformujemy Cię mailowo o dopasowaniu.",
+      "shareFeedback": "Podziel się opinią",
       "roleDescription": "Opis roli",
       "roleDescriptionSubtitle": "Opisz stanowisko i obowiązki",
       "requirements": "Wymagania",
@@ -313,6 +314,15 @@
       "profileCompletedDescription": "Teraz my zajmujemy się znalezieniem idealnego kandydata. Gdy tylko go znajdziemy, otrzymasz powiadomienie.",
       "completedMessage": "Profil ukończony!",
       "matchesGenerated": "Znaleziono {{count}} dopasowanych kandydatów!"
+    },
+    "feedback": {
+      "title": "Podziel się opinią",
+      "subtitle": "Twoja opinia pomoże nam udoskonalić narzędzie dla pracodawców.",
+      "whyImportant": "Rozwijamy nasz pomysł i sprawdzamy, czy działa w taki sposób, aby łączył odpowiedniego kandydata z odpowiednim pracodawcą. Każda Twoja uwaga jest dla nas cenna!",
+      "submit": "Wyślij opinię",
+      "thankYou": "Dziękujemy za opinię!",
+      "thankYouTitle": "Dziękujemy za Twoją opinię!",
+      "thankYouDescription": "Twoja odpowiedź jest dla nas bardzo cenna i pomoże nam udoskonalić narzędzie."
     },
     "candidates": {
       "title": "Dopasowani kandydaci",
