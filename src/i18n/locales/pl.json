@@ -31,6 +31,7 @@
     "awaiting": "Oczekuje",
     "seeResults": "Zobacz wyniki",
     "viewProfile": "Zobacz profil",
+    "viewDetails": "Zobacz szczegóły",
     "or": "lub",
     "email": "Email",
     "password": "Hasło",
@@ -139,8 +140,33 @@
       "contextualData": "Dane kontekstowe",
       "contextualDataDescription": "Branża, doświadczenie i preferencje",
       "yourMatches": "Twoje dopasowania",
+      "viewAllMatches": "Zobacz wszystkie dopasowania",
+      "andMoreEmployers": "...i {{count}} więcej pracodawców",
       "searchingMatches": "Szukamy idealnych dopasowań",
       "searchingMatchesDescription": "Teraz cała robota jest po naszej stronie. Będziemy szukać dla Ciebie idealnego pracodawcy. Gdy pojawi się dopasowana oferta, otrzymasz powiadomienie."
+    },
+    "matches": {
+      "title": "Dopasowani pracodawcy",
+      "subtitle": "Lista firm, które najlepiej pasują do Twojego profilu.",
+      "noMatches": "Brak dopasowanych pracodawców",
+      "oneMatch": "dopasowany pracodawca",
+      "multipleMatches": "dopasowanych pracodawców",
+      "searchingTitle": "Szukamy idealnych pracodawców",
+      "searchingDescription": "Na razie nie mamy pracodawców pasujących do Twojego profilu. Gdy tylko znajdziemy odpowiednie firmy, pojawią się tutaj.",
+      "company": "Firma"
+    },
+    "employerDetail": {
+      "notFound": "Nie znaleziono dopasowania",
+      "roleDescription": "Opis stanowiska",
+      "strengths": "Twoje mocne strony",
+      "areasToImprove": "Obszary do rozwoju",
+      "competencies": "Dopasowanie kompetencji",
+      "culture": "Dopasowanie kultury",
+      "additionalCriteria": "Kryteria dodatkowe",
+      "yourScore": "Twój wynik",
+      "requirement": "Wymaganie",
+      "companyScore": "Firma",
+      "backToList": "Wróć do listy"
     },
     "test": {
       "testCompleted": "Test ukończony!",
