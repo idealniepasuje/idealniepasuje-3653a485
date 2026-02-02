@@ -79,7 +79,7 @@ const Index = () => {
       <header className="fixed top-0 left-0 right-0 z-50 bg-card/90 backdrop-blur-sm border-b border-border">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <Link to="/" className="flex items-center">
-            <span className="text-xl font-bold text-foreground">idealnie<span className="text-accent">pasuje</span></span>
+            <img src="/logo_idealnie_pasuje.png" alt="IdealniePasuje" className="h-8" />
           </Link>
           <div className="flex items-center gap-4">
             <LanguageSwitcher />
