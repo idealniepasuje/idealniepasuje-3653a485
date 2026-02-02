@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { LogOut, MessageSquare, Brain, Lightbulb, Target, RefreshCw, Users, ChevronRight, CheckCircle2, Clock, Play, Building2, ClipboardList, Heart, Briefcase, Sparkles } from "lucide-react";
+import { LogOut, MessageSquare, Brain, Lightbulb, Target, RefreshCw, Users, ChevronRight, CheckCircle2, Clock, Play, Building2, ClipboardList, Heart, Briefcase, Sparkles, PartyPopper, Mail, ExternalLink } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { getLocalizedCompetencyTests } from "@/data/competencyQuestions";
@@ -318,29 +318,56 @@ const CandidateDashboard = () => {
         </section>
 
         {testResults?.all_tests_completed && (
-          <section>
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold">{t("candidate.dashboard.yourMatches")}</h2>
-              {matches.length > 0 && (
-                <Link to="/candidate/matches">
-                  <Button variant="outline" size="sm" className="gap-2">
-                    {t("candidate.dashboard.viewAllMatches")}
-                    <ChevronRight className="w-4 h-4" />
-                  </Button>
-                </Link>
-              )}
-            </div>
-            {matches.length === 0 ? (
-              <Card className="border-accent/20 bg-accent/5">
-                <CardContent className="pt-6 text-center py-12">
-                  <div className="w-12 h-12 rounded-full bg-accent/20 mx-auto mb-4 flex items-center justify-center">
-                    <Target className="w-6 h-6 text-accent" />
+          <>
+            {/* Profile completed celebration */}
+            <Card className="mb-8 overflow-hidden border-0 shadow-xl bg-gradient-to-br from-success/90 via-accent to-primary">
+              <CardContent className="p-6 md:p-8">
+                <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
+                  <div className="w-16 h-16 rounded-full bg-background/20 flex items-center justify-center shrink-0">
+                    <PartyPopper className="w-8 h-8 text-primary-foreground" />
                   </div>
-                  <h3 className="text-lg font-semibold mb-2">{t("candidate.dashboard.searchingMatches")}</h3>
-                  <p className="text-muted-foreground max-w-md mx-auto">{t("candidate.dashboard.searchingMatchesDescription")}</p>
-                </CardContent>
-              </Card>
-            ) : (
+                  <div className="flex-1 text-primary-foreground">
+                    <h2 className="text-xl md:text-2xl font-bold mb-3">{t("candidate.dashboard.profileCompleteTitle")}</h2>
+                    <p className="mb-4 opacity-95">{t("candidate.dashboard.profileCompleteDescription")}</p>
+                    <div className="space-y-2 text-sm opacity-90">
+                      <p className="flex items-start gap-2">
+                        <Mail className="w-4 h-4 mt-0.5 shrink-0" />
+                        {t("candidate.dashboard.profileCompleteEmail")}
+                      </p>
+                      <p className="flex items-start gap-2">
+                        <CheckCircle2 className="w-4 h-4 mt-0.5 shrink-0" />
+                        {t("candidate.dashboard.profileCompleteMatch")}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Matches section */}
+            <section>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-bold">{t("candidate.dashboard.yourMatches")}</h2>
+                {matches.length > 0 && (
+                  <Link to="/candidate/matches">
+                    <Button variant="outline" size="sm" className="gap-2">
+                      {t("candidate.dashboard.viewAllMatches")}
+                      <ChevronRight className="w-4 h-4" />
+                    </Button>
+                  </Link>
+                )}
+              </div>
+              {matches.length === 0 ? (
+                <Card className="border-accent/20 bg-accent/5">
+                  <CardContent className="pt-6 text-center py-12">
+                    <div className="w-12 h-12 rounded-full bg-accent/20 mx-auto mb-4 flex items-center justify-center">
+                      <Target className="w-6 h-6 text-accent" />
+                    </div>
+                    <h3 className="text-lg font-semibold mb-2">{t("candidate.dashboard.searchingMatches")}</h3>
+                    <p className="text-muted-foreground max-w-md mx-auto">{t("candidate.dashboard.searchingMatchesDescription")}</p>
+                  </CardContent>
+                </Card>
+              ) : (
               <div className="grid gap-4">
                 {matches.slice(0, 3).map((match) => {
                   const employer = employers[match.employer_user_id];
@@ -379,7 +406,8 @@ const CandidateDashboard = () => {
                 )}
               </div>
             )}
-          </section>
+            </section>
+          </>
         )}
       </main>
     </div>
