@@ -236,6 +236,18 @@
       "searchingTitle": "Szukamy idealnych kandydatów",
       "searchingDescription": "Na razie nie mamy kandydatów pasujących do Twojego profilu. Gdy tylko znajdziemy odpowiednie osoby, pojawią się tutaj.",
       "candidateNumber": "Kandydat"
+    },
+    "candidateDetail": {
+      "notFound": "Nie znaleziono kandydata",
+      "strengths": "Mocne strony",
+      "risks": "Obszary do omówienia",
+      "competencies": "Dopasowanie kompetencji",
+      "culture": "Dopasowanie kultury",
+      "additionalCriteria": "Kryteria dodatkowe",
+      "candidateScore": "Kandydat",
+      "yourRequirement": "Twoje wymaganie",
+      "yourScore": "Twoja organizacja",
+      "backToList": "Wróć do listy"
     }
   },
   "errors": {

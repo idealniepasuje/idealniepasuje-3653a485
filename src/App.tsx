@@ -20,6 +20,7 @@ const EmployerRole = lazy(() => import("./pages/employer/EmployerRole"));
 const EmployerRequirements = lazy(() => import("./pages/employer/EmployerRequirements"));
 const EmployerCulture = lazy(() => import("./pages/employer/EmployerCulture"));
 const EmployerCandidates = lazy(() => import("./pages/employer/EmployerCandidates"));
+const EmployerCandidateDetail = lazy(() => import("./pages/employer/EmployerCandidateDetail"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
@@ -54,6 +55,7 @@ const App = () => (
               <Route path="/employer/requirements" element={<ProtectedRoute allowedUserType="employer"><EmployerRequirements /></ProtectedRoute>} />
               <Route path="/employer/culture" element={<ProtectedRoute allowedUserType="employer"><EmployerCulture /></ProtectedRoute>} />
               <Route path="/employer/candidates" element={<ProtectedRoute allowedUserType="employer"><EmployerCandidates /></ProtectedRoute>} />
+              <Route path="/employer/candidate/:candidateId" element={<ProtectedRoute allowedUserType="employer"><EmployerCandidateDetail /></ProtectedRoute>} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>
