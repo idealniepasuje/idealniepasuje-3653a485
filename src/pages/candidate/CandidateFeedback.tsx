@@ -2,15 +2,15 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { ArrowLeft, Send, MessageSquare, Heart, ThumbsUp, Lightbulb } from "lucide-react";
+import { ArrowLeft, Send, MessageSquare, Heart, ThumbsUp, Lightbulb, LogOut } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
-import { LogOut } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 const CandidateFeedback = () => {
   const { user, signOut } = useAuth();
@@ -39,7 +39,18 @@ const CandidateFeedback = () => {
     
     setLoading(true);
     try {
-      console.log("Feedback submitted:", { user_id: user.id, ...answers });
+      const { error } = await supabase
+        .from('candidate_feedback')
+        .insert({
+          user_id: user.id,
+          likes_solution: answers.likes_solution,
+          likes_reason: answers.likes_reason || null,
+          would_change: answers.would_change,
+          change_reason: answers.change_reason || null
+        });
+
+      if (error) throw error;
+      
       setSubmitted(true);
       toast.success(t("candidate.feedback.thankYou"));
     } catch (error) {
