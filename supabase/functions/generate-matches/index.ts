@@ -335,8 +335,16 @@ Deno.serve(async (req) => {
         const { data: userData } = await supabase.auth.admin.getUserById(newMatch.user_id);
         const candidateEmail = userData?.user?.email;
 
+        // Get match details from database
+        const { data: matchData } = await supabase
+          .from('match_results')
+          .select('*')
+          .eq('employer_user_id', employer_user_id)
+          .eq('candidate_user_id', newMatch.user_id)
+          .single();
+
         if (candidateEmail) {
-          // Call send-match-notification function
+          // Call send-match-notification function with detailed info
           const notificationResponse = await fetch(
             `${supabaseUrl}/functions/v1/send-match-notification`,
             {
@@ -348,8 +356,16 @@ Deno.serve(async (req) => {
               body: JSON.stringify({
                 candidate_user_id: newMatch.user_id,
                 candidate_email: candidateEmail,
+                employer_user_id: employer_user_id,
                 employer_company_name: companyName,
                 match_percent: newMatch.overall_percent,
+                competence_percent: matchData?.competence_percent,
+                culture_percent: matchData?.culture_percent,
+                extra_percent: matchData?.extra_percent,
+                role_description: employer.role_description,
+                role_responsibilities: employer.role_responsibilities,
+                industry: employer.industry,
+                position_level: employer.position_level,
                 dashboard_url: 'https://idealniepasuje.lovable.app/candidate/dashboard',
               }),
             }
@@ -364,6 +380,38 @@ Deno.serve(async (req) => {
       } catch (emailError) {
         console.error(`Error sending notification for candidate ${newMatch.user_id}:`, emailError);
       }
+    }
+
+    // Send employer match summary email
+    try {
+      const { data: employerAuth } = await supabase.auth.admin.getUserById(employer_user_id);
+      const employerEmail = employerAuth?.user?.email;
+
+      if (employerEmail) {
+        const summaryResponse = await fetch(
+          `${supabaseUrl}/functions/v1/send-employer-match-summary`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${supabaseKey}`,
+            },
+            body: JSON.stringify({
+              employer_user_id: employer_user_id,
+              employer_email: employerEmail,
+              dashboard_url: 'https://idealniepasuje.lovable.app/employer/candidates',
+            }),
+          }
+        );
+
+        if (!summaryResponse.ok) {
+          console.error(`Failed to send employer summary:`, await summaryResponse.text());
+        } else {
+          console.log(`Employer match summary sent to ${employerEmail}`);
+        }
+      }
+    } catch (summaryError) {
+      console.error(`Error sending employer summary:`, summaryError);
     }
 
     return new Response(JSON.stringify({ 

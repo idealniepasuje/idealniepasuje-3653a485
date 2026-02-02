@@ -297,7 +297,94 @@ Deno.serve(async (req) => {
         matches.push({
           employer_user_id: employer.user_id,
           overall_percent: Math.round(overallPercent),
+          competence_percent: Math.round(competence.percent),
+          culture_percent: Math.round(culture.percent),
+          extra_percent: Math.round(extra.percent),
+          role_description: employer.role_description,
+          role_responsibilities: employer.role_responsibilities,
+          industry: employer.industry,
+          position_level: employer.position_level,
+          company_name: employer.company_name,
         });
+      }
+    }
+
+    // Send email notifications to candidate
+    if (matches.length > 0) {
+      // Get candidate email
+      const { data: candidateAuth } = await supabase.auth.admin.getUserById(candidate_user_id);
+      const candidateEmail = candidateAuth?.user?.email;
+
+      if (candidateEmail) {
+        // Send notification for the best match
+        const bestMatch = matches[0];
+        try {
+          const notificationResponse = await fetch(
+            `${supabaseUrl}/functions/v1/send-match-notification`,
+            {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${supabaseKey}`,
+              },
+              body: JSON.stringify({
+                candidate_user_id: candidate_user_id,
+                candidate_email: candidateEmail,
+                employer_user_id: bestMatch.employer_user_id,
+                employer_company_name: bestMatch.company_name || 'Nowy pracodawca',
+                match_percent: bestMatch.overall_percent,
+                competence_percent: bestMatch.competence_percent,
+                culture_percent: bestMatch.culture_percent,
+                extra_percent: bestMatch.extra_percent,
+                role_description: bestMatch.role_description,
+                role_responsibilities: bestMatch.role_responsibilities,
+                industry: bestMatch.industry,
+                position_level: bestMatch.position_level,
+                dashboard_url: 'https://idealniepasuje.lovable.app/candidate/matches',
+              }),
+            }
+          );
+
+          if (!notificationResponse.ok) {
+            console.error(`Failed to send candidate notification:`, await notificationResponse.text());
+          } else {
+            console.log(`Match notification sent to candidate ${candidateEmail}`);
+          }
+        } catch (emailError) {
+          console.error(`Error sending candidate notification:`, emailError);
+        }
+      }
+    } else {
+      // No matches found - send no-match email
+      try {
+        const { data: candidateAuth } = await supabase.auth.admin.getUserById(candidate_user_id);
+        const candidateEmail = candidateAuth?.user?.email;
+
+        if (candidateEmail) {
+          const noMatchResponse = await fetch(
+            `${supabaseUrl}/functions/v1/send-no-match-notification`,
+            {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${supabaseKey}`,
+              },
+              body: JSON.stringify({
+                user_id: candidate_user_id,
+                user_email: candidateEmail,
+                user_type: 'candidate',
+              }),
+            }
+          );
+
+          if (!noMatchResponse.ok) {
+            console.error(`Failed to send no-match notification:`, await noMatchResponse.text());
+          } else {
+            console.log(`No-match notification sent to ${candidateEmail}`);
+          }
+        }
+      } catch (emailError) {
+        console.error(`Error sending no-match notification:`, emailError);
       }
     }
 
