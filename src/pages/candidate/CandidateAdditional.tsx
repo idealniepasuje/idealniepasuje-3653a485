@@ -222,16 +222,17 @@ const CandidateAdditional = () => {
 
             {(formData.wantsToChangeIndustry === "Tak" || formData.wantsToChangeIndustry === "Yes") && (
               <div className="space-y-2">
-                <Label>{t("candidate.additional.targetIndustriesLabel")}</Label>
+                <Label>{t("candidate.additional.targetIndustriesLabel")} ({formData.targetIndustries.length}/3)</Label>
                 <Select 
                   value={formData.targetIndustries[0] || ""} 
                   onValueChange={(value) => {
-                    if (!formData.targetIndustries.includes(value)) {
+                    if (!formData.targetIndustries.includes(value) && formData.targetIndustries.length < 3) {
                       setFormData(prev => ({ ...prev, targetIndustries: [...prev.targetIndustries, value] }));
                     }
                   }}
+                  disabled={formData.targetIndustries.length >= 3}
                 >
-                  <SelectTrigger><SelectValue placeholder={t("candidate.additional.targetIndustriesPlaceholder")} /></SelectTrigger>
+                  <SelectTrigger><SelectValue placeholder={formData.targetIndustries.length >= 3 ? t("candidate.additional.maxIndustriesReached") : t("candidate.additional.targetIndustriesPlaceholder")} /></SelectTrigger>
                   <SelectContent>
                     {localizedIndustries
                       .filter(ind => !formData.targetIndustries.includes(ind))
