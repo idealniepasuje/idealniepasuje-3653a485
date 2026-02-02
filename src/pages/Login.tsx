@@ -101,7 +101,7 @@ const Login = () => {
         <Card className="border-border/50 shadow-lg">
           <CardHeader className="text-center">
             <div className="flex items-center justify-center gap-2 mb-4">
-              <img src="/logo_idealnie_pasuje.png" alt="IdealniePasuje" className="h-10" />
+              <span className="text-xl font-bold">idealnie<span className="text-accent">pasuje</span></span>
             </div>
             <CardTitle className="text-2xl">{t("login.title")}</CardTitle>
             <CardDescription>{t("login.subtitle")}</CardDescription>
