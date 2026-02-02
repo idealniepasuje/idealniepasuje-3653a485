@@ -181,7 +181,17 @@ const EmployerDashboard = () => {
 
         {employerProfile?.profile_completed && (
           <section>
-            <h2 className="text-xl font-bold mb-4">{t("employer.dashboard.matchedCandidates")}</h2>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-bold">{t("employer.dashboard.matchedCandidates")}</h2>
+              {matches.length > 0 && (
+                <Link to="/employer/candidates">
+                  <Button variant="outline" size="sm" className="gap-2">
+                    {t("employer.dashboard.viewAllMatches")}
+                    <ChevronRight className="w-4 h-4" />
+                  </Button>
+                </Link>
+              )}
+            </div>
             {matches.length === 0 ? (
               <Card className="border-accent/20 bg-accent/5">
                 <CardContent className="pt-6 text-center py-12">
@@ -194,7 +204,7 @@ const EmployerDashboard = () => {
               </Card>
             ) : (
               <div className="grid gap-4">
-                {matches.map((match) => (
+                {matches.slice(0, 3).map((match) => (
                   <Card key={match.id} className="hover:shadow-lg transition-shadow">
                     <CardContent className="pt-6">
                       <div className="flex items-center justify-between">
@@ -216,6 +226,15 @@ const EmployerDashboard = () => {
                     </CardContent>
                   </Card>
                 ))}
+                {matches.length > 3 && (
+                  <Link to="/employer/candidates" className="block">
+                    <Card className="hover:shadow-lg transition-shadow border-dashed cursor-pointer">
+                      <CardContent className="py-4 text-center">
+                        <span className="text-muted-foreground">{t("employer.dashboard.andMoreCandidates", { count: matches.length - 3 })}</span>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                )}
               </div>
             )}
           </section>

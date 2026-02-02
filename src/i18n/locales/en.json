@@ -203,6 +203,8 @@
       "candidatesSubtitle": "View matched candidates",
       "view": "View",
       "matchedCandidates": "Matched candidates",
+      "viewAllMatches": "View all matches",
+      "andMoreCandidates": "...and {{count}} more candidates",
       "searchingCandidates": "Searching for ideal candidates",
       "searchingCandidatesDescription": "We're now working on finding the ideal candidate. When we find one, you'll receive a notification."
     },
