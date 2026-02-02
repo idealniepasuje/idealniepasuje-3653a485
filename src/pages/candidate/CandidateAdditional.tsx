@@ -77,6 +77,23 @@ const CandidateAdditional = () => {
     }
   };
 
+  const sendResultsEmail = async () => {
+    if (!user?.email) return;
+    try {
+      const feedbackUrl = `${window.location.origin}/candidate/feedback`;
+      await supabase.functions.invoke('send-candidate-results', {
+        body: { 
+          candidate_user_id: user.id,
+          candidate_email: user.email,
+          feedback_url: feedbackUrl
+        }
+      });
+      console.log('Results email sent successfully');
+    } catch (error) {
+      console.error('Error sending results email:', error);
+    }
+  };
+
   const handleSubmit = async () => {
     if (!user) return;
     if (!formData.industry || !formData.experience || !formData.positionLevel || !formData.wantsToChangeIndustry) {
@@ -96,8 +113,11 @@ const CandidateAdditional = () => {
       }).eq("user_id", user.id);
       if (error) throw error;
       
-      // Generate matches automatically after completing all tests
-      await generateMatches();
+      // Generate matches and send results email after completing all tests
+      await Promise.all([
+        generateMatches(),
+        sendResultsEmail()
+      ]);
       
       setShowSuccess(true);
       toast.success(t("candidate.additional.thankYouMessage"));
