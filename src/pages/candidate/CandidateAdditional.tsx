@@ -4,9 +4,9 @@ import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeft, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, CheckCircle2, Linkedin } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -28,7 +28,7 @@ const CandidateAdditional = () => {
     positionLevel: "",
     wantsToChangeIndustry: "",
     targetIndustries: [] as string[],
-    workDescription: "",
+    linkedinUrl: "",
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -55,7 +55,7 @@ const CandidateAdditional = () => {
           positionLevel: data.position_level || "",
           wantsToChangeIndustry: data.wants_to_change_industry || "",
           targetIndustries: [],
-          workDescription: data.work_description || "",
+          linkedinUrl: (data as any).linkedin_url || "",
         });
       }
     } catch (error) {
@@ -109,7 +109,7 @@ const CandidateAdditional = () => {
         experience: formData.experience,
         position_level: formData.positionLevel,
         wants_to_change_industry: formData.wantsToChangeIndustry,
-        work_description: formData.workDescription,
+        linkedin_url: formData.linkedinUrl,
         additional_completed: true,
         all_tests_completed: true,
       }).eq("user_id", user.id);
@@ -271,12 +271,15 @@ const CandidateAdditional = () => {
             </div>
 
             <div className="space-y-2">
-              <Label>{t("candidate.additional.workDescriptionLabel")}</Label>
-              <Textarea
-                placeholder={t("candidate.additional.workDescriptionPlaceholder")}
-                value={formData.workDescription}
-                onChange={(e) => setFormData(prev => ({ ...prev, workDescription: e.target.value }))}
-                rows={4}
+              <Label className="flex items-center gap-2">
+                <Linkedin className="w-4 h-4" />
+                {t("candidate.additional.linkedinLabel")}
+              </Label>
+              <Input
+                type="url"
+                placeholder={t("candidate.additional.linkedinPlaceholder")}
+                value={formData.linkedinUrl}
+                onChange={(e) => setFormData(prev => ({ ...prev, linkedinUrl: e.target.value }))}
               />
             </div>
 
