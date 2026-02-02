@@ -1,7 +1,8 @@
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { ArrowRight, Users, Building2, Sparkles, Target, Heart, CheckCircle2, ClipboardList, Search, Handshake } from "lucide-react";
+import { ArrowRight, Users, Building2, Target, Heart, CheckCircle2, ClipboardList, Search, Handshake } from "lucide-react";
+import logoImage from "@/assets/logo.png";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -25,9 +26,7 @@ const Index = () => {
       <header className="fixed top-0 left-0 right-0 z-50 bg-card/90 backdrop-blur-sm border-b border-border">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2">
-            <div className="w-10 h-10 rounded-lg bg-accent flex items-center justify-center">
-              <Sparkles className="w-6 h-6 text-accent-foreground" />
-            </div>
+            <img src={logoImage} alt="idealniepasuje logo" className="w-10 h-10" />
             <span className="text-xl font-bold text-foreground">idealnie<span className="text-accent">pasuje</span></span>
           </Link>
           <div className="flex items-center gap-4">
@@ -205,7 +204,7 @@ const Index = () => {
                 description: "Im bardziej autentyczne odpowiedzi, tym lepsze dopasowanie.",
               },
               {
-                icon: Sparkles,
+                icon: Target,
                 title: "Najlepsze dopasowanie",
                 description: "Szukamy miejsca, gdzie naprawdę będziesz mógł się rozwijać.",
               },
@@ -259,7 +258,7 @@ const Index = () => {
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-accent" />
+              <img src={logoImage} alt="idealniepasuje logo" className="w-5 h-5" />
               <span className="text-primary-foreground font-semibold">idealniepasuje</span>
             </div>
             <p className="text-primary-foreground/60 text-sm">
