@@ -8,6 +8,28 @@ export interface CompetencyQuestion {
   reversed: boolean;
 }
 
+export const getLocalizedCompetencyTests = (lang: string) => {
+  return lang === 'en' ? competencyTests.en : competencyTests.pl;
+};
+
+export const getLocalizedQuestionsByCompetency = (competencyCode: string, lang: string) => {
+  return competencyQuestions
+    .filter(q => q.competencyCode === competencyCode)
+    .map(q => ({
+      ...q,
+      text: lang === 'en' ? q.text.en : q.text.pl
+    }));
+};
+
+export const getQuestionsByCompetency = (competencyCode: string) => {
+  return competencyQuestions
+    .filter(q => q.competencyCode === competencyCode)
+    .map(q => ({
+      ...q,
+      text: q.text.pl // default to Polish
+    }));
+};
+
 export const competencyTests = {
   pl: {
     komunikacja: {
@@ -180,10 +202,3 @@ export const competencyQuestions: CompetencyQuestion[] = [
   { id: "UMIE_17", competencyCode: "adaptacja", subdimensionCode: "aprobata", text: { pl: "Zdarza mi się przedstawiać siebie w lepszym świetle, niż jest w rzeczywistości.", en: "I sometimes present myself in a better light than reality." }, reversed: true },
 ];
 
-export const getQuestionsByCompetency = (competencyCode: string): CompetencyQuestion[] => {
-  return competencyQuestions.filter(q => q.competencyCode === competencyCode);
-};
-
-export const getLocalizedCompetencyTests = (lang: string) => {
-  return lang === 'en' ? competencyTests.en : competencyTests.pl;
-};

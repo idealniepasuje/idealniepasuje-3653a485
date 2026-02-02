@@ -10,8 +10,8 @@ import { ArrowLeft, ArrowRight, CheckCircle2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { competencyTests, getQuestionsByCompetency } from "@/data/competencyQuestions";
-import { agreementScale } from "@/data/additionalQuestions";
+import { getLocalizedCompetencyTests, getLocalizedQuestionsByCompetency } from "@/data/competencyQuestions";
+import { getLocalizedData, agreementScale } from "@/data/additionalQuestions";
 import { getLevel, getFeedback } from "@/data/feedbackData";
 import { useQuestionTimer } from "@/hooks/useQuestionTimer";
 import { QuestionTimer } from "@/components/QuestionTimer";
@@ -21,7 +21,7 @@ const CompetencyTest = () => {
   const { competencyCode } = useParams<{ competencyCode: string }>();
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, number>>({});
@@ -31,7 +31,9 @@ const CompetencyTest = () => {
   const [showResults, setShowResults] = useState(false);
   const [averageScore, setAverageScore] = useState(0);
 
-  const questions = competencyCode ? getQuestionsByCompetency(competencyCode) : [];
+  const competencyTests = getLocalizedCompetencyTests(i18n.language);
+  const localizedAgreementScale = getLocalizedData(agreementScale, i18n.language);
+  const questions = competencyCode ? getLocalizedQuestionsByCompetency(competencyCode, i18n.language) : [];
   const testInfo = competencyCode ? competencyTests[competencyCode as keyof typeof competencyTests] : null;
 
   useEffect(() => {
@@ -225,7 +227,7 @@ const CompetencyTest = () => {
           </CardHeader>
           <CardContent>
             <RadioGroup value={answers[currentQuestion.id]?.toString()} onValueChange={(value) => handleAnswer(parseInt(value))} className="space-y-3">
-              {agreementScale.map((option) => (
+              {localizedAgreementScale.map((option) => (
                 <div key={option.value} className="flex items-center space-x-3 p-3 rounded-lg border border-border hover:bg-muted/50 transition-colors cursor-pointer">
                   <RadioGroupItem value={option.value.toString()} id={`option-${option.value}`} />
                   <Label htmlFor={`option-${option.value}`} className="flex-1 cursor-pointer">{option.label}</Label>

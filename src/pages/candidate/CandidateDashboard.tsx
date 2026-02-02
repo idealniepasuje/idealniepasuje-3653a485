@@ -8,16 +8,18 @@ import { Badge } from "@/components/ui/badge";
 import { LogOut, MessageSquare, Brain, Lightbulb, Target, RefreshCw, Users, ChevronRight, CheckCircle2, Clock, Play } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { competencyTests } from "@/data/competencyQuestions";
+import { getLocalizedCompetencyTests } from "@/data/competencyQuestions";
 import { logError } from "@/lib/errorLogger";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 
 const CandidateDashboard = () => {
   const { user, signOut, loading: authLoading } = useAuth();
   const navigate = useNavigate();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [testResults, setTestResults] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+
+  const competencyTests = getLocalizedCompetencyTests(i18n.language);
 
   useEffect(() => {
     if (!authLoading && !user) {

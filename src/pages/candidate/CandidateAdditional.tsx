@@ -10,13 +10,17 @@ import { ArrowLeft, CheckCircle2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { industries, experienceLevels, positionLevels, industryChangeOptions } from "@/data/additionalQuestions";
+import { industries, experienceLevels, positionLevels, industryChangeOptions, getLocalizedData } from "@/data/additionalQuestions";
 import { logError } from "@/lib/errorLogger";
 
 const CandidateAdditional = () => {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+
+  const localizedIndustries = getLocalizedData(industries, i18n.language);
+  const localizedPositionLevels = getLocalizedData(positionLevels, i18n.language);
+  const localizedIndustryChangeOptions = getLocalizedData(industryChangeOptions, i18n.language);
   
   const [formData, setFormData] = useState({
     industry: "",
@@ -157,7 +161,7 @@ const CandidateAdditional = () => {
               <Label>{t("candidate.additional.industryLabel")}</Label>
               <Select value={formData.industry} onValueChange={(value) => setFormData(prev => ({ ...prev, industry: value }))}>
                 <SelectTrigger><SelectValue placeholder={t("candidate.additional.industryPlaceholder")} /></SelectTrigger>
-                <SelectContent>{industries.map((industry) => <SelectItem key={industry} value={industry}>{industry}</SelectItem>)}</SelectContent>
+                <SelectContent>{localizedIndustries.map((industry) => <SelectItem key={industry} value={industry}>{industry}</SelectItem>)}</SelectContent>
               </Select>
             </div>
 
@@ -173,7 +177,7 @@ const CandidateAdditional = () => {
               <Label>{t("candidate.additional.positionLevelLabel")}</Label>
               <Select value={formData.positionLevel} onValueChange={(value) => setFormData(prev => ({ ...prev, positionLevel: value }))}>
                 <SelectTrigger><SelectValue placeholder={t("candidate.additional.positionLevelPlaceholder")} /></SelectTrigger>
-                <SelectContent>{positionLevels.map((level) => <SelectItem key={level} value={level}>{level}</SelectItem>)}</SelectContent>
+                <SelectContent>{localizedPositionLevels.map((level) => <SelectItem key={level} value={level}>{level}</SelectItem>)}</SelectContent>
               </Select>
             </div>
 
@@ -181,7 +185,7 @@ const CandidateAdditional = () => {
               <Label>{t("candidate.additional.changeIndustryLabel")}</Label>
               <Select value={formData.wantsToChangeIndustry} onValueChange={(value) => setFormData(prev => ({ ...prev, wantsToChangeIndustry: value }))}>
                 <SelectTrigger><SelectValue placeholder={t("candidate.additional.changeIndustryPlaceholder")} /></SelectTrigger>
-                <SelectContent>{industryChangeOptions.map((option) => <SelectItem key={option} value={option}>{option}</SelectItem>)}</SelectContent>
+                <SelectContent>{localizedIndustryChangeOptions.map((option) => <SelectItem key={option} value={option}>{option}</SelectItem>)}</SelectContent>
               </Select>
             </div>
 
