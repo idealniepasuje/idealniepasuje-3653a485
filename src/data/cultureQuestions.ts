@@ -168,3 +168,17 @@ export const getQuestionsByDimension = (dimensionCode: string, itemType: 'candid
 export const getLocalizedCultureDimensions = (lang: string) => {
   return lang === 'en' ? cultureDimensions.en : cultureDimensions.pl;
 };
+
+export const getLocalizedCultureQuestions = (lang: string) => {
+  return candidateCultureQuestions.map(q => ({
+    ...q,
+    text: lang === 'en' ? q.text.en : q.text.pl
+  }));
+};
+
+export const getLocalizedEmployerCultureQuestions = (lang: string) => {
+  return employerCultureQuestions.map(q => ({
+    ...q,
+    text: lang === 'en' ? q.text.en : q.text.pl
+  }));
+};

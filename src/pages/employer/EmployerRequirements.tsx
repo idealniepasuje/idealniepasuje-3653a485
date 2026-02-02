@@ -10,16 +10,20 @@ import { ArrowLeft } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { industries, experienceLevels, positionLevels, competencyLabels } from "@/data/additionalQuestions";
+import { industries, experienceLevels, positionLevels, competencyLabels, getLocalizedData } from "@/data/additionalQuestions";
 
 const EmployerRequirements = () => {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [formData, setFormData] = useState({ industry: "", requiredExperience: "", positionLevel: "", acceptedIndustries: [] as string[] });
   const [competencyReqs, setCompetencyReqs] = useState({ komunikacja: 3, myslenie_analityczne: 3, out_of_the_box: 3, determinacja: 3, adaptacja: 3 });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+
+  const localizedIndustries = getLocalizedData(industries, i18n.language);
+  const localizedPositionLevels = getLocalizedData(positionLevels, i18n.language);
+  const localizedCompetencyLabels = getLocalizedData(competencyLabels, i18n.language);
 
   useEffect(() => {
     if (!authLoading && !user) { navigate("/login"); return; }
@@ -53,11 +57,11 @@ const EmployerRequirements = () => {
       <main className="container mx-auto px-4 py-8 max-w-2xl">
         <h1 className="text-2xl font-bold mb-6">{t("employer.requirements.title")}</h1>
         <Card><CardContent className="pt-6 space-y-6">
-          <div><Label>{t("employer.requirements.industryLabel")}</Label><Select value={formData.industry} onValueChange={(v) => setFormData(p => ({...p, industry: v}))}><SelectTrigger><SelectValue placeholder={t("employer.requirements.selectPlaceholder")} /></SelectTrigger><SelectContent>{industries.map(i => <SelectItem key={i} value={i}>{i}</SelectItem>)}</SelectContent></Select></div>
+          <div><Label>{t("employer.requirements.industryLabel")}</Label><Select value={formData.industry} onValueChange={(v) => setFormData(p => ({...p, industry: v}))}><SelectTrigger><SelectValue placeholder={t("employer.requirements.selectPlaceholder")} /></SelectTrigger><SelectContent>{localizedIndustries.map(i => <SelectItem key={i} value={i}>{i}</SelectItem>)}</SelectContent></Select></div>
           <div><Label>{t("employer.requirements.experienceLabel")}</Label><Select value={formData.requiredExperience} onValueChange={(v) => setFormData(p => ({...p, requiredExperience: v}))}><SelectTrigger><SelectValue placeholder={t("employer.requirements.selectPlaceholder")} /></SelectTrigger><SelectContent>{experienceLevels.map(l => <SelectItem key={l} value={l}>{l} {t("common.years")}</SelectItem>)}</SelectContent></Select></div>
-          <div><Label>{t("employer.requirements.positionLevelLabel")}</Label><Select value={formData.positionLevel} onValueChange={(v) => setFormData(p => ({...p, positionLevel: v}))}><SelectTrigger><SelectValue placeholder={t("employer.requirements.selectPlaceholder")} /></SelectTrigger><SelectContent>{positionLevels.map(l => <SelectItem key={l} value={l}>{l}</SelectItem>)}</SelectContent></Select></div>
+          <div><Label>{t("employer.requirements.positionLevelLabel")}</Label><Select value={formData.positionLevel} onValueChange={(v) => setFormData(p => ({...p, positionLevel: v}))}><SelectTrigger><SelectValue placeholder={t("employer.requirements.selectPlaceholder")} /></SelectTrigger><SelectContent>{localizedPositionLevels.map(l => <SelectItem key={l} value={l}>{l}</SelectItem>)}</SelectContent></Select></div>
           <div className="border-t pt-6"><h3 className="font-semibold mb-4">{t("employer.requirements.competencyImportance")}</h3>
-            {Object.entries(competencyLabels).map(([key, label]) => (
+            {Object.entries(localizedCompetencyLabels).map(([key, label]) => (
               <div key={key} className="mb-4"><div className="flex justify-between mb-2"><span className="text-sm">{label}</span><span className="text-sm font-medium">{competencyReqs[key as keyof typeof competencyReqs]}</span></div>
                 <Slider value={[competencyReqs[key as keyof typeof competencyReqs]]} onValueChange={([v]) => setCompetencyReqs(p => ({...p, [key]: v}))} min={1} max={5} step={1} /></div>
             ))}
