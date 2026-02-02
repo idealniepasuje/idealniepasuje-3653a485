@@ -196,132 +196,85 @@ const handler = async (req: Request): Promise<Response> => {
       `;
     }
 
-    const emailHtml = `
-<!DOCTYPE html>
-<html lang="pl">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Podsumowanie profilu pracodawcy</title>
-</head>
-<body style="margin: 0; padding: 0; font-family: 'Lato', 'Segoe UI', Roboto, sans-serif; background-color: #f5f7fa; line-height: 1.6;">
-  <table role="presentation" style="width: 100%; border-collapse: collapse; background-color: #f5f7fa;">
-    <tr>
-      <td style="padding: 40px 20px;">
-        <table role="presentation" style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,0.08);">
-          
-          <!-- Header with gradient -->
-          <tr>
-            <td style="background: linear-gradient(135deg, #00B2C5 0%, #233448 100%); padding: 40px 30px; text-align: center;">
-              <h1 style="color: #ffffff; margin: 0; font-size: 26px; font-weight: 700;">
-                Dziękujemy za wypełnienie formularzy!
-              </h1>
-              <p style="color: rgba(255,255,255,0.9); margin: 10px 0 0 0; font-size: 16px;">
-                Oto podsumowanie Twojego profilu pracodawcy
-              </p>
-            </td>
-          </tr>
-          
-          <!-- Greeting -->
-          <tr>
-            <td style="padding: 30px 30px 20px 30px;">
-              <p style="color: #233448; font-size: 18px; margin: 0;">
-                Cześć <strong>${employerName}</strong>,
-              </p>
-              <p style="color: #555; font-size: 15px; margin: 15px 0 0 0;">
-                Dziękujemy za wypełnienie formularzy w naszym prototypie serwisu rekrutacyjnego. Poniżej znajdziesz podsumowanie preferowanych kompetencji od potencjalnego kandydata.
-              </p>
-            </td>
-          </tr>
-          
-          <!-- Competency Requirements Section -->
-          <tr>
-            <td style="padding: 0 30px 20px 30px;">
-              <h2 style="color: #233448; font-size: 18px; margin: 0 0 15px 0; padding-bottom: 10px; border-bottom: 2px solid #00B2C5;">
-                📊 Preferowane kompetencje kandydata
-              </h2>
-              <table role="presentation" style="width: 100%;">
-                ${competencyHtml}
-              </table>
-            </td>
-          </tr>
-          
-          <!-- Culture Section -->
-          <tr>
-            <td style="padding: 0 30px 20px 30px;">
-              <h2 style="color: #233448; font-size: 18px; margin: 0 0 15px 0; padding-bottom: 10px; border-bottom: 2px solid #FECA41;">
-                🏢 Kultura organizacji pracy w Twojej firmie
-              </h2>
-              <table role="presentation" style="width: 100%;">
-                ${cultureHtml}
-              </table>
-            </td>
-          </tr>
-          
-          <!-- Next Steps -->
-          <tr>
-            <td style="padding: 0 30px 25px 30px;">
-              <div style="background: linear-gradient(135deg, #f0f9fa 0%, #e8f4f5 100%); border-radius: 12px; padding: 20px;">
-                <h3 style="color: #233448; font-size: 16px; margin: 0 0 12px 0;">Co dalej?</h3>
-                <p style="color: #555; font-size: 14px; margin: 0 0 10px 0;">
-                  ✉️ Jeśli w naszej bazie pojawi się kandydat spełniający Twoje oczekiwania, od razu poinformujemy Cię mailowo o dopasowaniu.
-                </p>
-                <p style="color: #555; font-size: 14px; margin: 0;">
-                  🔍 Aktywnie szukamy kandydatów, którzy najlepiej pasują do Twojego profilu organizacji.
-                </p>
-              </div>
-            </td>
-          </tr>
-          
-          <!-- Feedback Request -->
-          <tr>
-            <td style="padding: 0 30px 30px 30px;">
-              <div style="background: #fff9e6; border: 1px solid #FECA41; border-radius: 12px; padding: 20px; text-align: center;">
-                <p style="color: #233448; font-size: 15px; margin: 0 0 15px 0;">
-                  <strong>Bardzo dziękujemy za udział w badaniu!</strong><br>
-                  Rozwijamy nasz pomysł i sprawdzamy, czy działa w taki sposób, aby łączył odpowiedniego kandydata z odpowiednim pracodawcą.
-                </p>
-                <p style="color: #666; font-size: 14px; margin: 0 0 20px 0;">
-                  Jeśli chcesz nam jeszcze bardziej pomóc, będziemy wdzięczni za wypełnienie krótkiej ankiety.
-                </p>
-                <a href="${feedbackLink}" style="display: inline-block; background: linear-gradient(135deg, #FECA41 0%, #f5b82e 100%); color: #233448; text-decoration: none; padding: 14px 35px; border-radius: 8px; font-weight: 700; font-size: 15px; box-shadow: 0 4px 12px rgba(254, 202, 65, 0.4);">
-                  Wypełnij ankietę
-                </a>
-              </div>
-            </td>
-          </tr>
-          
-          <!-- Prototype Note -->
-          <tr>
-            <td style="padding: 0 30px 25px 30px;">
-              <p style="color: #888; font-size: 13px; margin: 0; font-style: italic;">
-                Pamiętaj, wiemy że jeszcze wiele pracy przed nami - obecnie prezentowany format to prototyp. Docelowo chcemy, aby każdy użytkownik miał swój profil, podgląd do danych i był informowany o wynikach na bieżąco w serwisie.
-              </p>
-            </td>
-          </tr>
-          
-          <!-- Footer -->
-          <tr>
-            <td style="background-color: #f8f9fa; padding: 25px 30px; text-align: center; border-top: 1px solid #eee;">
-              <p style="color: #888; font-size: 14px; margin: 0 0 10px 0;">
-                Powodzenia w rekrutacji!
-              </p>
-              <p style="color: #00B2C5; font-size: 16px; font-weight: 700; margin: 0;">
-                Zespół <span style="color: #233448;">idealnie</span><span style="color: #FECA41;">pasuje</span>
-              </p>
-              <p style="color: #aaa; font-size: 12px; margin: 15px 0 0 0;">
-                © 2026 idealniepasuje. Wszystkie prawa zastrzeżone.
-              </p>
-            </td>
-          </tr>
-          
-        </table>
-      </td>
-    </tr>
-  </table>
-</body>
-</html>
-    `.trim();
+    // Build email HTML without trailing spaces to avoid =20 encoding issues
+    const emailHtml = [
+      '<!DOCTYPE html>',
+      '<html lang="pl">',
+      '<head>',
+      '<meta charset="UTF-8">',
+      '<meta name="viewport" content="width=device-width, initial-scale=1.0">',
+      '<title>Podsumowanie profilu pracodawcy</title>',
+      '</head>',
+      '<body style="margin:0;padding:0;font-family:Lato,Segoe UI,Roboto,sans-serif;background-color:#f5f7fa;line-height:1.6;">',
+      '<table role="presentation" style="width:100%;border-collapse:collapse;background-color:#f5f7fa;">',
+      '<tr>',
+      '<td style="padding:40px 20px;">',
+      '<table role="presentation" style="max-width:600px;margin:0 auto;background-color:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">',
+      '<tr>',
+      `<td style="background:linear-gradient(135deg,#00B2C5 0%,#233448 100%);padding:40px 30px;text-align:center;">`,
+      '<h1 style="color:#ffffff;margin:0;font-size:26px;font-weight:700;">Dziękujemy za wypełnienie formularzy!</h1>',
+      '<p style="color:rgba(255,255,255,0.9);margin:10px 0 0 0;font-size:16px;">Oto podsumowanie Twojego profilu pracodawcy</p>',
+      '</td>',
+      '</tr>',
+      '<tr>',
+      '<td style="padding:30px 30px 20px 30px;">',
+      `<p style="color:#233448;font-size:18px;margin:0;">Cześć <strong>${employerName}</strong>,</p>`,
+      '<p style="color:#555;font-size:15px;margin:15px 0 0 0;">Dziękujemy za wypełnienie formularzy w naszym prototypie serwisu rekrutacyjnego. Poniżej znajdziesz podsumowanie preferowanych kompetencji od potencjalnego kandydata.</p>',
+      '</td>',
+      '</tr>',
+      '<tr>',
+      '<td style="padding:0 30px 20px 30px;">',
+      '<h2 style="color:#233448;font-size:18px;margin:0 0 15px 0;padding-bottom:10px;border-bottom:2px solid #00B2C5;">📊 Preferowane kompetencje kandydata</h2>',
+      '<table role="presentation" style="width:100%;">',
+      competencyHtml,
+      '</table>',
+      '</td>',
+      '</tr>',
+      '<tr>',
+      '<td style="padding:0 30px 20px 30px;">',
+      '<h2 style="color:#233448;font-size:18px;margin:0 0 15px 0;padding-bottom:10px;border-bottom:2px solid #FECA41;">🏢 Kultura organizacji pracy w Twojej firmie</h2>',
+      '<table role="presentation" style="width:100%;">',
+      cultureHtml,
+      '</table>',
+      '</td>',
+      '</tr>',
+      '<tr>',
+      '<td style="padding:0 30px 25px 30px;">',
+      '<div style="background:linear-gradient(135deg,#f0f9fa 0%,#e8f4f5 100%);border-radius:12px;padding:20px;">',
+      '<h3 style="color:#233448;font-size:16px;margin:0 0 12px 0;">Co dalej?</h3>',
+      '<p style="color:#555;font-size:14px;margin:0 0 10px 0;">✉️ Jeśli w naszej bazie pojawi się kandydat spełniający Twoje oczekiwania, od razu poinformujemy Cię mailowo o dopasowaniu.</p>',
+      '<p style="color:#555;font-size:14px;margin:0;">🔍 Aktywnie szukamy kandydatów, którzy najlepiej pasują do Twojego profilu organizacji.</p>',
+      '</div>',
+      '</td>',
+      '</tr>',
+      '<tr>',
+      '<td style="padding:0 30px 30px 30px;">',
+      '<div style="background:#fff9e6;border:1px solid #FECA41;border-radius:12px;padding:20px;text-align:center;">',
+      '<p style="color:#233448;font-size:15px;margin:0 0 15px 0;"><strong>Bardzo dziękujemy za udział w badaniu!</strong><br>Rozwijamy nasz pomysł i sprawdzamy, czy działa w taki sposób, aby łączył odpowiedniego kandydata z odpowiednim pracodawcą.</p>',
+      '<p style="color:#666;font-size:14px;margin:0 0 20px 0;">Jeśli chcesz nam jeszcze bardziej pomóc, będziemy wdzięczni za wypełnienie krótkiej ankiety.</p>',
+      `<a href="${feedbackLink}" target="_blank" style="display:inline-block;background:linear-gradient(135deg,#FECA41 0%,#f5b82e 100%);color:#233448;text-decoration:none;padding:14px 35px;border-radius:8px;font-weight:700;font-size:15px;">Wypełnij ankietę</a>`,
+      '</div>',
+      '</td>',
+      '</tr>',
+      '<tr>',
+      '<td style="padding:0 30px 25px 30px;">',
+      '<p style="color:#888;font-size:13px;margin:0;font-style:italic;">Pamiętaj, wiemy że jeszcze wiele pracy przed nami - obecnie prezentowany format to prototyp. Docelowo chcemy, aby każdy użytkownik miał swój profil, podgląd do danych i był informowany o wynikach na bieżąco w serwisie.</p>',
+      '</td>',
+      '</tr>',
+      '<tr>',
+      '<td style="background-color:#f8f9fa;padding:25px 30px;text-align:center;border-top:1px solid #eee;">',
+      '<p style="color:#888;font-size:14px;margin:0 0 10px 0;">Powodzenia w rekrutacji!</p>',
+      '<p style="color:#00B2C5;font-size:16px;font-weight:700;margin:0;">Zespół <span style="color:#233448;">idealnie</span><span style="color:#FECA41;">pasuje</span></p>',
+      '<p style="color:#aaa;font-size:12px;margin:15px 0 0 0;">© 2026 idealniepasuje. Wszystkie prawa zastrzeżone.</p>',
+      '</td>',
+      '</tr>',
+      '</table>',
+      '</td>',
+      '</tr>',
+      '</table>',
+      '</body>',
+      '</html>'
+    ].join('');
 
     // Send email via Gmail SMTP
     const client = new SMTPClient({
