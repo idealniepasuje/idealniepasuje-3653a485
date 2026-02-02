@@ -63,6 +63,20 @@ const CandidateAdditional = () => {
     }
   };
 
+  const generateMatches = async () => {
+    if (!user) return;
+    try {
+      const response = await supabase.functions.invoke('generate-candidate-matches', {
+        body: { candidate_user_id: user.id }
+      });
+      if (response.data?.matches_count > 0) {
+        toast.success(t("candidate.additional.matchesGenerated", { count: response.data.matches_count }));
+      }
+    } catch (error) {
+      console.error('Error generating matches:', error);
+    }
+  };
+
   const handleSubmit = async () => {
     if (!user) return;
     if (!formData.industry || !formData.experience || !formData.positionLevel || !formData.wantsToChangeIndustry) {
@@ -81,6 +95,10 @@ const CandidateAdditional = () => {
         all_tests_completed: true,
       }).eq("user_id", user.id);
       if (error) throw error;
+      
+      // Generate matches automatically after completing all tests
+      await generateMatches();
+      
       setShowSuccess(true);
       toast.success(t("candidate.additional.thankYouMessage"));
     } catch (error) {
