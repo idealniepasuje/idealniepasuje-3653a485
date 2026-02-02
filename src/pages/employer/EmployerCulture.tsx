@@ -115,7 +115,7 @@ const EmployerCulture = () => {
   }, [currentQuestionIndex, questions, answers, handleNext]);
 
   const { timeLeft, progress: timerProgress } = useQuestionTimer({
-    duration: 13,
+    duration: 25,
     onTimeUp: handleTimeUp,
     questionId: questions[currentQuestionIndex]?.id || "",
     enabled: !showResults && !loading && !authLoading,
