@@ -236,8 +236,7 @@ const CandidateAdditional = () => {
               </Select>
             </div>
 
-            {(formData.wantsToChangeIndustry === "Tak" || formData.wantsToChangeIndustry === "Yes" || 
-              formData.wantsToChangeIndustry === "Jestem otwarty/a" || formData.wantsToChangeIndustry === "I'm open to it") && (
+            {(formData.wantsToChangeIndustry === "Tak" || formData.wantsToChangeIndustry === "Yes") && (
               <div className="space-y-2">
                 <Label>{t("candidate.additional.targetIndustriesLabel")}</Label>
                 <Select 
