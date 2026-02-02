@@ -206,22 +206,6 @@ const CandidateAdditional = () => {
             </div>
 
             <div className="space-y-2">
-              <Label>{t("candidate.additional.experienceLabel")}</Label>
-              <Select value={formData.experience} onValueChange={(value) => setFormData(prev => ({ ...prev, experience: value }))}>
-                <SelectTrigger><SelectValue placeholder={t("candidate.additional.experiencePlaceholder")} /></SelectTrigger>
-                <SelectContent>{experienceLevels.map((level) => <SelectItem key={level} value={level}>{level} {t("common.years")}</SelectItem>)}</SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label>{t("candidate.additional.positionLevelLabel")}</Label>
-              <Select value={formData.positionLevel} onValueChange={(value) => setFormData(prev => ({ ...prev, positionLevel: value }))}>
-                <SelectTrigger><SelectValue placeholder={t("candidate.additional.positionLevelPlaceholder")} /></SelectTrigger>
-                <SelectContent>{localizedPositionLevels.map((level) => <SelectItem key={level} value={level}>{level}</SelectItem>)}</SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
               <Label>{t("candidate.additional.changeIndustryLabel")}</Label>
               <Select 
                 value={formData.wantsToChangeIndustry} 
@@ -269,6 +253,22 @@ const CandidateAdditional = () => {
                 )}
               </div>
             )}
+
+            <div className="space-y-2">
+              <Label>{t("candidate.additional.experienceLabel")}</Label>
+              <Select value={formData.experience} onValueChange={(value) => setFormData(prev => ({ ...prev, experience: value }))}>
+                <SelectTrigger><SelectValue placeholder={t("candidate.additional.experiencePlaceholder")} /></SelectTrigger>
+                <SelectContent>{experienceLevels.map((level) => <SelectItem key={level} value={level}>{level} {t("common.years")}</SelectItem>)}</SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label>{t("candidate.additional.positionLevelLabel")}</Label>
+              <Select value={formData.positionLevel} onValueChange={(value) => setFormData(prev => ({ ...prev, positionLevel: value }))}>
+                <SelectTrigger><SelectValue placeholder={t("candidate.additional.positionLevelPlaceholder")} /></SelectTrigger>
+                <SelectContent>{localizedPositionLevels.map((level) => <SelectItem key={level} value={level}>{level}</SelectItem>)}</SelectContent>
+              </Select>
+            </div>
 
             <div className="space-y-2">
               <Label>{t("candidate.additional.workDescriptionLabel")}</Label>
