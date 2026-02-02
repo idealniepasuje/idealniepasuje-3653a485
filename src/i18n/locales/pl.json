@@ -226,7 +226,8 @@
       "rateStatement": "Oceń, na ile poniższe stwierdzenie opisuje Waszą organizację",
       "profileCompleted": "Profil ukończony!",
       "profileCompletedDescription": "Teraz my zajmujemy się znalezieniem idealnego kandydata. Gdy tylko go znajdziemy, otrzymasz powiadomienie.",
-      "completedMessage": "Profil ukończony!"
+      "completedMessage": "Profil ukończony!",
+      "matchesGenerated": "Znaleziono {{count}} dopasowanych kandydatów!"
     },
     "candidates": {
       "title": "Dopasowani kandydaci",
