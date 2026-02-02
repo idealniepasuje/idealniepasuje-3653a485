@@ -17,6 +17,7 @@ const CultureTest = lazy(() => import("./pages/candidate/CultureTest"));
 const CandidateAdditional = lazy(() => import("./pages/candidate/CandidateAdditional"));
 const CandidateMatches = lazy(() => import("./pages/candidate/CandidateMatches"));
 const CandidateEmployerDetail = lazy(() => import("./pages/candidate/CandidateEmployerDetail"));
+const CandidateFeedback = lazy(() => import("./pages/candidate/CandidateFeedback"));
 const EmployerDashboard = lazy(() => import("./pages/employer/EmployerDashboard"));
 const EmployerRole = lazy(() => import("./pages/employer/EmployerRole"));
 const EmployerRequirements = lazy(() => import("./pages/employer/EmployerRequirements"));
@@ -53,6 +54,7 @@ const App = () => (
               <Route path="/candidate/additional" element={<ProtectedRoute allowedUserType="candidate"><CandidateAdditional /></ProtectedRoute>} />
               <Route path="/candidate/matches" element={<ProtectedRoute allowedUserType="candidate"><CandidateMatches /></ProtectedRoute>} />
               <Route path="/candidate/employer/:employerId" element={<ProtectedRoute allowedUserType="candidate"><CandidateEmployerDetail /></ProtectedRoute>} />
+              <Route path="/candidate/feedback" element={<ProtectedRoute allowedUserType="candidate"><CandidateFeedback /></ProtectedRoute>} />
               {/* Employer routes - protected and validated */}
               <Route path="/employer/dashboard" element={<ProtectedRoute allowedUserType="employer"><EmployerDashboard /></ProtectedRoute>} />
               <Route path="/employer/role" element={<ProtectedRoute allowedUserType="employer"><EmployerRole /></ProtectedRoute>} />
