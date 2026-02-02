@@ -50,7 +50,6 @@ const EmployerRole = () => {
           <div><Label>{t("employer.role.roleDescriptionLabel")}</Label><Textarea value={formData.roleDescription} onChange={(e) => setFormData(p => ({...p, roleDescription: e.target.value}))} rows={3} /></div>
           <div><Label>{t("employer.role.responsibilitiesLabel")}</Label><Textarea value={formData.roleResponsibilities} onChange={(e) => setFormData(p => ({...p, roleResponsibilities: e.target.value}))} rows={4} /></div>
           <Button onClick={handleSubmit} disabled={saving} className="w-full bg-cta text-cta-foreground">{saving ? t("common.saving") : t("common.saveAndContinue")}</Button>
-          <Button onClick={handleSubmit} disabled={saving} className="w-full bg-cta text-cta-foreground">{saving ? t("common.saving") : t("common.saveAndContinue")}</Button>
         </CardContent></Card>
       </main>
     </div>
