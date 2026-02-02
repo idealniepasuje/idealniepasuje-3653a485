@@ -31,6 +31,7 @@
     "awaiting": "Awaiting",
     "seeResults": "See results",
     "viewProfile": "View profile",
+    "viewDetails": "View details",
     "or": "or",
     "email": "Email",
     "password": "Password",
@@ -139,8 +140,33 @@
       "contextualData": "Contextual data",
       "contextualDataDescription": "Industry, experience and preferences",
       "yourMatches": "Your matches",
+      "viewAllMatches": "View all matches",
+      "andMoreEmployers": "...and {{count}} more employers",
       "searchingMatches": "Searching for ideal matches",
       "searchingMatchesDescription": "Now it's our turn. We'll be looking for your ideal employer. When a matched offer appears, you'll receive a notification."
+    },
+    "matches": {
+      "title": "Matched employers",
+      "subtitle": "List of companies that best match your profile.",
+      "noMatches": "No matched employers",
+      "oneMatch": "matched employer",
+      "multipleMatches": "matched employers",
+      "searchingTitle": "Searching for ideal employers",
+      "searchingDescription": "We don't have any employers matching your profile yet. When we find suitable companies, they'll appear here.",
+      "company": "Company"
+    },
+    "employerDetail": {
+      "notFound": "Match not found",
+      "roleDescription": "Role description",
+      "strengths": "Your strengths",
+      "areasToImprove": "Areas to improve",
+      "competencies": "Competency match",
+      "culture": "Culture match",
+      "additionalCriteria": "Additional criteria",
+      "yourScore": "Your score",
+      "requirement": "Requirement",
+      "companyScore": "Company",
+      "backToList": "Back to list"
     },
     "test": {
       "testCompleted": "Test completed!",

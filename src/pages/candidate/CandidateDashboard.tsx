@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { LogOut, MessageSquare, Brain, Lightbulb, Target, RefreshCw, Users, ChevronRight, CheckCircle2, Clock, Play } from "lucide-react";
+import { LogOut, MessageSquare, Brain, Lightbulb, Target, RefreshCw, Users, ChevronRight, CheckCircle2, Clock, Play, Building2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { getLocalizedCompetencyTests } from "@/data/competencyQuestions";
@@ -17,6 +17,8 @@ const CandidateDashboard = () => {
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
   const [testResults, setTestResults] = useState<any>(null);
+  const [matches, setMatches] = useState<any[]>([]);
+  const [employers, setEmployers] = useState<Record<string, any>>({});
   const [loading, setLoading] = useState(true);
 
   const competencyTests = getLocalizedCompetencyTests(i18n.language);
@@ -26,7 +28,10 @@ const CandidateDashboard = () => {
       navigate("/login");
       return;
     }
-    if (user) fetchTestResults();
+    if (user) {
+      fetchTestResults();
+      fetchMatches();
+    }
   }, [user, authLoading, navigate]);
 
   const fetchTestResults = async () => {
@@ -43,6 +48,41 @@ const CandidateDashboard = () => {
       logError("CandidateDashboard.fetchTestResults", error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchMatches = async () => {
+    if (!user) return;
+    try {
+      const { data: matchData, error: matchError } = await supabase
+        .from("match_results")
+        .select("*")
+        .eq("candidate_user_id", user.id)
+        .order("overall_percent", { ascending: false });
+      
+      if (matchError) {
+        logError("CandidateDashboard.fetchMatches", matchError);
+      } else {
+        setMatches(matchData || []);
+        
+        if (matchData && matchData.length > 0) {
+          const employerIds = matchData.map(m => m.employer_user_id);
+          const { data: employerData, error: employerError } = await supabase
+            .from("employer_profiles")
+            .select("user_id, company_name")
+            .in("user_id", employerIds);
+          
+          if (!employerError && employerData) {
+            const employerMap: Record<string, any> = {};
+            employerData.forEach(emp => {
+              employerMap[emp.user_id] = emp;
+            });
+            setEmployers(employerMap);
+          }
+        }
+      }
+    } catch (error) {
+      logError("CandidateDashboard.fetchMatches", error);
     }
   };
 
@@ -243,16 +283,66 @@ const CandidateDashboard = () => {
 
         {testResults?.all_tests_completed && (
           <section>
-            <h2 className="text-xl font-bold mb-4">{t("candidate.dashboard.yourMatches")}</h2>
-            <Card className="border-accent/20 bg-accent/5">
-              <CardContent className="pt-6 text-center py-12">
-                <div className="w-12 h-12 rounded-full bg-accent/20 mx-auto mb-4 flex items-center justify-center">
-                  <Target className="w-6 h-6 text-accent" />
-                </div>
-                <h3 className="text-lg font-semibold mb-2">{t("candidate.dashboard.searchingMatches")}</h3>
-                <p className="text-muted-foreground max-w-md mx-auto">{t("candidate.dashboard.searchingMatchesDescription")}</p>
-              </CardContent>
-            </Card>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-bold">{t("candidate.dashboard.yourMatches")}</h2>
+              {matches.length > 0 && (
+                <Link to="/candidate/matches">
+                  <Button variant="outline" size="sm" className="gap-2">
+                    {t("candidate.dashboard.viewAllMatches")}
+                    <ChevronRight className="w-4 h-4" />
+                  </Button>
+                </Link>
+              )}
+            </div>
+            {matches.length === 0 ? (
+              <Card className="border-accent/20 bg-accent/5">
+                <CardContent className="pt-6 text-center py-12">
+                  <div className="w-12 h-12 rounded-full bg-accent/20 mx-auto mb-4 flex items-center justify-center">
+                    <Target className="w-6 h-6 text-accent" />
+                  </div>
+                  <h3 className="text-lg font-semibold mb-2">{t("candidate.dashboard.searchingMatches")}</h3>
+                  <p className="text-muted-foreground max-w-md mx-auto">{t("candidate.dashboard.searchingMatchesDescription")}</p>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="grid gap-4">
+                {matches.slice(0, 3).map((match) => {
+                  const employer = employers[match.employer_user_id];
+                  return (
+                    <Card key={match.id} className="hover:shadow-lg transition-shadow">
+                      <CardContent className="pt-6">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-4">
+                            <div className="w-12 h-12 rounded-full bg-accent/20 flex items-center justify-center">
+                              <Building2 className="w-6 h-6 text-accent" />
+                            </div>
+                            <div>
+                              <h3 className="font-semibold">{employer?.company_name || t("candidate.matches.company")}</h3>
+                              <p className="text-sm text-muted-foreground">{t("common.totalMatch")}: {match.overall_percent}%</p>
+                            </div>
+                          </div>
+                          <Link to={`/candidate/employer/${match.employer_user_id}`}>
+                            <Button variant="outline" className="gap-2">
+                              {t("common.viewProfile")}
+                              <ChevronRight className="w-4 h-4" />
+                            </Button>
+                          </Link>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+                {matches.length > 3 && (
+                  <Link to="/candidate/matches" className="block">
+                    <Card className="hover:shadow-lg transition-shadow border-dashed cursor-pointer">
+                      <CardContent className="py-4 text-center">
+                        <span className="text-muted-foreground">{t("candidate.dashboard.andMoreEmployers", { count: matches.length - 3 })}</span>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                )}
+              </div>
+            )}
           </section>
         )}
       </main>
