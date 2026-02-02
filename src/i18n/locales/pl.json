@@ -341,7 +341,14 @@
       "candidateScore": "Kandydat",
       "yourRequirement": "Twoje wymaganie",
       "yourScore": "Twoja organizacja",
-      "backToList": "Wróć do listy"
+      "backToList": "Wróć do listy",
+      "whyGoodMatch": "Dlaczego to dobre dopasowanie?",
+      "matchExplanation": "{{name}} wykazuje {{percent}}% zgodności z Twoim profilem organizacji. Oto kluczowe obszary dopasowania:",
+      "thisCandidate": "Ten kandydat",
+      "markInterested": "Czy jesteś zainteresowany?",
+      "interested": "Zainteresowany",
+      "interestMarked": "Oznaczono zainteresowanie kandydatem",
+      "interestRemoved": "Usunięto zainteresowanie kandydatem"
     }
   },
   "errors": {
