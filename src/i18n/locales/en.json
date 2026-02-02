@@ -127,7 +127,8 @@
   "candidate": {
     "dashboard": {
       "introTitle": "Introduction",
-      "introGreeting": "Hi, you're now starting to create your profile in our recruitment service prototype. Answering the questions will take about 50 minutes, so find a place where no one will disturb you during this time.",
+      "introSubtitle": "Discover your potential and see how much you can really achieve.",
+      "introGreeting": "You're now starting to create your profile in our recruitment service prototype. Answering the questions will take about 50 minutes, so find a place where no one will disturb you during this time.",
       "introBeforeYou": "Before you:",
       "introPoint1": "5 competency forms whose results will reflect the professional preferences of a potential candidate",
       "introPoint2": "Work culture assessment - what conditions and atmosphere are in your company",

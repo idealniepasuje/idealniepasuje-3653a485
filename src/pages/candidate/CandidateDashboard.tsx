@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { LogOut, MessageSquare, Brain, Lightbulb, Target, RefreshCw, Users, ChevronRight, CheckCircle2, Clock, Play, Building2 } from "lucide-react";
+import { LogOut, MessageSquare, Brain, Lightbulb, Target, RefreshCw, Users, ChevronRight, CheckCircle2, Clock, Play, Building2, ClipboardList, Heart, Briefcase, Sparkles } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { getLocalizedCompetencyTests } from "@/data/competencyQuestions";
@@ -146,27 +146,55 @@ const CandidateDashboard = () => {
       </header>
 
       <main className="container mx-auto px-4 py-8">
-        {/* Introduction section */}
-        <Card className="mb-8 border-primary/20 bg-primary/5">
-          <CardHeader>
-            <CardTitle className="text-xl">{t("candidate.dashboard.introTitle")}</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <p>{t("candidate.dashboard.introGreeting")}</p>
-            <p className="font-medium">{t("candidate.dashboard.introBeforeYou")}</p>
-            <ul className="list-disc list-inside space-y-1 text-muted-foreground">
-              <li>{t("candidate.dashboard.introPoint1")}</li>
-              <li>{t("candidate.dashboard.introPoint2")}</li>
-              <li>{t("candidate.dashboard.introPoint3")}</li>
-            </ul>
-            <p className="text-sm italic text-muted-foreground">{t("candidate.dashboard.introReminder")}</p>
+        {/* Welcome heading */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold mb-2">Cześć 👋</h1>
+          <p className="text-muted-foreground">{t("candidate.dashboard.introSubtitle")}</p>
+        </div>
+
+        {/* Introduction card - styled like the reference */}
+        <Card className="mb-8 overflow-hidden border-0 shadow-lg">
+          <div className="bg-gradient-to-r from-cta/90 to-cta p-6 text-primary">
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                <Sparkles className="w-6 h-6 text-primary" />
+              </div>
+              <div className="flex-1">
+                <h2 className="text-lg font-bold mb-2">{t("candidate.dashboard.introTitle")}</h2>
+                <p className="text-primary/90 text-sm leading-relaxed">
+                  {t("candidate.dashboard.introGreeting")}
+                </p>
+              </div>
+            </div>
+          </div>
+          <CardContent className="pt-6 bg-card">
+            <p className="font-semibold text-foreground mb-4">{t("candidate.dashboard.introBeforeYou")}</p>
+            <div className="space-y-3 mb-6">
+              <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
+                <div className="w-8 h-8 rounded-full bg-accent/20 flex items-center justify-center shrink-0">
+                  <ClipboardList className="w-4 h-4 text-accent" />
+                </div>
+                <p className="text-sm text-muted-foreground">{t("candidate.dashboard.introPoint1")}</p>
+              </div>
+              <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
+                <div className="w-8 h-8 rounded-full bg-accent/20 flex items-center justify-center shrink-0">
+                  <Heart className="w-4 h-4 text-accent" />
+                </div>
+                <p className="text-sm text-muted-foreground">{t("candidate.dashboard.introPoint2")}</p>
+              </div>
+              <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
+                <div className="w-8 h-8 rounded-full bg-accent/20 flex items-center justify-center shrink-0">
+                  <Briefcase className="w-4 h-4 text-accent" />
+                </div>
+                <p className="text-sm text-muted-foreground">{t("candidate.dashboard.introPoint3")}</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 p-4 rounded-lg bg-accent/10 border border-accent/20">
+              <CheckCircle2 className="w-5 h-5 text-accent shrink-0" />
+              <p className="text-sm text-foreground">{t("candidate.dashboard.introReminder")}</p>
+            </div>
           </CardContent>
         </Card>
-
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">{t("candidate.dashboard.welcome")}</h1>
-          <p className="text-muted-foreground">{t("candidate.dashboard.honestReminder")}</p>
-        </div>
 
         <Card className="mb-8 border-accent/20 bg-accent/5">
           <CardContent className="pt-6">
