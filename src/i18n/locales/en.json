@@ -1,0 +1,52 @@
+{
+  "common": {
+    "login": "Log in",
+    "register": "Sign up",
+    "startNow": "Start now",
+    "allRightsReserved": "All rights reserved."
+  },
+  "hero": {
+    "title": "Find the perfect match",
+    "titleHighlight": "at work",
+    "description": "A system based on competency and organizational culture analysis that connects candidates with employers based on real compatibility – not just a CV.",
+    "candidateButton": "I'm a candidate",
+    "employerButton": "I'm an employer"
+  },
+  "howItWorks": {
+    "title": "How does it work?",
+    "subtitle": "Three simple steps to finding the perfect match",
+    "step1Title": "Complete the tests",
+    "step1Description": "Answer honestly about your competencies and work culture preferences. There are no wrong answers!",
+    "step2Title": "Matching analysis",
+    "step2Description": "Our algorithm compares your profile with employer offerings, considering competencies, culture, and contextual data.",
+    "step3Title": "Get your matches",
+    "step3Description": "See the companies that best match you, along with a detailed compatibility analysis."
+  },
+  "benefits": {
+    "forCandidate": "For candidates",
+    "forEmployer": "For employers",
+    "candidate1": "Discover your strengths and professional preferences",
+    "candidate2": "Receive offers tailored to your profile",
+    "candidate3": "Find a place where you'll truly fit in",
+    "employer1": "Define the ideal candidate profile based on competencies",
+    "employer2": "Receive candidates matched to your company culture",
+    "employer3": "Save time with data-driven pre-selection"
+  },
+  "values": {
+    "title": "Our values",
+    "subtitle": "We believe honesty is the key to the best match",
+    "value1Title": "No wrong answers",
+    "value1Description": "Every answer is valuable. We don't judge – we match.",
+    "value2Title": "Honesty pays off",
+    "value2Description": "The more authentic your answers, the better the match.",
+    "value3Title": "Best match",
+    "value3Description": "We're looking for a place where you can truly grow."
+  },
+  "prototype": {
+    "notice": "This tool is a prototype based on surveys and low-budget solutions. We're testing assumptions and checking if the solution works correctly. Thank you for participating – your answers truly impact the project's development."
+  },
+  "cta": {
+    "title": "Ready for the perfect match?",
+    "description": "Join us and find a workplace that truly fits you."
+  }
+}
