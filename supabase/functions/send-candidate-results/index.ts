@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
+import { SMTPClient } from "https://deno.land/x/denomailer@1.6.0/mod.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -36,6 +37,14 @@ const competencyDescriptions: Record<string, { pl: string; en: string }> = {
   },
 };
 
+const competencyNames: Record<string, { pl: string; en: string }> = {
+  komunikacja: { pl: "Komunikacja", en: "Communication" },
+  myslenie_analityczne: { pl: "Myślenie analityczne", en: "Analytical thinking" },
+  out_of_the_box: { pl: "Kreatywność", en: "Out of the box thinking" },
+  determinacja: { pl: "Determinacja", en: "Determination" },
+  adaptacja: { pl: "Adaptacja", en: "Adaptation" },
+};
+
 const cultureDescriptions: Record<string, { pl: string; en: string }> = {
   relacja_wspolpraca: { 
     pl: "Relacje i współpraca w zespole",
@@ -69,15 +78,41 @@ function getScoreLevel(score: number): { pl: string; en: string } {
   return { pl: "Niski", en: "Low" };
 }
 
+// Calculate competency scores from answers
+function calculateCompetencyScores(competencyAnswers: Record<string, Record<string, number>> | null): Record<string, number> {
+  const scores: Record<string, number> = {};
+  
+  if (!competencyAnswers) return scores;
+  
+  const competencyMapping: Record<string, string> = {
+    komunikacja: "komunikacja",
+    myslenie_analityczne: "myslenie_analityczne",
+    out_of_the_box: "out_of_the_box",
+    determinacja: "determinacja",
+    adaptacja: "adaptacja",
+  };
+  
+  for (const [key, dbKey] of Object.entries(competencyMapping)) {
+    const answers = competencyAnswers[key];
+    if (answers && Object.keys(answers).length > 0) {
+      const values = Object.values(answers);
+      const sum = values.reduce((a, b) => a + b, 0);
+      scores[dbKey] = sum / values.length;
+    }
+  }
+  
+  return scores;
+}
+
 const handler = async (req: Request): Promise<Response> => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const resendApiKey = Deno.env.get("RESEND_API_KEY");
-    if (!resendApiKey) {
-      throw new Error("RESEND_API_KEY is not configured");
+    const gmailAppPassword = Deno.env.get("GMAIL_APP_PASSWORD");
+    if (!gmailAppPassword) {
+      throw new Error("GMAIL_APP_PASSWORD is not configured");
     }
     
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
@@ -101,27 +136,34 @@ const handler = async (req: Request): Promise<Response> => {
       throw new Error("Could not fetch candidate test results");
     }
 
-    // Build competency results HTML
-    const competencyScores = [
-      { key: "komunikacja", score: testResults.komunikacja_score },
-      { key: "myslenie_analityczne", score: testResults.myslenie_analityczne_score },
-      { key: "out_of_the_box", score: testResults.out_of_the_box_score },
-      { key: "determinacja", score: testResults.determinacja_score },
-      { key: "adaptacja", score: testResults.adaptacja_score },
-    ].filter(c => c.score !== null);
+    // Calculate competency scores from answers if direct scores are null
+    const calculatedScores = calculateCompetencyScores(testResults.competency_answers as Record<string, Record<string, number>> | null);
 
-    const competencyHtml = competencyScores.map(c => {
-      const level = getScoreLevel(c.score);
-      const desc = competencyDescriptions[c.key];
-      return `
-        <tr>
-          <td style="padding: 12px; border-bottom: 1px solid #eee;">
-            <strong>${desc?.pl || c.key}</strong><br/>
-            <span style="color: #666; font-size: 14px;">${level.pl} (${c.score?.toFixed(1)}/5)</span>
-          </td>
-        </tr>
-      `;
-    }).join("");
+    // Build competency results HTML - use calculated scores or stored scores
+    const competencyScores = [
+      { key: "komunikacja", score: testResults.komunikacja_score ?? calculatedScores.komunikacja },
+      { key: "myslenie_analityczne", score: testResults.myslenie_analityczne_score ?? calculatedScores.myslenie_analityczne },
+      { key: "out_of_the_box", score: testResults.out_of_the_box_score ?? calculatedScores.out_of_the_box },
+      { key: "determinacja", score: testResults.determinacja_score ?? calculatedScores.determinacja },
+      { key: "adaptacja", score: testResults.adaptacja_score ?? calculatedScores.adaptacja },
+    ].filter(c => c.score !== null && c.score !== undefined);
+
+    const competencyHtml = competencyScores.length > 0 
+      ? competencyScores.map(c => {
+          const level = getScoreLevel(c.score);
+          const name = competencyNames[c.key];
+          const desc = competencyDescriptions[c.key];
+          return `
+            <tr>
+              <td style="padding: 12px; border-bottom: 1px solid #eee;">
+                <strong>${name?.pl || c.key}</strong><br/>
+                <span style="color: #666; font-size: 14px;">${desc?.pl}</span><br/>
+                <span style="color: #00B2C5; font-weight: bold;">${level.pl} (${c.score?.toFixed(1)}/5)</span>
+              </td>
+            </tr>
+          `;
+        }).join("")
+      : `<tr><td style="padding: 12px; color: #888;">Test kompetencji nie został jeszcze ukończony.</td></tr>`;
 
     // Build culture results HTML
     const cultureScores = [
@@ -133,18 +175,20 @@ const handler = async (req: Request): Promise<Response> => {
       { key: "wlb_dobrostan", score: testResults.culture_wlb_dobrostan },
     ].filter(c => c.score !== null);
 
-    const cultureHtml = cultureScores.map(c => {
-      const level = getScoreLevel(c.score);
-      const desc = cultureDescriptions[c.key];
-      return `
-        <tr>
-          <td style="padding: 12px; border-bottom: 1px solid #eee;">
-            <strong>${desc?.pl || c.key}</strong><br/>
-            <span style="color: #666; font-size: 14px;">${level.pl} (${c.score?.toFixed(1)}/5)</span>
-          </td>
-        </tr>
-      `;
-    }).join("");
+    const cultureHtml = cultureScores.length > 0
+      ? cultureScores.map(c => {
+          const level = getScoreLevel(c.score);
+          const desc = cultureDescriptions[c.key];
+          return `
+            <tr>
+              <td style="padding: 12px; border-bottom: 1px solid #eee;">
+                <strong>${desc?.pl || c.key}</strong><br/>
+                <span style="color: #00B2C5; font-weight: bold;">${level.pl} (${c.score?.toFixed(1)}/5)</span>
+              </td>
+            </tr>
+          `;
+        }).join("")
+      : `<tr><td style="padding: 12px; color: #888;">Test kultury nie został jeszcze ukończony.</td></tr>`;
 
     // Build additional info HTML
     const additionalHtml = `
@@ -237,30 +281,32 @@ const handler = async (req: Request): Promise<Response> => {
       </html>
     `;
 
-    // Send email using Resend API directly via fetch
-    const emailResponse = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${resendApiKey}`,
-        "Content-Type": "application/json",
+    // Send email using Gmail SMTP
+    const client = new SMTPClient({
+      connection: {
+        hostname: "smtp.gmail.com",
+        port: 465,
+        tls: true,
+        auth: {
+          username: "idealnyserwisrekrutacyjny@gmail.com",
+          password: gmailAppPassword,
+        },
       },
-      body: JSON.stringify({
-        from: "idealniepasuje <noreply@idealniepasuje.pl>",
-        to: [candidate_email],
-        subject: "Twoje wyniki testów - idealniepasuje",
-        html: emailHtml,
-      }),
     });
 
-    const emailResult = await emailResponse.json();
-    
-    if (!emailResponse.ok) {
-      throw new Error(`Resend API error: ${JSON.stringify(emailResult)}`);
-    }
+    await client.send({
+      from: "idealniepasuje <idealnyserwisrekrutacyjny@gmail.com>",
+      to: candidate_email,
+      subject: "Twoje wyniki testów - idealniepasuje",
+      content: "Twoje wyniki testów są dostępne.",
+      html: emailHtml,
+    });
 
-    console.log("Results email sent successfully:", emailResult);
+    await client.close();
 
-    return new Response(JSON.stringify({ success: true, emailResponse: emailResult }), {
+    console.log("Results email sent successfully via Gmail SMTP");
+
+    return new Response(JSON.stringify({ success: true }), {
       status: 200,
       headers: { "Content-Type": "application/json", ...corsHeaders },
     });
