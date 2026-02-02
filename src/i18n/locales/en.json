@@ -297,6 +297,8 @@
       "title": "Role description",
       "roleDescriptionLabel": "Position description (max 3 sentences) *",
       "responsibilitiesLabel": "What will the candidate be doing?",
+      "linkedinLabel": "LinkedIn job posting link (optional)",
+      "linkedinPlaceholder": "https://www.linkedin.com/jobs/...",
       "fillRoleDescription": "Please fill the role description",
       "saved": "Saved!"
     },

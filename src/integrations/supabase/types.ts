@@ -176,6 +176,7 @@ export type Database = {
           culture_wyniki_cele: number | null
           id: string
           industry: string | null
+          linkedin_url: string | null
           position_level: string | null
           profile_completed: boolean | null
           req_adaptacja: number | null
@@ -205,6 +206,7 @@ export type Database = {
           culture_wyniki_cele?: number | null
           id?: string
           industry?: string | null
+          linkedin_url?: string | null
           position_level?: string | null
           profile_completed?: boolean | null
           req_adaptacja?: number | null
@@ -234,6 +236,7 @@ export type Database = {
           culture_wyniki_cele?: number | null
           id?: string
           industry?: string | null
+          linkedin_url?: string | null
           position_level?: string | null
           profile_completed?: boolean | null
           req_adaptacja?: number | null
