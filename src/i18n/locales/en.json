@@ -341,7 +341,14 @@
       "candidateScore": "Candidate",
       "yourRequirement": "Your requirement",
       "yourScore": "Your organization",
-      "backToList": "Back to list"
+      "backToList": "Back to list",
+      "whyGoodMatch": "Why is this a good match?",
+      "matchExplanation": "{{name}} shows {{percent}}% compatibility with your organization profile. Here are the key areas of alignment:",
+      "thisCandidate": "This candidate",
+      "markInterested": "Are you interested?",
+      "interested": "Interested",
+      "interestMarked": "Marked as interested in candidate",
+      "interestRemoved": "Removed interest in candidate"
     }
   },
   "errors": {

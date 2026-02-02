@@ -5,11 +5,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { LogOut, ArrowLeft, Target, Heart, Briefcase, CheckCircle2, AlertCircle, TrendingUp, TrendingDown } from "lucide-react";
+import { LogOut, ArrowLeft, Target, Heart, Briefcase, CheckCircle2, AlertCircle, TrendingUp, TrendingDown, User, ThumbsUp, Sparkles } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { logError } from "@/lib/errorLogger";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { toast } from "sonner";
 
 interface MatchDetails {
   competenceDetails: {
@@ -57,7 +58,10 @@ const EmployerCandidateDetail = () => {
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
   const [match, setMatch] = useState<any>(null);
+  const [candidateName, setCandidateName] = useState<string | null>(null);
+  const [candidateData, setCandidateData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [isInterested, setIsInterested] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !user) { navigate("/login"); return; }
@@ -67,22 +71,63 @@ const EmployerCandidateDetail = () => {
   const fetchMatchData = async () => {
     if (!user || !candidateId) return;
     try {
-      const { data, error } = await supabase
+      // Fetch match data
+      const { data: matchData, error: matchError } = await supabase
         .from("match_results")
         .select("*")
         .eq("employer_user_id", user.id)
         .eq("candidate_user_id", candidateId)
         .single();
       
-      if (error) {
-        logError("EmployerCandidateDetail.fetchMatchData", error);
+      if (matchError) {
+        logError("EmployerCandidateDetail.fetchMatchData", matchError);
       } else {
-        setMatch(data);
+        setMatch(matchData);
+        setIsInterested(matchData?.status === 'interested');
+      }
+
+      // Fetch candidate name from profiles
+      const { data: profileData } = await supabase
+        .rpc('get_profile_public', { target_user_id: candidateId });
+      
+      if (profileData && profileData.length > 0) {
+        setCandidateName(profileData[0].full_name);
+      }
+
+      // Fetch candidate test results for additional info
+      const { data: testData } = await supabase
+        .from("candidate_test_results")
+        .select("industry, experience, position_level, work_description")
+        .eq("user_id", candidateId)
+        .single();
+
+      if (testData) {
+        setCandidateData(testData);
       }
     } catch (error) {
       logError("EmployerCandidateDetail.fetchMatchData", error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleInterested = async () => {
+    if (!match) return;
+    try {
+      const newStatus = isInterested ? 'pending' : 'interested';
+      await supabase
+        .from("match_results")
+        .update({ status: newStatus })
+        .eq("id", match.id);
+      
+      setIsInterested(!isInterested);
+      toast.success(isInterested 
+        ? t("employer.candidateDetail.interestRemoved") 
+        : t("employer.candidateDetail.interestMarked")
+      );
+    } catch (error) {
+      logError("EmployerCandidateDetail.handleInterested", error);
+      toast.error(t("errors.genericError"));
     }
   };
 
@@ -150,10 +195,23 @@ const EmployerCandidateDetail = () => {
           <CardContent className="pt-6">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
               <div>
-                <h1 className="text-2xl font-bold mb-2">
-                  {t("employer.candidates.candidateNumber")} #{candidateId?.slice(0, 8)}
-                </h1>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-12 h-12 rounded-full bg-accent/20 flex items-center justify-center">
+                    <User className="w-6 h-6 text-accent" />
+                  </div>
+                  <div>
+                    <h1 className="text-2xl font-bold">
+                      {candidateName || `${t("employer.candidates.candidateNumber")} #${candidateId?.slice(0, 8)}`}
+                    </h1>
+                    {candidateData?.position_level && (
+                      <p className="text-sm text-muted-foreground">
+                        {t(`candidate.additional.positionLevels.${candidateData.position_level}`)}
+                        {candidateData?.industry && ` • ${t(`candidate.additional.industries.${candidateData.industry}`)}`}
+                      </p>
+                    )}
+                  </div>
+                </div>
+                <div className="flex flex-wrap gap-2 mt-4">
                   <Badge variant="outline" className="gap-1">
                     <Target className="w-3 h-3" />{t("common.competencies")}: {match.competence_percent}%
                   </Badge>
@@ -167,11 +225,47 @@ const EmployerCandidateDetail = () => {
               </div>
               <div className="text-center md:text-right">
                 <div className="text-5xl font-bold text-accent">{match.overall_percent}%</div>
-                <div className="text-sm text-muted-foreground">{t("common.totalMatch")}</div>
+                <div className="text-sm text-muted-foreground mb-3">{t("common.totalMatch")}</div>
+                <Button 
+                  onClick={handleInterested}
+                  variant={isInterested ? "default" : "outline"}
+                  className={isInterested ? "bg-success hover:bg-success/90" : ""}
+                >
+                  <ThumbsUp className="w-4 h-4 mr-2" />
+                  {isInterested ? t("employer.candidateDetail.interested") : t("employer.candidateDetail.markInterested")}
+                </Button>
               </div>
             </div>
           </CardContent>
         </Card>
+
+        {/* Why is this a good match */}
+        {matchDetails?.strengths && matchDetails.strengths.length > 0 && (
+          <Card className="mb-6 border-accent/30 bg-accent/5">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-accent">
+                <Sparkles className="w-5 h-5" />
+                {t("employer.candidateDetail.whyGoodMatch")}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground mb-4">
+                {t("employer.candidateDetail.matchExplanation", { 
+                  name: candidateName || t("employer.candidateDetail.thisCandidate"),
+                  percent: match.overall_percent 
+                })}
+              </p>
+              <div className="grid sm:grid-cols-2 gap-3">
+                {matchDetails.strengths.slice(0, 4).map((strength, idx) => (
+                  <div key={idx} className="flex items-start gap-2 p-3 rounded-lg bg-background border">
+                    <CheckCircle2 className="w-4 h-4 text-success mt-0.5 shrink-0" />
+                    <span className="text-sm">{strength}</span>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         <div className="grid md:grid-cols-2 gap-6">
           {/* Strengths */}
