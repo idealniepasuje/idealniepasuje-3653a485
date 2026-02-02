@@ -53,6 +53,20 @@ const EmployerCulture = () => {
     setDimensionScores(scores); setShowResults(true);
   };
 
+  const generateMatches = async () => {
+    if (!user) return;
+    try {
+      const response = await supabase.functions.invoke('generate-matches', {
+        body: { employer_user_id: user.id }
+      });
+      if (response.data?.matches_count > 0) {
+        toast.success(t("employer.culture.matchesGenerated", { count: response.data.matches_count }));
+      }
+    } catch (error) {
+      console.error('Error generating matches:', error);
+    }
+  };
+
   const handleNext = useCallback(async () => {
     if (currentQuestionIndex < questions.length - 1) { setCurrentQuestionIndex(i => i + 1); }
     else {
@@ -65,6 +79,10 @@ const EmployerCulture = () => {
         scores[dim] = count > 0 ? sum / count : 0;
       });
       await supabase.from("employer_profiles").update({ culture_answers: answers, culture_completed: true, profile_completed: true, culture_relacja_wspolpraca: scores.relacja_wspolpraca, culture_elastycznosc_innowacyjnosc: scores.elastycznosc_innowacyjnosc, culture_wyniki_cele: scores.wyniki_cele, culture_stabilnosc_struktura: scores.stabilnosc_struktura, culture_autonomia_styl_pracy: scores.autonomia_styl_pracy, culture_wlb_dobrostan: scores.wlb_dobrostan }).eq("user_id", user!.id);
+      
+      // Generate matches automatically after profile completion
+      await generateMatches();
+      
       setSaving(false); calculateResults(answers); toast.success(t("employer.culture.completedMessage"));
     }
   }, [currentQuestionIndex, questions, answers, user, t, localizedDimensions]);

@@ -226,7 +226,8 @@
       "rateStatement": "Rate how well the following statement describes your organization",
       "profileCompleted": "Profile completed!",
       "profileCompletedDescription": "We're now working on finding the ideal candidate. When we find one, you'll receive a notification.",
-      "completedMessage": "Profile completed!"
+      "completedMessage": "Profile completed!",
+      "matchesGenerated": "Found {{count}} matched candidates!"
     },
     "candidates": {
       "title": "Matched candidates",
