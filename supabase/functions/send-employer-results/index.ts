@@ -147,29 +147,29 @@ const handler = async (req: Request): Promise<Response> => {
       const level = getScoreLevel(comp.value || 3);
       const desc = competencyDescriptions[comp.key]?.pl || '';
       
-      competencyHtml += `
-        <tr>
-          <td style="padding: 15px; background: #f8f9fa; border-radius: 8px; margin-bottom: 10px;">
-            <table role="presentation" style="width: 100%;">
-              <tr>
-                <td>
-                  <p style="margin: 0 0 5px 0; font-weight: 600; color: #233448; font-size: 16px;">${name}</p>
-                  <p style="margin: 0 0 8px 0; color: #666; font-size: 14px;">${desc}</p>
-                </td>
-                <td style="text-align: right; vertical-align: top;">
-                  <span style="background: linear-gradient(135deg, #00B2C5, #00a3b4); color: white; padding: 4px 12px; border-radius: 20px; font-size: 14px; font-weight: 600;">${comp.value}/5</span>
-                </td>
-              </tr>
-              <tr>
-                <td colspan="2">
-                  <p style="margin: 5px 0 0 0; color: #888; font-size: 13px;">Poziom oczekiwań: <strong>${level.pl}</strong></p>
-                </td>
-              </tr>
-            </table>
-          </td>
-        </tr>
-        <tr><td style="height: 10px;"></td></tr>
-      `;
+      competencyHtml += [
+        '<tr>',
+        `<td style="padding:15px;background:#f8f9fa;border-radius:8px;margin-bottom:10px;">`,
+        '<table role="presentation" style="width:100%;">',
+        '<tr>',
+        '<td>',
+        `<p style="margin:0 0 5px 0;font-weight:600;color:#233448;font-size:16px;">${name}</p>`,
+        `<p style="margin:0 0 8px 0;color:#666;font-size:14px;">${desc}</p>`,
+        '</td>',
+        '<td style="text-align:right;vertical-align:top;">',
+        `<span style="background:linear-gradient(135deg,#00B2C5,#00a3b4);color:white;padding:4px 12px;border-radius:20px;font-size:14px;font-weight:600;">${comp.value}/5</span>`,
+        '</td>',
+        '</tr>',
+        '<tr>',
+        '<td colspan="2">',
+        `<p style="margin:5px 0 0 0;color:#888;font-size:13px;">Poziom oczekiwań: <strong>${level.pl}</strong></p>`,
+        '</td>',
+        '</tr>',
+        '</table>',
+        '</td>',
+        '</tr>',
+        '<tr><td style="height:10px;"></td></tr>'
+      ].join('');
     }
 
     // Build culture profile HTML
@@ -185,15 +185,15 @@ const handler = async (req: Request): Promise<Response> => {
     let cultureHtml = '';
     for (const cult of cultureScores) {
       const desc = getCultureDescription(cult.key, cult.value || 3);
-      cultureHtml += `
-        <tr>
-          <td style="padding: 12px 15px; background: #f0f9fa; border-left: 3px solid #00B2C5; margin-bottom: 8px; border-radius: 0 8px 8px 0;">
-            <p style="margin: 0; color: #233448; font-size: 14px;">${desc}</p>
-            <p style="margin: 5px 0 0 0; color: #00B2C5; font-size: 13px; font-weight: 600;">Wynik: ${(cult.value || 0).toFixed(1)}/5</p>
-          </td>
-        </tr>
-        <tr><td style="height: 8px;"></td></tr>
-      `;
+      cultureHtml += [
+        '<tr>',
+        `<td style="padding:12px 15px;background:#f0f9fa;border-left:3px solid #00B2C5;margin-bottom:8px;border-radius:0 8px 8px 0;">`,
+        `<p style="margin:0;color:#233448;font-size:14px;">${desc}</p>`,
+        `<p style="margin:5px 0 0 0;color:#00B2C5;font-size:13px;font-weight:600;">Wynik: ${(cult.value || 0).toFixed(1)}/5</p>`,
+        '</td>',
+        '</tr>',
+        '<tr><td style="height:8px;"></td></tr>'
+      ].join('');
     }
 
     // Build email HTML without trailing spaces to avoid =20 encoding issues
