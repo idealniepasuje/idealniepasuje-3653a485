@@ -236,6 +236,18 @@
       "searchingTitle": "Searching for ideal candidates",
       "searchingDescription": "We don't have any candidates matching your profile yet. When we find suitable people, they'll appear here.",
       "candidateNumber": "Candidate"
+    },
+    "candidateDetail": {
+      "notFound": "Candidate not found",
+      "strengths": "Strengths",
+      "risks": "Areas to discuss",
+      "competencies": "Competency match",
+      "culture": "Culture match",
+      "additionalCriteria": "Additional criteria",
+      "candidateScore": "Candidate",
+      "yourRequirement": "Your requirement",
+      "yourScore": "Your organization",
+      "backToList": "Back to list"
     }
   },
   "errors": {
