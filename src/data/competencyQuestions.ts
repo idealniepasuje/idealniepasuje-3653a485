@@ -22,7 +22,7 @@ export const competencyTests = {
       description: "Analiza i wnioskowanie",
       icon: "Brain",
       estimatedTime: "8-10 min",
-      questionCount: 16,
+      questionCount: 17,
     },
     out_of_the_box: {
       name: "Out of the box",
@@ -59,7 +59,7 @@ export const competencyTests = {
       description: "Analysis and reasoning",
       icon: "Brain",
       estimatedTime: "8-10 min",
-      questionCount: 16,
+      questionCount: 17,
     },
     out_of_the_box: {
       name: "Out of the box",
@@ -113,7 +113,7 @@ export const competencyQuestions: CompetencyQuestion[] = [
   { id: "MYSL_05", competencyCode: "myslenie_analityczne", subdimensionCode: "selekcja", text: { pl: "Wyszukując coś w sieci, zwykle sprawdzam, na ile źródło można uznać za wiarygodne.", en: "When searching online, I usually check how reliable the source is." }, reversed: false },
   { id: "MYSL_06", competencyCode: "myslenie_analityczne", subdimensionCode: "selekcja", text: { pl: "Staram się brać pod uwagę wszystkie informacje, nawet te mniej istotne.", en: "I try to consider all information, even the less important ones." }, reversed: true },
   { id: "MYSL_07", competencyCode: "myslenie_analityczne", subdimensionCode: "analiza", text: { pl: "Gdy pojawia się jakaś trudna sytuacja, najpierw porządkuję to, co o niej wiem.", en: "When a difficult situation arises, I first organize what I know about it." }, reversed: false },
-  
+  { id: "MYSL_08", competencyCode: "myslenie_analityczne", subdimensionCode: "analiza", text: { pl: "Kiedy bliscy różnie opisują to samo zdarzenie, porównuję ich relacje i wyciągam własny wniosek.", en: "When loved ones describe the same event differently, I compare their accounts and draw my own conclusion." }, reversed: false },
   { id: "MYSL_09", competencyCode: "myslenie_analityczne", subdimensionCode: "analiza", text: { pl: "Kiedy nadmiernie rozkładam czyjeś działania na czynniki, mam tendencję do ich usprawiedliwiania.", en: "When I overanalyze someone's actions, I tend to justify them." }, reversed: true },
   { id: "MYSL_10", competencyCode: "myslenie_analityczne", subdimensionCode: "wnioskowanie", text: { pl: "Gdy pojawia się problem między mną a inną osobą, potrafię dojść do tego, co jest jego główną przyczyną.", en: "When a problem arises between me and another person, I can figure out its main cause." }, reversed: false },
   { id: "MYSL_11", competencyCode: "myslenie_analityczne", subdimensionCode: "wnioskowanie", text: { pl: "W większości sytuacji opieram swoje wnioski na faktach, a nie na emocjach.", en: "In most situations, I base my conclusions on facts, not emotions." }, reversed: false },
