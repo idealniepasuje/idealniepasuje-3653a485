@@ -203,6 +203,8 @@
       "candidatesSubtitle": "Zobacz dopasowanych kandydatów",
       "view": "Zobacz",
       "matchedCandidates": "Dopasowani kandydaci",
+      "viewAllMatches": "Zobacz wszystkie dopasowania",
+      "andMoreCandidates": "...i {{count}} więcej kandydatów",
       "searchingCandidates": "Szukamy idealnych kandydatów",
       "searchingCandidatesDescription": "Teraz my zajmujemy się znalezieniem idealnego kandydata. Gdy tylko go znajdziemy, otrzymasz powiadomienie."
     },
