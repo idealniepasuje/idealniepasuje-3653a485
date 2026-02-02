@@ -74,7 +74,7 @@ const Register = () => {
         <Card className="border-border/50 shadow-lg">
           <CardHeader className="text-center">
             <div className="flex items-center justify-center gap-2 mb-4">
-              <span className="text-xl font-bold">idealnie<span className="text-accent">pasuje</span></span>
+              <img src="/logo_idealnie_pasuje.png" alt="IdealniePasuje" className="h-10" />
             </div>
             <CardTitle className="text-2xl">{t("register.title")}</CardTitle>
             <CardDescription>{t("register.subtitle")}</CardDescription>

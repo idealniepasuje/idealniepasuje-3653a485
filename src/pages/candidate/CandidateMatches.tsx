@@ -79,7 +79,7 @@ const CandidateMatches = () => {
       <header className="bg-primary text-primary-foreground">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <Link to="/" className="flex items-center">
-            <span className="text-xl font-bold">idealnie<span className="text-accent">pasuje</span></span>
+            <img src="/logo_idealnie_pasuje.png" alt="IdealniePasuje" className="h-8" />
           </Link>
           <div className="flex items-center gap-4">
             <LanguageSwitcher />
