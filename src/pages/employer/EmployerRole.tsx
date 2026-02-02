@@ -5,8 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Input } from "@/components/ui/input";
-import { ArrowLeft, Linkedin } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -15,7 +14,7 @@ const EmployerRole = () => {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const [formData, setFormData] = useState({ roleDescription: "", roleResponsibilities: "", linkedinUrl: "" });
+  const [formData, setFormData] = useState({ roleDescription: "", roleResponsibilities: "" });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
@@ -26,8 +25,8 @@ const EmployerRole = () => {
 
   const fetchData = async () => {
     if (!user) return;
-    const { data } = await supabase.from("employer_profiles").select("role_description, role_responsibilities, linkedin_url").eq("user_id", user.id).single();
-    if (data) setFormData({ roleDescription: data.role_description || "", roleResponsibilities: data.role_responsibilities || "", linkedinUrl: data.linkedin_url || "" });
+    const { data } = await supabase.from("employer_profiles").select("role_description, role_responsibilities").eq("user_id", user.id).single();
+    if (data) setFormData({ roleDescription: data.role_description || "", roleResponsibilities: data.role_responsibilities || "" });
     setLoading(false);
   };
 
@@ -35,7 +34,7 @@ const EmployerRole = () => {
     if (!formData.roleDescription) { toast.error(t("employer.role.fillRoleDescription")); return; }
     setSaving(true);
     try {
-      await supabase.from("employer_profiles").update({ role_description: formData.roleDescription, role_responsibilities: formData.roleResponsibilities, linkedin_url: formData.linkedinUrl, role_completed: true }).eq("user_id", user!.id);
+      await supabase.from("employer_profiles").update({ role_description: formData.roleDescription, role_responsibilities: formData.roleResponsibilities, role_completed: true }).eq("user_id", user!.id);
       toast.success(t("employer.role.saved")); navigate("/employer/dashboard");
     } catch { toast.error(t("errors.genericError")); } finally { setSaving(false); }
   };
@@ -50,15 +49,7 @@ const EmployerRole = () => {
         <Card><CardContent className="pt-6 space-y-4">
           <div><Label>{t("employer.role.roleDescriptionLabel")}</Label><Textarea value={formData.roleDescription} onChange={(e) => setFormData(p => ({...p, roleDescription: e.target.value}))} rows={3} /></div>
           <div><Label>{t("employer.role.responsibilitiesLabel")}</Label><Textarea value={formData.roleResponsibilities} onChange={(e) => setFormData(p => ({...p, roleResponsibilities: e.target.value}))} rows={4} /></div>
-          <div>
-            <Label className="flex items-center gap-2"><Linkedin className="w-4 h-4" />{t("employer.role.linkedinLabel")}</Label>
-            <Input 
-              type="url" 
-              placeholder={t("employer.role.linkedinPlaceholder")} 
-              value={formData.linkedinUrl} 
-              onChange={(e) => setFormData(p => ({...p, linkedinUrl: e.target.value}))} 
-            />
-          </div>
+          <Button onClick={handleSubmit} disabled={saving} className="w-full bg-cta text-cta-foreground">{saving ? t("common.saving") : t("common.saveAndContinue")}</Button>
           <Button onClick={handleSubmit} disabled={saving} className="w-full bg-cta text-cta-foreground">{saving ? t("common.saving") : t("common.saveAndContinue")}</Button>
         </CardContent></Card>
       </main>
