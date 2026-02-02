@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      candidate_feedback: {
+        Row: {
+          change_reason: string | null
+          created_at: string
+          id: string
+          likes_reason: string | null
+          likes_solution: string
+          user_id: string
+          would_change: string
+        }
+        Insert: {
+          change_reason?: string | null
+          created_at?: string
+          id?: string
+          likes_reason?: string | null
+          likes_solution: string
+          user_id: string
+          would_change: string
+        }
+        Update: {
+          change_reason?: string | null
+          created_at?: string
+          id?: string
+          likes_reason?: string | null
+          likes_solution?: string
+          user_id?: string
+          would_change?: string
+        }
+        Relationships: []
+      }
       candidate_test_results: {
         Row: {
           adaptacja_score: number | null
