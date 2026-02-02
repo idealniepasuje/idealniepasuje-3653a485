@@ -10,8 +10,8 @@ import { ArrowLeft, ArrowRight, CheckCircle2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { employerCultureQuestions, cultureDimensions } from "@/data/cultureQuestions";
-import { agreementScale } from "@/data/additionalQuestions";
+import { employerCultureQuestions, getLocalizedCultureDimensions } from "@/data/cultureQuestions";
+import { agreementScale, getLocalizedData } from "@/data/additionalQuestions";
 import { getLevel, getFeedback } from "@/data/feedbackData";
 import { useQuestionTimer } from "@/hooks/useQuestionTimer";
 import { QuestionTimer } from "@/components/QuestionTimer";
@@ -19,7 +19,7 @@ import { QuestionTimer } from "@/components/QuestionTimer";
 const EmployerCulture = () => {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
@@ -27,6 +27,8 @@ const EmployerCulture = () => {
   const [showResults, setShowResults] = useState(false);
   const [dimensionScores, setDimensionScores] = useState<Record<string, number>>({});
   const questions = employerCultureQuestions;
+  const localizedDimensions = getLocalizedCultureDimensions(i18n.language);
+  const localizedScale = getLocalizedData(agreementScale, i18n.language);
 
   useEffect(() => {
     if (!authLoading && !user) { navigate("/login"); return; }
@@ -42,7 +44,7 @@ const EmployerCulture = () => {
 
   const calculateResults = (answerData: Record<string, number>) => {
     const scores: Record<string, number> = {};
-    Object.keys(cultureDimensions).forEach(dim => {
+    Object.keys(localizedDimensions).forEach(dim => {
       const dimQuestions = questions.filter(q => q.dimensionCode === dim);
       let sum = 0, count = 0;
       dimQuestions.forEach(q => { if (answerData[q.id]) { sum += answerData[q.id]; count++; } });
@@ -56,7 +58,7 @@ const EmployerCulture = () => {
     else {
       setSaving(true);
       const scores: Record<string, number> = {};
-      Object.keys(cultureDimensions).forEach(dim => {
+      Object.keys(localizedDimensions).forEach(dim => {
         const dimQuestions = questions.filter(q => q.dimensionCode === dim);
         let sum = 0, count = 0;
         dimQuestions.forEach(q => { if (answers[q.id]) { sum += answers[q.id]; count++; } });
@@ -65,7 +67,7 @@ const EmployerCulture = () => {
       await supabase.from("employer_profiles").update({ culture_answers: answers, culture_completed: true, profile_completed: true, culture_relacja_wspolpraca: scores.relacja_wspolpraca, culture_elastycznosc_innowacyjnosc: scores.elastycznosc_innowacyjnosc, culture_wyniki_cele: scores.wyniki_cele, culture_stabilnosc_struktura: scores.stabilnosc_struktura, culture_autonomia_styl_pracy: scores.autonomia_styl_pracy, culture_wlb_dobrostan: scores.wlb_dobrostan }).eq("user_id", user!.id);
       setSaving(false); calculateResults(answers); toast.success(t("employer.culture.completedMessage"));
     }
-  }, [currentQuestionIndex, questions, answers, user, t]);
+  }, [currentQuestionIndex, questions, answers, user, t, localizedDimensions]);
 
   const handleTimeUp = useCallback(() => {
     const currentQ = questions[currentQuestionIndex];
@@ -93,7 +95,7 @@ const EmployerCulture = () => {
           <CheckCircle2 className="w-16 h-16 text-success mx-auto" />
           <h2 className="text-2xl font-bold">{t("employer.culture.profileCompleted")}</h2>
           <p className="text-muted-foreground">{t("employer.culture.profileCompletedDescription")}</p>
-          <div className="space-y-3 text-left">{Object.entries(cultureDimensions).map(([code, dim]) => (<div key={code} className="bg-muted/50 rounded-lg p-3"><div className="flex justify-between"><span className="font-medium">{dim.name}</span><span>{dimensionScores[code]?.toFixed(1)}/5</span></div><p className="text-xs text-muted-foreground mt-1">{getFeedback('culture', code, getLevel(dimensionScores[code] || 0), 'employer')}</p></div>))}</div>
+          <div className="space-y-3 text-left">{Object.entries(localizedDimensions).map(([code, dim]) => (<div key={code} className="bg-muted/50 rounded-lg p-3"><div className="flex justify-between"><span className="font-medium">{dim.name}</span><span>{dimensionScores[code]?.toFixed(1)}/5</span></div><p className="text-xs text-muted-foreground mt-1">{getFeedback('culture', code, getLevel(dimensionScores[code] || 0), 'employer', i18n.language)}</p></div>))}</div>
           <Link to="/employer/dashboard"><Button className="w-full bg-cta text-cta-foreground">{t("common.backToPanel")}</Button></Link>
         </CardContent></Card>
       </main>
@@ -108,9 +110,9 @@ const EmployerCulture = () => {
         <Card><CardContent className="pt-6">
           <div className="mb-4"><QuestionTimer timeLeft={timeLeft} progress={timerProgress} /></div>
           <p className="text-xs text-muted-foreground mb-2">{t("employer.culture.rateStatement")}</p>
-          <h3 className="text-lg font-semibold mb-4">{currentQuestion.text}</h3>
+          <h3 className="text-lg font-semibold mb-4">{currentQuestion.text[i18n.language as 'pl' | 'en']}</h3>
           <RadioGroup value={answers[currentQuestion.id]?.toString()} onValueChange={(v) => setAnswers(p => ({...p, [currentQuestion.id]: parseInt(v)}))} className="space-y-2">
-            {agreementScale.map(o => (<div key={o.value} className="flex items-center space-x-3 p-3 rounded-lg border hover:bg-muted/50 cursor-pointer"><RadioGroupItem value={o.value.toString()} id={`o-${o.value}`} /><Label htmlFor={`o-${o.value}`} className="flex-1 cursor-pointer">{o.label}</Label></div>))}
+            {localizedScale.map(o => (<div key={o.value} className="flex items-center space-x-3 p-3 rounded-lg border hover:bg-muted/50 cursor-pointer"><RadioGroupItem value={o.value.toString()} id={`o-${o.value}`} /><Label htmlFor={`o-${o.value}`} className="flex-1 cursor-pointer">{o.label}</Label></div>))}
           </RadioGroup>
           <div className="flex justify-between mt-6">
             <Button variant="outline" onClick={() => setCurrentQuestionIndex(i => i - 1)} disabled={currentQuestionIndex === 0}><ArrowLeft className="w-4 h-4 mr-2" />{t("common.previous")}</Button>
