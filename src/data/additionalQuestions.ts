@@ -2,6 +2,7 @@
 
 export const industries = {
   pl: [
+    "Nie mam doświadczenia",
     "Administracja biurowa",
     "Badania i rozwój",
     "Bankowość",
@@ -39,6 +40,7 @@ export const industries = {
     "Inne",
   ],
   en: [
+    "No experience",
     "Office Administration",
     "Research & Development",
     "Banking",
