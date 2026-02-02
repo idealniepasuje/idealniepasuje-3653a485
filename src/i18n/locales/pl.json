@@ -297,6 +297,8 @@
       "title": "Opis roli",
       "roleDescriptionLabel": "Opis stanowiska (max 3 zdania) *",
       "responsibilitiesLabel": "Czym będzie zajmował się kandydat?",
+      "linkedinLabel": "Link do ogłoszenia LinkedIn (opcjonalnie)",
+      "linkedinPlaceholder": "https://www.linkedin.com/jobs/...",
       "fillRoleDescription": "Wypełnij opis stanowiska",
       "saved": "Zapisano!"
     },
