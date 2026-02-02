@@ -179,7 +179,8 @@
       "allCompleted": "Wszystkie testy i pytania zostały ukończone",
       "ourTurnNow": "Teraz cała robota jest po naszej stronie",
       "ourTurnDescription": "Będziemy szukać dla Ciebie idealnego pracodawcy. Gdy pojawi się dopasowana oferta, otrzymasz powiadomienie.",
-      "thankYouMessage": "Dziękujemy za wypełnienie wszystkich testów!"
+      "thankYouMessage": "Dziękujemy za wypełnienie wszystkich testów!",
+      "matchesGenerated": "Znaleziono {{count}} dopasowanych pracodawców!"
     }
   },
   "employer": {

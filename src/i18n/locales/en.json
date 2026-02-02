@@ -179,7 +179,8 @@
       "allCompleted": "All tests and questions have been completed",
       "ourTurnNow": "Now it's our turn",
       "ourTurnDescription": "We'll be looking for your ideal employer. When a matched offer appears, you'll receive a notification.",
-      "thankYouMessage": "Thank you for completing all the tests!"
+      "thankYouMessage": "Thank you for completing all the tests!",
+      "matchesGenerated": "Found {{count}} matched employers!"
     }
   },
   "employer": {
