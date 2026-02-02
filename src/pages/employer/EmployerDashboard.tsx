@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { LogOut, Building2, FileText, Users, Settings, ChevronRight, CheckCircle2, Heart } from "lucide-react";
+import { LogOut, Building2, FileText, Users, Settings, ChevronRight, CheckCircle2, Heart, Sparkles, ClipboardList, Briefcase, PartyPopper, Mail } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { logError } from "@/lib/errorLogger";
@@ -84,10 +84,74 @@ const EmployerDashboard = () => {
       </header>
 
       <main className="container mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">{t("employer.dashboard.title")}</h1>
+        <div className="mb-6">
+          <h1 className="text-3xl font-bold mb-1">Cześć 👋</h1>
           <p className="text-muted-foreground">{t("employer.dashboard.subtitle")}</p>
         </div>
+
+        {/* Show intro card only when profile is NOT completed */}
+        {!employerProfile?.profile_completed && (
+          <Card className="mb-8 overflow-hidden border-0 shadow-lg bg-gradient-to-br from-cta via-cta/90 to-accent/80">
+            <CardContent className="p-5">
+              <div className="flex items-start gap-4">
+                <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
+                  <Sparkles className="w-5 h-5 text-primary" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h2 className="text-base font-bold text-primary mb-2">{t("employer.dashboard.introTitle")}</h2>
+                  <p className="text-primary/85 text-sm mb-3 leading-relaxed">
+                    {t("employer.dashboard.introGreeting")}
+                  </p>
+                  <div className="flex flex-wrap gap-2 mb-3">
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/15 text-primary text-xs font-medium">
+                      <ClipboardList className="w-3 h-3" />
+                      {t("employer.dashboard.introBadge1")}
+                    </span>
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/15 text-primary text-xs font-medium">
+                      <Heart className="w-3 h-3" />
+                      {t("employer.dashboard.introBadge2")}
+                    </span>
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/15 text-primary text-xs font-medium">
+                      <Briefcase className="w-3 h-3" />
+                      {t("employer.dashboard.introBadge3")}
+                    </span>
+                  </div>
+                  <p className="text-xs text-primary/80 flex items-center gap-1.5">
+                    <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
+                    {t("employer.dashboard.introReminder")}
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Show celebration card when profile IS completed */}
+        {employerProfile?.profile_completed && (
+          <Card className="mb-8 overflow-hidden border-0 shadow-xl bg-gradient-to-r from-accent via-accent/90 to-primary/80">
+            <CardContent className="p-5 md:p-6">
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 rounded-full bg-primary-foreground/20 flex items-center justify-center shrink-0">
+                  <PartyPopper className="w-6 h-6 text-primary-foreground" />
+                </div>
+                <div className="flex-1 min-w-0 text-primary-foreground">
+                  <h2 className="text-lg font-bold mb-2">{t("employer.dashboard.profileCompleteTitle")}</h2>
+                  <p className="text-sm mb-3 opacity-95">{t("employer.dashboard.profileCompleteDescription")}</p>
+                  <div className="space-y-1.5 text-sm opacity-90">
+                    <p className="flex items-start gap-2">
+                      <Mail className="w-4 h-4 mt-0.5 shrink-0" />
+                      {t("employer.dashboard.profileCompleteEmail")}
+                    </p>
+                    <p className="flex items-start gap-2">
+                      <CheckCircle2 className="w-4 h-4 mt-0.5 shrink-0" />
+                      {t("employer.dashboard.profileCompleteMatch")}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         <Card className="mb-8 border-cta/20 bg-cta/5">
           <CardContent className="pt-6">
