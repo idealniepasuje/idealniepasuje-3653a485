@@ -39,9 +39,8 @@ const EmployerFeedback = () => {
     
     setLoading(true);
     try {
-      // Store in a generic feedback mechanism - we can use the same table or create employer-specific one
       const { error } = await supabase
-        .from('candidate_feedback')
+        .from('employer_feedback')
         .insert({
           user_id: user.id,
           likes_solution: answers.likes_solution,
