@@ -1,13 +1,16 @@
 import { useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ArrowRight, Users, Building2, Target, Heart, CheckCircle2, ClipboardList, Search, Handshake } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 
 const Index = () => {
   const { user, userType, loading } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (!loading && user && userType) {
@@ -19,6 +22,57 @@ const Index = () => {
     }
   }, [user, userType, loading, navigate]);
 
+  const steps = [
+    {
+      step: 1,
+      icon: ClipboardList,
+      titleKey: "howItWorks.step1Title",
+      descriptionKey: "howItWorks.step1Description",
+    },
+    {
+      step: 2,
+      icon: Search,
+      titleKey: "howItWorks.step2Title",
+      descriptionKey: "howItWorks.step2Description",
+    },
+    {
+      step: 3,
+      icon: Handshake,
+      titleKey: "howItWorks.step3Title",
+      descriptionKey: "howItWorks.step3Description",
+    },
+  ];
+
+  const candidateBenefits = [
+    "benefits.candidate1",
+    "benefits.candidate2",
+    "benefits.candidate3",
+  ];
+
+  const employerBenefits = [
+    "benefits.employer1",
+    "benefits.employer2",
+    "benefits.employer3",
+  ];
+
+  const values = [
+    {
+      icon: Heart,
+      titleKey: "values.value1Title",
+      descriptionKey: "values.value1Description",
+    },
+    {
+      icon: Target,
+      titleKey: "values.value2Title",
+      descriptionKey: "values.value2Description",
+    },
+    {
+      icon: Target,
+      titleKey: "values.value3Title",
+      descriptionKey: "values.value3Description",
+    },
+  ];
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -28,12 +82,13 @@ const Index = () => {
             <span className="text-xl font-bold text-foreground">idealnie<span className="text-accent">pasuje</span></span>
           </Link>
           <div className="flex items-center gap-4">
+            <LanguageSwitcher />
             <Link to="/login">
-              <Button variant="ghost" size="sm">Zaloguj się</Button>
+              <Button variant="ghost" size="sm">{t("common.login")}</Button>
             </Link>
             <Link to="/register">
               <Button size="sm" className="bg-cta text-cta-foreground hover:bg-cta/90">
-                Zarejestruj się
+                {t("common.register")}
               </Button>
             </Link>
           </div>
@@ -47,24 +102,24 @@ const Index = () => {
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-4xl mx-auto text-center">
             <h1 className="text-4xl md:text-6xl font-bold text-primary-foreground mb-6 leading-tight">
-              Znajdź idealne dopasowanie
-              <span className="block text-gradient mt-2">w pracy</span>
+              {t("hero.title")}
+              <span className="block text-gradient mt-2">{t("hero.titleHighlight")}</span>
             </h1>
             <p className="text-lg md:text-xl text-primary-foreground/80 mb-8 max-w-2xl mx-auto">
-              System oparty na analizie kompetencji i kultury organizacji, który łączy kandydatów z pracodawcami na podstawie rzeczywistego dopasowania – nie tylko CV.
+              {t("hero.description")}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link to="/register?type=candidate">
                 <Button size="lg" className="bg-cta text-cta-foreground hover:bg-cta/90 gap-2 w-full sm:w-auto">
                   <Users className="w-5 h-5" />
-                  Jestem kandydatem
+                  {t("hero.candidateButton")}
                   <ArrowRight className="w-4 h-4" />
                 </Button>
               </Link>
               <Link to="/register?type=employer">
                 <Button size="lg" variant="outline" className="bg-primary-foreground/10 backdrop-blur-sm border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/20 gap-2 w-full sm:w-auto">
                   <Building2 className="w-5 h-5" />
-                  Jestem pracodawcą
+                  {t("hero.employerButton")}
                   <ArrowRight className="w-4 h-4" />
                 </Button>
               </Link>
@@ -83,32 +138,13 @@ const Index = () => {
       {/* How it works */}
       <section className="py-20">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-4">Jak to działa?</h2>
+          <h2 className="text-3xl md:text-4xl font-bold text-center mb-4">{t("howItWorks.title")}</h2>
           <p className="text-muted-foreground text-center mb-12 max-w-2xl mx-auto">
-            Trzy proste kroki do znalezienia idealnego dopasowania
+            {t("howItWorks.subtitle")}
           </p>
           
           <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            {[
-              {
-                step: 1,
-                icon: ClipboardList,
-                title: "Wypełnij testy",
-                description: "Odpowiedz szczerze na pytania dotyczące Twoich kompetencji i preferencji kultury pracy. Nie ma złych odpowiedzi!",
-              },
-              {
-                step: 2,
-                icon: Search,
-                title: "Analiza dopasowania",
-                description: "Nasz algorytm porównuje Twój profil z ofertami pracodawców, uwzględniając kompetencje, kulturę i dane kontekstowe.",
-              },
-              {
-                step: 3,
-                icon: Handshake,
-                title: "Otrzymaj dopasowania",
-                description: "Zobacz firmy, które najlepiej do Ciebie pasują, wraz z szczegółową analizą zgodności.",
-              },
-            ].map((item) => (
+            {steps.map((item) => (
               <Card key={item.step} className="floating-card text-center group">
                 <CardContent className="pt-8 pb-6">
                   <div className="relative mb-6">
@@ -119,8 +155,8 @@ const Index = () => {
                       {item.step}
                     </span>
                   </div>
-                  <h3 className="text-xl font-bold mb-3">{item.title}</h3>
-                  <p className="text-muted-foreground">{item.description}</p>
+                  <h3 className="text-xl font-bold mb-3">{t(item.titleKey)}</h3>
+                  <p className="text-muted-foreground">{t(item.descriptionKey)}</p>
                 </CardContent>
               </Card>
             ))}
@@ -138,17 +174,13 @@ const Index = () => {
                 <div className="w-12 h-12 rounded-lg bg-accent flex items-center justify-center">
                   <Users className="w-6 h-6 text-accent-foreground" />
                 </div>
-                <h3 className="text-2xl font-bold">Dla kandydata</h3>
+                <h3 className="text-2xl font-bold">{t("benefits.forCandidate")}</h3>
               </div>
               <ul className="space-y-4">
-                {[
-                  "Poznaj swoje mocne strony i preferencje zawodowe",
-                  "Otrzymuj oferty dopasowane do Twojego profilu",
-                  "Znajdź miejsce, gdzie naprawdę będziesz pasować",
-                ].map((benefit, i) => (
+                {candidateBenefits.map((benefitKey, i) => (
                   <li key={i} className="flex items-start gap-3">
                     <CheckCircle2 className="w-6 h-6 text-success shrink-0 mt-0.5" />
-                    <span className="text-foreground">{benefit}</span>
+                    <span className="text-foreground">{t(benefitKey)}</span>
                   </li>
                 ))}
               </ul>
@@ -160,17 +192,13 @@ const Index = () => {
                 <div className="w-12 h-12 rounded-lg bg-cta flex items-center justify-center">
                   <Building2 className="w-6 h-6 text-cta-foreground" />
                 </div>
-                <h3 className="text-2xl font-bold">Dla pracodawcy</h3>
+                <h3 className="text-2xl font-bold">{t("benefits.forEmployer")}</h3>
               </div>
               <ul className="space-y-4">
-                {[
-                  "Określ profil idealnego kandydata na podstawie kompetencji",
-                  "Otrzymuj kandydatów dopasowanych do kultury Twojej firmy",
-                  "Oszczędź czas dzięki wstępnej selekcji opartej na danych",
-                ].map((benefit, i) => (
+                {employerBenefits.map((benefitKey, i) => (
                   <li key={i} className="flex items-start gap-3">
                     <CheckCircle2 className="w-6 h-6 text-success shrink-0 mt-0.5" />
-                    <span className="text-foreground">{benefit}</span>
+                    <span className="text-foreground">{t(benefitKey)}</span>
                   </li>
                 ))}
               </ul>
@@ -183,36 +211,20 @@ const Index = () => {
       <section className="py-20">
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Nasze wartości</h2>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">{t("values.title")}</h2>
             <p className="text-muted-foreground">
-              Wierzymy, że szczerość to klucz do najlepszego dopasowania
+              {t("values.subtitle")}
             </p>
           </div>
           
           <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
-            {[
-              {
-                icon: Heart,
-                title: "Brak złych odpowiedzi",
-                description: "Każda odpowiedź jest wartościowa. Nie oceniamy – dopasowujemy.",
-              },
-              {
-                icon: Target,
-                title: "Szczerość się opłaca",
-                description: "Im bardziej autentyczne odpowiedzi, tym lepsze dopasowanie.",
-              },
-              {
-                icon: Target,
-                title: "Najlepsze dopasowanie",
-                description: "Szukamy miejsca, gdzie naprawdę będziesz mógł się rozwijać.",
-              },
-            ].map((value, i) => (
+            {values.map((value, i) => (
               <div key={i} className="text-center">
                 <div className="w-14 h-14 rounded-full bg-accent/10 flex items-center justify-center mx-auto mb-4">
                   <value.icon className="w-7 h-7 text-accent" />
                 </div>
-                <h3 className="font-bold mb-2 text-base">{value.title}</h3>
-                <p className="text-sm text-muted-foreground">{value.description}</p>
+                <h3 className="font-bold mb-2 text-base">{t(value.titleKey)}</h3>
+                <p className="text-sm text-muted-foreground">{t(value.descriptionKey)}</p>
               </div>
             ))}
           </div>
@@ -223,8 +235,8 @@ const Index = () => {
       <section className="py-12 bg-accent/10">
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto text-center">
-      <p className="text-sm text-foreground/80">
-              <strong className="text-foreground">To narzędzie jest prototypem</strong> opartym na ankietach i niskobudżetowych rozwiązaniach. Testujemy założenia i sprawdzamy, czy rozwiązanie działa we właściwy sposób. Dziękujemy za udział – Twoje odpowiedzi realnie wpływają na rozwój projektu.
+            <p className="text-sm text-foreground/80">
+              {t("prototype.notice")}
             </p>
           </div>
         </div>
@@ -235,14 +247,14 @@ const Index = () => {
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto text-center">
             <h2 className="text-3xl md:text-4xl font-bold text-primary-foreground mb-6">
-              Gotowy na idealne dopasowanie?
+              {t("cta.title")}
             </h2>
             <p className="text-primary-foreground/80 mb-8">
-              Dołącz do nas i znajdź miejsce pracy, które naprawdę do Ciebie pasuje.
+              {t("cta.description")}
             </p>
             <Link to="/register">
               <Button size="lg" className="bg-cta text-cta-foreground hover:bg-cta/90 gap-2">
-                Rozpocznij teraz
+                {t("common.startNow")}
                 <ArrowRight className="w-5 h-5" />
               </Button>
             </Link>
@@ -259,7 +271,7 @@ const Index = () => {
               <span className="text-primary-foreground font-semibold">idealniepasuje</span>
             </div>
             <p className="text-primary-foreground/60 text-sm">
-              © 2026 idealniepasuje. Wszystkie prawa zastrzeżone.
+              © 2026 idealniepasuje. {t("common.allRightsReserved")}
             </p>
           </div>
         </div>
