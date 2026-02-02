@@ -243,6 +243,8 @@
       "positionLevelPlaceholder": "Select level",
       "changeIndustryLabel": "Do you want to change industry? *",
       "changeIndustryPlaceholder": "Select option",
+      "targetIndustriesLabel": "Which industries are you looking for?",
+      "targetIndustriesPlaceholder": "Select industries (click to add)",
       "workDescriptionLabel": "Work description (optional)",
       "workDescriptionPlaceholder": "Describe your typical daily tasks (max 6 sentences)",
       "finishAndSave": "Finish and save",

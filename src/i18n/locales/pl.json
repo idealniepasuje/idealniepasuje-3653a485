@@ -243,6 +243,8 @@
       "positionLevelPlaceholder": "Wybierz poziom",
       "changeIndustryLabel": "Czy chcesz zmienić branżę? *",
       "changeIndustryPlaceholder": "Wybierz opcję",
+      "targetIndustriesLabel": "W jakich branżach szukasz pracy?",
+      "targetIndustriesPlaceholder": "Wybierz branże (kliknij aby dodać)",
       "workDescriptionLabel": "Opis wykonywanej pracy (opcjonalnie)",
       "workDescriptionPlaceholder": "Podaj przykładowe zadania w codziennej pracy (max 6 zdań)",
       "finishAndSave": "Zakończ i zapisz",

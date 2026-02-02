@@ -27,6 +27,7 @@ const CandidateAdditional = () => {
     experience: "",
     positionLevel: "",
     wantsToChangeIndustry: "",
+    targetIndustries: [] as string[],
     workDescription: "",
   });
   const [loading, setLoading] = useState(true);
@@ -53,6 +54,7 @@ const CandidateAdditional = () => {
           experience: data.experience || "",
           positionLevel: data.position_level || "",
           wantsToChangeIndustry: data.wants_to_change_industry || "",
+          targetIndustries: [],
           workDescription: data.work_description || "",
         });
       }
@@ -221,11 +223,53 @@ const CandidateAdditional = () => {
 
             <div className="space-y-2">
               <Label>{t("candidate.additional.changeIndustryLabel")}</Label>
-              <Select value={formData.wantsToChangeIndustry} onValueChange={(value) => setFormData(prev => ({ ...prev, wantsToChangeIndustry: value }))}>
+              <Select 
+                value={formData.wantsToChangeIndustry} 
+                onValueChange={(value) => setFormData(prev => ({ 
+                  ...prev, 
+                  wantsToChangeIndustry: value,
+                  targetIndustries: value === "Nie" || value === "No" ? [] : prev.targetIndustries
+                }))}
+              >
                 <SelectTrigger><SelectValue placeholder={t("candidate.additional.changeIndustryPlaceholder")} /></SelectTrigger>
                 <SelectContent>{localizedIndustryChangeOptions.map((option) => <SelectItem key={option} value={option}>{option}</SelectItem>)}</SelectContent>
               </Select>
             </div>
+
+            {(formData.wantsToChangeIndustry === "Tak" || formData.wantsToChangeIndustry === "Yes" || 
+              formData.wantsToChangeIndustry === "Jestem otwarty/a" || formData.wantsToChangeIndustry === "I'm open to it") && (
+              <div className="space-y-2">
+                <Label>{t("candidate.additional.targetIndustriesLabel")}</Label>
+                <Select 
+                  value={formData.targetIndustries[0] || ""} 
+                  onValueChange={(value) => {
+                    if (!formData.targetIndustries.includes(value)) {
+                      setFormData(prev => ({ ...prev, targetIndustries: [...prev.targetIndustries, value] }));
+                    }
+                  }}
+                >
+                  <SelectTrigger><SelectValue placeholder={t("candidate.additional.targetIndustriesPlaceholder")} /></SelectTrigger>
+                  <SelectContent>
+                    {localizedIndustries
+                      .filter(ind => !formData.targetIndustries.includes(ind))
+                      .map((industry) => <SelectItem key={industry} value={industry}>{industry}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+                {formData.targetIndustries.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {formData.targetIndustries.map((ind) => (
+                      <span 
+                        key={ind} 
+                        className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-accent/20 text-sm cursor-pointer hover:bg-destructive/20"
+                        onClick={() => setFormData(prev => ({ ...prev, targetIndustries: prev.targetIndustries.filter(i => i !== ind) }))}
+                      >
+                        {ind} ✕
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
 
             <div className="space-y-2">
               <Label>{t("candidate.additional.workDescriptionLabel")}</Label>
