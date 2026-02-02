@@ -261,8 +261,19 @@ Deno.serve(async (req) => {
     }
 
     const matches: any[] = [];
+    const newMatchCandidates: { user_id: string; overall_percent: number }[] = [];
 
     for (const candidate of candidates || []) {
+      // Check if match already exists
+      const { data: existingMatch } = await supabase
+        .from('match_results')
+        .select('id')
+        .eq('employer_user_id', employer_user_id)
+        .eq('candidate_user_id', candidate.user_id)
+        .single();
+
+      const isNewMatch = !existingMatch;
+
       // Calculate matches
       const competence = calculateCompetenceMatch(candidate as CandidateData, employer as EmployerData);
       const culture = calculateCultureMatch(candidate as CandidateData, employer as EmployerData);
@@ -305,6 +316,53 @@ Deno.serve(async (req) => {
           candidate_user_id: candidate.user_id,
           overall_percent: Math.round(overallPercent),
         });
+
+        // Track new matches for email notifications
+        if (isNewMatch) {
+          newMatchCandidates.push({
+            user_id: candidate.user_id,
+            overall_percent: Math.round(overallPercent),
+          });
+        }
+      }
+    }
+
+    // Send email notifications for new matches
+    const companyName = employer.company_name || 'Nowy pracodawca';
+    for (const newMatch of newMatchCandidates) {
+      try {
+        // Get candidate email from auth.users
+        const { data: userData } = await supabase.auth.admin.getUserById(newMatch.user_id);
+        const candidateEmail = userData?.user?.email;
+
+        if (candidateEmail) {
+          // Call send-match-notification function
+          const notificationResponse = await fetch(
+            `${supabaseUrl}/functions/v1/send-match-notification`,
+            {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${supabaseKey}`,
+              },
+              body: JSON.stringify({
+                candidate_user_id: newMatch.user_id,
+                candidate_email: candidateEmail,
+                employer_company_name: companyName,
+                match_percent: newMatch.overall_percent,
+                dashboard_url: 'https://idealniepasuje.lovable.app/candidate/dashboard',
+              }),
+            }
+          );
+
+          if (!notificationResponse.ok) {
+            console.error(`Failed to send notification to ${candidateEmail}:`, await notificationResponse.text());
+          } else {
+            console.log(`Match notification sent to ${candidateEmail}`);
+          }
+        }
+      } catch (emailError) {
+        console.error(`Error sending notification for candidate ${newMatch.user_id}:`, emailError);
       }
     }
 
