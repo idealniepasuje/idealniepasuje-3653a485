@@ -65,6 +65,7 @@ export type Database = {
           id: string
           industry: string | null
           komunikacja_score: number | null
+          linkedin_url: string | null
           myslenie_analityczne_score: number | null
           out_of_the_box_score: number | null
           position_level: string | null
@@ -93,6 +94,7 @@ export type Database = {
           id?: string
           industry?: string | null
           komunikacja_score?: number | null
+          linkedin_url?: string | null
           myslenie_analityczne_score?: number | null
           out_of_the_box_score?: number | null
           position_level?: string | null
@@ -121,6 +123,7 @@ export type Database = {
           id?: string
           industry?: string | null
           komunikacja_score?: number | null
+          linkedin_url?: string | null
           myslenie_analityczne_score?: number | null
           out_of_the_box_score?: number | null
           position_level?: string | null
