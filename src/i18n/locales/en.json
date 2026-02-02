@@ -160,7 +160,8 @@
       "profileCompleteEmail": "Within 24 hours, you'll receive an email with your test results.",
       "profileCompleteMatch": "If there's demand for your competencies in our database, we'll immediately notify you by email about the match with an employer.",
       "searchingMatches": "Searching for ideal matches",
-      "searchingMatchesDescription": "Now it's our turn. We'll be looking for your ideal employer. When a matched offer appears, you'll receive a notification."
+      "searchingMatchesDescription": "Now it's our turn. We'll be looking for your ideal employer. When a matched offer appears, you'll receive a notification.",
+      "shareFeedback": "Share your feedback"
     },
     "matches": {
       "title": "Matched employers",
