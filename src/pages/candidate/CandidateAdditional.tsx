@@ -161,17 +161,28 @@ const CandidateAdditional = () => {
       return;
     }
 
+    // If no experience OR wants to change industry, target industries are required
+    if (hasNoExperience || wantsToChangeIndustry === "Tak" || wantsToChangeIndustry === "Yes") {
+      if (targetIndustries.length === 0) {
+        toast.error(t("candidate.additional.selectAtLeastOneIndustry"));
+        return;
+      }
+    }
+
     setSaving(true);
     try {
       const validExperiences = hasNoExperience 
         ? [] 
         : industryExperiences.filter(exp => exp.industry && exp.years && exp.positionLevel);
+
+      // For no experience or wants to change, save target industries
+      const shouldSaveTargetIndustries = hasNoExperience || wantsToChangeIndustry === "Tak" || wantsToChangeIndustry === "Yes";
       
       const { error } = await supabase.from("candidate_test_results").update({
         industry_experiences: JSON.parse(JSON.stringify(validExperiences)) as Json,
         has_no_experience: hasNoExperience,
-        wants_to_change_industry: wantsToChangeIndustry,
-        target_industries: (wantsToChangeIndustry === "Tak" || wantsToChangeIndustry === "Yes") ? targetIndustries : [],
+        wants_to_change_industry: hasNoExperience ? null : wantsToChangeIndustry,
+        target_industries: shouldSaveTargetIndustries ? targetIndustries : [],
         linkedin_url: linkedinUrl,
         // Keep backward compatibility
         industry: validExperiences[0]?.industry || null,
@@ -374,10 +385,15 @@ const CandidateAdditional = () => {
               </div>
             )}
 
-            {/* Target industries (if wants to change) */}
-            {(wantsToChangeIndustry === "Tak" || wantsToChangeIndustry === "Yes") && (
+            {/* Target industries - show if user wants to change OR has no experience */}
+            {(hasNoExperience || wantsToChangeIndustry === "Tak" || wantsToChangeIndustry === "Yes") && (
               <div className="space-y-2">
-                <Label>{t("candidate.additional.targetIndustriesLabel")} ({targetIndustries.length}/3)</Label>
+                <Label>
+                  {hasNoExperience 
+                    ? t("candidate.additional.searchIndustriesLabel")
+                    : t("candidate.additional.targetIndustriesLabel")
+                  } ({targetIndustries.length}/3) *
+                </Label>
                 <Select 
                   value="" 
                   onValueChange={addTargetIndustry}
