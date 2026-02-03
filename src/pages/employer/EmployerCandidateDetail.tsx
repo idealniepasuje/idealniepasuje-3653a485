@@ -5,8 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { LogOut, ArrowLeft, Target, Heart, Briefcase, CheckCircle2, AlertCircle, TrendingUp, TrendingDown, User, ThumbsUp, Sparkles, ChevronDown, ChevronUp, Info } from "lucide-react";
+import { LogOut, ArrowLeft, Target, Heart, Briefcase, CheckCircle2, AlertCircle, TrendingUp, TrendingDown, User, ThumbsUp, Sparkles } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { logError } from "@/lib/errorLogger";
@@ -324,56 +323,43 @@ const EmployerCandidateDetail = () => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
+            <div className="space-y-6">
               {matchDetails?.competenceDetails?.map((comp) => {
                 const level = getLevel(comp.candidateScore);
                 const feedback = getFeedback('competency', comp.competency, level, 'employer', i18n.language);
                 const levelLabels = getLocalizedLevelLabels(i18n.language);
                 
                 return (
-                  <Collapsible key={comp.competency}>
-                    <div className="space-y-2">
-                      <div className="flex justify-between items-center">
-                        <span className="font-medium">
-                          {competencyNames[comp.competency]?.[lang] || comp.competency}
-                        </span>
-                        <div className="flex items-center gap-2">
-                          <Badge variant={
-                            comp.status === 'excellent' ? 'default' :
-                            comp.status === 'good' ? 'secondary' : 'outline'
-                          }>
-                            {Math.round(comp.matchPercent)}%
-                          </Badge>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                        <span>{t("employer.candidateDetail.candidateScore")}: {comp.candidateScore.toFixed(1)}</span>
-                        <span>{t("employer.candidateDetail.yourRequirement")}: {comp.employerRequirement}</span>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <Progress value={comp.matchPercent} className="h-2 flex-1" />
-                        <CollapsibleTrigger asChild>
-                          <Button variant="ghost" size="sm" className="h-7 px-2 text-muted-foreground hover:text-foreground">
-                            <Info className="w-4 h-4" />
-                          </Button>
-                        </CollapsibleTrigger>
-                      </div>
-                      <CollapsibleContent>
-                        <div className="mt-2 p-3 rounded-lg bg-muted/50 border border-border">
-                          <div className="flex items-center gap-2 mb-1">
-                            <span className={`text-xs font-semibold px-2 py-0.5 rounded ${
-                              level === 'high' ? 'bg-success/20 text-success' : 
-                              level === 'medium' ? 'bg-cta/20 text-cta' : 
-                              'bg-destructive/20 text-destructive'
-                            }`}>
-                              {levelLabels[level].label}
-                            </span>
-                          </div>
-                          <p className="text-xs text-muted-foreground leading-relaxed">{feedback}</p>
-                        </div>
-                      </CollapsibleContent>
+                  <div key={comp.competency} className="space-y-2">
+                    <div className="flex justify-between items-center">
+                      <span className="font-medium">
+                        {competencyNames[comp.competency]?.[lang] || comp.competency}
+                      </span>
+                      <Badge variant={
+                        comp.status === 'excellent' ? 'default' :
+                        comp.status === 'good' ? 'secondary' : 'outline'
+                      }>
+                        {Math.round(comp.matchPercent)}%
+                      </Badge>
                     </div>
-                  </Collapsible>
+                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                      <span>{t("employer.candidateDetail.candidateScore")}: {comp.candidateScore.toFixed(1)}</span>
+                      <span>{t("employer.candidateDetail.yourRequirement")}: {comp.employerRequirement}</span>
+                    </div>
+                    <Progress value={comp.matchPercent} className="h-2" />
+                    <div className="p-3 rounded-lg bg-muted/50 border border-border">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className={`text-xs font-semibold px-2 py-0.5 rounded ${
+                          level === 'high' ? 'bg-success/20 text-success' : 
+                          level === 'medium' ? 'bg-cta/20 text-cta' : 
+                          'bg-destructive/20 text-destructive'
+                        }`}>
+                          {levelLabels[level].label}
+                        </span>
+                      </div>
+                      <p className="text-xs text-muted-foreground leading-relaxed">{feedback}</p>
+                    </div>
+                  </div>
                 );
               })}
             </div>
@@ -389,54 +375,43 @@ const EmployerCandidateDetail = () => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
+            <div className="space-y-6">
               {matchDetails?.cultureDetails?.map((cult) => {
                 const level = getLevel(cult.candidateScore);
                 const feedback = getFeedback('culture', cult.dimension, level, 'employer', i18n.language);
                 const levelLabels = getLocalizedLevelLabels(i18n.language);
                 
                 return (
-                  <Collapsible key={cult.dimension}>
-                    <div className="space-y-2">
-                      <div className="flex justify-between items-center">
-                        <span className="font-medium">
-                          {cultureNames[cult.dimension]?.[lang] || cult.dimension}
-                        </span>
-                        <Badge variant={
-                          cult.status === 'aligned' ? 'default' :
-                          cult.status === 'partial' ? 'secondary' : 'outline'
-                        }>
-                          {Math.round(cult.matchPercent)}%
-                        </Badge>
-                      </div>
-                      <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                        <span>{t("employer.candidateDetail.candidateScore")}: {cult.candidateScore.toFixed(1)}</span>
-                        <span>{t("employer.candidateDetail.yourScore")}: {cult.employerScore.toFixed(1)}</span>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <Progress value={cult.matchPercent} className="h-2 flex-1" />
-                        <CollapsibleTrigger asChild>
-                          <Button variant="ghost" size="sm" className="h-7 px-2 text-muted-foreground hover:text-foreground">
-                            <Info className="w-4 h-4" />
-                          </Button>
-                        </CollapsibleTrigger>
-                      </div>
-                      <CollapsibleContent>
-                        <div className="mt-2 p-3 rounded-lg bg-muted/50 border border-border">
-                          <div className="flex items-center gap-2 mb-1">
-                            <span className={`text-xs font-semibold px-2 py-0.5 rounded ${
-                              level === 'high' ? 'bg-success/20 text-success' : 
-                              level === 'medium' ? 'bg-cta/20 text-cta' : 
-                              'bg-destructive/20 text-destructive'
-                            }`}>
-                              {levelLabels[level].label}
-                            </span>
-                          </div>
-                          <p className="text-xs text-muted-foreground leading-relaxed">{feedback}</p>
-                        </div>
-                      </CollapsibleContent>
+                  <div key={cult.dimension} className="space-y-2">
+                    <div className="flex justify-between items-center">
+                      <span className="font-medium">
+                        {cultureNames[cult.dimension]?.[lang] || cult.dimension}
+                      </span>
+                      <Badge variant={
+                        cult.status === 'aligned' ? 'default' :
+                        cult.status === 'partial' ? 'secondary' : 'outline'
+                      }>
+                        {Math.round(cult.matchPercent)}%
+                      </Badge>
                     </div>
-                  </Collapsible>
+                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                      <span>{t("employer.candidateDetail.candidateScore")}: {cult.candidateScore.toFixed(1)}</span>
+                      <span>{t("employer.candidateDetail.yourScore")}: {cult.employerScore.toFixed(1)}</span>
+                    </div>
+                    <Progress value={cult.matchPercent} className="h-2" />
+                    <div className="p-3 rounded-lg bg-muted/50 border border-border">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className={`text-xs font-semibold px-2 py-0.5 rounded ${
+                          level === 'high' ? 'bg-success/20 text-success' : 
+                          level === 'medium' ? 'bg-cta/20 text-cta' : 
+                          'bg-destructive/20 text-destructive'
+                        }`}>
+                          {levelLabels[level].label}
+                        </span>
+                      </div>
+                      <p className="text-xs text-muted-foreground leading-relaxed">{feedback}</p>
+                    </div>
+                  </div>
                 );
               })}
             </div>
