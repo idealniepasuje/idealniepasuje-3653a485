@@ -62,13 +62,16 @@ export type Database = {
           culture_wyniki_cele: number | null
           determinacja_score: number | null
           experience: string | null
+          has_no_experience: boolean | null
           id: string
           industry: string | null
+          industry_experiences: Json | null
           komunikacja_score: number | null
           linkedin_url: string | null
           myslenie_analityczne_score: number | null
           out_of_the_box_score: number | null
           position_level: string | null
+          target_industries: string[] | null
           updated_at: string
           user_id: string
           wants_to_change_industry: string | null
@@ -91,13 +94,16 @@ export type Database = {
           culture_wyniki_cele?: number | null
           determinacja_score?: number | null
           experience?: string | null
+          has_no_experience?: boolean | null
           id?: string
           industry?: string | null
+          industry_experiences?: Json | null
           komunikacja_score?: number | null
           linkedin_url?: string | null
           myslenie_analityczne_score?: number | null
           out_of_the_box_score?: number | null
           position_level?: string | null
+          target_industries?: string[] | null
           updated_at?: string
           user_id: string
           wants_to_change_industry?: string | null
@@ -120,13 +126,16 @@ export type Database = {
           culture_wyniki_cele?: number | null
           determinacja_score?: number | null
           experience?: string | null
+          has_no_experience?: boolean | null
           id?: string
           industry?: string | null
+          industry_experiences?: Json | null
           komunikacja_score?: number | null
           linkedin_url?: string | null
           myslenie_analityczne_score?: number | null
           out_of_the_box_score?: number | null
           position_level?: string | null
+          target_industries?: string[] | null
           updated_at?: string
           user_id?: string
           wants_to_change_industry?: string | null
@@ -180,6 +189,7 @@ export type Database = {
           id: string
           industry: string | null
           linkedin_url: string | null
+          no_experience_required: boolean | null
           position_level: string | null
           profile_completed: boolean | null
           req_adaptacja: number | null
@@ -210,6 +220,7 @@ export type Database = {
           id?: string
           industry?: string | null
           linkedin_url?: string | null
+          no_experience_required?: boolean | null
           position_level?: string | null
           profile_completed?: boolean | null
           req_adaptacja?: number | null
@@ -240,6 +251,7 @@ export type Database = {
           id?: string
           industry?: string | null
           linkedin_url?: string | null
+          no_experience_required?: boolean | null
           position_level?: string | null
           profile_completed?: boolean | null
           req_adaptacja?: number | null

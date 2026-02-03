@@ -6,12 +6,20 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowLeft, CheckCircle2, Linkedin } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { ArrowLeft, CheckCircle2, Linkedin, Plus, X } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { industries, experienceLevels, positionLevels, industryChangeOptions, getLocalizedData } from "@/data/additionalQuestions";
 import { logError } from "@/lib/errorLogger";
+import type { Json } from "@/integrations/supabase/types";
+
+interface IndustryExperience {
+  industry: string;
+  years: string;
+  positionLevel: string;
+}
 
 const CandidateAdditional = () => {
   const { user, loading: authLoading } = useAuth();
@@ -22,14 +30,14 @@ const CandidateAdditional = () => {
   const localizedPositionLevels = getLocalizedData(positionLevels, i18n.language);
   const localizedIndustryChangeOptions = getLocalizedData(industryChangeOptions, i18n.language);
   
-  const [formData, setFormData] = useState({
-    industry: "",
-    experience: "",
-    positionLevel: "",
-    wantsToChangeIndustry: "",
-    targetIndustries: [] as string[],
-    linkedinUrl: "",
-  });
+  const [hasNoExperience, setHasNoExperience] = useState(false);
+  const [industryExperiences, setIndustryExperiences] = useState<IndustryExperience[]>([
+    { industry: "", years: "", positionLevel: "" }
+  ]);
+  const [wantsToChangeIndustry, setWantsToChangeIndustry] = useState("");
+  const [targetIndustries, setTargetIndustries] = useState<string[]>([]);
+  const [linkedinUrl, setLinkedinUrl] = useState("");
+  
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
@@ -44,19 +52,19 @@ const CandidateAdditional = () => {
     try {
       const { data, error } = await supabase
         .from("candidate_test_results")
-        .select("industry, experience, position_level, wants_to_change_industry, work_description, additional_completed")
+        .select("industry_experiences, has_no_experience, wants_to_change_industry, target_industries, linkedin_url, additional_completed")
         .eq("user_id", user.id)
         .single();
       if (error && error.code !== "PGRST116") logError("CandidateAdditional.fetchExistingData", error);
       if (data) {
-        setFormData({
-          industry: data.industry || "",
-          experience: data.experience || "",
-          positionLevel: data.position_level || "",
-          wantsToChangeIndustry: data.wants_to_change_industry || "",
-          targetIndustries: [],
-          linkedinUrl: (data as any).linkedin_url || "",
-        });
+        setHasNoExperience(data.has_no_experience || false);
+        const experiences = data.industry_experiences as unknown as IndustryExperience[] | null;
+        if (experiences && Array.isArray(experiences) && experiences.length > 0) {
+          setIndustryExperiences(experiences);
+        }
+        setWantsToChangeIndustry(data.wants_to_change_industry || "");
+        setTargetIndustries(data.target_industries || []);
+        setLinkedinUrl((data as any).linkedin_url || "");
       }
     } catch (error) {
       logError("CandidateAdditional.fetchExistingData", error);
@@ -96,30 +104,82 @@ const CandidateAdditional = () => {
     }
   };
 
+  const addIndustryExperience = () => {
+    if (industryExperiences.length < 3) {
+      setIndustryExperiences([...industryExperiences, { industry: "", years: "", positionLevel: "" }]);
+    }
+  };
+
+  const removeIndustryExperience = (index: number) => {
+    if (industryExperiences.length > 1) {
+      setIndustryExperiences(industryExperiences.filter((_, i) => i !== index));
+    }
+  };
+
+  const updateIndustryExperience = (index: number, field: keyof IndustryExperience, value: string) => {
+    const updated = [...industryExperiences];
+    updated[index] = { ...updated[index], [field]: value };
+    setIndustryExperiences(updated);
+  };
+
+  const handleNoExperienceChange = (checked: boolean) => {
+    setHasNoExperience(checked);
+    if (checked) {
+      setIndustryExperiences([{ industry: "", years: "", positionLevel: "" }]);
+    }
+  };
+
+  const addTargetIndustry = (value: string) => {
+    if (!targetIndustries.includes(value) && targetIndustries.length < 3) {
+      setTargetIndustries([...targetIndustries, value]);
+    }
+  };
+
+  const removeTargetIndustry = (industry: string) => {
+    setTargetIndustries(targetIndustries.filter(i => i !== industry));
+  };
+
   const handleSubmit = async () => {
     if (!user) return;
-    if (!formData.industry || !formData.experience || !formData.positionLevel || !formData.wantsToChangeIndustry) {
+    
+    // Validation
+    if (!hasNoExperience) {
+      const hasValidExperience = industryExperiences.some(
+        exp => exp.industry && exp.years && exp.positionLevel
+      );
+      if (!hasValidExperience) {
+        toast.error(t("candidate.additional.fillRequiredFields"));
+        return;
+      }
+    }
+    
+    if (!wantsToChangeIndustry) {
       toast.error(t("candidate.additional.fillRequiredFields"));
       return;
     }
+
     setSaving(true);
     try {
+      const validExperiences = hasNoExperience 
+        ? [] 
+        : industryExperiences.filter(exp => exp.industry && exp.years && exp.positionLevel);
+      
       const { error } = await supabase.from("candidate_test_results").update({
-        industry: formData.industry,
-        experience: formData.experience,
-        position_level: formData.positionLevel,
-        wants_to_change_industry: formData.wantsToChangeIndustry,
-        linkedin_url: formData.linkedinUrl,
+        industry_experiences: JSON.parse(JSON.stringify(validExperiences)) as Json,
+        has_no_experience: hasNoExperience,
+        wants_to_change_industry: wantsToChangeIndustry,
+        target_industries: (wantsToChangeIndustry === "Tak" || wantsToChangeIndustry === "Yes") ? targetIndustries : [],
+        linkedin_url: linkedinUrl,
+        // Keep backward compatibility
+        industry: validExperiences[0]?.industry || null,
+        experience: validExperiences[0]?.years || null,
+        position_level: validExperiences[0]?.positionLevel || null,
         additional_completed: true,
         all_tests_completed: true,
       }).eq("user_id", user.id);
       if (error) throw error;
       
-      // Generate matches and send results email after completing all tests
-      await Promise.all([
-        generateMatches(),
-        sendResultsEmail()
-      ]);
+      await Promise.all([generateMatches(), sendResultsEmail()]);
       
       setShowSuccess(true);
       toast.success(t("candidate.additional.thankYouMessage"));
@@ -197,57 +257,147 @@ const CandidateAdditional = () => {
 
         <Card>
           <CardContent className="pt-6 space-y-6">
-            <div className="space-y-2">
-              <Label>{t("candidate.additional.industryLabel")}</Label>
-              <Select value={formData.industry} onValueChange={(value) => setFormData(prev => ({ ...prev, industry: value }))}>
-                <SelectTrigger><SelectValue placeholder={t("candidate.additional.industryPlaceholder")} /></SelectTrigger>
-                <SelectContent>{localizedIndustries.map((industry) => <SelectItem key={industry} value={industry}>{industry}</SelectItem>)}</SelectContent>
-              </Select>
+            {/* No experience checkbox */}
+            <div className="flex items-center space-x-2">
+              <Checkbox 
+                id="noExperience" 
+                checked={hasNoExperience}
+                onCheckedChange={handleNoExperienceChange}
+              />
+              <Label htmlFor="noExperience" className="cursor-pointer">
+                {t("candidate.additional.noExperienceLabel")}
+              </Label>
             </div>
 
+            {/* Industry experiences */}
+            {!hasNoExperience && (
+              <div className="space-y-4">
+                <Label>{t("candidate.additional.industryExperienceLabel")} *</Label>
+                
+                {industryExperiences.map((exp, index) => (
+                  <div key={index} className="p-4 border rounded-lg space-y-3 relative">
+                    {industryExperiences.length > 1 && (
+                      <button 
+                        onClick={() => removeIndustryExperience(index)}
+                        className="absolute top-2 right-2 p-1 hover:bg-destructive/10 rounded"
+                      >
+                        <X className="w-4 h-4 text-destructive" />
+                      </button>
+                    )}
+                    
+                    <div className="grid gap-3">
+                      <Select 
+                        value={exp.industry} 
+                        onValueChange={(v) => updateIndustryExperience(index, "industry", v)}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder={t("candidate.additional.industryPlaceholder")} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {localizedIndustries.filter(i => i !== localizedIndustries[0]).map((industry) => (
+                            <SelectItem key={industry} value={industry}>{industry}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      
+                      <div className="grid grid-cols-2 gap-3">
+                        <Select 
+                          value={exp.years} 
+                          onValueChange={(v) => updateIndustryExperience(index, "years", v)}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder={t("candidate.additional.experiencePlaceholder")} />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {experienceLevels.map((level) => (
+                              <SelectItem key={level} value={level}>{level} {t("common.years")}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        
+                        <Select 
+                          value={exp.positionLevel} 
+                          onValueChange={(v) => updateIndustryExperience(index, "positionLevel", v)}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder={t("candidate.additional.positionLevelPlaceholder")} />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {localizedPositionLevels.map((level) => (
+                              <SelectItem key={level} value={level}>{level}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+                
+                {industryExperiences.length < 3 && (
+                  <Button 
+                    variant="outline" 
+                    onClick={addIndustryExperience}
+                    className="w-full"
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    {t("candidate.additional.addAnotherIndustry")} ({industryExperiences.length}/3)
+                  </Button>
+                )}
+              </div>
+            )}
+
+            {/* Change industry question */}
             <div className="space-y-2">
               <Label>{t("candidate.additional.changeIndustryLabel")}</Label>
               <Select 
-                value={formData.wantsToChangeIndustry} 
-                onValueChange={(value) => setFormData(prev => ({ 
-                  ...prev, 
-                  wantsToChangeIndustry: value,
-                  targetIndustries: value === "Nie" || value === "No" ? [] : prev.targetIndustries
-                }))}
+                value={wantsToChangeIndustry} 
+                onValueChange={(value) => {
+                  setWantsToChangeIndustry(value);
+                  if (value === "Nie" || value === "No") {
+                    setTargetIndustries([]);
+                  }
+                }}
               >
-                <SelectTrigger><SelectValue placeholder={t("candidate.additional.changeIndustryPlaceholder")} /></SelectTrigger>
-                <SelectContent>{localizedIndustryChangeOptions.map((option) => <SelectItem key={option} value={option}>{option}</SelectItem>)}</SelectContent>
+                <SelectTrigger>
+                  <SelectValue placeholder={t("candidate.additional.changeIndustryPlaceholder")} />
+                </SelectTrigger>
+                <SelectContent>
+                  {localizedIndustryChangeOptions.map((option) => (
+                    <SelectItem key={option} value={option}>{option}</SelectItem>
+                  ))}
+                </SelectContent>
               </Select>
             </div>
 
-            {(formData.wantsToChangeIndustry === "Tak" || formData.wantsToChangeIndustry === "Yes") && (
+            {/* Target industries (if wants to change) */}
+            {(wantsToChangeIndustry === "Tak" || wantsToChangeIndustry === "Yes") && (
               <div className="space-y-2">
-                <Label>{t("candidate.additional.targetIndustriesLabel")} ({formData.targetIndustries.length}/3)</Label>
+                <Label>{t("candidate.additional.targetIndustriesLabel")} ({targetIndustries.length}/3)</Label>
                 <Select 
-                  value={formData.targetIndustries[0] || ""} 
-                  onValueChange={(value) => {
-                    if (!formData.targetIndustries.includes(value) && formData.targetIndustries.length < 3) {
-                      setFormData(prev => ({ ...prev, targetIndustries: [...prev.targetIndustries, value] }));
-                    }
-                  }}
-                  disabled={formData.targetIndustries.length >= 3}
+                  value="" 
+                  onValueChange={addTargetIndustry}
+                  disabled={targetIndustries.length >= 3}
                 >
-                  <SelectTrigger><SelectValue placeholder={formData.targetIndustries.length >= 3 ? t("candidate.additional.maxIndustriesReached") : t("candidate.additional.targetIndustriesPlaceholder")} /></SelectTrigger>
+                  <SelectTrigger>
+                    <SelectValue placeholder={targetIndustries.length >= 3 ? t("candidate.additional.maxIndustriesReached") : t("candidate.additional.targetIndustriesPlaceholder")} />
+                  </SelectTrigger>
                   <SelectContent>
                     {localizedIndustries
-                      .filter(ind => !formData.targetIndustries.includes(ind))
-                      .map((industry) => <SelectItem key={industry} value={industry}>{industry}</SelectItem>)}
+                      .filter(ind => !targetIndustries.includes(ind) && ind !== localizedIndustries[0])
+                      .map((industry) => (
+                        <SelectItem key={industry} value={industry}>{industry}</SelectItem>
+                      ))}
                   </SelectContent>
                 </Select>
-                {formData.targetIndustries.length > 0 && (
+                {targetIndustries.length > 0 && (
                   <div className="flex flex-wrap gap-2 mt-2">
-                    {formData.targetIndustries.map((ind) => (
+                    {targetIndustries.map((ind) => (
                       <span 
                         key={ind} 
                         className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-accent/20 text-sm cursor-pointer hover:bg-destructive/20"
-                        onClick={() => setFormData(prev => ({ ...prev, targetIndustries: prev.targetIndustries.filter(i => i !== ind) }))}
+                        onClick={() => removeTargetIndustry(ind)}
                       >
-                        {ind} ✕
+                        {ind} <X className="w-3 h-3" />
                       </span>
                     ))}
                   </div>
@@ -255,22 +405,7 @@ const CandidateAdditional = () => {
               </div>
             )}
 
-            <div className="space-y-2">
-              <Label>{t("candidate.additional.experienceLabel")}</Label>
-              <Select value={formData.experience} onValueChange={(value) => setFormData(prev => ({ ...prev, experience: value }))}>
-                <SelectTrigger><SelectValue placeholder={t("candidate.additional.experiencePlaceholder")} /></SelectTrigger>
-                <SelectContent>{experienceLevels.map((level) => <SelectItem key={level} value={level}>{level} {t("common.years")}</SelectItem>)}</SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label>{t("candidate.additional.positionLevelLabel")}</Label>
-              <Select value={formData.positionLevel} onValueChange={(value) => setFormData(prev => ({ ...prev, positionLevel: value }))}>
-                <SelectTrigger><SelectValue placeholder={t("candidate.additional.positionLevelPlaceholder")} /></SelectTrigger>
-                <SelectContent>{localizedPositionLevels.map((level) => <SelectItem key={level} value={level}>{level}</SelectItem>)}</SelectContent>
-              </Select>
-            </div>
-
+            {/* LinkedIn */}
             <div className="space-y-2">
               <Label className="flex items-center gap-2">
                 <Linkedin className="w-4 h-4" />
@@ -279,8 +414,8 @@ const CandidateAdditional = () => {
               <Input
                 type="url"
                 placeholder={t("candidate.additional.linkedinPlaceholder")}
-                value={formData.linkedinUrl}
-                onChange={(e) => setFormData(prev => ({ ...prev, linkedinUrl: e.target.value }))}
+                value={linkedinUrl}
+                onChange={(e) => setLinkedinUrl(e.target.value)}
               />
             </div>
 
