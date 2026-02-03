@@ -180,7 +180,7 @@ const EmployerDashboard = () => {
           </CardContent>
         </Card>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <div className="grid md:grid-cols-3 gap-4 mb-8">
           <Card className="group hover:shadow-lg transition-shadow">
             <CardHeader className="pb-3">
               <div className="flex items-start justify-between">
@@ -229,22 +229,6 @@ const EmployerDashboard = () => {
             </CardHeader>
             <CardContent>
               <Link to="/employer/culture"><Button className="w-full gap-2" size="sm" variant={employerProfile?.culture_completed ? "outline" : "default"} disabled={!employerProfile?.requirements_completed}>{employerProfile?.culture_completed ? t("common.edit") : t("common.fill")}<ChevronRight className="w-4 h-4" /></Button></Link>
-            </CardContent>
-          </Card>
-
-          <Card className={`group hover:shadow-lg transition-shadow ${!employerProfile?.culture_completed ? "opacity-60" : ""}`}>
-            <CardHeader className="pb-3">
-              <div className="flex items-start justify-between">
-                <div className="w-10 h-10 rounded-lg bg-success/10 flex items-center justify-center"><Users className="w-5 h-5 text-success" /></div>
-                <Badge variant={matches.length > 0 ? "default" : "outline"} className={matches.length > 0 ? "bg-accent" : ""}>
-                  {matches.length > 0 ? `${matches.length} ${t("common.candidates")}` : t("common.awaiting")}
-                </Badge>
-              </div>
-              <CardTitle className="text-base">{t("employer.dashboard.candidates")}</CardTitle>
-              <CardDescription className="text-xs">{t("employer.dashboard.candidatesSubtitle")}</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Link to="/employer/candidates"><Button className="w-full gap-2" size="sm" variant="default" disabled={!employerProfile?.culture_completed}>{t("employer.dashboard.view")}<ChevronRight className="w-4 h-4" /></Button></Link>
             </CardContent>
           </Card>
         </div>
