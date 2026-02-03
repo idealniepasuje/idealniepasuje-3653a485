@@ -126,6 +126,8 @@ const CandidateAdditional = () => {
     setHasNoExperience(checked);
     if (checked) {
       setIndustryExperiences([{ industry: "", years: "", positionLevel: "" }]);
+      setWantsToChangeIndustry("");
+      setTargetIndustries([]);
     }
   };
 
@@ -153,7 +155,8 @@ const CandidateAdditional = () => {
       }
     }
     
-    if (!wantsToChangeIndustry) {
+    // wantsToChangeIndustry is only required if user has experience
+    if (!hasNoExperience && !wantsToChangeIndustry) {
       toast.error(t("candidate.additional.fillRequiredFields"));
       return;
     }
@@ -346,28 +349,30 @@ const CandidateAdditional = () => {
               </div>
             )}
 
-            {/* Change industry question */}
-            <div className="space-y-2">
-              <Label>{t("candidate.additional.changeIndustryLabel")}</Label>
-              <Select 
-                value={wantsToChangeIndustry} 
-                onValueChange={(value) => {
-                  setWantsToChangeIndustry(value);
-                  if (value === "Nie" || value === "No") {
-                    setTargetIndustries([]);
-                  }
-                }}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder={t("candidate.additional.changeIndustryPlaceholder")} />
-                </SelectTrigger>
-                <SelectContent>
-                  {localizedIndustryChangeOptions.map((option) => (
-                    <SelectItem key={option} value={option}>{option}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+            {/* Change industry question - only show if user has experience */}
+            {!hasNoExperience && (
+              <div className="space-y-2">
+                <Label>{t("candidate.additional.changeIndustryLabel")}</Label>
+                <Select 
+                  value={wantsToChangeIndustry} 
+                  onValueChange={(value) => {
+                    setWantsToChangeIndustry(value);
+                    if (value === "Nie" || value === "No") {
+                      setTargetIndustries([]);
+                    }
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder={t("candidate.additional.changeIndustryPlaceholder")} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {localizedIndustryChangeOptions.map((option) => (
+                      <SelectItem key={option} value={option}>{option}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
 
             {/* Target industries (if wants to change) */}
             {(wantsToChangeIndustry === "Tak" || wantsToChangeIndustry === "Yes") && (
