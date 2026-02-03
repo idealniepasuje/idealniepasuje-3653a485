@@ -317,7 +317,7 @@
       "yearsPlaceholder": "Years",
       "addAnotherIndustry": "Add another industry",
       "fillAcceptedIndustries": "Please fill details for accepted industries",
-      "competencyImportance": "Competency importance (1-5)",
+      "competencyImportance": "Competency level (1-5)",
       "fillRequiredFields": "Please fill all required fields",
       "selectPlaceholder": "Select"
     },
