@@ -109,12 +109,19 @@ const EmployerCandidateDetail = () => {
     if (!match) return;
     try {
       const newStatus = isInterested ? 'pending' : 'interested';
-      await supabase
+      const { error } = await supabase
         .from("match_results")
         .update({ status: newStatus })
         .eq("id", match.id);
       
+      if (error) {
+        logError("EmployerCandidateDetail.handleInterested", error);
+        toast.error(t("errors.genericError"));
+        return;
+      }
+      
       setIsInterested(!isInterested);
+      setMatch({ ...match, status: newStatus });
       toast.success(isInterested 
         ? t("employer.candidateDetail.interestRemoved") 
         : t("employer.candidateDetail.interestMarked")
