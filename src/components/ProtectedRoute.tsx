@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -24,16 +24,22 @@ export const ProtectedRoute = ({
   const navigate = useNavigate();
   const [validating, setValidating] = useState(true);
   const [isValid, setIsValid] = useState(false);
+  const hasNavigated = useRef(false);
 
   useEffect(() => {
     const validateAccess = async () => {
+      // Prevent multiple navigations
+      if (hasNavigated.current) return;
+
+      // Wait for auth to finish loading
+      if (authLoading) return;
+
       // If no user, redirect to login
-      if (!authLoading && !user) {
-        navigate(redirectTo);
+      if (!user) {
+        hasNavigated.current = true;
+        navigate(redirectTo, { replace: true });
         return;
       }
-
-      if (!user) return;
 
       // If no specific user type required, just check authentication
       if (!allowedUserType) {
@@ -52,30 +58,39 @@ export const ProtectedRoute = ({
 
         if (error) {
           logError("ProtectedRoute.validateAccess", error);
-          navigate(redirectTo);
+          // Don't redirect in a loop - just show invalid state
+          setIsValid(false);
+          setValidating(false);
           return;
         }
 
         if (data?.user_type !== allowedUserType) {
           // User type doesn't match - redirect to appropriate dashboard
+          hasNavigated.current = true;
           const correctDashboard = data?.user_type === "employer" 
             ? "/employer/dashboard" 
             : "/candidate/dashboard";
-          navigate(correctDashboard);
+          navigate(correctDashboard, { replace: true });
           return;
         }
 
         setIsValid(true);
+        setValidating(false);
       } catch (error) {
         logError("ProtectedRoute.validateAccess", error);
-        navigate(redirectTo);
-      } finally {
+        // Don't redirect on error - just show invalid state
+        setIsValid(false);
         setValidating(false);
       }
     };
 
     validateAccess();
   }, [user, authLoading, allowedUserType, navigate, redirectTo]);
+
+  // Reset navigation flag when user changes
+  useEffect(() => {
+    hasNavigated.current = false;
+  }, [user]);
 
   if (authLoading || validating) {
     return (
@@ -89,6 +104,11 @@ export const ProtectedRoute = ({
   }
 
   if (!isValid) {
+    // If user exists but validation failed, redirect to login
+    if (user && !hasNavigated.current) {
+      hasNavigated.current = true;
+      navigate(redirectTo, { replace: true });
+    }
     return null;
   }
 
