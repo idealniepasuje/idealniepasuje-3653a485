@@ -394,7 +394,7 @@ const CandidateAdditional = () => {
             {/* Target industries - always visible */}
             <div className="space-y-2">
               <Label>
-                {t("candidate.additional.searchIndustriesLabel")} ({targetIndustries.length}/3) *
+                {t("candidate.additional.searchIndustriesLabel")} ({targetIndustries.length}/3)
               </Label>
               <p className="text-sm text-muted-foreground">
                 {hasNoExperience 
