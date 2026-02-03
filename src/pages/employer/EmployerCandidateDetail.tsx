@@ -59,7 +59,6 @@ const EmployerCandidateDetail = () => {
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
   const [match, setMatch] = useState<any>(null);
-  const [candidateName, setCandidateName] = useState<string | null>(null);
   const [candidateData, setCandidateData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [isInterested, setIsInterested] = useState(false);
@@ -87,13 +86,7 @@ const EmployerCandidateDetail = () => {
         setIsInterested(matchData?.status === 'interested');
       }
 
-      // Fetch candidate name from profiles
-      const { data: profileData } = await supabase
-        .rpc('get_profile_public', { target_user_id: candidateId });
-      
-      if (profileData && profileData.length > 0) {
-        setCandidateName(profileData[0].full_name);
-      }
+      // Candidate is anonymous - don't fetch their name
 
       // Fetch candidate test results for additional info
       const { data: testData } = await supabase
@@ -200,9 +193,9 @@ const EmployerCandidateDetail = () => {
                   <div className="w-12 h-12 rounded-full bg-accent/20 flex items-center justify-center">
                     <User className="w-6 h-6 text-accent" />
                   </div>
-                  <div>
+                   <div>
                     <h1 className="text-2xl font-bold">
-                      {candidateName || `${t("employer.candidates.candidateNumber")} #${candidateId?.slice(0, 8)}`}
+                      {t("employer.candidates.candidateNumber")} #{candidateId?.slice(0, 8)}
                     </h1>
                     {candidateData?.position_level && (
                       <p className="text-sm text-muted-foreground">
@@ -252,7 +245,7 @@ const EmployerCandidateDetail = () => {
             <CardContent>
               <p className="text-muted-foreground mb-4">
                 {t("employer.candidateDetail.matchExplanation", { 
-                  name: candidateName || t("employer.candidateDetail.thisCandidate"),
+                  name: t("employer.candidateDetail.thisCandidate"),
                   percent: match.overall_percent 
                 })}
               </p>
