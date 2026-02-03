@@ -139,10 +139,6 @@ const EmployerDashboard = () => {
                   <p className="text-sm mb-3 opacity-95">{t("employer.dashboard.profileCompleteDescription")}</p>
                   <div className="space-y-1.5 text-sm opacity-90 mb-4">
                     <p className="flex items-start gap-2">
-                      <Mail className="w-4 h-4 mt-0.5 shrink-0" />
-                      {t("employer.dashboard.profileCompleteEmail")}
-                    </p>
-                    <p className="flex items-start gap-2">
                       <CheckCircle2 className="w-4 h-4 mt-0.5 shrink-0" />
                       {t("employer.dashboard.profileCompleteMatch")}
                     </p>
