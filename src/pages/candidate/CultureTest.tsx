@@ -12,7 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { getLocalizedCultureQuestions, getLocalizedCultureDimensions } from "@/data/cultureQuestions";
 import { getLocalizedData, agreementScale } from "@/data/additionalQuestions";
-import { getLevel, getFeedback } from "@/data/feedbackData";
+import { CultureScoreWithFeedback } from "@/components/CultureScoreWithFeedback";
 import { useQuestionTimer } from "@/hooks/useQuestionTimer";
 import { QuestionTimer } from "@/components/QuestionTimer";
 import { logError } from "@/lib/errorLogger";
@@ -168,16 +168,14 @@ const CultureTest = () => {
               <div className="space-y-4">
                 {Object.entries(cultureDimensions).map(([code, dim]) => {
                   const score = dimensionScores[code] || 0;
-                  const level = getLevel(score);
-                  const feedback = getFeedback('culture', code, level, 'candidate');
                   return (
-                    <div key={code} className="bg-muted/50 rounded-lg p-4">
-                      <div className="flex items-center justify-between mb-2">
-                        <h3 className="font-semibold">{dim.name}</h3>
-                        <span className={`text-sm font-medium ${level === 'high' ? 'text-success' : level === 'medium' ? 'text-cta' : 'text-muted-foreground'}`}>{score.toFixed(1)} / 5.0</span>
-                      </div>
-                      <p className="text-sm text-muted-foreground">{feedback}</p>
-                    </div>
+                    <CultureScoreWithFeedback
+                      key={code}
+                      dimensionCode={code}
+                      dimensionName={dim.name}
+                      score={score}
+                      audience="candidate"
+                    />
                   );
                 })}
               </div>

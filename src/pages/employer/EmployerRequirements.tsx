@@ -5,14 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Slider } from "@/components/ui/slider";
 import { ArrowLeft, X, Plus } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { industries, experienceLevels, positionLevels, competencyLabels, getLocalizedData } from "@/data/additionalQuestions";
+import { CompetencySliderWithFeedback } from "@/components/CompetencySliderWithFeedback";
 import type { Json } from "@/integrations/supabase/types";
 
 interface AcceptedIndustryRequirement {
@@ -346,17 +345,14 @@ const EmployerRequirements = () => {
             <div className="border-t pt-6">
               <h3 className="font-semibold mb-4">{t("employer.requirements.competencyImportance")}</h3>
               {Object.entries(localizedCompetencyLabels).map(([key, label]) => (
-                <div key={key} className="mb-4">
-                  <div className="flex justify-between mb-2">
-                    <span className="text-sm">{label}</span>
-                    <span className="text-sm font-medium">{competencyReqs[key as keyof typeof competencyReqs]}</span>
-                  </div>
-                  <Slider 
-                    value={[competencyReqs[key as keyof typeof competencyReqs]]} 
-                    onValueChange={([v]) => setCompetencyReqs(p => ({...p, [key]: v}))} 
-                    min={1} max={5} step={1} 
-                  />
-                </div>
+                <CompetencySliderWithFeedback
+                  key={key}
+                  competencyCode={key}
+                  value={competencyReqs[key as keyof typeof competencyReqs]}
+                  onChange={(v) => setCompetencyReqs(p => ({...p, [key]: v}))}
+                  label={label}
+                  audience="employer"
+                />
               ))}
             </div>
 
