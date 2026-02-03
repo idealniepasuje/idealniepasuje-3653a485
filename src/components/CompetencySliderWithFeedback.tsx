@@ -22,8 +22,8 @@ export const CompetencySliderWithFeedback = ({
   const feedback = getFeedback('competency', competencyCode, level, audience, i18n.language);
   const levelLabels = getLocalizedLevelLabels(i18n.language);
   const levelInfo = levelLabels[level];
-  const step = audience === 'employer' ? 1 : 0.1;
-  const displayPrecision = step === 1 ? 0 : 1;
+  const step = 0.1;
+  const displayPrecision = 1;
 
   return (
     <div className="mb-6">
@@ -33,7 +33,7 @@ export const CompetencySliderWithFeedback = ({
       </div>
       <Slider 
         value={[value]} 
-        onValueChange={([v]) => onChange(step === 1 ? Math.round(v) : v)} 
+        onValueChange={([v]) => onChange(v)} 
         min={1} 
         max={5} 
         step={step} 
