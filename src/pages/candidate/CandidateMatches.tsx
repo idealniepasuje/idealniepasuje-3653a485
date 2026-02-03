@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { LogOut, ArrowLeft, Building2, ChevronRight, Target, Heart, Briefcase } from "lucide-react";
+import { LogOut, ArrowLeft, Building2, ChevronRight, Target, Heart, Briefcase, ThumbsUp } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { logError } from "@/lib/errorLogger";
@@ -137,9 +137,17 @@ const CandidateMatches = () => {
                       <div className="flex items-center gap-4">
                         <div className="w-14 h-14 rounded-full bg-accent/20 flex items-center justify-center"><Building2 className="w-7 h-7 text-accent" /></div>
                         <div>
-                          <h3 className="font-semibold text-lg">
-                            {employer?.company_name || t("candidate.matches.company")}
-                          </h3>
+                          <div className="flex items-center gap-2">
+                            <h3 className="font-semibold text-lg">
+                              {employer?.company_name || t("candidate.matches.company")}
+                            </h3>
+                            {match.status === 'considering' && (
+                              <Badge className="bg-success text-success-foreground gap-1">
+                                <ThumbsUp className="w-3 h-3" />
+                                {t("candidate.matches.employerInterested")}
+                              </Badge>
+                            )}
+                          </div>
                           <div className="flex flex-wrap gap-2 mt-2">
                             <Badge variant="outline" className="gap-1"><Target className="w-3 h-3" />{t("common.competencies")}: {match.competence_percent}%</Badge>
                             <Badge variant="outline" className="gap-1"><Heart className="w-3 h-3" />{t("common.culture")}: {match.culture_percent}%</Badge>

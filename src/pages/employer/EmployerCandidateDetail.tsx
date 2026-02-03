@@ -121,6 +121,39 @@ const EmployerCandidateDetail = () => {
         return;
       }
       
+      // Send notification to candidate when employer marks interest
+      if (!isInterested && newStatus === 'considering') {
+        try {
+          // Get candidate email
+          const { data: candidateProfile } = await supabase
+            .rpc('get_profile_public', { target_user_id: candidateId });
+          
+          // Get employer profile for company name
+          const { data: employerProfile } = await supabase
+            .from("employer_profiles")
+            .select("company_name")
+            .eq("user_id", user?.id)
+            .single();
+          
+          if (candidateProfile && candidateProfile.length > 0) {
+            // Get candidate email from auth (we need to call edge function)
+            await supabase.functions.invoke('send-interest-notification', {
+              body: {
+                candidate_user_id: candidateId,
+                employer_company_name: employerProfile?.company_name || 'Pracodawca',
+                match_percent: match.overall_percent,
+                competence_percent: match.competence_percent,
+                culture_percent: match.culture_percent,
+                extra_percent: match.extra_percent,
+              }
+            });
+          }
+        } catch (notifError) {
+          // Don't block the interest marking if notification fails
+          logError("EmployerCandidateDetail.sendNotification", notifError);
+        }
+      }
+      
       setIsInterested(!isInterested);
       setMatch({ ...match, status: newStatus });
       toast.success(isInterested 
