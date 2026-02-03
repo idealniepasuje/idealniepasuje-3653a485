@@ -145,11 +145,12 @@ const EmployerRequirements = () => {
         accepted_industries: validAcceptedReqs.map(r => r.industry),
         accepted_industry_requirements: JSON.parse(JSON.stringify(validAcceptedReqs)) as Json,
         no_experience_required: formData.noExperienceRequired,
-        req_komunikacja: competencyReqs.komunikacja, 
-        req_myslenie_analityczne: competencyReqs.myslenie_analityczne, 
-        req_out_of_the_box: competencyReqs.out_of_the_box, 
-        req_determinacja: competencyReqs.determinacja, 
-        req_adaptacja: competencyReqs.adaptacja, 
+        // DB columns are integers (1-5). Protect save from accidental decimal values.
+        req_komunikacja: Math.round(competencyReqs.komunikacja), 
+        req_myslenie_analityczne: Math.round(competencyReqs.myslenie_analityczne), 
+        req_out_of_the_box: Math.round(competencyReqs.out_of_the_box), 
+        req_determinacja: Math.round(competencyReqs.determinacja), 
+        req_adaptacja: Math.round(competencyReqs.adaptacja), 
         requirements_completed: true 
       }).eq("user_id", user!.id);
       
@@ -276,64 +277,74 @@ const EmployerRequirements = () => {
                     {t("employer.requirements.acceptedIndustriesHint")}
                   </p>
                   
-                  {acceptedIndustryRequirements.map((req, index) => (
-                    <div key={index} className="p-4 border rounded-lg space-y-3 relative">
-                      <button 
-                        onClick={() => removeAcceptedIndustryRequirement(index)}
-                        className="absolute top-2 right-2 p-1 hover:bg-destructive/10 rounded"
-                      >
-                        <X className="w-4 h-4 text-destructive" />
-                      </button>
-                      
-                      <div className="grid gap-3">
-                        <Select 
-                          value={req.industry} 
-                          onValueChange={(v) => updateAcceptedIndustryRequirement(index, "industry", v)}
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder={t("employer.requirements.selectIndustry")} />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {localizedIndustries
-                              .filter(i => i !== localizedIndustries[0] && !usedIndustries.includes(i))
-                              .map(i => (
-                                <SelectItem key={i} value={i}>{i}</SelectItem>
-                              ))}
-                          </SelectContent>
-                        </Select>
-                        
-                        <div className="grid grid-cols-2 gap-3">
-                          <Select 
-                            value={req.positionLevel} 
-                            onValueChange={(v) => updateAcceptedIndustryRequirement(index, "positionLevel", v)}
-                          >
-                            <SelectTrigger>
-                              <SelectValue placeholder={t("employer.requirements.positionLevelPlaceholder")} />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {localizedPositionLevels.map(l => (
-                                <SelectItem key={l} value={l}>{l}</SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          
-                          <Select 
-                            value={req.years} 
-                            onValueChange={(v) => updateAcceptedIndustryRequirement(index, "years", v)}
-                          >
-                            <SelectTrigger>
-                              <SelectValue placeholder={t("employer.requirements.yearsPlaceholder")} />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {experienceLevels.map(l => (
-                                <SelectItem key={l} value={l}>{l} {t("common.years")}</SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
+                   {acceptedIndustryRequirements.map((req, index) => {
+                     // Don't hide the currently selected value from its own dropdown.
+                     const usedIndustriesExcludingCurrent = [
+                       formData.industry,
+                       ...acceptedIndustryRequirements
+                         .filter((_, i) => i !== index)
+                         .map(r => r.industry)
+                     ].filter(Boolean);
+
+                     return (
+                       <div key={index} className="p-4 border rounded-lg space-y-3 relative">
+                         <button 
+                           onClick={() => removeAcceptedIndustryRequirement(index)}
+                           className="absolute top-2 right-2 p-1 hover:bg-destructive/10 rounded"
+                         >
+                           <X className="w-4 h-4 text-destructive" />
+                         </button>
+                         
+                         <div className="grid gap-3">
+                           <Select 
+                             value={req.industry} 
+                             onValueChange={(v) => updateAcceptedIndustryRequirement(index, "industry", v)}
+                           >
+                             <SelectTrigger>
+                               <SelectValue placeholder={t("employer.requirements.selectIndustry")} />
+                             </SelectTrigger>
+                             <SelectContent>
+                               {localizedIndustries
+                                 .filter(i => i !== localizedIndustries[0] && !usedIndustriesExcludingCurrent.includes(i))
+                                 .map(i => (
+                                   <SelectItem key={i} value={i}>{i}</SelectItem>
+                                 ))}
+                             </SelectContent>
+                           </Select>
+                           
+                           <div className="grid grid-cols-2 gap-3">
+                             <Select 
+                               value={req.positionLevel} 
+                               onValueChange={(v) => updateAcceptedIndustryRequirement(index, "positionLevel", v)}
+                             >
+                               <SelectTrigger>
+                                 <SelectValue placeholder={t("employer.requirements.positionLevelPlaceholder")} />
+                               </SelectTrigger>
+                               <SelectContent>
+                                 {localizedPositionLevels.map(l => (
+                                   <SelectItem key={l} value={l}>{l}</SelectItem>
+                                 ))}
+                               </SelectContent>
+                             </Select>
+                             
+                             <Select 
+                               value={req.years} 
+                               onValueChange={(v) => updateAcceptedIndustryRequirement(index, "years", v)}
+                             >
+                               <SelectTrigger>
+                                 <SelectValue placeholder={t("employer.requirements.yearsPlaceholder")} />
+                               </SelectTrigger>
+                               <SelectContent>
+                                 {experienceLevels.map(l => (
+                                   <SelectItem key={l} value={l}>{l} {t("common.years")}</SelectItem>
+                                 ))}
+                               </SelectContent>
+                             </Select>
+                           </div>
+                         </div>
+                       </div>
+                     );
+                   })}
                   
                   {acceptedIndustryRequirements.length < 3 && (
                     <Button 

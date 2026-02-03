@@ -22,19 +22,21 @@ export const CompetencySliderWithFeedback = ({
   const feedback = getFeedback('competency', competencyCode, level, audience, i18n.language);
   const levelLabels = getLocalizedLevelLabels(i18n.language);
   const levelInfo = levelLabels[level];
+  const step = audience === 'employer' ? 1 : 0.1;
+  const displayPrecision = step === 1 ? 0 : 1;
 
   return (
     <div className="mb-6">
       <div className="flex justify-between mb-2">
         <span className="text-sm font-medium">{label}</span>
-        <span className="text-sm font-bold">{value.toFixed(1)}</span>
+        <span className="text-sm font-bold">{value.toFixed(displayPrecision)}</span>
       </div>
       <Slider 
         value={[value]} 
-        onValueChange={([v]) => onChange(v)} 
+        onValueChange={([v]) => onChange(step === 1 ? Math.round(v) : v)} 
         min={1} 
         max={5} 
-        step={0.1} 
+        step={step} 
       />
       <div className="mt-3 p-3 rounded-lg bg-muted/50 border border-border">
         <div className="flex items-center gap-2 mb-1">
