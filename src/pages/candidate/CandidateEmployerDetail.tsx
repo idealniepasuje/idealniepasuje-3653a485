@@ -10,6 +10,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { logError } from "@/lib/errorLogger";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { getLevel, getFeedback, getLocalizedLevelLabels } from "@/data/feedbackData";
 
 interface MatchDetails {
   competenceDetails: {
@@ -260,29 +261,46 @@ const CandidateEmployerDetail = () => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              {matchDetails?.competenceDetails?.map((comp) => (
-                <div key={comp.competency} className="space-y-2">
-                  <div className="flex justify-between items-center">
-                    <span className="font-medium">
-                      {competencyNames[comp.competency]?.[lang] || comp.competency}
-                    </span>
-                    <div className="flex items-center gap-2">
-                      <Badge variant={
-                        comp.status === 'excellent' ? 'default' :
-                        comp.status === 'good' ? 'secondary' : 'outline'
-                      }>
-                        {Math.round(comp.matchPercent)}%
-                      </Badge>
+            <div className="space-y-6">
+              {matchDetails?.competenceDetails?.map((comp) => {
+                const employerLevel = getLevel(comp.employerRequirement);
+                const feedback = getFeedback('competency', comp.competency, employerLevel, 'employer', i18n.language);
+                const levelLabels = getLocalizedLevelLabels(i18n.language);
+                
+                return (
+                  <div key={comp.competency} className="space-y-2">
+                    <div className="flex justify-between items-center">
+                      <span className="font-medium">
+                        {competencyNames[comp.competency]?.[lang] || comp.competency}
+                      </span>
+                      <div className="flex items-center gap-2">
+                        <Badge variant={
+                          comp.status === 'excellent' ? 'default' :
+                          comp.status === 'good' ? 'secondary' : 'outline'
+                        }>
+                          {Math.round(comp.matchPercent)}%
+                        </Badge>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                      <span>{t("candidate.employerDetail.yourScore")}: {comp.candidateScore.toFixed(1)}</span>
+                      <span>{t("candidate.employerDetail.requirement")}: {comp.employerRequirement}</span>
+                    </div>
+                    <Progress value={comp.matchPercent} className="h-2" />
+                    <div className="p-3 rounded-lg bg-muted/50 border border-border">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className={`text-xs font-semibold px-2 py-0.5 rounded ${
+                          employerLevel === 'high' ? 'bg-success/20 text-success' : 
+                          employerLevel === 'medium' ? 'bg-cta/20 text-cta' : 'bg-destructive/20 text-destructive'
+                        }`}>
+                          {levelLabels[employerLevel].label}
+                        </span>
+                      </div>
+                      <p className="text-xs text-muted-foreground leading-relaxed">{feedback}</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                    <span>{t("candidate.employerDetail.yourScore")}: {comp.candidateScore.toFixed(1)}</span>
-                    <span>{t("candidate.employerDetail.requirement")}: {comp.employerRequirement}</span>
-                  </div>
-                  <Progress value={comp.matchPercent} className="h-2" />
-                </div>
-              ))}
+                );
+              })}
             </div>
           </CardContent>
         </Card>
@@ -296,27 +314,44 @@ const CandidateEmployerDetail = () => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              {matchDetails?.cultureDetails?.map((cult) => (
-                <div key={cult.dimension} className="space-y-2">
-                  <div className="flex justify-between items-center">
-                    <span className="font-medium">
-                      {cultureNames[cult.dimension]?.[lang] || cult.dimension}
-                    </span>
-                    <Badge variant={
-                      cult.status === 'aligned' ? 'default' :
-                      cult.status === 'partial' ? 'secondary' : 'outline'
-                    }>
-                      {Math.round(cult.matchPercent)}%
-                    </Badge>
+            <div className="space-y-6">
+              {matchDetails?.cultureDetails?.map((cult) => {
+                const employerLevel = getLevel(cult.employerScore);
+                const feedback = getFeedback('culture', cult.dimension, employerLevel, 'employer', i18n.language);
+                const levelLabels = getLocalizedLevelLabels(i18n.language);
+                
+                return (
+                  <div key={cult.dimension} className="space-y-2">
+                    <div className="flex justify-between items-center">
+                      <span className="font-medium">
+                        {cultureNames[cult.dimension]?.[lang] || cult.dimension}
+                      </span>
+                      <Badge variant={
+                        cult.status === 'aligned' ? 'default' :
+                        cult.status === 'partial' ? 'secondary' : 'outline'
+                      }>
+                        {Math.round(cult.matchPercent)}%
+                      </Badge>
+                    </div>
+                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                      <span>{t("candidate.employerDetail.yourScore")}: {cult.candidateScore.toFixed(1)}</span>
+                      <span>{t("candidate.employerDetail.companyScore")}: {cult.employerScore.toFixed(1)}</span>
+                    </div>
+                    <Progress value={cult.matchPercent} className="h-2" />
+                    <div className="p-3 rounded-lg bg-muted/50 border border-border">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className={`text-xs font-semibold px-2 py-0.5 rounded ${
+                          employerLevel === 'high' ? 'bg-success/20 text-success' : 
+                          employerLevel === 'medium' ? 'bg-cta/20 text-cta' : 'bg-destructive/20 text-destructive'
+                        }`}>
+                          {levelLabels[employerLevel].label}
+                        </span>
+                      </div>
+                      <p className="text-xs text-muted-foreground leading-relaxed">{feedback}</p>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                    <span>{t("candidate.employerDetail.yourScore")}: {cult.candidateScore.toFixed(1)}</span>
-                    <span>{t("candidate.employerDetail.companyScore")}: {cult.employerScore.toFixed(1)}</span>
-                  </div>
-                  <Progress value={cult.matchPercent} className="h-2" />
-                </div>
-              ))}
+                );
+              })}
             </div>
           </CardContent>
         </Card>
