@@ -214,38 +214,40 @@ const EmployerRequirements = () => {
                 </Select>
               </div>
 
-              {/* No experience required checkbox */}
-              <div className="flex items-center space-x-2">
-                <Checkbox 
-                  id="noExperienceRequired" 
-                  checked={formData.noExperienceRequired}
-                  onCheckedChange={(checked) => setFormData(p => ({ 
-                    ...p, 
-                    noExperienceRequired: checked as boolean,
-                    requiredExperience: checked ? "" : p.requiredExperience
-                  }))}
-                />
-                <Label htmlFor="noExperienceRequired" className="cursor-pointer">
-                  {t("employer.requirements.noExperienceRequired")}
-                </Label>
-              </div>
-
-              {/* Experience level (if required) */}
-              {!formData.noExperienceRequired && (
-                <div className="space-y-2">
-                  <Label>{t("employer.requirements.experienceLabel")} *</Label>
-                  <Select value={formData.requiredExperience} onValueChange={(v) => setFormData(p => ({...p, requiredExperience: v}))}>
-                    <SelectTrigger>
-                      <SelectValue placeholder={t("employer.requirements.selectPlaceholder")} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {experienceLevels.map(l => (
-                        <SelectItem key={l} value={l}>{l} {t("common.years")}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+              {/* Experience level */}
+              <div className="space-y-2">
+                <Label>{t("employer.requirements.experienceLabel")} *</Label>
+                <Select 
+                  value={formData.requiredExperience} 
+                  onValueChange={(v) => setFormData(p => ({...p, requiredExperience: v}))}
+                  disabled={formData.noExperienceRequired}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder={t("employer.requirements.selectPlaceholder")} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {experienceLevels.map(l => (
+                      <SelectItem key={l} value={l}>{l} {t("common.years")}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                
+                {/* No experience required checkbox */}
+                <div className="flex items-center space-x-2 pt-1">
+                  <Checkbox 
+                    id="noExperienceRequired" 
+                    checked={formData.noExperienceRequired}
+                    onCheckedChange={(checked) => setFormData(p => ({ 
+                      ...p, 
+                      noExperienceRequired: checked as boolean,
+                      requiredExperience: checked ? "" : p.requiredExperience
+                    }))}
+                  />
+                  <Label htmlFor="noExperienceRequired" className="cursor-pointer text-sm">
+                    {t("employer.requirements.noExperienceRequired")}
+                  </Label>
                 </div>
-              )}
+              </div>
             </div>
 
             {/* Accept from other industries */}
