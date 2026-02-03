@@ -176,6 +176,7 @@ export type Database = {
       employer_profiles: {
         Row: {
           accepted_industries: string[] | null
+          accepted_industry_requirements: Json | null
           company_name: string | null
           created_at: string
           culture_answers: Json | null
@@ -207,6 +208,7 @@ export type Database = {
         }
         Insert: {
           accepted_industries?: string[] | null
+          accepted_industry_requirements?: Json | null
           company_name?: string | null
           created_at?: string
           culture_answers?: Json | null
@@ -238,6 +240,7 @@ export type Database = {
         }
         Update: {
           accepted_industries?: string[] | null
+          accepted_industry_requirements?: Json | null
           company_name?: string | null
           created_at?: string
           culture_answers?: Json | null
