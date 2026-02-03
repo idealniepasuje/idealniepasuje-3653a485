@@ -155,7 +155,7 @@ const EmployerCulture = () => {
           <div className="mb-4"><QuestionTimer timeLeft={timeLeft} progress={timerProgress} /></div>
           <p className="text-xs text-muted-foreground mb-2">{t("employer.culture.rateStatement")}</p>
           <h3 className="text-lg font-semibold mb-4">{currentQuestion.text[i18n.language as 'pl' | 'en']}</h3>
-          <RadioGroup value={answers[currentQuestion.id]?.toString()} onValueChange={(v) => setAnswers(p => ({...p, [currentQuestion.id]: parseInt(v)}))} className="space-y-2">
+          <RadioGroup key={currentQuestion.id} value={answers[currentQuestion.id]?.toString() || ""} onValueChange={(v) => setAnswers(p => ({...p, [currentQuestion.id]: parseInt(v)}))} className="space-y-2">
             {localizedScale.map(o => (<div key={o.value} className="flex items-center space-x-3 p-3 rounded-lg border hover:bg-muted/50 cursor-pointer"><RadioGroupItem value={o.value.toString()} id={`o-${o.value}`} /><Label htmlFor={`o-${o.value}`} className="flex-1 cursor-pointer">{o.label}</Label></div>))}
           </RadioGroup>
           <div className="flex justify-between mt-6">
