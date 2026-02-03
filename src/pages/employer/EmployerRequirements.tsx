@@ -5,13 +5,21 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
-import { ArrowLeft, X } from "lucide-react";
+import { ArrowLeft, X, Plus } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { industries, experienceLevels, positionLevels, competencyLabels, getLocalizedData } from "@/data/additionalQuestions";
+import type { Json } from "@/integrations/supabase/types";
+
+interface AcceptedIndustryRequirement {
+  industry: string;
+  years: string;
+  positionLevel: string;
+}
 
 const EmployerRequirements = () => {
   const { user, loading: authLoading } = useAuth();
@@ -22,13 +30,13 @@ const EmployerRequirements = () => {
     industry: "", 
     requiredExperience: "", 
     positionLevel: "", 
-    acceptedIndustries: [] as string[],
     noExperienceRequired: false
   });
+  const [acceptFromOtherIndustries, setAcceptFromOtherIndustries] = useState(false);
+  const [acceptedIndustryRequirements, setAcceptedIndustryRequirements] = useState<AcceptedIndustryRequirement[]>([]);
   const [competencyReqs, setCompetencyReqs] = useState({ komunikacja: 3, myslenie_analityczne: 3, out_of_the_box: 3, determinacja: 3, adaptacja: 3 });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [acceptFromOtherIndustries, setAcceptFromOtherIndustries] = useState(false);
 
   const localizedIndustries = getLocalizedData(industries, i18n.language);
   const localizedPositionLevels = getLocalizedData(positionLevels, i18n.language);
@@ -47,10 +55,26 @@ const EmployerRequirements = () => {
         industry: data.industry || "", 
         requiredExperience: data.required_experience || "", 
         positionLevel: data.position_level || "", 
-        acceptedIndustries: data.accepted_industries || [],
         noExperienceRequired: (data as any).no_experience_required || false
       });
-      setAcceptFromOtherIndustries((data.accepted_industries || []).length > 0);
+      
+      // Load accepted industry requirements from accepted_industries (stored as JSON)
+      const acceptedReqs = (data as any).accepted_industry_requirements as AcceptedIndustryRequirement[] | null;
+      if (acceptedReqs && Array.isArray(acceptedReqs) && acceptedReqs.length > 0) {
+        setAcceptedIndustryRequirements(acceptedReqs);
+        setAcceptFromOtherIndustries(true);
+      } else if ((data.accepted_industries || []).length > 0) {
+        // Migration: convert old format to new
+        setAcceptFromOtherIndustries(true);
+        setAcceptedIndustryRequirements(
+          (data.accepted_industries || []).map((ind: string) => ({
+            industry: ind,
+            years: data.required_experience || "",
+            positionLevel: data.position_level || ""
+          }))
+        );
+      }
+      
       setCompetencyReqs({ 
         komunikacja: data.req_komunikacja || 3, 
         myslenie_analityczne: data.req_myslenie_analityczne || 3, 
@@ -62,14 +86,32 @@ const EmployerRequirements = () => {
     setLoading(false);
   };
 
-  const addAcceptedIndustry = (value: string) => {
-    if (!formData.acceptedIndustries.includes(value) && formData.acceptedIndustries.length < 3) {
-      setFormData(p => ({ ...p, acceptedIndustries: [...p.acceptedIndustries, value] }));
+  const addAcceptedIndustryRequirement = () => {
+    if (acceptedIndustryRequirements.length < 3) {
+      setAcceptedIndustryRequirements([
+        ...acceptedIndustryRequirements, 
+        { industry: "", years: "", positionLevel: "" }
+      ]);
     }
   };
 
-  const removeAcceptedIndustry = (industry: string) => {
-    setFormData(p => ({ ...p, acceptedIndustries: p.acceptedIndustries.filter(i => i !== industry) }));
+  const removeAcceptedIndustryRequirement = (index: number) => {
+    setAcceptedIndustryRequirements(acceptedIndustryRequirements.filter((_, i) => i !== index));
+  };
+
+  const updateAcceptedIndustryRequirement = (index: number, field: keyof AcceptedIndustryRequirement, value: string) => {
+    const updated = [...acceptedIndustryRequirements];
+    updated[index] = { ...updated[index], [field]: value };
+    setAcceptedIndustryRequirements(updated);
+  };
+
+  const handleAcceptFromOtherChange = (checked: boolean) => {
+    setAcceptFromOtherIndustries(checked);
+    if (checked && acceptedIndustryRequirements.length === 0) {
+      setAcceptedIndustryRequirements([{ industry: "", years: "", positionLevel: "" }]);
+    } else if (!checked) {
+      setAcceptedIndustryRequirements([]);
+    }
   };
 
   const handleSubmit = async () => {
@@ -82,13 +124,27 @@ const EmployerRequirements = () => {
       return; 
     }
     
+    // Validate accepted industry requirements if enabled
+    if (acceptFromOtherIndustries) {
+      const validReqs = acceptedIndustryRequirements.filter(r => r.industry && r.years && r.positionLevel);
+      if (validReqs.length === 0) {
+        toast.error(t("employer.requirements.fillAcceptedIndustries")); 
+        return; 
+      }
+    }
+    
     setSaving(true);
     try {
+      const validAcceptedReqs = acceptFromOtherIndustries 
+        ? acceptedIndustryRequirements.filter(r => r.industry && r.years && r.positionLevel)
+        : [];
+      
       await supabase.from("employer_profiles").update({ 
         industry: formData.industry, 
         required_experience: formData.noExperienceRequired ? null : formData.requiredExperience, 
         position_level: formData.positionLevel, 
-        accepted_industries: acceptFromOtherIndustries ? formData.acceptedIndustries : [],
+        accepted_industries: validAcceptedReqs.map(r => r.industry),
+        accepted_industry_requirements: JSON.parse(JSON.stringify(validAcceptedReqs)) as Json,
         no_experience_required: formData.noExperienceRequired,
         req_komunikacja: competencyReqs.komunikacja, 
         req_myslenie_analityczne: competencyReqs.myslenie_analityczne, 
@@ -106,6 +162,9 @@ const EmployerRequirements = () => {
     }
   };
 
+  // Get industries already used (main + accepted)
+  const usedIndustries = [formData.industry, ...acceptedIndustryRequirements.map(r => r.industry)].filter(Boolean);
+
   if (authLoading || loading) return <div className="min-h-screen flex items-center justify-center"><div className="w-12 h-12 rounded-full bg-accent/20 animate-pulse" /></div>;
 
   return (
@@ -121,81 +180,81 @@ const EmployerRequirements = () => {
         <h1 className="text-2xl font-bold mb-6">{t("employer.requirements.title")}</h1>
         <Card>
           <CardContent className="pt-6 space-y-6">
-            {/* Industry */}
-            <div className="space-y-2">
-              <Label>{t("employer.requirements.industryLabel")}</Label>
-              <Select value={formData.industry} onValueChange={(v) => setFormData(p => ({...p, industry: v}))}>
-                <SelectTrigger>
-                  <SelectValue placeholder={t("employer.requirements.selectPlaceholder")} />
-                </SelectTrigger>
-                <SelectContent>
-                  {localizedIndustries.filter(i => i !== localizedIndustries[0]).map(i => (
-                    <SelectItem key={i} value={i}>{i}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* No experience required checkbox */}
-            <div className="flex items-center space-x-2">
-              <Checkbox 
-                id="noExperienceRequired" 
-                checked={formData.noExperienceRequired}
-                onCheckedChange={(checked) => setFormData(p => ({ 
-                  ...p, 
-                  noExperienceRequired: checked as boolean,
-                  requiredExperience: checked ? "" : p.requiredExperience
-                }))}
-              />
-              <Label htmlFor="noExperienceRequired" className="cursor-pointer">
-                {t("employer.requirements.noExperienceRequired")}
-              </Label>
-            </div>
-
-            {/* Experience level (if required) */}
-            {!formData.noExperienceRequired && (
+            {/* Main industry requirements */}
+            <div className="space-y-4">
+              <h3 className="font-semibold">{t("employer.requirements.mainRequirements")}</h3>
+              
+              {/* Industry */}
               <div className="space-y-2">
-                <Label>{t("employer.requirements.experienceLabel")}</Label>
-                <Select value={formData.requiredExperience} onValueChange={(v) => setFormData(p => ({...p, requiredExperience: v}))}>
+                <Label>{t("employer.requirements.industryLabel")} *</Label>
+                <Select value={formData.industry} onValueChange={(v) => setFormData(p => ({...p, industry: v}))}>
                   <SelectTrigger>
                     <SelectValue placeholder={t("employer.requirements.selectPlaceholder")} />
                   </SelectTrigger>
                   <SelectContent>
-                    {experienceLevels.map(l => (
-                      <SelectItem key={l} value={l}>{l} {t("common.years")}</SelectItem>
+                    {localizedIndustries.filter(i => i !== localizedIndustries[0]).map(i => (
+                      <SelectItem key={i} value={i}>{i}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
-            )}
 
-            {/* Position level */}
-            <div className="space-y-2">
-              <Label>{t("employer.requirements.positionLevelLabel")}</Label>
-              <Select value={formData.positionLevel} onValueChange={(v) => setFormData(p => ({...p, positionLevel: v}))}>
-                <SelectTrigger>
-                  <SelectValue placeholder={t("employer.requirements.selectPlaceholder")} />
-                </SelectTrigger>
-                <SelectContent>
-                  {localizedPositionLevels.map(l => (
-                    <SelectItem key={l} value={l}>{l}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              {/* Position level */}
+              <div className="space-y-2">
+                <Label>{t("employer.requirements.positionLevelLabel")} *</Label>
+                <Select value={formData.positionLevel} onValueChange={(v) => setFormData(p => ({...p, positionLevel: v}))}>
+                  <SelectTrigger>
+                    <SelectValue placeholder={t("employer.requirements.selectPlaceholder")} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {localizedPositionLevels.map(l => (
+                      <SelectItem key={l} value={l}>{l}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* No experience required checkbox */}
+              <div className="flex items-center space-x-2">
+                <Checkbox 
+                  id="noExperienceRequired" 
+                  checked={formData.noExperienceRequired}
+                  onCheckedChange={(checked) => setFormData(p => ({ 
+                    ...p, 
+                    noExperienceRequired: checked as boolean,
+                    requiredExperience: checked ? "" : p.requiredExperience
+                  }))}
+                />
+                <Label htmlFor="noExperienceRequired" className="cursor-pointer">
+                  {t("employer.requirements.noExperienceRequired")}
+                </Label>
+              </div>
+
+              {/* Experience level (if required) */}
+              {!formData.noExperienceRequired && (
+                <div className="space-y-2">
+                  <Label>{t("employer.requirements.experienceLabel")} *</Label>
+                  <Select value={formData.requiredExperience} onValueChange={(v) => setFormData(p => ({...p, requiredExperience: v}))}>
+                    <SelectTrigger>
+                      <SelectValue placeholder={t("employer.requirements.selectPlaceholder")} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {experienceLevels.map(l => (
+                        <SelectItem key={l} value={l}>{l} {t("common.years")}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
             </div>
 
             {/* Accept from other industries */}
-            <div className="space-y-3">
+            <div className="space-y-4 border-t pt-6">
               <div className="flex items-center space-x-2">
                 <Checkbox 
                   id="acceptOtherIndustries" 
                   checked={acceptFromOtherIndustries}
-                  onCheckedChange={(checked) => {
-                    setAcceptFromOtherIndustries(checked as boolean);
-                    if (!checked) {
-                      setFormData(p => ({ ...p, acceptedIndustries: [] }));
-                    }
-                  }}
+                  onCheckedChange={handleAcceptFromOtherChange}
                 />
                 <Label htmlFor="acceptOtherIndustries" className="cursor-pointer">
                   {t("employer.requirements.acceptOtherIndustries")}
@@ -203,36 +262,79 @@ const EmployerRequirements = () => {
               </div>
 
               {acceptFromOtherIndustries && (
-                <div className="space-y-2 pl-6">
-                  <Label>{t("employer.requirements.acceptedIndustriesLabel")} ({formData.acceptedIndustries.length}/3)</Label>
-                  <Select 
-                    value="" 
-                    onValueChange={addAcceptedIndustry}
-                    disabled={formData.acceptedIndustries.length >= 3}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder={formData.acceptedIndustries.length >= 3 ? t("employer.requirements.maxIndustriesReached") : t("employer.requirements.selectIndustries")} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {localizedIndustries
-                        .filter(ind => !formData.acceptedIndustries.includes(ind) && ind !== formData.industry && ind !== localizedIndustries[0])
-                        .map((industry) => (
-                          <SelectItem key={industry} value={industry}>{industry}</SelectItem>
-                        ))}
-                    </SelectContent>
-                  </Select>
-                  {formData.acceptedIndustries.length > 0 && (
-                    <div className="flex flex-wrap gap-2 mt-2">
-                      {formData.acceptedIndustries.map((ind) => (
-                        <span 
-                          key={ind} 
-                          className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-accent/20 text-sm cursor-pointer hover:bg-destructive/20"
-                          onClick={() => removeAcceptedIndustry(ind)}
+                <div className="space-y-4 pl-6">
+                  <p className="text-sm text-muted-foreground">
+                    {t("employer.requirements.acceptedIndustriesHint")}
+                  </p>
+                  
+                  {acceptedIndustryRequirements.map((req, index) => (
+                    <div key={index} className="p-4 border rounded-lg space-y-3 relative">
+                      <button 
+                        onClick={() => removeAcceptedIndustryRequirement(index)}
+                        className="absolute top-2 right-2 p-1 hover:bg-destructive/10 rounded"
+                      >
+                        <X className="w-4 h-4 text-destructive" />
+                      </button>
+                      
+                      <div className="grid gap-3">
+                        <Select 
+                          value={req.industry} 
+                          onValueChange={(v) => updateAcceptedIndustryRequirement(index, "industry", v)}
                         >
-                          {ind} <X className="w-3 h-3" />
-                        </span>
-                      ))}
+                          <SelectTrigger>
+                            <SelectValue placeholder={t("employer.requirements.selectIndustry")} />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {localizedIndustries
+                              .filter(i => i !== localizedIndustries[0] && !usedIndustries.includes(i))
+                              .map(i => (
+                                <SelectItem key={i} value={i}>{i}</SelectItem>
+                              ))}
+                          </SelectContent>
+                        </Select>
+                        
+                        <div className="grid grid-cols-2 gap-3">
+                          <Select 
+                            value={req.positionLevel} 
+                            onValueChange={(v) => updateAcceptedIndustryRequirement(index, "positionLevel", v)}
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder={t("employer.requirements.positionLevelPlaceholder")} />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {localizedPositionLevels.map(l => (
+                                <SelectItem key={l} value={l}>{l}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          
+                          <Select 
+                            value={req.years} 
+                            onValueChange={(v) => updateAcceptedIndustryRequirement(index, "years", v)}
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder={t("employer.requirements.yearsPlaceholder")} />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {experienceLevels.map(l => (
+                                <SelectItem key={l} value={l}>{l} {t("common.years")}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
                     </div>
+                  ))}
+                  
+                  {acceptedIndustryRequirements.length < 3 && (
+                    <Button 
+                      variant="outline" 
+                      onClick={addAcceptedIndustryRequirement}
+                      className="w-full"
+                    >
+                      <Plus className="w-4 h-4 mr-2" />
+                      {t("employer.requirements.addAnotherIndustry")} ({acceptedIndustryRequirements.length}/3)
+                    </Button>
                   )}
                 </div>
               )}

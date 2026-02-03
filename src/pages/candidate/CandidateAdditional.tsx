@@ -7,11 +7,12 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, CheckCircle2, Linkedin, Plus, X } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { industries, experienceLevels, positionLevels, industryChangeOptions, getLocalizedData } from "@/data/additionalQuestions";
+import { industries, experienceLevels, positionLevels, getLocalizedData } from "@/data/additionalQuestions";
 import { logError } from "@/lib/errorLogger";
 import type { Json } from "@/integrations/supabase/types";
 
@@ -28,13 +29,11 @@ const CandidateAdditional = () => {
 
   const localizedIndustries = getLocalizedData(industries, i18n.language);
   const localizedPositionLevels = getLocalizedData(positionLevels, i18n.language);
-  const localizedIndustryChangeOptions = getLocalizedData(industryChangeOptions, i18n.language);
   
   const [hasNoExperience, setHasNoExperience] = useState(false);
   const [industryExperiences, setIndustryExperiences] = useState<IndustryExperience[]>([
     { industry: "", years: "", positionLevel: "" }
   ]);
-  const [wantsToChangeIndustry, setWantsToChangeIndustry] = useState("");
   const [targetIndustries, setTargetIndustries] = useState<string[]>([]);
   const [linkedinUrl, setLinkedinUrl] = useState("");
   
@@ -52,7 +51,7 @@ const CandidateAdditional = () => {
     try {
       const { data, error } = await supabase
         .from("candidate_test_results")
-        .select("industry_experiences, has_no_experience, wants_to_change_industry, target_industries, linkedin_url, additional_completed")
+        .select("industry_experiences, has_no_experience, target_industries, linkedin_url, additional_completed")
         .eq("user_id", user.id)
         .single();
       if (error && error.code !== "PGRST116") logError("CandidateAdditional.fetchExistingData", error);
@@ -62,7 +61,6 @@ const CandidateAdditional = () => {
         if (experiences && Array.isArray(experiences) && experiences.length > 0) {
           setIndustryExperiences(experiences);
         }
-        setWantsToChangeIndustry(data.wants_to_change_industry || "");
         setTargetIndustries(data.target_industries || []);
         setLinkedinUrl((data as any).linkedin_url || "");
       }
@@ -72,6 +70,28 @@ const CandidateAdditional = () => {
       setLoading(false);
     }
   };
+
+  // Auto-sync experience industries to target industries when experience changes
+  useEffect(() => {
+    if (!hasNoExperience) {
+      const experienceIndustries = industryExperiences
+        .filter(exp => exp.industry)
+        .map(exp => exp.industry);
+      
+      // Add experience industries that aren't already in target
+      const newTargets = [...targetIndustries];
+      experienceIndustries.forEach(ind => {
+        if (!newTargets.includes(ind) && newTargets.length < 3) {
+          newTargets.push(ind);
+        }
+      });
+      
+      // Only update if different
+      if (JSON.stringify(newTargets) !== JSON.stringify(targetIndustries)) {
+        setTargetIndustries(newTargets);
+      }
+    }
+  }, [industryExperiences, hasNoExperience]);
 
   const generateMatches = async () => {
     if (!user) return;
@@ -112,21 +132,39 @@ const CandidateAdditional = () => {
 
   const removeIndustryExperience = (index: number) => {
     if (industryExperiences.length > 1) {
-      setIndustryExperiences(industryExperiences.filter((_, i) => i !== index));
+      const removed = industryExperiences[index];
+      const newExperiences = industryExperiences.filter((_, i) => i !== index);
+      setIndustryExperiences(newExperiences);
+      
+      // Also remove from target industries if it was auto-added
+      if (removed.industry && targetIndustries.includes(removed.industry)) {
+        const remainingIndustries = newExperiences.map(e => e.industry).filter(Boolean);
+        if (!remainingIndustries.includes(removed.industry)) {
+          setTargetIndustries(targetIndustries.filter(t => t !== removed.industry));
+        }
+      }
     }
   };
 
   const updateIndustryExperience = (index: number, field: keyof IndustryExperience, value: string) => {
     const updated = [...industryExperiences];
+    const oldIndustry = updated[index].industry;
     updated[index] = { ...updated[index], [field]: value };
     setIndustryExperiences(updated);
+    
+    // If industry changed, update target industries
+    if (field === 'industry' && oldIndustry !== value) {
+      // Remove old industry from targets if no other experience has it
+      if (oldIndustry && !updated.some((e, i) => i !== index && e.industry === oldIndustry)) {
+        setTargetIndustries(prev => prev.filter(t => t !== oldIndustry));
+      }
+    }
   };
 
   const handleNoExperienceChange = (checked: boolean) => {
     setHasNoExperience(checked);
     if (checked) {
       setIndustryExperiences([{ industry: "", years: "", positionLevel: "" }]);
-      setWantsToChangeIndustry("");
       setTargetIndustries([]);
     }
   };
@@ -139,6 +177,11 @@ const CandidateAdditional = () => {
 
   const removeTargetIndustry = (industry: string) => {
     setTargetIndustries(targetIndustries.filter(i => i !== industry));
+  };
+
+  // Check if an industry came from experience (for badge styling)
+  const isFromExperience = (industry: string) => {
+    return industryExperiences.some(exp => exp.industry === industry);
   };
 
   const handleSubmit = async () => {
@@ -155,18 +198,10 @@ const CandidateAdditional = () => {
       }
     }
     
-    // wantsToChangeIndustry is only required if user has experience
-    if (!hasNoExperience && !wantsToChangeIndustry) {
-      toast.error(t("candidate.additional.fillRequiredFields"));
+    // Target industries are always required
+    if (targetIndustries.length === 0) {
+      toast.error(t("candidate.additional.selectAtLeastOneIndustry"));
       return;
-    }
-
-    // If no experience OR wants to change industry, target industries are required
-    if (hasNoExperience || wantsToChangeIndustry === "Tak" || wantsToChangeIndustry === "Yes") {
-      if (targetIndustries.length === 0) {
-        toast.error(t("candidate.additional.selectAtLeastOneIndustry"));
-        return;
-      }
     }
 
     setSaving(true);
@@ -174,15 +209,11 @@ const CandidateAdditional = () => {
       const validExperiences = hasNoExperience 
         ? [] 
         : industryExperiences.filter(exp => exp.industry && exp.years && exp.positionLevel);
-
-      // For no experience or wants to change, save target industries
-      const shouldSaveTargetIndustries = hasNoExperience || wantsToChangeIndustry === "Tak" || wantsToChangeIndustry === "Yes";
       
       const { error } = await supabase.from("candidate_test_results").update({
         industry_experiences: JSON.parse(JSON.stringify(validExperiences)) as Json,
         has_no_experience: hasNoExperience,
-        wants_to_change_industry: hasNoExperience ? null : wantsToChangeIndustry,
-        target_industries: shouldSaveTargetIndustries ? targetIndustries : [],
+        target_industries: targetIndustries,
         linkedin_url: linkedinUrl,
         // Keep backward compatibility
         industry: validExperiences[0]?.industry || null,
@@ -316,20 +347,6 @@ const CandidateAdditional = () => {
                       
                       <div className="grid grid-cols-2 gap-3">
                         <Select 
-                          value={exp.years} 
-                          onValueChange={(v) => updateIndustryExperience(index, "years", v)}
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder={t("candidate.additional.experiencePlaceholder")} />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {experienceLevels.map((level) => (
-                              <SelectItem key={level} value={level}>{level} {t("common.years")}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        
-                        <Select 
                           value={exp.positionLevel} 
                           onValueChange={(v) => updateIndustryExperience(index, "positionLevel", v)}
                         >
@@ -339,6 +356,20 @@ const CandidateAdditional = () => {
                           <SelectContent>
                             {localizedPositionLevels.map((level) => (
                               <SelectItem key={level} value={level}>{level}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        
+                        <Select 
+                          value={exp.years} 
+                          onValueChange={(v) => updateIndustryExperience(index, "years", v)}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder={t("candidate.additional.experiencePlaceholder")} />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {experienceLevels.map((level) => (
+                              <SelectItem key={level} value={level}>{level} {t("common.years")}</SelectItem>
                             ))}
                           </SelectContent>
                         </Select>
@@ -360,47 +391,43 @@ const CandidateAdditional = () => {
               </div>
             )}
 
-            {/* Change industry question - only show if user has experience */}
-            {!hasNoExperience && (
-              <div className="space-y-2">
-                <Label>{t("candidate.additional.changeIndustryLabel")}</Label>
-                <Select 
-                  value={wantsToChangeIndustry} 
-                  onValueChange={(value) => {
-                    setWantsToChangeIndustry(value);
-                    if (value === "Nie" || value === "No") {
-                      setTargetIndustries([]);
-                    }
-                  }}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder={t("candidate.additional.changeIndustryPlaceholder")} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {localizedIndustryChangeOptions.map((option) => (
-                      <SelectItem key={option} value={option}>{option}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
-
-            {/* Target industries - show if user wants to change OR has no experience */}
-            {(hasNoExperience || wantsToChangeIndustry === "Tak" || wantsToChangeIndustry === "Yes") && (
-              <div className="space-y-2">
-                <Label>
-                  {hasNoExperience 
-                    ? t("candidate.additional.searchIndustriesLabel")
-                    : t("candidate.additional.targetIndustriesLabel")
-                  } ({targetIndustries.length}/3) *
-                </Label>
+            {/* Target industries - always visible */}
+            <div className="space-y-2">
+              <Label>
+                {t("candidate.additional.searchIndustriesLabel")} ({targetIndustries.length}/3) *
+              </Label>
+              <p className="text-sm text-muted-foreground">
+                {hasNoExperience 
+                  ? t("candidate.additional.searchIndustriesHint")
+                  : t("candidate.additional.searchIndustriesHintWithExp")
+                }
+              </p>
+              
+              {/* Selected industries as badges */}
+              {targetIndustries.length > 0 && (
+                <div className="flex flex-wrap gap-2 mb-2">
+                  {targetIndustries.map((ind) => (
+                    <Badge 
+                      key={ind}
+                      variant={!hasNoExperience && isFromExperience(ind) ? "default" : "secondary"}
+                      className="cursor-pointer hover:bg-destructive/20 pl-3 pr-2 py-1"
+                      onClick={() => removeTargetIndustry(ind)}
+                    >
+                      {ind}
+                      <X className="w-3 h-3 ml-1" />
+                    </Badge>
+                  ))}
+                </div>
+              )}
+              
+              {/* Add more industries */}
+              {targetIndustries.length < 3 && (
                 <Select 
                   value="" 
                   onValueChange={addTargetIndustry}
-                  disabled={targetIndustries.length >= 3}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder={targetIndustries.length >= 3 ? t("candidate.additional.maxIndustriesReached") : t("candidate.additional.targetIndustriesPlaceholder")} />
+                    <SelectValue placeholder={t("candidate.additional.addIndustryPlaceholder")} />
                   </SelectTrigger>
                   <SelectContent>
                     {localizedIndustries
@@ -410,21 +437,8 @@ const CandidateAdditional = () => {
                       ))}
                   </SelectContent>
                 </Select>
-                {targetIndustries.length > 0 && (
-                  <div className="flex flex-wrap gap-2 mt-2">
-                    {targetIndustries.map((ind) => (
-                      <span 
-                        key={ind} 
-                        className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-accent/20 text-sm cursor-pointer hover:bg-destructive/20"
-                        onClick={() => removeTargetIndustry(ind)}
-                      >
-                        {ind} <X className="w-3 h-3" />
-                      </span>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
+              )}
+            </div>
 
             {/* LinkedIn */}
             <div className="space-y-2">
@@ -432,7 +446,7 @@ const CandidateAdditional = () => {
                 <Linkedin className="w-4 h-4" />
                 {t("candidate.additional.linkedinLabel")}
               </Label>
-              <Input
+              <Input 
                 type="url"
                 placeholder={t("candidate.additional.linkedinPlaceholder")}
                 value={linkedinUrl}
@@ -440,7 +454,11 @@ const CandidateAdditional = () => {
               />
             </div>
 
-            <Button onClick={handleSubmit} disabled={saving} className="w-full bg-cta text-cta-foreground hover:bg-cta/90">
+            <Button 
+              onClick={handleSubmit} 
+              disabled={saving}
+              className="w-full bg-cta text-cta-foreground hover:bg-cta/90"
+            >
               {saving ? t("common.saving") : t("candidate.additional.finishAndSave")}
             </Button>
           </CardContent>
