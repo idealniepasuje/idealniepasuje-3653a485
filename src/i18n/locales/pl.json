@@ -171,7 +171,8 @@
       "multipleMatches": "dopasowanych pracodawców",
       "searchingTitle": "Szukamy idealnych pracodawców",
       "searchingDescription": "Na razie nie mamy pracodawców pasujących do Twojego profilu. Gdy tylko znajdziemy odpowiednie firmy, pojawią się tutaj.",
-      "company": "Firma"
+      "company": "Firma",
+      "employerInterested": "Pracodawca zainteresowany"
     },
     "employerDetail": {
       "notFound": "Nie znaleziono dopasowania",

@@ -171,7 +171,8 @@
       "multipleMatches": "matched employers",
       "searchingTitle": "Searching for ideal employers",
       "searchingDescription": "We don't have any employers matching your profile yet. When we find suitable companies, they'll appear here.",
-      "company": "Company"
+      "company": "Company",
+      "employerInterested": "Employer interested"
     },
     "employerDetail": {
       "notFound": "Match not found",
