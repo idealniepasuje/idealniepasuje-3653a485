@@ -83,7 +83,7 @@ const EmployerCandidateDetail = () => {
         logError("EmployerCandidateDetail.fetchMatchData", matchError);
       } else {
         setMatch(matchData);
-        setIsInterested(matchData?.status === 'interested');
+        setIsInterested(matchData?.status === 'considering');
       }
 
       // Candidate is anonymous - don't fetch their name
@@ -108,7 +108,8 @@ const EmployerCandidateDetail = () => {
   const handleInterested = async () => {
     if (!match) return;
     try {
-      const newStatus = isInterested ? 'pending' : 'interested';
+      // Use 'considering' status as the database only allows: pending, considering, rejected, accepted
+      const newStatus = isInterested ? 'pending' : 'considering';
       const { error } = await supabase
         .from("match_results")
         .update({ status: newStatus })
