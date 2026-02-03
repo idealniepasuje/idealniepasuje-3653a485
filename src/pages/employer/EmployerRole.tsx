@@ -34,9 +34,10 @@ const EmployerRole = () => {
     if (!formData.roleDescription) { toast.error(t("employer.role.fillRoleDescription")); return; }
     setSaving(true);
     try {
-      await supabase.from("employer_profiles").update({ role_description: formData.roleDescription, role_responsibilities: formData.roleResponsibilities, role_completed: true }).eq("user_id", user!.id);
+      const { error } = await supabase.from("employer_profiles").update({ role_description: formData.roleDescription, role_responsibilities: formData.roleResponsibilities, role_completed: true }).eq("user_id", user!.id);
+      if (error) { console.error("Error saving role:", error); toast.error(t("errors.genericError")); return; }
       toast.success(t("employer.role.saved")); navigate("/employer/dashboard");
-    } catch { toast.error(t("errors.genericError")); } finally { setSaving(false); }
+    } catch (err) { console.error("Unexpected error:", err); toast.error(t("errors.genericError")); } finally { setSaving(false); }
   };
 
   if (authLoading || loading) return <div className="min-h-screen flex items-center justify-center"><div className="w-12 h-12 rounded-full bg-accent/20 animate-pulse" /></div>;

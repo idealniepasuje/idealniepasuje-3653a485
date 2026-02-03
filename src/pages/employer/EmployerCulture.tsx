@@ -94,7 +94,14 @@ const EmployerCulture = () => {
         dimQuestions.forEach(q => { if (answers[q.id]) { sum += answers[q.id]; count++; } });
         scores[dim] = count > 0 ? sum / count : 0;
       });
-      await supabase.from("employer_profiles").update({ culture_answers: answers, culture_completed: true, profile_completed: true, culture_relacja_wspolpraca: scores.relacja_wspolpraca, culture_elastycznosc_innowacyjnosc: scores.elastycznosc_innowacyjnosc, culture_wyniki_cele: scores.wyniki_cele, culture_stabilnosc_struktura: scores.stabilnosc_struktura, culture_autonomia_styl_pracy: scores.autonomia_styl_pracy, culture_wlb_dobrostan: scores.wlb_dobrostan }).eq("user_id", user!.id);
+      const { error } = await supabase.from("employer_profiles").update({ culture_answers: answers, culture_completed: true, profile_completed: true, culture_relacja_wspolpraca: scores.relacja_wspolpraca, culture_elastycznosc_innowacyjnosc: scores.elastycznosc_innowacyjnosc, culture_wyniki_cele: scores.wyniki_cele, culture_stabilnosc_struktura: scores.stabilnosc_struktura, culture_autonomia_styl_pracy: scores.autonomia_styl_pracy, culture_wlb_dobrostan: scores.wlb_dobrostan }).eq("user_id", user!.id);
+      
+      if (error) {
+        console.error("Error saving culture:", error);
+        toast.error(t("errors.genericError"));
+        setSaving(false);
+        return;
+      }
       
       // Generate matches automatically after profile completion
       await generateMatches();

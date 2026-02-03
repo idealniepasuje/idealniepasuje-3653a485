@@ -138,7 +138,7 @@ const EmployerRequirements = () => {
         ? acceptedIndustryRequirements.filter(r => r.industry && r.years && r.positionLevel)
         : [];
       
-      await supabase.from("employer_profiles").update({ 
+      const { error } = await supabase.from("employer_profiles").update({ 
         industry: formData.industry, 
         required_experience: formData.noExperienceRequired ? null : formData.requiredExperience, 
         position_level: formData.positionLevel, 
@@ -152,9 +152,17 @@ const EmployerRequirements = () => {
         req_adaptacja: competencyReqs.adaptacja, 
         requirements_completed: true 
       }).eq("user_id", user!.id);
+      
+      if (error) {
+        console.error("Error saving requirements:", error);
+        toast.error(t("errors.genericError")); 
+        return;
+      }
+      
       toast.success(t("employer.role.saved")); 
       navigate("/employer/dashboard");
-    } catch { 
+    } catch (err) { 
+      console.error("Unexpected error:", err);
       toast.error(t("errors.genericError")); 
     } finally { 
       setSaving(false); 
