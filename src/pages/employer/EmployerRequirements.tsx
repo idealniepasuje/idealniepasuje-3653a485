@@ -145,12 +145,11 @@ const EmployerRequirements = () => {
         accepted_industries: validAcceptedReqs.map(r => r.industry),
         accepted_industry_requirements: JSON.parse(JSON.stringify(validAcceptedReqs)) as Json,
         no_experience_required: formData.noExperienceRequired,
-        // DB columns are integers (1-5). Protect save from accidental decimal values.
-        req_komunikacja: Math.round(competencyReqs.komunikacja), 
-        req_myslenie_analityczne: Math.round(competencyReqs.myslenie_analityczne), 
-        req_out_of_the_box: Math.round(competencyReqs.out_of_the_box), 
-        req_determinacja: Math.round(competencyReqs.determinacja), 
-        req_adaptacja: Math.round(competencyReqs.adaptacja), 
+        req_komunikacja: competencyReqs.komunikacja, 
+        req_myslenie_analityczne: competencyReqs.myslenie_analityczne, 
+        req_out_of_the_box: competencyReqs.out_of_the_box, 
+        req_determinacja: competencyReqs.determinacja, 
+        req_adaptacja: competencyReqs.adaptacja, 
         requirements_completed: true 
       }).eq("user_id", user!.id);
       
