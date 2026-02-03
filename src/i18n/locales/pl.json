@@ -306,9 +306,9 @@
     "requirements": {
       "title": "Wymagania stanowiska",
       "mainRequirements": "Główne wymagania",
-      "industryLabel": "Branża, w której szukasz pracownika *",
-      "experienceLabel": "Wymagane doświadczenie *",
-      "positionLevelLabel": "Poziom stanowiska *",
+      "industryLabel": "Branża, w której szukasz pracownika",
+      "experienceLabel": "Wymagane doświadczenie",
+      "positionLevelLabel": "Poziom stanowiska",
       "noExperienceRequired": "Doświadczenie nie jest wymagane",
       "acceptOtherIndustries": "Jestem otwarty/a na kandydatów z innych branż",
       "acceptedIndustriesHint": "Dodaj branże wraz z wymaganiami dotyczącymi doświadczenia i poziomu stanowiska",

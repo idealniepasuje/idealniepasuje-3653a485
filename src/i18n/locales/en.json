@@ -306,9 +306,9 @@
     "requirements": {
       "title": "Position requirements",
       "mainRequirements": "Main requirements",
-      "industryLabel": "Industry you're hiring for *",
-      "experienceLabel": "Required experience *",
-      "positionLevelLabel": "Position level *",
+      "industryLabel": "Industry you're hiring for",
+      "experienceLabel": "Required experience",
+      "positionLevelLabel": "Position level",
       "noExperienceRequired": "Experience is not required",
       "acceptOtherIndustries": "I'm open to candidates from other industries",
       "acceptedIndustriesHint": "Add industries with experience and position level requirements",
