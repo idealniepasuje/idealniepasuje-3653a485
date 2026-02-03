@@ -12,7 +12,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { getLocalizedCompetencyTests, getLocalizedQuestionsByCompetency } from "@/data/competencyQuestions";
 import { getLocalizedData, agreementScale } from "@/data/additionalQuestions";
-import { getLevel, getFeedback } from "@/data/feedbackData";
+import { getLevel, getLocalizedLevelLabels } from "@/data/feedbackData";
+import { CompetencyScoreWithFeedback } from "@/components/CompetencyScoreWithFeedback";
 import { useQuestionTimer } from "@/hooks/useQuestionTimer";
 import { QuestionTimer } from "@/components/QuestionTimer";
 import { logError } from "@/lib/errorLogger";
@@ -151,7 +152,7 @@ const CompetencyTest = () => {
   const currentQuestion = questions[currentQuestionIndex];
   const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
   const level = getLevel(averageScore);
-  const feedback = getFeedback('competency', competencyCode, level, 'candidate');
+  const levelLabels = getLocalizedLevelLabels(i18n.language);
 
   if (showResults) {
     return (
@@ -181,10 +182,12 @@ const CompetencyTest = () => {
                   </span>
                 </div>
               </div>
-              <div className="bg-muted/50 rounded-lg p-4">
-                <h3 className="font-semibold mb-2">{t("candidate.test.yourResult")}</h3>
-                <p className="text-muted-foreground">{feedback}</p>
-              </div>
+              <CompetencyScoreWithFeedback
+                competencyCode={competencyCode}
+                competencyName={testInfo.name}
+                score={averageScore}
+                audience="candidate"
+              />
               <div className="bg-accent/10 rounded-lg p-4 text-center">
                 <p className="text-sm text-muted-foreground">{t("candidate.test.resultReminder")}</p>
               </div>
