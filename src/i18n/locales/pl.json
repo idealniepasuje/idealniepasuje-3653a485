@@ -4,7 +4,10 @@
     "tests": "Testy",
     "matches": "Dopasowania",
     "jobOffers": "Zlecenia",
-    "profile": "Profil pracodawcy"
+    "profile": "Profil firmy"
+  },
+  "common": {
+    "cancel": "Anuluj"
   },
   "match": {
     "status": {
@@ -13,6 +16,11 @@
       "interested": "Zainteresowany",
       "rejected": "Odrzucony",
       "employerInterested": "Pracodawca zainteresowany"
+    },
+    "timeAgo": {
+      "justNow": "Przed chwilą",
+      "hoursAgo": "{{count}} godz. temu",
+      "daysAgo": "{{count}} dni temu"
     }
   },
   "common": {
@@ -393,6 +401,33 @@
       "criteriaIndustry": "Branża",
       "criteriaExperience": "Doświadczenie",
       "criteriaPositionLevel": "Poziom stanowiska"
+    },
+    "offers": {
+      "title": "Oferty pracy",
+      "subtitle": "Zarządzaj swoimi ofertami pracy",
+      "addNew": "Dodaj ofertę",
+      "noOffers": "Brak ofert pracy",
+      "noOffersDescription": "Nie masz jeszcze żadnych ofert pracy. Utwórz pierwszą ofertę, aby rozpocząć dopasowywanie kandydatów.",
+      "createFirst": "Utwórz pierwszą ofertę",
+      "active": "Aktywna",
+      "inactive": "Nieaktywna",
+      "delete": "Usuń",
+      "deleted": "Oferta usunięta",
+      "deleteConfirmTitle": "Usunąć ofertę?",
+      "deleteConfirmDescription": "Tej operacji nie można cofnąć. Wszystkie dopasowania związane z tą ofertą zostaną usunięte.",
+      "viewCandidates": "Zobacz kandydatów",
+      "createNew": "Nowa oferta pracy",
+      "edit": "Edytuj ofertę",
+      "created": "Oferta utworzona",
+      "updated": "Oferta zaktualizowana",
+      "titleLabel": "Nazwa stanowiska",
+      "titlePlaceholder": "np. Frontend Developer"
+    },
+    "profile": {
+      "title": "Profil firmy",
+      "subtitle": "Informacje o Twojej firmie widoczne dla kandydatów",
+      "companyInfo": "Dane firmy",
+      "companyInfoDescription": "Podstawowe informacje o Twojej organizacji"
     }
   },
   "errors": {

@@ -19,6 +19,9 @@ const CandidateMatches = lazy(() => import("./pages/candidate/CandidateMatches")
 const CandidateEmployerDetail = lazy(() => import("./pages/candidate/CandidateEmployerDetail"));
 const CandidateFeedback = lazy(() => import("./pages/candidate/CandidateFeedback"));
 const EmployerDashboard = lazy(() => import("./pages/employer/EmployerDashboard"));
+const EmployerOffers = lazy(() => import("./pages/employer/EmployerOffers"));
+const EmployerOfferForm = lazy(() => import("./pages/employer/EmployerOfferForm"));
+const EmployerProfile = lazy(() => import("./pages/employer/EmployerProfile"));
 const EmployerRole = lazy(() => import("./pages/employer/EmployerRole"));
 const EmployerRequirements = lazy(() => import("./pages/employer/EmployerRequirements"));
 const EmployerCulture = lazy(() => import("./pages/employer/EmployerCulture"));
@@ -58,6 +61,9 @@ const App = () => (
               <Route path="/candidate/feedback" element={<ProtectedRoute allowedUserType="candidate"><CandidateFeedback /></ProtectedRoute>} />
               {/* Employer routes - protected and validated */}
               <Route path="/employer/dashboard" element={<ProtectedRoute allowedUserType="employer"><EmployerDashboard /></ProtectedRoute>} />
+              <Route path="/employer/offers" element={<ProtectedRoute allowedUserType="employer"><EmployerOffers /></ProtectedRoute>} />
+              <Route path="/employer/offer/:offerId" element={<ProtectedRoute allowedUserType="employer"><EmployerOfferForm /></ProtectedRoute>} />
+              <Route path="/employer/profile" element={<ProtectedRoute allowedUserType="employer"><EmployerProfile /></ProtectedRoute>} />
               <Route path="/employer/role" element={<ProtectedRoute allowedUserType="employer"><EmployerRole /></ProtectedRoute>} />
               <Route path="/employer/requirements" element={<ProtectedRoute allowedUserType="employer"><EmployerRequirements /></ProtectedRoute>} />
               <Route path="/employer/culture" element={<ProtectedRoute allowedUserType="employer"><EmployerCulture /></ProtectedRoute>} />

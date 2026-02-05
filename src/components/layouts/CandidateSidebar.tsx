@@ -1,6 +1,6 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { Home, ClipboardList, Trophy, LogOut, Users } from "lucide-react";
+import { Home, Trophy, LogOut, Users } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import {
   Sidebar,
@@ -17,7 +17,6 @@ import {
 
 const menuItems = [
   { titleKey: "sidebar.start", icon: Home, path: "/candidate/dashboard" },
-  { titleKey: "sidebar.tests", icon: ClipboardList, path: "/candidate/tests" },
   { titleKey: "sidebar.matches", icon: Trophy, path: "/candidate/matches" },
 ];
 
@@ -53,7 +52,6 @@ export const CandidateSidebar = () => {
             <SidebarMenu>
               {menuItems.map((item) => {
                 const isActive = location.pathname === item.path ||
-                  (item.path === "/candidate/tests" && location.pathname.includes("/test/")) ||
                   (item.path === "/candidate/matches" && location.pathname.includes("/employer/"));
                 return (
                   <SidebarMenuItem key={item.path}>

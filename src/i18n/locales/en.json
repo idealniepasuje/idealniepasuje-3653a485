@@ -4,7 +4,10 @@
     "tests": "Tests",
     "matches": "Matches",
     "jobOffers": "Job Offers",
-    "profile": "Employer Profile"
+    "profile": "Company Profile"
+  },
+  "common": {
+    "cancel": "Cancel"
   },
   "match": {
     "status": {
@@ -13,6 +16,11 @@
       "interested": "Interested",
       "rejected": "Rejected",
       "employerInterested": "Employer interested"
+    },
+    "timeAgo": {
+      "justNow": "Just now",
+      "hoursAgo": "{{count}}h ago",
+      "daysAgo": "{{count}}d ago"
     }
   },
   "common": {
@@ -393,6 +401,33 @@
       "criteriaIndustry": "Industry",
       "criteriaExperience": "Experience",
       "criteriaPositionLevel": "Position level"
+    },
+    "offers": {
+      "title": "Job Offers",
+      "subtitle": "Manage your job listings",
+      "addNew": "Add offer",
+      "noOffers": "No job offers",
+      "noOffersDescription": "You don't have any job offers yet. Create your first offer to start matching candidates.",
+      "createFirst": "Create first offer",
+      "active": "Active",
+      "inactive": "Inactive",
+      "delete": "Delete",
+      "deleted": "Offer deleted",
+      "deleteConfirmTitle": "Delete offer?",
+      "deleteConfirmDescription": "This action cannot be undone. All matches related to this offer will be removed.",
+      "viewCandidates": "View candidates",
+      "createNew": "New job offer",
+      "edit": "Edit offer",
+      "created": "Offer created",
+      "updated": "Offer updated",
+      "titleLabel": "Position title",
+      "titlePlaceholder": "e.g. Frontend Developer"
+    },
+    "profile": {
+      "title": "Company Profile",
+      "subtitle": "Your company information visible to candidates",
+      "companyInfo": "Company details",
+      "companyInfoDescription": "Basic information about your organization"
     }
   },
   "errors": {
