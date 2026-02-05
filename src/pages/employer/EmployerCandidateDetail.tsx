@@ -540,21 +540,21 @@ const EmployerCandidateDetail = () => {
                   <div 
                     key={crit.field} 
                     className={`p-4 rounded-lg border ${
-                      crit.matched ? 'border-success/30 bg-success/5' : 'border-warning/30 bg-warning/5'
+                      crit.matched ? 'border-success/30 bg-success/5' : 'border-destructive/30 bg-destructive/5'
                     }`}
                   >
                     <div className="flex items-start gap-3">
                       {crit.matched ? (
                         <CheckCircle2 className="w-5 h-5 text-success mt-0.5 shrink-0" />
                       ) : (
-                        <AlertCircle className="w-5 h-5 text-warning mt-0.5 shrink-0" />
+                        <AlertCircle className="w-5 h-5 text-destructive mt-0.5 shrink-0" />
                       )}
                       <div className="flex-1">
                         <div className="flex items-center justify-between mb-2">
                           <span className={`font-medium ${crit.matched ? '' : 'text-muted-foreground'}`}>
                             {crit.field}
                           </span>
-                          <Badge variant={crit.matched ? "default" : "secondary"} className={crit.matched ? "bg-success" : ""}>
+                          <Badge variant={crit.matched ? "default" : "destructive"} className={crit.matched ? "bg-success" : ""}>
                             {crit.matched ? t("common.match") : t("employer.candidateDetail.noMatch")}
                           </Badge>
                         </div>
