@@ -29,13 +29,18 @@ const CandidateMatches = () => {
       const { data: matchData, error: matchError } = await supabase
         .from("match_results")
         .select("*")
-        .eq("candidate_user_id", user.id)
-        .order("overall_percent", { ascending: false });
+        .eq("candidate_user_id", user.id);
       
       if (matchError) {
         logError("CandidateMatches.fetchMatches", matchError);
       } else {
-        setMatches(matchData || []);
+        // Sort: interested first, then by overall_percent descending
+        const sorted = (matchData || []).sort((a, b) => {
+          if (a.status === 'considering' && b.status !== 'considering') return -1;
+          if (b.status === 'considering' && a.status !== 'considering') return 1;
+          return (b.overall_percent || 0) - (a.overall_percent || 0);
+        });
+        setMatches(sorted);
         
         // Fetch employer profiles for company names
         if (matchData && matchData.length > 0) {
