@@ -108,17 +108,17 @@ export const EmployerCard = ({ match, employer }: EmployerCardProps) => {
 
             {/* Match progress */}
             <div className="space-y-1">
-              <div className="flex justify-between text-sm">
+              <div className="flex justify-between items-center">
                 <span className="text-muted-foreground">{t("common.match")}</span>
-                <span className="font-bold text-accent">{match.overall_percent}%</span>
+                <span className="font-bold text-accent text-lg">{match.overall_percent}%</span>
               </div>
               <Progress value={match.overall_percent} className="h-2" />
             </div>
           </div>
         </div>
 
-        {/* Action button - full width at bottom for interested state */}
-        {isEmployerInterested && (
+        {/* Action button - always show for best match or employer interested */}
+        {(isBestMatch || isEmployerInterested) && (
           <div className="mt-4 pt-3 border-t">
             <Link to={`/candidate/employer/${match.employer_user_id}`}>
               <Button className="w-full">
