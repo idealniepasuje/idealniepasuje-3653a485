@@ -363,7 +363,9 @@
       "markInterested": "Czy jesteś zainteresowany?",
       "interested": "Zainteresowany",
       "interestMarked": "Oznaczono zainteresowanie kandydatem",
-      "interestRemoved": "Usunięto zainteresowanie kandydatem"
+      "interestRemoved": "Usunięto zainteresowanie kandydatem",
+      "noMatch": "Niezgodne",
+      "acceptedIndustries": "Akceptowane branże"
     }
   },
   "errors": {

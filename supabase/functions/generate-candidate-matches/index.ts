@@ -123,24 +123,61 @@ const calculateCultureMatch = (candidate: CandidateData, employer: EmployerData)
 
 // Calculate extra match
 const calculateExtraMatch = (candidate: CandidateData, employer: EmployerData) => {
-  const details: { field: string; matched: boolean }[] = [];
+  const details: { 
+    field: string; 
+    matched: boolean;
+    candidateValue?: string | null;
+    employerValue?: string | null;
+    acceptedValues?: string[];
+  }[] = [];
   
+  // Industry match
   const industryMatch = 
     candidate.industry === employer.industry ||
     (employer.accepted_industries?.includes(candidate.industry || '') ?? false);
-  details.push({ field: 'Branża', matched: industryMatch });
+  details.push({ 
+    field: 'Branża', 
+    matched: industryMatch,
+    candidateValue: candidate.industry,
+    employerValue: employer.industry,
+    acceptedValues: employer.accepted_industries || [],
+  });
   
-  const experienceMatch = candidate.experience === employer.required_experience;
-  details.push({ field: 'Doświadczenie', matched: experienceMatch });
+  // Experience match - compare years
+  const candidateExp = parseInt(candidate.experience || '0') || 0;
+  const requiredExp = parseInt(employer.required_experience || '0') || 0;
+  const experienceMatch = candidateExp >= requiredExp;
+  details.push({ 
+    field: 'Doświadczenie', 
+    matched: experienceMatch,
+    candidateValue: candidate.experience,
+    employerValue: employer.required_experience,
+  });
   
-  const positionMatch = candidate.position_level === employer.position_level;
-  details.push({ field: 'Poziom stanowiska', matched: positionMatch });
+  // Position level match
+  const positionLevelOrder = ['junior', 'mid', 'senior', 'lead', 'manager', 'director'];
+  const candidateLevelIndex = positionLevelOrder.indexOf(candidate.position_level || '');
+  const employerLevelIndex = positionLevelOrder.indexOf(employer.position_level || '');
+  const positionMatch = candidate.position_level === employer.position_level || 
+    (candidateLevelIndex >= employerLevelIndex && employerLevelIndex !== -1);
+  details.push({ 
+    field: 'Poziom stanowiska', 
+    matched: positionMatch,
+    candidateValue: candidate.position_level,
+    employerValue: employer.position_level,
+  });
   
+  // Industry flexibility
   const openToChange = 
     candidate.wants_to_change_industry === 'Tak' ||
     candidate.wants_to_change_industry === 'Jestem otwarty/a';
   const industryFlexibility = !industryMatch && openToChange;
-  details.push({ field: 'Elastyczność branżowa', matched: industryFlexibility || industryMatch });
+  details.push({ 
+    field: 'Elastyczność branżowa', 
+    matched: industryFlexibility || industryMatch,
+    candidateValue: openToChange ? 'Tak' : 'Nie',
+    employerValue: employer.accepted_industries && employer.accepted_industries.length > 0 ? 'Akceptuje inne branże' : 'Tylko wybrana branża',
+  });
   
   const matchedCount = details.filter(d => d.matched).length;
   const percent = (matchedCount / details.length) * 100;

@@ -363,7 +363,9 @@
       "markInterested": "Are you interested?",
       "interested": "Interested",
       "interestMarked": "Marked as interested in candidate",
-      "interestRemoved": "Removed interest in candidate"
+      "interestRemoved": "Removed interest in candidate",
+      "noMatch": "Not matching",
+      "acceptedIndustries": "Accepted industries"
     }
   },
   "errors": {
