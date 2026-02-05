@@ -129,6 +129,12 @@ const EmployerDashboard = () => {
 
   return (
     <DashboardLayout sidebar={<EmployerSidebar />}>
+      {/* Greeting Header */}
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold mb-2">Cześć 👋</h1>
+        <p className="text-muted-foreground">{t("employer.dashboard.subtitle")}</p>
+      </div>
+
       {/* Expert Badge */}
       <div className="flex items-center gap-2 text-sm text-muted-foreground mb-6">
         <Sparkles className="w-4 h-4 text-accent" />
