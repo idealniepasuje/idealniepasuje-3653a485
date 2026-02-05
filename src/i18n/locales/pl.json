@@ -433,7 +433,9 @@
       "title": "Profil firmy",
       "subtitle": "Informacje o Twojej firmie widoczne dla kandydatów",
       "companyInfo": "Dane firmy",
-      "companyInfoDescription": "Podstawowe informacje o Twojej organizacji"
+      "companyInfoDescription": "Podstawowe informacje o Twojej organizacji",
+      "industry": "Branża firmy",
+      "selectIndustry": "Wybierz branżę"
     }
   },
   "errors": {

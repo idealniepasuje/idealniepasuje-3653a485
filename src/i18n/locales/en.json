@@ -433,7 +433,9 @@
       "title": "Company Profile",
       "subtitle": "Your company information visible to candidates",
       "companyInfo": "Company details",
-      "companyInfoDescription": "Basic information about your organization"
+      "companyInfoDescription": "Basic information about your organization",
+      "industry": "Company industry",
+      "selectIndustry": "Select industry"
     }
   },
   "errors": {
