@@ -266,7 +266,7 @@ const EmployerDashboard = () => {
 
       {/* Two Column Layout: Offers + Matches */}
       {isProfileComplete && (
-        <div className="grid lg:grid-cols-2 gap-6">
+        <div className={`grid ${offers.length > 0 ? 'lg:grid-cols-2' : ''} gap-6`}>
           {/* Recent Offers Column */}
           <Card>
             <CardHeader className="pb-4">
@@ -343,7 +343,8 @@ const EmployerDashboard = () => {
             </CardContent>
           </Card>
 
-          {/* Recent Matches Column */}
+          {/* Recent Matches Column - Only show if there are offers */}
+          {offers.length > 0 && (
           <Card>
             <CardHeader className="pb-4">
               <div className="flex items-center gap-2">
@@ -406,6 +407,7 @@ const EmployerDashboard = () => {
               )}
             </CardContent>
           </Card>
+          )}
         </div>
       )}
     </DashboardLayout>
