@@ -378,7 +378,8 @@
       "subtitle": "List of candidates who best match your organization profile.",
       "searchingTitle": "Searching for ideal candidates",
       "searchingDescription": "We don't have any candidates matching your profile yet. When we find suitable people, they'll appear here.",
-      "candidateNumber": "Candidate"
+      "candidateNumber": "Candidate",
+      "forOrder": "Order"
     },
     "candidateDetail": {
       "notFound": "Candidate not found",

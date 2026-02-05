@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Users } from "lucide-react";
+import { Users, ArrowLeft } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { logError } from "@/lib/errorLogger";
@@ -14,22 +14,43 @@ import { CandidateCard } from "@/components/match/CandidateCard";
 const EmployerCandidates = () => {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const offerId = searchParams.get("offerId");
   const { t } = useTranslation();
   const [matches, setMatches] = useState<any[]>([]);
+  const [offerTitle, setOfferTitle] = useState<string>("");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!authLoading && !user) { navigate("/login"); return; }
     if (user) fetchMatches();
-  }, [user, authLoading, navigate]);
+  }, [user, authLoading, navigate, offerId]);
 
   const fetchMatches = async () => {
     if (!user) return;
     try {
-      const { data: matchData, error: matchError } = await supabase
+      // Fetch offer title if filtering by offer
+      if (offerId) {
+        const { data: offerData } = await supabase
+          .from("job_offers")
+          .select("title")
+          .eq("id", offerId)
+          .single();
+        if (offerData) setOfferTitle(offerData.title);
+      }
+
+      // Build query
+      let query = supabase
         .from("match_results")
         .select("*")
         .eq("employer_user_id", user.id);
+
+      // Filter by job offer if specified
+      if (offerId) {
+        query = query.eq("job_offer_id", offerId);
+      }
+
+      const { data: matchData, error: matchError } = await query;
       
       if (matchError) {
         logError("EmployerCandidates.fetchMatches", matchError);
@@ -65,9 +86,18 @@ const EmployerCandidates = () => {
 
   return (
     <DashboardLayout sidebar={<EmployerSidebar />}>
-      <div className="mb-8">
+      <div className="mb-6">
+        <Button variant="ghost" size="sm" onClick={() => navigate(-1)} className="mb-4 gap-2">
+          <ArrowLeft className="w-4 h-4" />
+          {t("common.back")}
+        </Button>
         <h1 className="text-3xl font-bold mb-2">{t("employer.candidates.title")}</h1>
-        <p className="text-muted-foreground">{t("employer.candidates.subtitle")}</p>
+        <p className="text-muted-foreground">
+          {offerTitle 
+            ? `${t("employer.candidates.forOrder")}: ${offerTitle}`
+            : t("employer.candidates.subtitle")
+          }
+        </p>
       </div>
 
       <Card className="mb-8 border-accent/20 bg-accent/5">
@@ -98,7 +128,7 @@ const EmployerCandidates = () => {
       ) : (
         <div className="grid gap-4">
           {matches.map((match) => (
-            <CandidateCard key={match.id} match={match} />
+            <CandidateCard key={match.id} match={match} offerTitle={offerTitle} />
           ))}
         </div>
       )}

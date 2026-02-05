@@ -300,38 +300,40 @@ const EmployerDashboard = () => {
                   {offers.map((offer) => {
                     const stats = offerMatchCounts[offer.id] || { count: 0, avgMatch: 0 };
                     return (
-                      <div key={offer.id} className="p-4 border rounded-lg hover:shadow-md transition-shadow">
-                        <div className="flex items-start justify-between mb-2">
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-1">
-                              <h3 className="font-semibold">{offer.title}</h3>
-                              <Badge variant={offer.is_active ? "default" : "secondary"} className={offer.is_active ? "bg-success text-success-foreground" : ""}>
-                                {offer.is_active ? t("employer.offers.active") : t("employer.offers.inactive")}
-                              </Badge>
-                            </div>
-                            <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                              <span className="flex items-center gap-1">
-                                <Users className="w-3 h-3" />
-                                {stats.count} {t("common.candidates")}
-                              </span>
-                              <span className="flex items-center gap-1">
-                                <Calendar className="w-3 h-3" />
-                                {formatDate(offer.created_at)}
-                              </span>
+                      <Link key={offer.id} to={`/employer/offer/${offer.id}`} className="block">
+                        <div className="p-4 border rounded-lg hover:shadow-md transition-shadow cursor-pointer">
+                          <div className="flex items-start justify-between mb-2">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-1">
+                                <h3 className="font-semibold">{offer.title}</h3>
+                                <Badge variant={offer.is_active ? "default" : "secondary"} className={offer.is_active ? "bg-success text-success-foreground" : ""}>
+                                  {offer.is_active ? t("employer.offers.active") : t("employer.offers.inactive")}
+                                </Badge>
+                              </div>
+                              <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                                <span className="flex items-center gap-1">
+                                  <Users className="w-3 h-3" />
+                                  {stats.count} {t("common.candidates")}
+                                </span>
+                                <span className="flex items-center gap-1">
+                                  <Calendar className="w-3 h-3" />
+                                  {formatDate(offer.created_at)}
+                                </span>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                        {offer.role_description && (
-                          <p className="text-sm text-muted-foreground mb-3 line-clamp-2">{offer.role_description}</p>
-                        )}
-                        <div className="space-y-1">
-                          <div className="flex justify-between text-sm">
-                            <span className="text-muted-foreground">{t("employer.dashboard.avgMatch")}</span>
-                            <span className="font-semibold text-accent">{stats.avgMatch}%</span>
+                          {offer.role_description && (
+                            <p className="text-sm text-muted-foreground mb-3 line-clamp-2">{offer.role_description}</p>
+                          )}
+                          <div className="space-y-1">
+                            <div className="flex justify-between text-sm">
+                              <span className="text-muted-foreground">{t("employer.dashboard.avgMatch")}</span>
+                              <span className="font-semibold text-accent">{stats.avgMatch}%</span>
+                            </div>
+                            <Progress value={stats.avgMatch} className="h-2" />
                           </div>
-                          <Progress value={stats.avgMatch} className="h-2" />
                         </div>
-                      </div>
+                      </Link>
                     );
                   })}
                   <Link to="/employer/offers" className="block text-center">

@@ -143,62 +143,65 @@ const EmployerOffers = () => {
         <div className="grid gap-4">
           {offers.map((offer) => (
             <Card key={offer.id} className="hover:shadow-lg transition-shadow">
-              <CardHeader className="pb-3">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center">
-                      <Briefcase className="w-5 h-5 text-accent" />
+              <Link to={`/employer/offer/${offer.id}`} className="block">
+                <CardHeader className="pb-3">
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center">
+                        <Briefcase className="w-5 h-5 text-accent" />
+                      </div>
+                      <div>
+                        <CardTitle className="text-lg">{offer.title}</CardTitle>
+                        <CardDescription className="flex items-center gap-2 mt-1">
+                          {offer.industry && <span>{offer.industry}</span>}
+                          {offer.position_level && (
+                            <>
+                              <span>•</span>
+                              <span>{offer.position_level}</span>
+                            </>
+                          )}
+                        </CardDescription>
+                      </div>
                     </div>
-                    <div>
-                      <CardTitle className="text-lg">{offer.title}</CardTitle>
-                      <CardDescription className="flex items-center gap-2 mt-1">
-                        {offer.industry && <span>{offer.industry}</span>}
-                        {offer.position_level && (
-                          <>
-                            <span>•</span>
-                            <span>{offer.position_level}</span>
-                          </>
-                        )}
-                      </CardDescription>
+                    <div className="flex items-center gap-2">
+                      <Badge variant={offer.is_active ? "default" : "secondary"}>
+                        {offer.is_active ? t("employer.offers.active") : t("employer.offers.inactive")}
+                      </Badge>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild onClick={(e) => e.preventDefault()}>
+                          <Button variant="ghost" size="icon">
+                            <MoreVertical className="w-4 h-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={(e) => { e.preventDefault(); navigate(`/employer/offer/${offer.id}`); }}>
+                            <Edit className="w-4 h-4 mr-2" />
+                            {t("common.edit")}
+                          </DropdownMenuItem>
+                          <DropdownMenuItem 
+                            className="text-destructive"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              setOfferToDelete(offer.id);
+                              setDeleteDialogOpen(true);
+                            }}
+                          >
+                            <Trash2 className="w-4 h-4 mr-2" />
+                            {t("employer.offers.delete")}
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Badge variant={offer.is_active ? "default" : "secondary"}>
-                      {offer.is_active ? t("employer.offers.active") : t("employer.offers.inactive")}
-                    </Badge>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon">
-                          <MoreVertical className="w-4 h-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => navigate(`/employer/offer/${offer.id}`)}>
-                          <Edit className="w-4 h-4 mr-2" />
-                          {t("common.edit")}
-                        </DropdownMenuItem>
-                        <DropdownMenuItem 
-                          className="text-destructive"
-                          onClick={() => {
-                            setOfferToDelete(offer.id);
-                            setDeleteDialogOpen(true);
-                          }}
-                        >
-                          <Trash2 className="w-4 h-4 mr-2" />
-                          {t("employer.offers.delete")}
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </div>
-                </div>
-              </CardHeader>
+                </CardHeader>
+              </Link>
               <CardContent>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <Users className="w-4 h-4" />
                     <span>{matchCounts[offer.id] || 0} {t("common.matchedCandidates")}</span>
                   </div>
-                  <Link to="/employer/candidates">
+                  <Link to={`/employer/candidates?offerId=${offer.id}`}>
                     <Button variant="outline" size="sm" className="gap-2">
                       {t("employer.offers.viewCandidates")}
                       <ChevronRight className="w-4 h-4" />
