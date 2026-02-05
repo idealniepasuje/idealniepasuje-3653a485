@@ -12,6 +12,7 @@ import { getLocalizedCompetencyTests } from "@/data/competencyQuestions";
 import { logError } from "@/lib/errorLogger";
 import { DashboardLayout } from "@/components/layouts/DashboardLayout";
 import { CandidateSidebar } from "@/components/layouts/CandidateSidebar";
+import { EmployerCard } from "@/components/match/EmployerCard";
 
 const CandidateDashboard = () => {
   const { user, loading: authLoading } = useAuth();
@@ -70,7 +71,7 @@ const CandidateDashboard = () => {
           const employerIds = matchData.map(m => m.employer_user_id);
           const { data: employerData, error: employerError } = await supabase
             .from("employer_profiles")
-            .select("user_id, company_name")
+            .select("user_id, company_name, industry, role_description")
             .in("user_id", employerIds);
           
           if (!employerError && employerData) {
@@ -366,49 +367,18 @@ const CandidateDashboard = () => {
                 </div>
               ) : (
                 <>
-                  {matches.slice(0, 3).map((match) => {
-                    const employer = employers[match.employer_user_id];
-                    const isBestMatch = match.overall_percent >= 80;
-                    return (
-                      <div key={match.id} className={`p-4 border rounded-lg hover:shadow-md transition-shadow ${isBestMatch ? 'border-accent/50 bg-accent/5' : ''}`}>
-                        <div className="flex items-start gap-3">
-                          <div className="w-10 h-10 rounded-full bg-accent/20 flex items-center justify-center shrink-0">
-                            <Building2 className="w-5 h-5 text-accent" />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center justify-between mb-1">
-                              <div className="flex items-center gap-2">
-                                <h3 className="font-semibold">
-                                  {employer?.company_name || t("candidate.matches.company")}
-                                </h3>
-                                {match.status === 'considering' && (
-                                  <Badge className="bg-success text-success-foreground text-xs">
-                                    {t("candidate.matches.employerInterested")}
-                                  </Badge>
-                                )}
-                              </div>
-                              <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                                <Clock className="w-3 h-3" />
-                                {formatTimeAgo(match.created_at)}
-                              </div>
-                            </div>
-                            <div className="space-y-1 mb-3">
-                              <div className="flex justify-between items-center">
-                                <span className="text-muted-foreground">{t("common.match")}</span>
-                                <span className="font-bold text-accent text-lg">{match.overall_percent}%</span>
-                              </div>
-                              <Progress value={match.overall_percent} className="h-2" />
-                            </div>
-                            <Link to={`/candidate/employer/${match.employer_user_id}`}>
-                              <Button size="sm" className="w-full">
-                                {t("common.viewProfile")}
-                              </Button>
-                            </Link>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
+                  <div className="space-y-4">
+                    {matches.slice(0, 3).map((match) => {
+                      const employer = employers[match.employer_user_id];
+                      return (
+                        <EmployerCard 
+                          key={match.id} 
+                          match={match} 
+                          employer={employer}
+                        />
+                      );
+                    })}
+                  </div>
                   <Link to="/candidate/matches" className="block text-center">
                     <Button variant="ghost" size="sm" className="w-full">
                       {t("candidate.dashboard.viewMore")}
