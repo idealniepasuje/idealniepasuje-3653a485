@@ -95,8 +95,8 @@ export const CandidateCard = ({ match, candidateData, offerTitle }: CandidateCar
         </div>
 
         {/* Match score and button */}
-        <div className="flex items-center justify-between pt-3 border-t">
-          <div className="text-center">
+        <div className="flex items-end justify-between pt-3 border-t">
+          <div>
             <span className="text-3xl font-bold text-accent">{match.overall_percent}%</span>
             <p className="text-xs text-muted-foreground">{t("common.match")}</p>
           </div>
