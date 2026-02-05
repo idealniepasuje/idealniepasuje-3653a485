@@ -59,6 +59,7 @@ const CandidateEmployerDetail = () => {
   const { t, i18n } = useTranslation();
   const [match, setMatch] = useState<any>(null);
   const [employer, setEmployer] = useState<any>(null);
+  const [candidateData, setCandidateData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -69,7 +70,7 @@ const CandidateEmployerDetail = () => {
   const fetchMatchData = async () => {
     if (!user || !employerId) return;
     try {
-      const [matchResult, employerResult] = await Promise.all([
+      const [matchResult, employerResult, candidateResult] = await Promise.all([
         supabase
           .from("match_results")
           .select("*")
@@ -78,8 +79,13 @@ const CandidateEmployerDetail = () => {
           .single(),
         supabase
           .from("employer_profiles")
-          .select("company_name, role_description, industry")
+          .select("company_name, role_description, industry, required_experience, position_level, accepted_industries, no_experience_required")
           .eq("user_id", employerId)
+          .single(),
+        supabase
+          .from("candidate_test_results")
+          .select("industry, experience, position_level, target_industries")
+          .eq("user_id", user.id)
           .single()
       ]);
       
@@ -91,6 +97,10 @@ const CandidateEmployerDetail = () => {
 
       if (!employerResult.error) {
         setEmployer(employerResult.data);
+      }
+      
+      if (!candidateResult.error) {
+        setCandidateData(candidateResult.data);
       }
     } catch (error) {
       logError("CandidateEmployerDetail.fetchMatchData", error);
@@ -365,25 +375,74 @@ const CandidateEmployerDetail = () => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid sm:grid-cols-2 gap-3">
-              {matchDetails?.extraDetails?.map((extra) => (
-                <div 
-                  key={extra.field} 
-                  className={`flex items-center gap-2 p-3 rounded-lg border ${
-                    extra.matched ? 'border-success/30 bg-success/5' : 'border-muted bg-muted/30'
-                  }`}
-                >
-                  {extra.matched ? (
-                    <CheckCircle2 className="w-4 h-4 text-success" />
-                  ) : (
-                    <AlertCircle className="w-4 h-4 text-muted-foreground" />
-                  )}
-                  <span className={extra.matched ? '' : 'text-muted-foreground'}>
-                    {extra.field}
-                  </span>
+            {(() => {
+              const positionLevelOrder = ['junior', 'mid', 'senior', 'lead', 'manager', 'director'];
+              const candidateLevelIndex = positionLevelOrder.indexOf(candidateData?.position_level || '');
+              const employerLevelIndex = positionLevelOrder.indexOf(employer?.position_level || '');
+              
+              const industryMatch = candidateData?.industry === employer?.industry || 
+                (employer?.accepted_industries && employer.accepted_industries.includes(candidateData?.industry));
+              
+              const candidateExp = parseInt(candidateData?.experience || '0', 10);
+              const employerExp = parseInt(employer?.required_experience || '0', 10);
+              const experienceMatch = employer?.no_experience_required || candidateExp >= employerExp;
+              
+              const positionMatch = candidateData?.position_level === employer?.position_level || 
+                (candidateLevelIndex >= employerLevelIndex && employerLevelIndex !== -1);
+
+              const criteria = [
+                {
+                  field: t("employer.candidateDetail.criteriaIndustry"),
+                  matched: industryMatch,
+                  candidateValue: candidateData?.industry,
+                  employerValue: employer?.industry,
+                },
+                {
+                  field: t("employer.candidateDetail.criteriaExperience"),
+                  matched: experienceMatch,
+                  candidateValue: candidateData?.experience ? `${candidateData.experience} ${t("common.years")}` : null,
+                  employerValue: employer?.no_experience_required ? t("employer.requirements.noExperienceRequired") : `${employer?.required_experience || 0} ${t("common.years")}`,
+                },
+                {
+                  field: t("employer.candidateDetail.criteriaPositionLevel"),
+                  matched: positionMatch,
+                  candidateValue: candidateData?.position_level,
+                  employerValue: employer?.position_level,
+                },
+              ];
+
+              return (
+                <div className="grid gap-3">
+                  {criteria.map((extra) => (
+                    <div 
+                      key={extra.field} 
+                      className={`p-4 rounded-lg border ${
+                        extra.matched ? 'border-success/30 bg-success/5' : 'border-destructive/30 bg-destructive/5'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2 mb-2">
+                        {extra.matched ? (
+                          <CheckCircle2 className="w-4 h-4 text-success" />
+                        ) : (
+                          <AlertCircle className="w-4 h-4 text-destructive" />
+                        )}
+                        <span className="font-medium">{extra.field}</span>
+                      </div>
+                      <div className="grid grid-cols-2 gap-4 text-sm">
+                        <div>
+                          <span className="text-muted-foreground">{t("candidate.employerDetail.yourScore")}:</span>
+                          <span className="ml-2 font-medium">{extra.candidateValue || '-'}</span>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">{t("candidate.employerDetail.requirement")}:</span>
+                          <span className="ml-2 font-medium">{extra.employerValue || '-'}</span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
+              );
+            })()}
           </CardContent>
         </Card>
 
