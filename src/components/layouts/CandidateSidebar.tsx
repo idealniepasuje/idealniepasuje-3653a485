@@ -34,13 +34,13 @@ export const CandidateSidebar = () => {
   };
 
   return (
-    <Sidebar collapsible="icon" className="border-r border-border bg-primary text-primary-foreground">
+    <Sidebar collapsible="icon" className="border-r border-sidebar-border gradient-sidebar text-primary-foreground">
       <SidebarHeader className="p-4">
         <Link to="/candidate/dashboard" className="flex items-center gap-2">
-          <Users className="w-8 h-8 text-accent" />
+          <Users className="w-8 h-8 text-cta" />
           {!isCollapsed && (
             <span className="text-lg font-bold">
-              idealnie<span className="text-accent">pasuje</span>
+              idealnie<span className="text-cta">pasuje</span>
             </span>
           )}
         </Link>
