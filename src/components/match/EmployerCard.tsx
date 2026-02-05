@@ -57,72 +57,63 @@ export const EmployerCard = ({ match, employer }: EmployerCardProps) => {
   };
 
   return (
-    <Card className={`hover:shadow-lg transition-all ${isRejected ? 'opacity-60' : ''} ${isBestMatch ? 'border-accent/50 bg-accent/5' : ''}`}>
-      <CardContent className="p-4">
-        <div className="flex items-start gap-4">
-          {/* Avatar */}
-          <div className={`w-12 h-12 rounded-full ${getAvatarColor(match.employer_user_id)} flex items-center justify-center shrink-0`}>
-            <Building2 className="w-6 h-6 text-accent" />
-          </div>
-          
-          {/* Main content */}
-          <div className="flex-1 min-w-0">
-            <div className="flex items-start justify-between gap-2 mb-2">
-              <div>
-                <div className="flex items-center gap-2 flex-wrap mb-1">
-                  {isBestMatch && (
-                    <Badge className="bg-accent text-accent-foreground text-xs">
-                      Best match
-                    </Badge>
-                  )}
-                  {isEmployerInterested && (
-                    <MatchStatusBadge status="considering" perspective="candidate" />
-                  )}
-                  {match.status === 'viewed' && (
-                    <MatchStatusBadge status="viewed" perspective="candidate" />
-                  )}
+    <Link to={`/candidate/employer/${match.employer_user_id}`} className="block">
+      <Card className={`hover:shadow-lg transition-all cursor-pointer ${isRejected ? 'opacity-60' : ''} ${isBestMatch ? 'border-accent/50 bg-accent/5' : ''}`}>
+        <CardContent className="p-4">
+          <div className="flex items-start gap-4">
+            {/* Avatar */}
+            <div className={`w-12 h-12 rounded-full ${getAvatarColor(match.employer_user_id)} flex items-center justify-center shrink-0`}>
+              <Building2 className="w-6 h-6 text-accent" />
+            </div>
+            
+            {/* Main content */}
+            <div className="flex-1 min-w-0">
+              <div className="flex items-start justify-between gap-2 mb-2">
+                <div>
+                  <div className="flex items-center gap-2 flex-wrap mb-1">
+                    {isBestMatch && (
+                      <Badge className="bg-accent text-accent-foreground text-xs">
+                        Best match
+                      </Badge>
+                    )}
+                    {isEmployerInterested && (
+                      <MatchStatusBadge status="considering" perspective="candidate" />
+                    )}
+                    {match.status === 'viewed' && (
+                      <MatchStatusBadge status="viewed" perspective="candidate" />
+                    )}
+                  </div>
+                  <h3 className="font-semibold text-lg">
+                    {employer?.company_name || t("candidate.matches.company")}
+                  </h3>
+                  <p className="text-sm text-muted-foreground flex items-center gap-1">
+                    <Clock className="w-3 h-3" />
+                    {formatTimeAgo(match.created_at)}
+                  </p>
                 </div>
-                <h3 className="font-semibold text-lg">
-                  {employer?.company_name || t("candidate.matches.company")}
-                </h3>
-                <p className="text-sm text-muted-foreground flex items-center gap-1">
-                  <Clock className="w-3 h-3" />
-                  {formatTimeAgo(match.created_at)}
-                </p>
+              </div>
+
+              {/* Industry tag */}
+              {employer?.industry && (
+                <div className="flex flex-wrap gap-1.5 mb-3">
+                  <Badge variant="outline" className="text-xs">
+                    {employer.industry}
+                  </Badge>
+                </div>
+              )}
+
+              {/* Match progress */}
+              <div className="space-y-1">
+                <div className="flex justify-between items-center">
+                  <span className="text-muted-foreground">{t("common.match")}</span>
+                  <span className="font-bold text-accent text-lg">{match.overall_percent}%</span>
+                </div>
+                <Progress value={match.overall_percent} className="h-2" />
               </div>
             </div>
-
-            {/* Industry tag */}
-            {employer?.industry && (
-              <div className="flex flex-wrap gap-1.5 mb-3">
-                <Badge variant="outline" className="text-xs">
-                  {employer.industry}
-                </Badge>
-              </div>
-            )}
-
-            {/* Match progress */}
-            <div className="space-y-1">
-              <div className="flex justify-between items-center">
-                <span className="text-muted-foreground">{t("common.match")}</span>
-                <span className="font-bold text-accent text-lg">{match.overall_percent}%</span>
-              </div>
-              <Progress value={match.overall_percent} className="h-2" />
-            </div>
           </div>
-        </div>
-
-        {/* Action button - always show for best match or employer interested */}
-        {(isBestMatch || isEmployerInterested) && (
-          <div className="mt-4 pt-3 border-t">
-            <Link to={`/candidate/employer/${match.employer_user_id}`}>
-              <Button className="w-full">
-                {t("common.viewProfile")}
-              </Button>
-            </Link>
-          </div>
-        )}
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+    </Link>
   );
 };
