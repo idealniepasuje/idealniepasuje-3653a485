@@ -63,6 +63,7 @@ const EmployerCandidateDetail = () => {
   const { t, i18n } = useTranslation();
   const [match, setMatch] = useState<any>(null);
   const [candidateData, setCandidateData] = useState<any>(null);
+  const [employerData, setEmployerData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [isInterested, setIsInterested] = useState(false);
 
@@ -94,12 +95,23 @@ const EmployerCandidateDetail = () => {
       // Fetch candidate test results for additional info
       const { data: testData } = await supabase
         .from("candidate_test_results")
-        .select("industry, experience, position_level, work_description")
+        .select("industry, experience, position_level, work_description, target_industries, has_no_experience, industry_experiences")
         .eq("user_id", candidateId)
         .single();
 
       if (testData) {
         setCandidateData(testData);
+      }
+
+      // Fetch employer profile for comparison
+      const { data: empData } = await supabase
+        .from("employer_profiles")
+        .select("industry, required_experience, position_level, accepted_industries, no_experience_required, accepted_industry_requirements")
+        .eq("user_id", user.id)
+        .single();
+
+      if (empData) {
+        setEmployerData(empData);
       }
     } catch (error) {
       logError("EmployerCandidateDetail.fetchMatchData", error);
@@ -465,65 +477,111 @@ const EmployerCandidateDetail = () => {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {matchDetails?.extraDetails?.map((extra) => {
-                const getDisplayValue = (value: string | null | undefined, field: string) => {
-                  if (!value) return '-';
-                  // Try to translate industry, position level
-                  if (field === 'Branża') {
+              {/* Build criteria from live data */}
+              {(() => {
+                const getDisplayValue = (value: string | null | undefined, field: string, isExperience = false) => {
+                  if (value === null || value === undefined || value === '') return '-';
+                  if (field === 'industry') {
                     return t(`candidate.additional.industries.${value}`, value);
                   }
-                  if (field === 'Poziom stanowiska') {
+                  if (field === 'position_level') {
                     return t(`candidate.additional.positionLevels.${value}`, value);
                   }
-                  if (field === 'Doświadczenie') {
-                    if (value === '0') return t("employer.requirements.noExperienceRequired");
+                  if (isExperience) {
+                    if (String(value) === '0') return t("employer.requirements.noExperienceRequired");
                     return `${value} ${t("common.years")}`;
                   }
                   return value;
                 };
 
-                return (
+                // Industry match
+                const industryMatch = 
+                  candidateData?.industry === employerData?.industry ||
+                  (employerData?.accepted_industries?.includes(candidateData?.industry) ?? false);
+                
+                // Experience match
+                const candidateExp = parseInt(candidateData?.experience || '0') || 0;
+                const requiredExp = parseInt(employerData?.required_experience || '0') || 0;
+                const experienceMatch = employerData?.no_experience_required || candidateExp >= requiredExp;
+                
+                // Position level match
+                const positionLevelOrder = ['junior', 'mid', 'senior', 'lead', 'manager', 'director'];
+                const candidateLevelIndex = positionLevelOrder.indexOf(candidateData?.position_level || '');
+                const employerLevelIndex = positionLevelOrder.indexOf(employerData?.position_level || '');
+                const positionMatch = candidateData?.position_level === employerData?.position_level || 
+                  (candidateLevelIndex >= employerLevelIndex && employerLevelIndex !== -1);
+
+                const criteria = [
+                  {
+                    field: t("employer.candidateDetail.criteriaIndustry"),
+                    matched: industryMatch,
+                    candidateValue: candidateData?.industry,
+                    employerValue: employerData?.industry,
+                    acceptedValues: employerData?.accepted_industries || [],
+                    fieldType: 'industry'
+                  },
+                  {
+                    field: t("employer.candidateDetail.criteriaExperience"),
+                    matched: experienceMatch,
+                    candidateValue: candidateData?.experience,
+                    employerValue: employerData?.no_experience_required ? '0' : employerData?.required_experience,
+                    fieldType: 'experience'
+                  },
+                  {
+                    field: t("employer.candidateDetail.criteriaPositionLevel"),
+                    matched: positionMatch,
+                    candidateValue: candidateData?.position_level,
+                    employerValue: employerData?.position_level,
+                    fieldType: 'position_level'
+                  },
+                ];
+
+                return criteria.map((crit) => (
                   <div 
-                    key={extra.field} 
+                    key={crit.field} 
                     className={`p-4 rounded-lg border ${
-                      extra.matched ? 'border-success/30 bg-success/5' : 'border-warning/30 bg-warning/5'
+                      crit.matched ? 'border-success/30 bg-success/5' : 'border-warning/30 bg-warning/5'
                     }`}
                   >
                     <div className="flex items-start gap-3">
-                      {extra.matched ? (
+                      {crit.matched ? (
                         <CheckCircle2 className="w-5 h-5 text-success mt-0.5 shrink-0" />
                       ) : (
                         <AlertCircle className="w-5 h-5 text-warning mt-0.5 shrink-0" />
                       )}
                       <div className="flex-1">
                         <div className="flex items-center justify-between mb-2">
-                          <span className={`font-medium ${extra.matched ? '' : 'text-muted-foreground'}`}>
-                            {extra.field}
+                          <span className={`font-medium ${crit.matched ? '' : 'text-muted-foreground'}`}>
+                            {crit.field}
                           </span>
-                          <Badge variant={extra.matched ? "default" : "secondary"} className={extra.matched ? "bg-success" : ""}>
-                            {extra.matched ? t("common.match") : t("employer.candidateDetail.noMatch")}
+                          <Badge variant={crit.matched ? "default" : "secondary"} className={crit.matched ? "bg-success" : ""}>
+                            {crit.matched ? t("common.match") : t("employer.candidateDetail.noMatch")}
                           </Badge>
                         </div>
                         <div className="grid sm:grid-cols-2 gap-2 text-sm">
                           <div className="flex items-center gap-2">
                             <span className="text-muted-foreground">{t("employer.candidateDetail.candidateScore")}:</span>
-                            <span className="font-medium">{getDisplayValue(extra.candidateValue, extra.field)}</span>
+                            <span className="font-medium">
+                              {getDisplayValue(crit.candidateValue, crit.fieldType, crit.fieldType === 'experience')}
+                            </span>
                           </div>
                           <div className="flex items-center gap-2">
                             <span className="text-muted-foreground">{t("employer.candidateDetail.yourRequirement")}:</span>
-                            <span className="font-medium">{getDisplayValue(extra.employerValue, extra.field)}</span>
+                            <span className="font-medium">
+                              {getDisplayValue(crit.employerValue, crit.fieldType, crit.fieldType === 'experience')}
+                            </span>
                           </div>
                         </div>
-                        {extra.acceptedValues && extra.acceptedValues.length > 0 && extra.field === 'Branża' && (
+                        {crit.acceptedValues && crit.acceptedValues.length > 0 && crit.fieldType === 'industry' && (
                           <div className="mt-2 text-xs text-muted-foreground">
-                            {t("employer.candidateDetail.acceptedIndustries")}: {extra.acceptedValues.map(v => t(`candidate.additional.industries.${v}`, v)).join(', ')}
+                            {t("employer.candidateDetail.acceptedIndustries")}: {crit.acceptedValues.map((v: string) => t(`candidate.additional.industries.${v}`, v)).join(', ')}
                           </div>
                         )}
                       </div>
                     </div>
                   </div>
-                );
-              })}
+                ));
+              })()}
             </div>
           </CardContent>
         </Card>

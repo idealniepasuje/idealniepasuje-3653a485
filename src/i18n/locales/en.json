@@ -365,7 +365,10 @@
       "interestMarked": "Marked as interested in candidate",
       "interestRemoved": "Removed interest in candidate",
       "noMatch": "Not matching",
-      "acceptedIndustries": "Accepted industries"
+      "acceptedIndustries": "Accepted industries",
+      "criteriaIndustry": "Industry",
+      "criteriaExperience": "Experience",
+      "criteriaPositionLevel": "Position level"
     }
   },
   "errors": {
