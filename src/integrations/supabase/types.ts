@@ -272,6 +272,72 @@ export type Database = {
         }
         Relationships: []
       }
+      job_offers: {
+        Row: {
+          accepted_industries: string[] | null
+          accepted_industry_requirements: Json | null
+          created_at: string
+          id: string
+          industry: string | null
+          is_active: boolean | null
+          no_experience_required: boolean | null
+          position_level: string | null
+          req_adaptacja: number | null
+          req_determinacja: number | null
+          req_komunikacja: number | null
+          req_myslenie_analityczne: number | null
+          req_out_of_the_box: number | null
+          required_experience: string | null
+          role_description: string | null
+          role_responsibilities: string | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          accepted_industries?: string[] | null
+          accepted_industry_requirements?: Json | null
+          created_at?: string
+          id?: string
+          industry?: string | null
+          is_active?: boolean | null
+          no_experience_required?: boolean | null
+          position_level?: string | null
+          req_adaptacja?: number | null
+          req_determinacja?: number | null
+          req_komunikacja?: number | null
+          req_myslenie_analityczne?: number | null
+          req_out_of_the_box?: number | null
+          required_experience?: string | null
+          role_description?: string | null
+          role_responsibilities?: string | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          accepted_industries?: string[] | null
+          accepted_industry_requirements?: Json | null
+          created_at?: string
+          id?: string
+          industry?: string | null
+          is_active?: boolean | null
+          no_experience_required?: boolean | null
+          position_level?: string | null
+          req_adaptacja?: number | null
+          req_determinacja?: number | null
+          req_komunikacja?: number | null
+          req_myslenie_analityczne?: number | null
+          req_out_of_the_box?: number | null
+          required_experience?: string | null
+          role_description?: string | null
+          role_responsibilities?: string | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       match_results: {
         Row: {
           candidate_user_id: string
@@ -281,10 +347,12 @@ export type Database = {
           employer_user_id: string
           extra_percent: number | null
           id: string
+          job_offer_id: string | null
           match_details: Json | null
           overall_percent: number | null
           status: string | null
           updated_at: string
+          viewed_at: string | null
         }
         Insert: {
           candidate_user_id: string
@@ -294,10 +362,12 @@ export type Database = {
           employer_user_id: string
           extra_percent?: number | null
           id?: string
+          job_offer_id?: string | null
           match_details?: Json | null
           overall_percent?: number | null
           status?: string | null
           updated_at?: string
+          viewed_at?: string | null
         }
         Update: {
           candidate_user_id?: string
@@ -307,12 +377,22 @@ export type Database = {
           employer_user_id?: string
           extra_percent?: number | null
           id?: string
+          job_offer_id?: string | null
           match_details?: Json | null
           overall_percent?: number | null
           status?: string | null
           updated_at?: string
+          viewed_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "match_results_job_offer_id_fkey"
+            columns: ["job_offer_id"]
+            isOneToOne: false
+            referencedRelation: "job_offers"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {

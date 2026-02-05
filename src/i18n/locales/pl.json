@@ -1,4 +1,20 @@
 {
+  "sidebar": {
+    "start": "Start",
+    "tests": "Testy",
+    "matches": "Dopasowania",
+    "jobOffers": "Zlecenia",
+    "profile": "Profil pracodawcy"
+  },
+  "match": {
+    "status": {
+      "new": "Nowy",
+      "viewed": "Obejrzany",
+      "interested": "Zainteresowany",
+      "rejected": "Odrzucony",
+      "employerInterested": "Pracodawca zainteresowany"
+    }
+  },
   "common": {
     "login": "Zaloguj się",
     "register": "Zarejestruj się",
@@ -364,10 +380,14 @@
       "whyGoodMatch": "Dlaczego to dobre dopasowanie?",
       "matchExplanation": "{{name}} wykazuje {{percent}}% zgodności z Twoim profilem organizacji. Oto kluczowe obszary dopasowania:",
       "thisCandidate": "Ten kandydat",
-      "markInterested": "Czy jesteś zainteresowany?",
+      "markInterested": "Zainteresowany",
+      "markRejected": "Odrzuć",
       "interested": "Zainteresowany",
+      "rejected": "Odrzucony",
       "interestMarked": "Oznaczono zainteresowanie kandydatem",
       "interestRemoved": "Usunięto zainteresowanie kandydatem",
+      "rejectionMarked": "Oznaczono jako odrzucony",
+      "rejectionRemoved": "Usunięto odrzucenie kandydata",
       "noMatch": "Niezgodne",
       "acceptedIndustries": "Akceptowane branże",
       "criteriaIndustry": "Branża",

@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { LogOut, ArrowLeft, Target, Heart, Briefcase, CheckCircle2, AlertCircle, TrendingUp, TrendingDown, User, ThumbsUp, Sparkles } from "lucide-react";
+import { LogOut, ArrowLeft, Target, Heart, Briefcase, CheckCircle2, AlertCircle, TrendingUp, TrendingDown, User, ThumbsUp, ThumbsDown, Sparkles } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { logError } from "@/lib/errorLogger";
@@ -65,7 +65,7 @@ const EmployerCandidateDetail = () => {
   const [candidateData, setCandidateData] = useState<any>(null);
   const [employerData, setEmployerData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [isInterested, setIsInterested] = useState(false);
+  const [currentStatus, setCurrentStatus] = useState<string>('pending');
 
   useEffect(() => {
     if (!authLoading && !user) { navigate("/login"); return; }
@@ -87,7 +87,16 @@ const EmployerCandidateDetail = () => {
         logError("EmployerCandidateDetail.fetchMatchData", matchError);
       } else {
         setMatch(matchData);
-        setIsInterested(matchData?.status === 'considering');
+        setCurrentStatus(matchData?.status || 'pending');
+        
+        // Mark as viewed if status is pending (hasn't been seen yet)
+        if (matchData && matchData.status === 'pending') {
+          await supabase
+            .from("match_results")
+            .update({ status: 'viewed', viewed_at: new Date().toISOString() })
+            .eq("id", matchData.id);
+          setCurrentStatus('viewed');
+        }
       }
 
       // Candidate is anonymous - don't fetch their name
@@ -120,63 +129,63 @@ const EmployerCandidateDetail = () => {
     }
   };
 
-  const handleInterested = async () => {
+  const handleStatusChange = async (newStatus: 'considering' | 'rejected' | 'viewed') => {
     if (!match) return;
     try {
-      // Use 'considering' status as the database only allows: pending, considering, rejected, accepted
-      const newStatus = isInterested ? 'pending' : 'considering';
+      // If clicking the same status, revert to 'viewed'
+      const statusToSet = currentStatus === newStatus ? 'viewed' : newStatus;
+      
       const { error } = await supabase
         .from("match_results")
-        .update({ status: newStatus })
+        .update({ status: statusToSet })
         .eq("id", match.id);
       
       if (error) {
-        logError("EmployerCandidateDetail.handleInterested", error);
+        logError("EmployerCandidateDetail.handleStatusChange", error);
         toast.error(t("errors.genericError"));
         return;
       }
       
       // Send notification to candidate when employer marks interest
-      if (!isInterested && newStatus === 'considering') {
+      if (currentStatus !== 'considering' && statusToSet === 'considering') {
         try {
-          // Get candidate email
-          const { data: candidateProfile } = await supabase
-            .rpc('get_profile_public', { target_user_id: candidateId });
-          
-          // Get employer profile for company name
           const { data: employerProfile } = await supabase
             .from("employer_profiles")
             .select("company_name")
             .eq("user_id", user?.id)
             .single();
           
-          if (candidateProfile && candidateProfile.length > 0) {
-            // Get candidate email from auth (we need to call edge function)
-            await supabase.functions.invoke('send-interest-notification', {
-              body: {
-                candidate_user_id: candidateId,
-                employer_company_name: employerProfile?.company_name || 'Pracodawca',
-                match_percent: match.overall_percent,
-                competence_percent: match.competence_percent,
-                culture_percent: match.culture_percent,
-                extra_percent: match.extra_percent,
-              }
-            });
-          }
+          await supabase.functions.invoke('send-interest-notification', {
+            body: {
+              candidate_user_id: candidateId,
+              employer_company_name: employerProfile?.company_name || 'Pracodawca',
+              match_percent: match.overall_percent,
+              competence_percent: match.competence_percent,
+              culture_percent: match.culture_percent,
+              extra_percent: match.extra_percent,
+            }
+          });
         } catch (notifError) {
-          // Don't block the interest marking if notification fails
           logError("EmployerCandidateDetail.sendNotification", notifError);
         }
       }
       
-      setIsInterested(!isInterested);
-      setMatch({ ...match, status: newStatus });
-      toast.success(isInterested 
-        ? t("employer.candidateDetail.interestRemoved") 
-        : t("employer.candidateDetail.interestMarked")
-      );
+      setCurrentStatus(statusToSet);
+      setMatch({ ...match, status: statusToSet });
+      
+      if (newStatus === 'considering') {
+        toast.success(statusToSet === 'considering' 
+          ? t("employer.candidateDetail.interestMarked") 
+          : t("employer.candidateDetail.interestRemoved")
+        );
+      } else if (newStatus === 'rejected') {
+        toast.success(statusToSet === 'rejected' 
+          ? t("employer.candidateDetail.rejectionMarked") 
+          : t("employer.candidateDetail.rejectionRemoved")
+        );
+      }
     } catch (error) {
-      logError("EmployerCandidateDetail.handleInterested", error);
+      logError("EmployerCandidateDetail.handleStatusChange", error);
       toast.error(t("errors.genericError"));
     }
   };
@@ -276,14 +285,23 @@ const EmployerCandidateDetail = () => {
               <div className="text-center md:text-right">
                 <div className="text-5xl font-bold text-accent">{match.overall_percent}%</div>
                 <div className="text-sm text-muted-foreground mb-3">{t("common.totalMatch")}</div>
-                <Button 
-                  onClick={handleInterested}
-                  variant={isInterested ? "default" : "outline"}
-                  className={isInterested ? "bg-success hover:bg-success/90" : ""}
-                >
-                  <ThumbsUp className="w-4 h-4 mr-2" />
-                  {isInterested ? t("employer.candidateDetail.interested") : t("employer.candidateDetail.markInterested")}
-                </Button>
+                <div className="flex gap-2 justify-center md:justify-end">
+                  <Button 
+                    onClick={() => handleStatusChange('considering')}
+                    variant={currentStatus === 'considering' ? "default" : "outline"}
+                    className={currentStatus === 'considering' ? "bg-success hover:bg-success/90" : ""}
+                  >
+                    <ThumbsUp className="w-4 h-4 mr-2" />
+                    {t("employer.candidateDetail.markInterested")}
+                  </Button>
+                  <Button 
+                    onClick={() => handleStatusChange('rejected')}
+                    variant={currentStatus === 'rejected' ? "destructive" : "outline"}
+                  >
+                    <ThumbsDown className="w-4 h-4 mr-2" />
+                    {t("employer.candidateDetail.markRejected")}
+                  </Button>
+                </div>
               </div>
             </div>
           </CardContent>
