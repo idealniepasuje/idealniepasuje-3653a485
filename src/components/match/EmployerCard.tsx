@@ -3,7 +3,8 @@ import { useTranslation } from "react-i18next";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Building2, ChevronRight, Target, Heart, Briefcase } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
+import { Building2, Clock, Bookmark } from "lucide-react";
 import { MatchStatusBadge, MatchStatus } from "@/components/match/MatchStatusBadge";
 
 interface EmployerCardProps {
@@ -27,10 +28,12 @@ interface EmployerCardProps {
 export const EmployerCard = ({ match, employer }: EmployerCardProps) => {
   const { t } = useTranslation();
   const isRejected = match.status === 'rejected';
+  const isBestMatch = match.overall_percent >= 80;
+  const isEmployerInterested = match.status === 'considering';
   
   // Generate a pseudo-random avatar color based on employer ID
   const getAvatarColor = (id: string) => {
-    const colors = ['bg-accent/20', 'bg-cta/20', 'bg-primary/20', 'bg-success/20'];
+    const colors = ['bg-purple-100', 'bg-orange-100', 'bg-blue-100', 'bg-green-100', 'bg-pink-100'];
     const index = parseInt(id.slice(0, 2), 16) % colors.length;
     return colors[index];
   };
@@ -54,7 +57,7 @@ export const EmployerCard = ({ match, employer }: EmployerCardProps) => {
   };
 
   return (
-    <Card className={`hover:shadow-lg transition-all group ${isRejected ? 'opacity-60' : ''}`}>
+    <Card className={`hover:shadow-lg transition-all ${isRejected ? 'opacity-60' : ''} ${isBestMatch ? 'border-accent/50 bg-accent/5' : ''}`}>
       <CardContent className="p-4">
         <div className="flex items-start gap-4">
           {/* Avatar */}
@@ -66,63 +69,64 @@ export const EmployerCard = ({ match, employer }: EmployerCardProps) => {
           <div className="flex-1 min-w-0">
             <div className="flex items-start justify-between gap-2 mb-2">
               <div>
-                <div className="flex items-center gap-2 flex-wrap">
-                  <h3 className="font-semibold text-lg">
-                    {employer?.company_name || t("candidate.matches.company")}
-                  </h3>
-                  {match.status && match.status !== 'pending' && (
-                    <MatchStatusBadge status={match.status as MatchStatus} perspective="candidate" />
+                <div className="flex items-center gap-2 flex-wrap mb-1">
+                  {isBestMatch && (
+                    <Badge className="bg-accent text-accent-foreground text-xs">
+                      Best match
+                    </Badge>
+                  )}
+                  {isEmployerInterested && (
+                    <MatchStatusBadge status="considering" perspective="candidate" />
+                  )}
+                  {match.status === 'viewed' && (
+                    <MatchStatusBadge status="viewed" perspective="candidate" />
                   )}
                 </div>
-                <p className="text-sm text-muted-foreground mt-0.5">
+                <h3 className="font-semibold text-lg">
+                  {employer?.company_name || t("candidate.matches.company")}
+                </h3>
+                <p className="text-sm text-muted-foreground flex items-center gap-1">
+                  <Clock className="w-3 h-3" />
                   {formatTimeAgo(match.created_at)}
-                  {employer?.industry && ` • ${employer.industry}`}
                 </p>
               </div>
               
-              {/* Match percentage */}
-              <div className="text-right shrink-0">
-                <div className="text-3xl font-bold text-accent">{match.overall_percent}%</div>
-                <div className="text-xs text-muted-foreground">{t("common.match")}</div>
-              </div>
+              {/* Bookmark icon */}
+              <button className="p-2 hover:bg-muted rounded-lg transition-colors">
+                <Bookmark className={`w-5 h-5 ${isEmployerInterested ? 'fill-accent text-accent' : 'text-muted-foreground'}`} />
+              </button>
             </div>
 
-            {/* Description preview */}
-            {employer?.role_description && (
-              <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
-                {truncateText(employer.role_description, 120)}
-              </p>
+            {/* Industry tag */}
+            {employer?.industry && (
+              <div className="flex flex-wrap gap-1.5 mb-3">
+                <Badge variant="outline" className="text-xs">
+                  {employer.industry}
+                </Badge>
+              </div>
             )}
 
-            {/* Tags/Badges row */}
-            <div className="flex flex-wrap gap-2 mb-3">
-              <Badge variant="secondary" className="gap-1 text-xs">
-                <Target className="w-3 h-3" />
-                {t("common.competencies")}: {match.competence_percent}%
-              </Badge>
-              <Badge variant="secondary" className="gap-1 text-xs">
-                <Heart className="w-3 h-3" />
-                {t("common.culture")}: {match.culture_percent}%
-              </Badge>
-              {match.extra_percent !== null && (
-                <Badge variant="secondary" className="gap-1 text-xs">
-                  <Briefcase className="w-3 h-3" />
-                  {t("common.additional")}: {match.extra_percent}%
-                </Badge>
-              )}
-            </div>
-
-            {/* Action button */}
-            <div className="flex justify-end">
-              <Link to={`/candidate/employer/${match.employer_user_id}`}>
-                <Button size="sm" className="gap-2">
-                  {t("common.viewDetails")}
-                  <ChevronRight className="w-4 h-4" />
-                </Button>
-              </Link>
+            {/* Match progress */}
+            <div className="space-y-1">
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">{t("common.match")}</span>
+                <span className="font-bold text-accent">{match.overall_percent}%</span>
+              </div>
+              <Progress value={match.overall_percent} className="h-2" />
             </div>
           </div>
         </div>
+
+        {/* Action button - full width at bottom for interested state */}
+        {isEmployerInterested && (
+          <div className="mt-4 pt-3 border-t">
+            <Link to={`/candidate/employer/${match.employer_user_id}`}>
+              <Button className="w-full">
+                {t("common.viewProfile")}
+              </Button>
+            </Link>
+          </div>
+        )}
       </CardContent>
     </Card>
   );

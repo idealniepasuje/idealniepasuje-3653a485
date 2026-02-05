@@ -189,7 +189,8 @@
       "profileCompleteMatch": "If there's demand for your competencies in our database, we'll immediately notify you by email about the match with an employer.",
       "searchingMatches": "Searching for ideal matches",
       "searchingMatchesDescription": "Now it's our turn. We'll be looking for your ideal employer. When a matched offer appears, you'll receive a notification.",
-      "shareFeedback": "Share your feedback"
+      "shareFeedback": "Share your feedback",
+      "viewMore": "View more"
     },
     "matches": {
       "title": "Matched employers",
@@ -321,7 +322,12 @@
       "viewAllMatches": "View all matches",
       "andMoreCandidates": "...and {{count}} more candidates",
       "searchingCandidates": "Searching for ideal candidates",
-      "searchingCandidatesDescription": "We're now working on finding the ideal candidate. When we find one, you'll receive a notification."
+      "searchingCandidatesDescription": "We're now working on finding the ideal candidate. When we find one, you'll receive a notification.",
+      "recentOffers": "Your recent job offers",
+      "newOffer": "New offer",
+      "recentMatches": "Recent matches",
+      "avgMatch": "Average match",
+      "viewMore": "View more"
     },
     "role": {
       "title": "Role description",
