@@ -198,7 +198,7 @@ const EmployerOffers = () => {
                     <Users className="w-4 h-4" />
                     <span>{matchCounts[offer.id] || 0} {t("common.matchedCandidates")}</span>
                   </div>
-                  <Link to={`/employer/offer/${offer.id}/candidates`}>
+                  <Link to="/employer/candidates">
                     <Button variant="outline" size="sm" className="gap-2">
                       {t("employer.offers.viewCandidates")}
                       <ChevronRight className="w-4 h-4" />
