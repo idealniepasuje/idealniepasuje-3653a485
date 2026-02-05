@@ -46,46 +46,39 @@ export const CandidateCard = ({ match, candidateData, offerTitle }: CandidateCar
   return (
     <Card className={`hover:shadow-lg transition-all ${isRejected ? 'opacity-60' : ''} ${isBestMatch ? 'border-accent/50 bg-accent/5' : ''}`}>
       <CardContent className="p-4">
-        <div className="flex items-start justify-between gap-2 mb-3">
-          <div>
-            <div className="flex items-center gap-2 flex-wrap mb-1">
-              {isBestMatch && (
-                <Badge className="bg-accent text-accent-foreground text-xs">
-                  Best match
-                </Badge>
-              )}
-              {isNewTalent && !isBestMatch && (
-                <Badge variant="secondary" className="bg-cta/20 text-cta text-xs">
-                  {t("match.status.new")}
-                </Badge>
-              )}
-              {match.status === 'viewed' && (
-                <MatchStatusBadge status="viewed" perspective="employer" />
-              )}
-              {isConsidering && (
-                <MatchStatusBadge status="considering" perspective="employer" />
-              )}
-            </div>
+        <div className="flex items-center justify-between gap-4">
+          {/* Left side - all info */}
+          <div className="flex flex-wrap items-center gap-2 min-w-0 flex-1">
+            {/* Status badges */}
+            {isBestMatch && (
+              <Badge className="bg-accent text-accent-foreground text-xs">
+                Best match
+              </Badge>
+            )}
+            {isNewTalent && !isBestMatch && (
+              <Badge variant="secondary" className="bg-cta/20 text-cta text-xs">
+                {t("match.status.new")}
+              </Badge>
+            )}
+            {match.status === 'viewed' && (
+              <MatchStatusBadge status="viewed" perspective="employer" />
+            )}
+            {isConsidering && (
+              <MatchStatusBadge status="considering" perspective="employer" />
+            )}
+            
+            {/* Candidate ID */}
             <h3 className="font-semibold text-lg">
               {t("employer.candidates.candidateNumber")} #{match.candidate_user_id.slice(0, 8)}
             </h3>
-            <p className="text-sm text-muted-foreground flex items-center gap-1">
+            
+            {/* Time */}
+            <span className="text-sm text-muted-foreground flex items-center gap-1">
               <Clock className="w-3 h-3" />
               {formatTimeAgo(match.created_at)}
-            </p>
-          </div>
-          
-          {isConsidering && (
-            <div className="p-2">
-              <Bookmark className="w-5 h-5 fill-accent text-accent" />
-            </div>
-          )}
-        </div>
-
-        {/* Match breakdown and action */}
-        <div className="flex items-end justify-between pt-3 border-t">
-          {/* Left side - competence & culture badges */}
-          <div className="flex flex-wrap gap-2">
+            </span>
+            
+            {/* Competence & culture badges */}
             <Badge variant="outline" className="text-xs gap-1">
               <Brain className="w-3 h-3" />
               {t("common.competencies")}: {match.competence_percent || 0}%
@@ -94,10 +87,15 @@ export const CandidateCard = ({ match, candidateData, offerTitle }: CandidateCar
               <Heart className="w-3 h-3" />
               {t("common.culture")}: {match.culture_percent || 0}%
             </Badge>
+            
+            {/* Bookmark for considering */}
+            {isConsidering && (
+              <Bookmark className="w-5 h-5 fill-accent text-accent" />
+            )}
           </div>
 
           {/* Right side - match score and button */}
-          <div className="flex flex-col items-end gap-2">
+          <div className="flex flex-col items-end gap-2 shrink-0">
             <div className="text-right">
               <span className="text-3xl font-bold text-accent">{match.overall_percent}%</span>
               <p className="text-xs text-muted-foreground">{t("common.match")}</p>
