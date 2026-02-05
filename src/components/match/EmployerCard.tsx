@@ -90,30 +90,33 @@ export const EmployerCard = ({ match, employer }: EmployerCardProps) => {
               </Badge>
             )}
 
-            {/* Match breakdown - competence & culture percentages */}
-            <div className="flex flex-wrap gap-2 mb-4">
-              <Badge variant="outline" className="text-xs gap-1">
-                <Brain className="w-3 h-3" />
-                {t("common.competencies")}: {match.competence_percent || 0}%
-              </Badge>
-              <Badge variant="outline" className="text-xs gap-1">
-                <Heart className="w-3 h-3" />
-                {t("common.culture")}: {match.culture_percent || 0}%
-              </Badge>
-            </div>
-
-            {/* Match score and button */}
-            <div className="flex flex-col items-end gap-2 pt-3 border-t">
-              <div className="text-right">
-                <span className="text-3xl font-bold text-accent">{match.overall_percent}%</span>
-                <p className="text-xs text-muted-foreground">{t("common.match")}</p>
+            {/* Match breakdown and action */}
+            <div className="flex items-end justify-between pt-3 border-t">
+              {/* Left side - competence & culture badges */}
+              <div className="flex flex-wrap gap-2">
+                <Badge variant="outline" className="text-xs gap-1">
+                  <Brain className="w-3 h-3" />
+                  {t("common.competencies")}: {match.competence_percent || 0}%
+                </Badge>
+                <Badge variant="outline" className="text-xs gap-1">
+                  <Heart className="w-3 h-3" />
+                  {t("common.culture")}: {match.culture_percent || 0}%
+                </Badge>
               </div>
-              <Link to={`/candidate/employer/${match.employer_user_id}`}>
-                <Button className="gap-2">
-                  {t("common.viewProfile")}
-                  <ChevronRight className="w-4 h-4" />
-                </Button>
-              </Link>
+
+              {/* Right side - match score and button */}
+              <div className="flex flex-col items-end gap-2">
+                <div className="text-right">
+                  <span className="text-3xl font-bold text-accent">{match.overall_percent}%</span>
+                  <p className="text-xs text-muted-foreground">{t("common.match")}</p>
+                </div>
+                <Link to={`/candidate/employer/${match.employer_user_id}`}>
+                  <Button className="gap-2">
+                    {t("common.viewProfile")}
+                    <ChevronRight className="w-4 h-4" />
+                  </Button>
+                </Link>
+              </div>
             </div>
           </div>
         </div>
