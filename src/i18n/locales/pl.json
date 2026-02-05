@@ -365,7 +365,10 @@
       "interestMarked": "Oznaczono zainteresowanie kandydatem",
       "interestRemoved": "Usunięto zainteresowanie kandydatem",
       "noMatch": "Niezgodne",
-      "acceptedIndustries": "Akceptowane branże"
+      "acceptedIndustries": "Akceptowane branże",
+      "criteriaIndustry": "Branża",
+      "criteriaExperience": "Doświadczenie",
+      "criteriaPositionLevel": "Poziom stanowiska"
     }
   },
   "errors": {
