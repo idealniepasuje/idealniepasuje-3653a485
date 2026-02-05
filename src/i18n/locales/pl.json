@@ -332,7 +332,9 @@
     "role": {
       "title": "Opis roli",
       "roleDescriptionLabel": "Opis stanowiska (max 3 zdania) *",
+      "roleDescriptionPlaceholder": "Szukamy UX Designera, który pomoże nam projektować intuicyjne produkty cyfrowe...",
       "responsibilitiesLabel": "Czym będzie zajmował się kandydat?",
+      "responsibilitiesPlaceholder": "• projektowanie interfejsów (web/mobile)\n• tworzenie makiet i prototypów\n• analiza potrzeb użytkowników",
       "linkedinLabel": "Link do ogłoszenia LinkedIn (opcjonalnie)",
       "linkedinPlaceholder": "https://www.linkedin.com/jobs/...",
       "fillRoleDescription": "Wypełnij opis stanowiska",
@@ -346,6 +348,7 @@
       "positionLevelLabel": "Poziom stanowiska",
       "noExperienceRequired": "Doświadczenie nie jest wymagane",
       "acceptOtherIndustries": "Jestem otwarty/a na kandydatów z innych branż",
+      "addIndustriesHint": "Dodaj branże wraz z wymaganiami dotyczącymi doświadczenia i poziomu stanowiska",
       "acceptedIndustriesHint": "Dodaj branże wraz z wymaganiami dotyczącymi doświadczenia i poziomu stanowiska",
       "selectIndustry": "Wybierz branżę",
       "positionLevelPlaceholder": "Poziom",
@@ -428,7 +431,18 @@
       "created": "Oferta utworzona",
       "updated": "Oferta zaktualizowana",
       "titleLabel": "Nazwa stanowiska",
-      "titlePlaceholder": "np. Frontend Developer"
+      "titlePlaceholder": "np. Frontend Developer",
+      "viewAll": "Zobacz wszystkie zlecenia"
+    },
+    "offerForm": {
+      "roleTitle": "Opis roli",
+      "roleDescription": "Opisz stanowisko i obowiązki",
+      "requirementsTitle": "Wymagania",
+      "requirementsDescription": "Branża, doświadczenie i kompetencje",
+      "cultureTitle": "Kultura pracy",
+      "cultureDescription": "Wartości i styl pracy w firmie",
+      "profileComplete": "Profil ukończony!",
+      "profileCompleteDescription": "Teraz my zajmujemy się znalezieniem idealnego kandydata. Gdy tylko go znajdziemy, otrzymasz powiadomienie."
     },
     "profile": {
       "title": "Profil firmy",

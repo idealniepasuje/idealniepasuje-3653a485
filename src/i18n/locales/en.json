@@ -332,7 +332,9 @@
     "role": {
       "title": "Role description",
       "roleDescriptionLabel": "Position description (max 3 sentences) *",
+      "roleDescriptionPlaceholder": "We're looking for a UX Designer who will help us design intuitive digital products...",
       "responsibilitiesLabel": "What will the candidate be doing?",
+      "responsibilitiesPlaceholder": "• interface design (web/mobile)\n• creating mockups and prototypes\n• user needs analysis",
       "linkedinLabel": "LinkedIn job posting link (optional)",
       "linkedinPlaceholder": "https://www.linkedin.com/jobs/...",
       "fillRoleDescription": "Please fill the role description",
@@ -346,6 +348,7 @@
       "positionLevelLabel": "Position level",
       "noExperienceRequired": "Experience is not required",
       "acceptOtherIndustries": "I'm open to candidates from other industries",
+      "addIndustriesHint": "Add industries with experience and position level requirements",
       "acceptedIndustriesHint": "Add industries with experience and position level requirements",
       "selectIndustry": "Select industry",
       "positionLevelPlaceholder": "Level",
@@ -428,7 +431,18 @@
       "created": "Offer created",
       "updated": "Offer updated",
       "titleLabel": "Position title",
-      "titlePlaceholder": "e.g. Frontend Developer"
+      "titlePlaceholder": "e.g. Frontend Developer",
+      "viewAll": "View all offers"
+    },
+    "offerForm": {
+      "roleTitle": "Role description",
+      "roleDescription": "Describe the position and responsibilities",
+      "requirementsTitle": "Requirements",
+      "requirementsDescription": "Industry, experience and competencies",
+      "cultureTitle": "Work culture",
+      "cultureDescription": "Company values and work style",
+      "profileComplete": "Profile completed!",
+      "profileCompleteDescription": "We're now working on finding the ideal candidate. When we find one, you'll receive a notification."
     },
     "profile": {
       "title": "Company Profile",
