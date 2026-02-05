@@ -91,6 +91,10 @@
   "prototype": {
     "notice": "To narzędzie jest prototypem opartym na ankietach i niskobudżetowych rozwiązaniach. Testujemy założenia i sprawdzamy, czy rozwiązanie działa we właściwy sposób. Dziękujemy za udział – Twoje odpowiedzi realnie wpływają na rozwój projektu."
   },
+  "expert": {
+    "badge": "Stworzone przez ekspertów",
+    "description": "Testy opracowane przez psychologów i specjalistów HR"
+  },
   "cta": {
     "title": "Gotowy na idealne dopasowanie?",
     "description": "Dołącz do nas i znajdź miejsce pracy, które naprawdę do Ciebie pasuje."

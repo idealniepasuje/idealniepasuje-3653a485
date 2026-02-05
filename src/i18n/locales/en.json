@@ -91,6 +91,10 @@
   "prototype": {
     "notice": "This tool is a prototype based on surveys and low-budget solutions. We're testing assumptions and checking if the solution works correctly. Thank you for participating – your answers truly impact the project's development."
   },
+  "expert": {
+    "badge": "Created by experts",
+    "description": "Tests developed by psychologists and HR specialists"
+  },
   "cta": {
     "title": "Ready for the perfect match?",
     "description": "Join us and find a workplace that truly fits you."
