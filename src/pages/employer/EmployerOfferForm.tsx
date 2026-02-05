@@ -152,7 +152,7 @@ const EmployerOfferForm = () => {
   };
 
   const saveRole = async () => {
-    if (!user || !offerId || isNew) return;
+    if (!user || !offerId) return;
     setSaving(true);
     try {
       const { error } = await supabase
@@ -161,7 +161,8 @@ const EmployerOfferForm = () => {
           role_description: formData.roleDescription,
           role_responsibilities: formData.roleResponsibilities
         })
-        .eq("id", offerId);
+        .eq("id", offerId)
+        .eq("user_id", user.id);
       if (error) throw error;
       setRoleCompleted(true);
       setCurrentStep("overview");
@@ -175,7 +176,7 @@ const EmployerOfferForm = () => {
   };
 
   const saveRequirements = async () => {
-    if (!user || !offerId || isNew) return;
+    if (!user || !offerId) return;
     
     if (!formData.industry || !formData.positionLevel) { 
       toast.error(t("employer.requirements.fillRequiredFields")); 
@@ -207,7 +208,8 @@ const EmployerOfferForm = () => {
           req_determinacja: competencyReqs.determinacja,
           req_adaptacja: competencyReqs.adaptacja
         })
-        .eq("id", offerId);
+        .eq("id", offerId)
+        .eq("user_id", user.id);
       if (error) throw error;
       setRequirementsCompleted(true);
       setCurrentStep("overview");
@@ -221,7 +223,7 @@ const EmployerOfferForm = () => {
   };
 
   const saveCulture = async () => {
-    if (!user || !offerId || isNew) return;
+    if (!user || !offerId) return;
     setSaving(true);
     try {
       // Culture is saved in employer_profiles, not job_offers
