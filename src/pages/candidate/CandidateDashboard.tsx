@@ -393,9 +393,9 @@ const CandidateDashboard = () => {
                               </div>
                             </div>
                             <div className="space-y-1 mb-3">
-                              <div className="flex justify-between text-sm">
+                              <div className="flex justify-between items-center">
                                 <span className="text-muted-foreground">{t("common.match")}</span>
-                                <span className="font-semibold text-accent">{match.overall_percent}%</span>
+                                <span className="font-bold text-accent text-lg">{match.overall_percent}%</span>
                               </div>
                               <Progress value={match.overall_percent} className="h-2" />
                             </div>
