@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { Building2, Clock, Bookmark } from "lucide-react";
+import { Building2, Clock } from "lucide-react";
 import { MatchStatusBadge, MatchStatus } from "@/components/match/MatchStatusBadge";
 
 interface EmployerCardProps {
@@ -90,11 +90,6 @@ export const EmployerCard = ({ match, employer }: EmployerCardProps) => {
                   {formatTimeAgo(match.created_at)}
                 </p>
               </div>
-              
-              {/* Bookmark icon */}
-              <button className="p-2 hover:bg-muted rounded-lg transition-colors">
-                <Bookmark className={`w-5 h-5 ${isEmployerInterested ? 'fill-accent text-accent' : 'text-muted-foreground'}`} />
-              </button>
             </div>
 
             {/* Industry tag */}
