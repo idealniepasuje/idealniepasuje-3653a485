@@ -98,7 +98,7 @@ const Index = () => {
       <main>
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 overflow-hidden hero-section">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-cta/20 via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom,_var(--tw-gradient-stops))] from-cta/15 via-transparent to-transparent" />
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-4xl mx-auto text-center">
             <h1 className="text-4xl md:text-6xl font-bold text-primary-foreground mb-6 leading-tight">
