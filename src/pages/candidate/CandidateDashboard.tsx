@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { MessageSquare, Brain, Lightbulb, Target, RefreshCw, Users, ChevronRight, CheckCircle2, Clock, Play, Building2, ClipboardList, Heart, Briefcase, Sparkles, PartyPopper, Award } from "lucide-react";
+import { MessageSquare, Brain, Lightbulb, Target, RefreshCw, Users, ChevronRight, CheckCircle2, Clock, Play, Building2, ClipboardList, Heart, Briefcase, Sparkles, PartyPopper, Award, Calendar } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { getLocalizedCompetencyTests } from "@/data/competencyQuestions";
@@ -109,6 +109,16 @@ const CandidateDashboard = () => {
   const getIconComponent = (iconName: string) => {
     const icons: Record<string, any> = { MessageSquare, Brain, Lightbulb, Target, RefreshCw };
     return icons[iconName] || MessageSquare;
+  };
+
+  const formatTimeAgo = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
+    if (diffHours < 1) return t("match.timeAgo.justNow");
+    if (diffHours < 24) return t("match.timeAgo.hoursAgo", { count: diffHours });
+    const diffDays = Math.floor(diffHours / 24);
+    return t("match.timeAgo.daysAgo", { count: diffDays });
   };
 
   const allCompetencyTestsCompleted = Object.keys(competencyTests).every(code => getTestStatus(code) === "completed");
@@ -340,70 +350,74 @@ const CandidateDashboard = () => {
       {/* Matches section - only show when tests are completed */}
       {testResults?.all_tests_completed && (
         <section>
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-bold">{t("candidate.dashboard.yourMatches")}</h2>
-            {matches.length > 0 && (
-              <Link to="/candidate/matches">
-                <Button variant="outline" size="sm" className="gap-2">
-                  {t("candidate.dashboard.viewAllMatches")}
-                  <ChevronRight className="w-4 h-4" />
-                </Button>
-              </Link>
-            )}
-          </div>
-          
-          {matches.length === 0 ? (
-            <Card className="border-accent/20 bg-accent/5">
-              <CardContent className="pt-6 text-center py-12">
-                <div className="w-12 h-12 rounded-full bg-accent/20 mx-auto mb-4 flex items-center justify-center">
-                  <Building2 className="w-6 h-6 text-accent" />
+          <Card>
+            <CardHeader className="pb-4">
+              <div className="flex items-center gap-2">
+                <Building2 className="w-5 h-5 text-accent" />
+                <CardTitle className="text-lg text-accent">{t("candidate.dashboard.yourMatches")}</CardTitle>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {matches.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  <Building2 className="w-10 h-10 mx-auto mb-3 opacity-40" />
+                  <p>{t("candidate.dashboard.searchingMatches")}</p>
+                  <p className="text-sm mt-1">{t("candidate.dashboard.searchingMatchesDescription")}</p>
                 </div>
-                <h3 className="text-lg font-semibold mb-2">{t("candidate.dashboard.searchingMatches")}</h3>
-                <p className="text-muted-foreground max-w-md mx-auto">{t("candidate.dashboard.searchingMatchesDescription")}</p>
-              </CardContent>
-            </Card>
-          ) : (
-            <div className="grid gap-4">
-              {matches.slice(0, 3).map((match) => {
-                const employer = employers[match.employer_user_id];
-                return (
-                  <Card key={match.id} className="hover:shadow-lg transition-shadow">
-                    <CardContent className="pt-6">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4">
-                          <div className="w-12 h-12 rounded-full bg-accent/20 flex items-center justify-center">
-                            <Building2 className="w-6 h-6 text-accent" />
+              ) : (
+                <>
+                  {matches.slice(0, 3).map((match) => {
+                    const employer = employers[match.employer_user_id];
+                    const isBestMatch = match.overall_percent >= 80;
+                    return (
+                      <div key={match.id} className={`p-4 border rounded-lg hover:shadow-md transition-shadow ${isBestMatch ? 'border-accent/50 bg-accent/5' : ''}`}>
+                        <div className="flex items-start gap-3">
+                          <div className="w-10 h-10 rounded-full bg-accent/20 flex items-center justify-center shrink-0">
+                            <Building2 className="w-5 h-5 text-accent" />
                           </div>
-                          <div>
-                            <h3 className="font-semibold">{employer?.company_name || t("candidate.matches.company")}</h3>
-                            <p className="text-sm text-muted-foreground">{t("common.competencies")}: {match.competence_percent}% | {t("common.culture")}: {match.culture_percent}%</p>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center justify-between mb-1">
+                              <div className="flex items-center gap-2">
+                                <h3 className="font-semibold">
+                                  {employer?.company_name || t("candidate.matches.company")}
+                                </h3>
+                                {match.status === 'considering' && (
+                                  <Badge className="bg-success text-success-foreground text-xs">
+                                    {t("candidate.matches.employerInterested")}
+                                  </Badge>
+                                )}
+                              </div>
+                              <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                                <Clock className="w-3 h-3" />
+                                {formatTimeAgo(match.created_at)}
+                              </div>
+                            </div>
+                            <div className="space-y-1 mb-3">
+                              <div className="flex justify-between text-sm">
+                                <span className="text-muted-foreground">{t("common.match")}</span>
+                                <span className="font-semibold text-accent">{match.overall_percent}%</span>
+                              </div>
+                              <Progress value={match.overall_percent} className="h-2" />
+                            </div>
+                            <Link to={`/candidate/employer/${match.employer_user_id}`}>
+                              <Button size="sm" className="w-full">
+                                {t("common.viewProfile")}
+                              </Button>
+                            </Link>
                           </div>
-                        </div>
-                        <div className="flex items-center gap-4">
-                          <div className="text-right">
-                            <div className="text-2xl font-bold text-accent">{match.overall_percent}%</div>
-                            <div className="text-xs text-muted-foreground">{t("common.match")}</div>
-                          </div>
-                          <Link to={`/candidate/employer/${match.employer_user_id}`}>
-                            <Button>{t("common.viewDetails")}<ChevronRight className="w-4 h-4 ml-2" /></Button>
-                          </Link>
                         </div>
                       </div>
-                    </CardContent>
-                  </Card>
-                );
-              })}
-              {matches.length > 3 && (
-                <Link to="/candidate/matches" className="block">
-                  <Card className="hover:shadow-lg transition-shadow border-dashed cursor-pointer">
-                    <CardContent className="py-4 text-center">
-                      <span className="text-muted-foreground">{t("candidate.dashboard.andMoreEmployers", { count: matches.length - 3 })}</span>
-                    </CardContent>
-                  </Card>
-                </Link>
+                    );
+                  })}
+                  <Link to="/candidate/matches" className="block text-center">
+                    <Button variant="ghost" size="sm" className="w-full">
+                      {t("candidate.dashboard.viewMore")}
+                    </Button>
+                  </Link>
+                </>
               )}
-            </div>
-          )}
+            </CardContent>
+          </Card>
         </section>
       )}
     </DashboardLayout>
