@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Sparkles } from "lucide-react";
@@ -22,21 +22,23 @@ export const ProtectedRoute = ({
 }: ProtectedRouteProps) => {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [validating, setValidating] = useState(true);
   const [isValid, setIsValid] = useState(false);
-  const hasNavigated = useRef(false);
+  // Track if we've already handled this path to prevent loops
+  const handledPath = useRef<string | null>(null);
 
   useEffect(() => {
     const validateAccess = async () => {
-      // Prevent multiple navigations
-      if (hasNavigated.current) return;
+      // Prevent handling the same path multiple times
+      if (handledPath.current === location.pathname) return;
 
       // Wait for auth to finish loading
       if (authLoading) return;
 
       // If no user, redirect to login
       if (!user) {
-        hasNavigated.current = true;
+        handledPath.current = location.pathname;
         navigate(redirectTo, { replace: true });
         return;
       }
@@ -58,7 +60,7 @@ export const ProtectedRoute = ({
 
         if (error) {
           logError("ProtectedRoute.validateAccess", error);
-          // Don't redirect in a loop - just show invalid state
+          // On error, set invalid but don't redirect to prevent loops
           setIsValid(false);
           setValidating(false);
           return;
@@ -66,7 +68,7 @@ export const ProtectedRoute = ({
 
         if (data?.user_type !== allowedUserType) {
           // User type doesn't match - redirect to appropriate dashboard
-          hasNavigated.current = true;
+          handledPath.current = location.pathname;
           const correctDashboard = data?.user_type === "employer" 
             ? "/employer/dashboard" 
             : "/candidate/dashboard";
@@ -85,12 +87,15 @@ export const ProtectedRoute = ({
     };
 
     validateAccess();
-  }, [user, authLoading, allowedUserType, navigate, redirectTo]);
+  }, [user, authLoading, allowedUserType, navigate, redirectTo, location.pathname]);
 
-  // Reset navigation flag when user changes
+  // Reset handled path only when location actually changes to a new path
   useEffect(() => {
-    hasNavigated.current = false;
-  }, [user]);
+    return () => {
+      // Cleanup on unmount - allow revalidation if component remounts on different path
+      handledPath.current = null;
+    };
+  }, []);
 
   if (authLoading || validating) {
     return (
@@ -104,11 +109,7 @@ export const ProtectedRoute = ({
   }
 
   if (!isValid) {
-    // If user exists but validation failed, redirect to login
-    if (user && !hasNavigated.current) {
-      hasNavigated.current = true;
-      navigate(redirectTo, { replace: true });
-    }
+    // Return null without triggering more navigations
     return null;
   }
 
