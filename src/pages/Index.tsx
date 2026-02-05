@@ -284,7 +284,7 @@ const Index = () => {
             <div className="flex items-center gap-4">
               <span className="text-primary-foreground font-semibold">idealniepasuje</span>
               <a 
-                href="https://www.instagram.com/idealniepasuje.pl?igsh=MWh5M3lmd2VxendpMQ%3D%3D&utm_source=qr" 
+                href="https://www.instagram.com/idealniepasuje.pl" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="text-primary-foreground/70 hover:text-primary-foreground transition-colors"
