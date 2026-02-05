@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { ArrowRight, Users, Building2, Target, Heart, CheckCircle2, ClipboardList, Search, Handshake } from "lucide-react";
+import { ArrowRight, Users, Building2, Target, Heart, CheckCircle2, ClipboardList, Search, Handshake, Instagram, Award } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
@@ -132,6 +132,20 @@ const Index = () => {
           <svg viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full">
             <path d="M0 120L60 105C120 90 240 60 360 45C480 30 600 30 720 37.5C840 45 960 60 1080 67.5C1200 75 1320 75 1380 75L1440 75V120H1380C1320 120 1200 120 1080 120C960 120 840 120 720 120C600 120 480 120 360 120C240 120 120 120 60 120H0Z" fill="hsl(var(--background))"/>
           </svg>
+        </div>
+      </section>
+
+      {/* Expert badge */}
+      <section className="py-8 bg-background">
+        <div className="container mx-auto px-4">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 text-center">
+            <div className="flex items-center gap-2">
+              <Award className="w-5 h-5 text-accent" />
+              <span className="text-sm font-medium text-foreground">{t("expert.badge")}</span>
+            </div>
+            <span className="hidden sm:block text-muted-foreground">•</span>
+            <span className="text-sm text-muted-foreground">{t("expert.description")}</span>
+          </div>
         </div>
       </section>
 
@@ -267,8 +281,17 @@ const Index = () => {
       <footer className="py-8 bg-primary">
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="flex items-center">
+            <div className="flex items-center gap-4">
               <span className="text-primary-foreground font-semibold">idealniepasuje</span>
+              <a 
+                href="https://www.instagram.com/idealniepasuje.pl?igsh=MWh5M3lmd2VxendpMQ%3D%3D&utm_source=qr" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-primary-foreground/70 hover:text-primary-foreground transition-colors"
+                aria-label="Instagram"
+              >
+                <Instagram className="w-5 h-5" />
+              </a>
             </div>
             <p className="text-primary-foreground/60 text-sm">
               © 2026 idealniepasuje. {t("common.allRightsReserved")}
