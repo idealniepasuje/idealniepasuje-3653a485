@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ChevronRight, Clock, Bookmark, Brain, Heart } from "lucide-react";
+import { ChevronRight, Bookmark, Brain, Heart, Building } from "lucide-react";
 import { MatchStatusBadge } from "@/components/match/MatchStatusBadge";
 
 interface CandidateCardProps {
@@ -48,50 +48,59 @@ export const CandidateCard = ({ match, candidateData, offerTitle }: CandidateCar
       <CardContent className="p-4">
         <div className="flex items-center justify-between gap-4">
           {/* Left side - all info */}
-          <div className="flex flex-wrap items-center gap-2 min-w-0 flex-1">
-            {/* Status badges */}
-            {isBestMatch && (
-              <Badge className="bg-accent text-accent-foreground text-xs">
-                Best match
-              </Badge>
-            )}
-            {isNewTalent && !isBestMatch && (
-              <Badge variant="secondary" className="bg-cta/20 text-cta text-xs">
-                {t("match.status.new")}
-              </Badge>
-            )}
-            {match.status === 'viewed' && (
-              <MatchStatusBadge status="viewed" perspective="employer" />
-            )}
-            {isConsidering && (
-              <MatchStatusBadge status="considering" perspective="employer" />
+          <div className="min-w-0 flex-1">
+            {/* Status badges row */}
+            {(isBestMatch || isNewTalent || match.status === 'viewed' || isConsidering) && (
+              <div className="flex items-center gap-2 flex-wrap mb-1">
+                {isBestMatch && (
+                  <Badge className="bg-accent text-accent-foreground text-xs">
+                    Best match
+                  </Badge>
+                )}
+                {isNewTalent && !isBestMatch && (
+                  <Badge variant="secondary" className="bg-cta/20 text-cta text-xs">
+                    {t("match.status.new")}
+                  </Badge>
+                )}
+                {match.status === 'viewed' && (
+                  <MatchStatusBadge status="viewed" perspective="employer" />
+                )}
+                {isConsidering && (
+                  <MatchStatusBadge status="considering" perspective="employer" />
+                )}
+                {isConsidering && (
+                  <Bookmark className="w-4 h-4 fill-accent text-accent" />
+                )}
+              </div>
             )}
             
             {/* Candidate ID */}
-            <h3 className="font-semibold text-lg">
+            <h3 className="font-semibold text-xl text-foreground">
               {t("employer.candidates.candidateNumber")} #{match.candidate_user_id.slice(0, 8)}
             </h3>
             
-            {/* Time */}
-            <span className="text-sm text-muted-foreground flex items-center gap-1">
-              <Clock className="w-3 h-3" />
-              {formatTimeAgo(match.created_at)}
-            </span>
-            
-            {/* Competence & culture badges */}
-            <Badge variant="outline" className="text-xs gap-1">
-              <Brain className="w-3 h-3" />
-              {t("common.competencies")}: {match.competence_percent || 0}%
-            </Badge>
-            <Badge variant="outline" className="text-xs gap-1">
-              <Heart className="w-3 h-3" />
-              {t("common.culture")}: {match.culture_percent || 0}%
-            </Badge>
-            
-            {/* Bookmark for considering */}
-            {isConsidering && (
-              <Bookmark className="w-5 h-5 fill-accent text-accent" />
+            {/* Industry/Position info */}
+            {candidateData?.industry && (
+              <p className="text-muted-foreground mb-2">
+                {candidateData.industry}
+              </p>
             )}
+            
+            {/* Competence, culture & additional badges */}
+            <div className="flex flex-wrap gap-2">
+              <Badge variant="outline" className="text-xs gap-1">
+                <Brain className="w-3 h-3" />
+                {t("common.competencies")}: {match.competence_percent || 0}%
+              </Badge>
+              <Badge variant="outline" className="text-xs gap-1">
+                <Heart className="w-3 h-3" />
+                {t("common.culture")}: {match.culture_percent || 0}%
+              </Badge>
+              <Badge variant="outline" className="text-xs gap-1">
+                <Building className="w-3 h-3" />
+                {t("common.additional")}: {match.extra_percent || 0}%
+              </Badge>
+            </div>
           </div>
 
           {/* Right side - match score and button */}
