@@ -31,6 +31,9 @@ interface MatchDetails {
   extraDetails: {
     field: string;
     matched: boolean;
+    candidateValue?: string | null;
+    employerValue?: string | null;
+    acceptedValues?: string[];
   }[];
   strengths: string[];
   risks: string[];
@@ -461,24 +464,66 @@ const EmployerCandidateDetail = () => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid sm:grid-cols-2 gap-3">
-              {matchDetails?.extraDetails?.map((extra) => (
-                <div 
-                  key={extra.field} 
-                  className={`flex items-center gap-2 p-3 rounded-lg border ${
-                    extra.matched ? 'border-success/30 bg-success/5' : 'border-muted bg-muted/30'
-                  }`}
-                >
-                  {extra.matched ? (
-                    <CheckCircle2 className="w-4 h-4 text-success" />
-                  ) : (
-                    <AlertCircle className="w-4 h-4 text-muted-foreground" />
-                  )}
-                  <span className={extra.matched ? '' : 'text-muted-foreground'}>
-                    {extra.field}
-                  </span>
-                </div>
-              ))}
+            <div className="space-y-4">
+              {matchDetails?.extraDetails?.map((extra) => {
+                const getDisplayValue = (value: string | null | undefined, field: string) => {
+                  if (!value) return '-';
+                  // Try to translate industry, position level
+                  if (field === 'Branża') {
+                    return t(`candidate.additional.industries.${value}`, value);
+                  }
+                  if (field === 'Poziom stanowiska') {
+                    return t(`candidate.additional.positionLevels.${value}`, value);
+                  }
+                  if (field === 'Doświadczenie') {
+                    if (value === '0') return t("employer.requirements.noExperienceRequired");
+                    return `${value} ${t("common.years")}`;
+                  }
+                  return value;
+                };
+
+                return (
+                  <div 
+                    key={extra.field} 
+                    className={`p-4 rounded-lg border ${
+                      extra.matched ? 'border-success/30 bg-success/5' : 'border-warning/30 bg-warning/5'
+                    }`}
+                  >
+                    <div className="flex items-start gap-3">
+                      {extra.matched ? (
+                        <CheckCircle2 className="w-5 h-5 text-success mt-0.5 shrink-0" />
+                      ) : (
+                        <AlertCircle className="w-5 h-5 text-warning mt-0.5 shrink-0" />
+                      )}
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className={`font-medium ${extra.matched ? '' : 'text-muted-foreground'}`}>
+                            {extra.field}
+                          </span>
+                          <Badge variant={extra.matched ? "default" : "secondary"} className={extra.matched ? "bg-success" : ""}>
+                            {extra.matched ? t("common.match") : t("employer.candidateDetail.noMatch")}
+                          </Badge>
+                        </div>
+                        <div className="grid sm:grid-cols-2 gap-2 text-sm">
+                          <div className="flex items-center gap-2">
+                            <span className="text-muted-foreground">{t("employer.candidateDetail.candidateScore")}:</span>
+                            <span className="font-medium">{getDisplayValue(extra.candidateValue, extra.field)}</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-muted-foreground">{t("employer.candidateDetail.yourRequirement")}:</span>
+                            <span className="font-medium">{getDisplayValue(extra.employerValue, extra.field)}</span>
+                          </div>
+                        </div>
+                        {extra.acceptedValues && extra.acceptedValues.length > 0 && extra.field === 'Branża' && (
+                          <div className="mt-2 text-xs text-muted-foreground">
+                            {t("employer.candidateDetail.acceptedIndustries")}: {extra.acceptedValues.map(v => t(`candidate.additional.industries.${v}`, v)).join(', ')}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </CardContent>
         </Card>
