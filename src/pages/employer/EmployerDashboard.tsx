@@ -50,11 +50,12 @@ const EmployerDashboard = () => {
       if (offersError) logError("EmployerDashboard.fetchData.offers", offersError);
       else setOffers(offersData || []);
 
-      // Fetch matches
+      // Fetch matches - only those linked to job offers
       const { data: matchData, error: matchError } = await supabase
         .from("match_results")
         .select("*")
         .eq("employer_user_id", user.id)
+        .not("job_offer_id", "is", null)
         .order("created_at", { ascending: false })
         .limit(3);
       if (matchError) logError("EmployerDashboard.fetchData.matches", matchError);
