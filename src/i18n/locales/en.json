@@ -1,4 +1,20 @@
 {
+  "sidebar": {
+    "start": "Start",
+    "tests": "Tests",
+    "matches": "Matches",
+    "jobOffers": "Job Offers",
+    "profile": "Employer Profile"
+  },
+  "match": {
+    "status": {
+      "new": "New",
+      "viewed": "Viewed",
+      "interested": "Interested",
+      "rejected": "Rejected",
+      "employerInterested": "Employer interested"
+    }
+  },
   "common": {
     "login": "Log in",
     "register": "Sign up",
@@ -364,10 +380,14 @@
       "whyGoodMatch": "Why is this a good match?",
       "matchExplanation": "{{name}} shows {{percent}}% compatibility with your organization profile. Here are the key areas of alignment:",
       "thisCandidate": "This candidate",
-      "markInterested": "Are you interested?",
+      "markInterested": "Interested",
+      "markRejected": "Reject",
       "interested": "Interested",
+      "rejected": "Rejected",
       "interestMarked": "Marked as interested in candidate",
       "interestRemoved": "Removed interest in candidate",
+      "rejectionMarked": "Marked as rejected",
+      "rejectionRemoved": "Removed rejection",
       "noMatch": "Not matching",
       "acceptedIndustries": "Accepted industries",
       "criteriaIndustry": "Industry",

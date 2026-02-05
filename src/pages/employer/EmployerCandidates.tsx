@@ -4,11 +4,12 @@ import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { LogOut, ArrowLeft, Users, ChevronRight, Target, Heart, Briefcase, ThumbsUp } from "lucide-react";
+import { LogOut, ArrowLeft, Users, ChevronRight, Target, Heart, Briefcase } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { logError } from "@/lib/errorLogger";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { MatchStatusBadge, MatchStatus } from "@/components/match/MatchStatusBadge";
 
 const EmployerCandidates = () => {
   const { user, signOut, loading: authLoading } = useAuth();
@@ -124,11 +125,8 @@ const EmployerCandidates = () => {
                       <div>
                         <div className="flex items-center gap-2">
                           <h3 className="font-semibold text-lg">{t("employer.candidates.candidateNumber")} #{match.candidate_user_id.slice(0, 8)}</h3>
-                          {match.status === 'considering' && (
-                            <Badge className="bg-success text-success-foreground gap-1">
-                              <ThumbsUp className="w-3 h-3" />
-                              {t("employer.candidateDetail.interested")}
-                            </Badge>
+                          {match.status && match.status !== 'pending' && (
+                            <MatchStatusBadge status={match.status as MatchStatus} perspective="employer" />
                           )}
                         </div>
                         <div className="flex flex-wrap gap-2 mt-2">
