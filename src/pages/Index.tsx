@@ -97,27 +97,27 @@ const Index = () => {
 
       <main>
       {/* Hero Section */}
-      <section className="relative pt-32 pb-20 overflow-hidden gradient-hero">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-accent/10 via-transparent to-transparent" />
+      <section className="relative pt-32 pb-20 overflow-hidden hero-section">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-cta/20 via-transparent to-transparent" />
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-4xl mx-auto text-center">
             <h1 className="text-4xl md:text-6xl font-bold text-primary-foreground mb-6 leading-tight">
               {t("hero.title")}
-              <span className="block text-gradient mt-2">{t("hero.titleHighlight")}</span>
+              <span className="block text-gradient-gold mt-2">{t("hero.titleHighlight")}</span>
             </h1>
             <p className="text-lg md:text-xl text-primary-foreground/80 mb-8 max-w-2xl mx-auto">
               {t("hero.description")}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link to="/register?type=candidate">
-                <Button size="lg" className="bg-cta text-cta-foreground hover:bg-cta/90 gap-2 w-full sm:w-auto">
+                <Button size="lg" className="cta-button gap-2 w-full sm:w-auto">
                   <Users className="w-5 h-5" />
                   {t("hero.candidateButton")}
                   <ArrowRight className="w-4 h-4" />
                 </Button>
               </Link>
               <Link to="/register?type=employer">
-                <Button size="lg" variant="outline" className="bg-primary-foreground/10 backdrop-blur-sm border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/20 gap-2 w-full sm:w-auto">
+                <Button size="lg" variant="outline" className="bg-primary-foreground/10 backdrop-blur-sm border-cta/50 text-primary-foreground hover:bg-cta/20 hover:border-cta gap-2 w-full sm:w-auto transition-all">
                   <Building2 className="w-5 h-5" />
                   {t("hero.employerButton")}
                   <ArrowRight className="w-4 h-4" />
@@ -257,7 +257,7 @@ const Index = () => {
       </section>
 
       {/* CTA */}
-      <section className="py-20 gradient-hero">
+      <section className="py-20 hero-section">
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto text-center">
             <h2 className="text-3xl md:text-4xl font-bold text-primary-foreground mb-6">
@@ -267,7 +267,7 @@ const Index = () => {
               {t("cta.description")}
             </p>
             <Link to="/register">
-              <Button size="lg" className="bg-cta text-cta-foreground hover:bg-cta/90 gap-2">
+              <Button size="lg" className="cta-button gap-2">
                 {t("common.startNow")}
                 <ArrowRight className="w-5 h-5" />
               </Button>

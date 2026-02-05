@@ -5,142 +5,146 @@
 
 /* idealniepasuje Design System
    Primary colors:
-   - Navy: #233448 (hsl 209 34% 21%)
-   - Accent: #00B2C5 (hsl 185 100% 39%)
-   - CTA/Highlight: #FECA41 (hsl 42 99% 63%)
+   - Dark Teal: #00404E (hsl 189 100% 15%)
+   - Accent Cyan: #00B2C5 (hsl 185 100% 39%)
+   - CTA/Highlight Yellow: #FECA41 (hsl 42 99% 63%)
+   - Teal: #005D69 (hsl 186 100% 20%)
+   - Mint: #2CE2C2 (hsl 167 74% 53%)
 */
 
 @layer base {
   :root {
     /* Main backgrounds */
-    --background: 210 20% 98%;
-    --foreground: 209 34% 21%;
+    --background: 180 15% 97%;
+    --foreground: 189 100% 15%;
 
     /* Cards and containers */
     --card: 0 0% 100%;
-    --card-foreground: 209 34% 21%;
+    --card-foreground: 189 100% 15%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 209 34% 21%;
+    --popover-foreground: 189 100% 15%;
 
-    /* Primary - Navy #233448 */
-    --primary: 209 34% 21%;
+    /* Primary - Dark Teal #00404E */
+    --primary: 189 100% 15%;
     --primary-foreground: 0 0% 100%;
 
-    /* Secondary - Lighter navy */
-    --secondary: 209 20% 92%;
-    --secondary-foreground: 209 34% 21%;
+    /* Secondary - Lighter teal */
+    --secondary: 186 30% 92%;
+    --secondary-foreground: 189 100% 15%;
 
     /* Muted */
-    --muted: 209 15% 94%;
-    --muted-foreground: 209 20% 45%;
+    --muted: 186 20% 94%;
+    --muted-foreground: 186 30% 40%;
 
-    /* Accent - Teal #00B2C5 */
+    /* Accent - Cyan #00B2C5 */
     --accent: 185 100% 39%;
     --accent-foreground: 0 0% 100%;
 
     /* CTA - Yellow/Gold #FECA41 */
     --cta: 42 99% 63%;
-    --cta-foreground: 209 34% 21%;
+    --cta-foreground: 189 100% 15%;
 
     /* Destructive */
-    --destructive: 0 72% 50%;
+    --destructive: 12 76% 61%;
     --destructive-foreground: 0 0% 100%;
 
-    /* Success */
-    --success: 142 71% 45%;
-    --success-foreground: 0 0% 100%;
+    /* Success - Mint #2CE2C2 */
+    --success: 167 74% 53%;
+    --success-foreground: 189 100% 15%;
 
     /* Borders and inputs */
-    --border: 209 20% 88%;
-    --input: 209 20% 88%;
+    --border: 186 25% 85%;
+    --input: 186 25% 85%;
     --ring: 185 100% 39%;
 
     --radius: 0.75rem;
 
-    /* Sidebar */
-    --sidebar-background: 209 34% 21%;
+    /* Sidebar - Dark Teal */
+    --sidebar-background: 189 100% 15%;
     --sidebar-foreground: 0 0% 100%;
-    --sidebar-primary: 185 100% 39%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 209 30% 30%;
+    --sidebar-primary: 42 99% 63%;
+    --sidebar-primary-foreground: 189 100% 15%;
+    --sidebar-accent: 186 100% 20%;
     --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 209 30% 30%;
-    --sidebar-ring: 185 100% 39%;
+    --sidebar-border: 186 80% 25%;
+    --sidebar-ring: 42 99% 63%;
 
     /* Chart colors */
     --chart-1: 185 100% 39%;
     --chart-2: 42 99% 63%;
-    --chart-3: 209 34% 21%;
-    --chart-4: 142 71% 45%;
-    --chart-5: 280 60% 55%;
+    --chart-3: 189 100% 15%;
+    --chart-4: 167 74% 53%;
+    --chart-5: 270 60% 50%;
 
     /* Fonts */
     --font-sans: 'Lato', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
 
-    /* Shadows */
-    --shadow-sm: 0 1px 2px 0 hsl(209 34% 21% / 0.05);
-    --shadow: 0 1px 3px 0 hsl(209 34% 21% / 0.1), 0 1px 2px -1px hsl(209 34% 21% / 0.1);
-    --shadow-md: 0 4px 6px -1px hsl(209 34% 21% / 0.1), 0 2px 4px -2px hsl(209 34% 21% / 0.1);
-    --shadow-lg: 0 10px 15px -3px hsl(209 34% 21% / 0.1), 0 4px 6px -4px hsl(209 34% 21% / 0.1);
-    --shadow-xl: 0 20px 25px -5px hsl(209 34% 21% / 0.1), 0 8px 10px -6px hsl(209 34% 21% / 0.1);
+    /* Shadows with teal tint */
+    --shadow-sm: 0 1px 2px 0 hsl(189 100% 15% / 0.05);
+    --shadow: 0 1px 3px 0 hsl(189 100% 15% / 0.1), 0 1px 2px -1px hsl(189 100% 15% / 0.1);
+    --shadow-md: 0 4px 6px -1px hsl(189 100% 15% / 0.1), 0 2px 4px -2px hsl(189 100% 15% / 0.1);
+    --shadow-lg: 0 10px 15px -3px hsl(189 100% 15% / 0.1), 0 4px 6px -4px hsl(189 100% 15% / 0.1);
+    --shadow-xl: 0 20px 25px -5px hsl(189 100% 15% / 0.1), 0 8px 10px -6px hsl(189 100% 15% / 0.1);
 
     /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(209 34% 21%) 0%, hsl(209 40% 30%) 100%);
-    --gradient-accent: linear-gradient(135deg, hsl(185 100% 39%) 0%, hsl(185 80% 45%) 100%);
+    --gradient-primary: linear-gradient(135deg, hsl(189 100% 15%) 0%, hsl(186 100% 20%) 100%);
+    --gradient-accent: linear-gradient(135deg, hsl(185 100% 39%) 0%, hsl(167 74% 53%) 100%);
     --gradient-cta: linear-gradient(135deg, hsl(42 99% 63%) 0%, hsl(42 99% 55%) 100%);
-    --gradient-hero: linear-gradient(180deg, hsl(209 34% 21%) 0%, hsl(209 40% 28%) 50%, hsl(185 60% 25%) 100%);
+    --gradient-hero: linear-gradient(180deg, hsl(186 100% 22%) 0%, hsl(189 100% 15%) 40%, hsl(42 80% 50%) 100%);
+    --gradient-teal-gold: linear-gradient(135deg, hsl(186 100% 22%) 0%, hsl(42 99% 63%) 100%);
+    --gradient-sidebar: linear-gradient(180deg, hsl(189 100% 15%) 0%, hsl(186 100% 18%) 100%);
   }
 
   .dark {
-    --background: 209 34% 12%;
+    --background: 189 100% 8%;
     --foreground: 0 0% 98%;
 
-    --card: 209 34% 16%;
+    --card: 189 100% 12%;
     --card-foreground: 0 0% 98%;
 
-    --popover: 209 34% 16%;
+    --popover: 189 100% 12%;
     --popover-foreground: 0 0% 98%;
 
     --primary: 185 100% 45%;
-    --primary-foreground: 209 34% 12%;
+    --primary-foreground: 189 100% 8%;
 
-    --secondary: 209 30% 25%;
+    --secondary: 186 50% 20%;
     --secondary-foreground: 0 0% 98%;
 
-    --muted: 209 30% 22%;
-    --muted-foreground: 209 15% 70%;
+    --muted: 186 40% 18%;
+    --muted-foreground: 186 20% 65%;
 
     --accent: 42 99% 63%;
-    --accent-foreground: 209 34% 12%;
+    --accent-foreground: 189 100% 8%;
 
     --cta: 42 99% 63%;
-    --cta-foreground: 209 34% 12%;
+    --cta-foreground: 189 100% 8%;
 
-    --destructive: 0 62% 50%;
+    --destructive: 12 70% 55%;
     --destructive-foreground: 0 0% 98%;
 
-    --success: 142 71% 45%;
-    --success-foreground: 0 0% 100%;
+    --success: 167 74% 53%;
+    --success-foreground: 189 100% 8%;
 
-    --border: 209 30% 25%;
-    --input: 209 30% 25%;
+    --border: 186 50% 22%;
+    --input: 186 50% 22%;
     --ring: 185 100% 45%;
 
-    --sidebar-background: 209 34% 10%;
+    --sidebar-background: 189 100% 6%;
     --sidebar-foreground: 0 0% 98%;
-    --sidebar-primary: 185 100% 45%;
-    --sidebar-primary-foreground: 209 34% 10%;
-    --sidebar-accent: 209 30% 18%;
+    --sidebar-primary: 42 99% 63%;
+    --sidebar-primary-foreground: 189 100% 6%;
+    --sidebar-accent: 186 60% 15%;
     --sidebar-accent-foreground: 0 0% 98%;
-    --sidebar-border: 209 30% 18%;
-    --sidebar-ring: 185 100% 45%;
+    --sidebar-border: 186 50% 18%;
+    --sidebar-ring: 42 99% 63%;
 
     --chart-1: 185 100% 50%;
     --chart-2: 42 99% 65%;
     --chart-3: 0 0% 70%;
-    --chart-4: 142 71% 50%;
-    --chart-5: 280 60% 60%;
+    --chart-4: 167 74% 58%;
+    --chart-5: 270 60% 60%;
   }
 }
 
@@ -175,8 +179,23 @@
     background: var(--gradient-hero);
   }
 
+  .gradient-teal-gold {
+    background: var(--gradient-teal-gold);
+  }
+
+  .gradient-sidebar {
+    background: var(--gradient-sidebar);
+  }
+
   .text-gradient {
     background: linear-gradient(135deg, hsl(185 100% 39%) 0%, hsl(42 99% 63%) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .text-gradient-gold {
+    background: linear-gradient(135deg, hsl(42 99% 63%) 0%, hsl(42 99% 50%) 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -188,6 +207,24 @@
 
   .floating-card {
     @apply bg-card shadow-xl border border-border/30 transition-all duration-300 hover:shadow-2xl hover:-translate-y-1;
+  }
+
+  .hero-section {
+    background: linear-gradient(180deg, hsl(186 100% 22%) 0%, hsl(189 100% 15%) 50%, hsl(42 80% 55% / 0.3) 100%);
+  }
+
+  .accent-glow {
+    box-shadow: 0 0 30px hsl(42 99% 63% / 0.3);
+  }
+
+  .cta-button {
+    @apply bg-cta text-cta-foreground hover:bg-cta/90 transition-all duration-200;
+    box-shadow: 0 4px 14px hsl(42 99% 63% / 0.4);
+  }
+
+  .cta-button:hover {
+    box-shadow: 0 6px 20px hsl(42 99% 63% / 0.5);
+    transform: translateY(-1px);
   }
 }
 
