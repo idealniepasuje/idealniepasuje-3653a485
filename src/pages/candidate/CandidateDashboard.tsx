@@ -5,15 +5,16 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { LogOut, MessageSquare, Brain, Lightbulb, Target, RefreshCw, Users, ChevronRight, CheckCircle2, Clock, Play, Building2, ClipboardList, Heart, Briefcase, Sparkles, PartyPopper, Mail, ExternalLink, Award } from "lucide-react";
+import { MessageSquare, Brain, Lightbulb, Target, RefreshCw, Users, ChevronRight, CheckCircle2, Clock, Play, Building2, ClipboardList, Heart, Briefcase, Sparkles, PartyPopper, Award } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { getLocalizedCompetencyTests } from "@/data/competencyQuestions";
 import { logError } from "@/lib/errorLogger";
-import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { DashboardLayout } from "@/components/layouts/DashboardLayout";
+import { CandidateSidebar } from "@/components/layouts/CandidateSidebar";
 
 const CandidateDashboard = () => {
-  const { user, signOut, loading: authLoading } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
   const [testResults, setTestResults] = useState<any>(null);
@@ -86,8 +87,6 @@ const CandidateDashboard = () => {
     }
   };
 
-  const handleSignOut = async () => { await signOut(); navigate("/"); };
-
   const getTestStatus = (competencyCode: string) => {
     if (!testResults?.competency_answers) return "not_started";
     const answers = testResults.competency_answers[competencyCode];
@@ -118,313 +117,296 @@ const CandidateDashboard = () => {
 
   if (authLoading || loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-12 h-12 rounded-full bg-accent/20 animate-pulse mx-auto mb-4" />
-          <p className="text-muted-foreground">{t("common.loading")}</p>
+      <DashboardLayout sidebar={<CandidateSidebar />}>
+        <div className="flex items-center justify-center h-64">
+          <div className="w-12 h-12 rounded-full bg-accent/20 animate-pulse" />
         </div>
-      </div>
+      </DashboardLayout>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <header className="bg-primary text-primary-foreground">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <Link to="/" className="flex items-center">
-            <span className="text-xl font-bold">idealnie<span className="text-accent">pasuje</span></span>
-          </Link>
-          <div className="flex items-center gap-4">
-            <LanguageSwitcher />
-            <span className="text-sm text-primary-foreground/80">{user?.email}</span>
-            <Button variant="ghost" size="sm" onClick={handleSignOut} className="text-primary-foreground hover:bg-primary-foreground/10">
-              <LogOut className="w-4 h-4 mr-2" />
-              {t("common.logout")}
-            </Button>
-          </div>
+    <DashboardLayout sidebar={<CandidateSidebar />}>
+      {/* Welcome heading */}
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold mb-1">Cześć 👋</h1>
+        <p className="text-muted-foreground">{t("candidate.dashboard.introSubtitle")}</p>
+        <div className="flex items-center gap-2 mt-3 text-sm text-muted-foreground">
+          <Award className="w-4 h-4 text-accent" />
+          <span>{t("expert.badge")} – {t("expert.description").toLowerCase()}</span>
         </div>
-      </header>
+      </div>
 
-      <main className="container mx-auto px-4 py-8">
-        {/* Welcome heading */}
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold mb-1">Cześć 👋</h1>
-          <p className="text-muted-foreground">{t("candidate.dashboard.introSubtitle")}</p>
-          <div className="flex items-center gap-2 mt-3 text-sm text-muted-foreground">
-            <Award className="w-4 h-4 text-accent" />
-            <span>{t("expert.badge")} – {t("expert.description").toLowerCase()}</span>
-          </div>
-        </div>
-
-        {/* Show intro card only when tests are NOT completed */}
-        {!testResults?.all_tests_completed && (
-          <Card className="mb-8 overflow-hidden border-0 shadow-lg bg-gradient-to-br from-cta via-cta/90 to-accent/80">
-            <CardContent className="p-5">
-              <div className="flex items-start gap-4">
-                <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
-                  <Sparkles className="w-5 h-5 text-primary" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <h2 className="text-base font-bold text-primary mb-2">{t("candidate.dashboard.introTitle")}</h2>
-                  <p className="text-primary/85 text-sm mb-3 leading-relaxed">
-                    {t("candidate.dashboard.introGreetingShort")}
-                  </p>
-                  <div className="flex flex-wrap gap-2 mb-3">
-                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/15 text-primary text-xs font-medium">
-                      <ClipboardList className="w-3 h-3" />
-                      {t("candidate.dashboard.introBadge1")}
-                    </span>
-                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/15 text-primary text-xs font-medium">
-                      <Heart className="w-3 h-3" />
-                      {t("candidate.dashboard.introBadge2")}
-                    </span>
-                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/15 text-primary text-xs font-medium">
-                      <Briefcase className="w-3 h-3" />
-                      {t("candidate.dashboard.introBadge3")}
-                    </span>
-                  </div>
-                  <p className="text-xs text-primary/80 flex items-center gap-1.5">
-                    <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
-                    {t("candidate.dashboard.introReminderShort")}
-                  </p>
-                </div>
+      {/* Show intro card only when tests are NOT completed */}
+      {!testResults?.all_tests_completed && (
+        <Card className="mb-8 overflow-hidden border-0 shadow-lg bg-gradient-to-br from-cta via-cta/90 to-accent/80">
+          <CardContent className="p-5">
+            <div className="flex items-start gap-4">
+              <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
+                <Sparkles className="w-5 h-5 text-primary" />
               </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Show celebration card when tests ARE completed */}
-        {testResults?.all_tests_completed && (
-          <Card className="mb-8 overflow-hidden border-0 shadow-xl bg-gradient-to-r from-accent via-accent/90 to-primary/80">
-            <CardContent className="p-5 md:p-6">
-              <div className="flex items-start gap-4">
-                <div className="w-12 h-12 rounded-full bg-primary-foreground/20 flex items-center justify-center shrink-0">
-                  <PartyPopper className="w-6 h-6 text-primary-foreground" />
-                </div>
-                <div className="flex-1 min-w-0 text-primary-foreground">
-                  <h2 className="text-lg font-bold mb-2">{t("candidate.dashboard.profileCompleteTitle")}</h2>
-                  <p className="text-sm mb-3 opacity-95">{t("candidate.dashboard.profileCompleteDescription")}</p>
-                  <div className="space-y-1.5 text-sm opacity-90 mb-4">
-                    <p className="flex items-start gap-2">
-                      <CheckCircle2 className="w-4 h-4 mt-0.5 shrink-0" />
-                      {t("candidate.dashboard.profileCompleteMatch")}
-                    </p>
-                  </div>
-                  <Link to="/candidate/feedback">
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      className="bg-primary-foreground/10 border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/20 backdrop-blur-sm"
-                    >
-                      <MessageSquare className="w-4 h-4 mr-2" />
-                      {t("candidate.dashboard.shareFeedback")}
-                    </Button>
-                  </Link>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        <Card className="mb-8 border-accent/20 bg-accent/5">
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-4">
-              <div className="w-16 h-16 rounded-full bg-accent/20 flex items-center justify-center">
-                <Users className="w-8 h-8 text-accent" />
-              </div>
-              <div className="flex-1">
-                <h2 className="text-lg font-semibold mb-1">{t("candidate.dashboard.profileTitle")}</h2>
-                <p className="text-sm text-muted-foreground mb-2">
-                  {!allCompetencyTestsCompleted && t("candidate.dashboard.doCompetencyTests")}
-                  {allCompetencyTestsCompleted && !cultureTestCompleted && t("candidate.dashboard.doCultureTest")}
-                  {allCompetencyTestsCompleted && cultureTestCompleted && !additionalCompleted && t("candidate.dashboard.doAdditionalQuestions")}
-                  {testResults?.all_tests_completed && t("candidate.dashboard.allTestsCompleted")}
+              <div className="flex-1 min-w-0">
+                <h2 className="text-base font-bold text-primary mb-2">{t("candidate.dashboard.introTitle")}</h2>
+                <p className="text-primary/85 text-sm mb-3 leading-relaxed">
+                  {t("candidate.dashboard.introGreetingShort")}
                 </p>
-                <Progress value={testResults?.all_tests_completed ? 100 : additionalCompleted ? 90 : cultureTestCompleted ? 70 : allCompetencyTestsCompleted ? 50 : Object.keys(competencyTests).filter(c => getTestStatus(c) === "completed").length * 10} className="h-2" />
+                <div className="flex flex-wrap gap-2 mb-3">
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/15 text-primary text-xs font-medium">
+                    <ClipboardList className="w-3 h-3" />
+                    {t("candidate.dashboard.introBadge1")}
+                  </span>
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/15 text-primary text-xs font-medium">
+                    <Heart className="w-3 h-3" />
+                    {t("candidate.dashboard.introBadge2")}
+                  </span>
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/15 text-primary text-xs font-medium">
+                    <Briefcase className="w-3 h-3" />
+                    {t("candidate.dashboard.introBadge3")}
+                  </span>
+                </div>
+                <p className="text-xs text-primary/80 flex items-center gap-1.5">
+                  <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
+                  {t("candidate.dashboard.introReminderShort")}
+                </p>
               </div>
             </div>
           </CardContent>
         </Card>
+      )}
 
-        <section className="mb-8">
-          <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-            <span className="w-8 h-8 rounded-full bg-accent text-accent-foreground flex items-center justify-center text-sm font-bold">1</span>
-            {t("candidate.dashboard.competencyTests")}
-          </h2>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {Object.entries(competencyTests).map(([code, test]) => {
-              const status = getTestStatus(code);
-              const progress = getTestProgress(code);
-              const IconComponent = getIconComponent(test.icon);
-              return (
-                <Card key={code} className="group hover:shadow-lg transition-shadow">
-                  <CardHeader className="pb-3">
-                    <div className="flex items-start justify-between">
-                      <div className="w-12 h-12 rounded-lg bg-accent/10 flex items-center justify-center group-hover:bg-accent/20 transition-colors">
-                        <IconComponent className="w-6 h-6 text-accent" />
-                      </div>
-                      <Badge variant={status === "completed" ? "default" : status === "in_progress" ? "secondary" : "outline"} className={status === "completed" ? "bg-success" : ""}>
-                        {status === "completed" && <CheckCircle2 className="w-3 h-3 mr-1" />}
-                        {status === "in_progress" && <Clock className="w-3 h-3 mr-1" />}
-                        {status === "completed" ? t("common.completed") : status === "in_progress" ? t("common.inProgress") : t("common.notStarted")}
-                      </Badge>
-                    </div>
-                    <CardTitle className="text-lg">{test.name}</CardTitle>
-                    <CardDescription>{test.description}</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex items-center justify-between text-sm text-muted-foreground mb-3">
-                      <span className="flex items-center gap-1"><Clock className="w-4 h-4" />{test.estimatedTime}</span>
-                      <span>{test.questionCount} {t("common.questions")}</span>
-                    </div>
-                    {status !== "not_started" && <Progress value={progress} className="h-2 mb-3" />}
-                    <Link to={`/candidate/test/competency/${code}`}>
-                      <Button className="w-full gap-2" variant={status === "completed" ? "outline" : "default"}>
-                        {status === "completed" ? (<>{t("common.seeResults")}<ChevronRight className="w-4 h-4" /></>) : status === "in_progress" ? (<>{t("common.continue")}<ChevronRight className="w-4 h-4" /></>) : (<>{t("common.start")}<Play className="w-4 h-4" /></>)}
-                      </Button>
-                    </Link>
-                  </CardContent>
-                </Card>
-              );
-            })}
+      {/* Show celebration card when tests ARE completed */}
+      {testResults?.all_tests_completed && (
+        <Card className="mb-8 overflow-hidden border-0 shadow-xl bg-gradient-to-r from-accent via-accent/90 to-primary/80">
+          <CardContent className="p-5 md:p-6">
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 rounded-full bg-primary-foreground/20 flex items-center justify-center shrink-0">
+                <PartyPopper className="w-6 h-6 text-primary-foreground" />
+              </div>
+              <div className="flex-1 min-w-0 text-primary-foreground">
+                <h2 className="text-lg font-bold mb-2">{t("candidate.dashboard.profileCompleteTitle")}</h2>
+                <p className="text-sm mb-3 opacity-95">{t("candidate.dashboard.profileCompleteDescription")}</p>
+                <div className="space-y-1.5 text-sm opacity-90 mb-4">
+                  <p className="flex items-start gap-2">
+                    <CheckCircle2 className="w-4 h-4 mt-0.5 shrink-0" />
+                    {t("candidate.dashboard.profileCompleteMatch")}
+                  </p>
+                </div>
+                <Link to="/candidate/feedback">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    className="bg-primary-foreground/10 border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/20 backdrop-blur-sm"
+                  >
+                    <MessageSquare className="w-4 h-4 mr-2" />
+                    {t("candidate.dashboard.shareFeedback")}
+                  </Button>
+                </Link>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      <Card className="mb-8 border-accent/20 bg-accent/5">
+        <CardContent className="pt-6">
+          <div className="flex items-center gap-4">
+            <div className="w-16 h-16 rounded-full bg-accent/20 flex items-center justify-center">
+              <Users className="w-8 h-8 text-accent" />
+            </div>
+            <div className="flex-1">
+              <h2 className="text-lg font-semibold mb-1">{t("candidate.dashboard.profileTitle")}</h2>
+              <p className="text-sm text-muted-foreground mb-2">
+                {!allCompetencyTestsCompleted && t("candidate.dashboard.doCompetencyTests")}
+                {allCompetencyTestsCompleted && !cultureTestCompleted && t("candidate.dashboard.doCultureTest")}
+                {allCompetencyTestsCompleted && cultureTestCompleted && !additionalCompleted && t("candidate.dashboard.doAdditionalQuestions")}
+                {testResults?.all_tests_completed && t("candidate.dashboard.allTestsCompleted")}
+              </p>
+              <Progress value={testResults?.all_tests_completed ? 100 : additionalCompleted ? 90 : cultureTestCompleted ? 70 : allCompetencyTestsCompleted ? 50 : Object.keys(competencyTests).filter(c => getTestStatus(c) === "completed").length * 10} className="h-2" />
+            </div>
           </div>
-        </section>
+        </CardContent>
+      </Card>
 
-        <section className="mb-8">
-          <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-            <span className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${allCompetencyTestsCompleted ? "bg-accent text-accent-foreground" : "bg-muted text-muted-foreground"}`}>2</span>
-            {t("candidate.dashboard.cultureTest")}
-          </h2>
-          <Card className={!allCompetencyTestsCompleted ? "opacity-60" : ""}>
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-lg bg-cta/10 flex items-center justify-center">
-                    <Users className="w-6 h-6 text-cta" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold">{t("candidate.dashboard.cultureTest")}</h3>
-                    <p className="text-sm text-muted-foreground">{t("candidate.dashboard.cultureTestDescription")}</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-4">
-                  <Badge variant={cultureTestCompleted ? "default" : "outline"} className={cultureTestCompleted ? "bg-success" : ""}>
-                    {cultureTestCompleted ? t("common.completed") : t("common.toDo")}
-                  </Badge>
-                  <Link to="/candidate/test/culture">
-                    <Button disabled={!allCompetencyTestsCompleted} className="gap-2">
-                      {cultureTestCompleted ? t("common.seeResults") : t("common.start")}
-                      <ChevronRight className="w-4 h-4" />
-                    </Button>
-                  </Link>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </section>
-
-        <section className="mb-8">
-          <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-            <span className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${cultureTestCompleted ? "bg-accent text-accent-foreground" : "bg-muted text-muted-foreground"}`}>3</span>
-            {t("candidate.dashboard.additionalQuestions")}
-          </h2>
-          <Card className={!cultureTestCompleted ? "opacity-60" : ""}>
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
-                    <Target className="w-6 h-6 text-primary" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold">{t("candidate.dashboard.contextualData")}</h3>
-                    <p className="text-sm text-muted-foreground">{t("candidate.dashboard.contextualDataDescription")}</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-4">
-                  <Badge variant={additionalCompleted ? "default" : "outline"} className={additionalCompleted ? "bg-success" : ""}>
-                    {additionalCompleted ? t("common.completed") : t("common.toDo")}
-                  </Badge>
-                  <Link to="/candidate/additional">
-                    <Button disabled={!cultureTestCompleted} className="gap-2">
-                      {additionalCompleted ? t("common.edit") : t("common.fill")}
-                      <ChevronRight className="w-4 h-4" />
-                    </Button>
-                  </Link>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </section>
-
-        {testResults?.all_tests_completed && (
-          <>
-            {/* Matches section */}
-            <section>
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-bold">{t("candidate.dashboard.yourMatches")}</h2>
-                {matches.length > 0 && (
-                  <Link to="/candidate/matches">
-                    <Button variant="outline" size="sm" className="gap-2">
-                      {t("candidate.dashboard.viewAllMatches")}
-                      <ChevronRight className="w-4 h-4" />
-                    </Button>
-                  </Link>
-                )}
-              </div>
-              {matches.length === 0 ? (
-                <Card className="border-accent/20 bg-accent/5">
-                  <CardContent className="pt-6 text-center py-12">
-                    <div className="w-12 h-12 rounded-full bg-accent/20 mx-auto mb-4 flex items-center justify-center">
-                      <Target className="w-6 h-6 text-accent" />
+      <section className="mb-8">
+        <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+          <span className="w-8 h-8 rounded-full bg-accent text-accent-foreground flex items-center justify-center text-sm font-bold">1</span>
+          {t("candidate.dashboard.competencyTests")}
+        </h2>
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {Object.entries(competencyTests).map(([code, test]) => {
+            const status = getTestStatus(code);
+            const progress = getTestProgress(code);
+            const IconComponent = getIconComponent(test.icon);
+            return (
+              <Card key={code} className="group hover:shadow-lg transition-shadow">
+                <CardHeader className="pb-3">
+                  <div className="flex items-start justify-between">
+                    <div className="w-12 h-12 rounded-lg bg-accent/10 flex items-center justify-center group-hover:bg-accent/20 transition-colors">
+                      <IconComponent className="w-6 h-6 text-accent" />
                     </div>
-                    <h3 className="text-lg font-semibold mb-2">{t("candidate.dashboard.searchingMatches")}</h3>
-                    <p className="text-muted-foreground max-w-md mx-auto">{t("candidate.dashboard.searchingMatchesDescription")}</p>
-                  </CardContent>
-                </Card>
-              ) : (
-              <div className="grid gap-4">
-                {matches.slice(0, 3).map((match) => {
-                  const employer = employers[match.employer_user_id];
-                  return (
-                    <Card key={match.id} className="hover:shadow-lg transition-shadow">
-                      <CardContent className="pt-6">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-4">
-                            <div className="w-12 h-12 rounded-full bg-accent/20 flex items-center justify-center">
-                              <Building2 className="w-6 h-6 text-accent" />
-                            </div>
-                            <div>
-                              <h3 className="font-semibold">{employer?.company_name || t("candidate.matches.company")}</h3>
-                              <p className="text-sm text-muted-foreground">{t("common.totalMatch")}: {match.overall_percent}%</p>
-                            </div>
+                    <Badge variant={status === "completed" ? "default" : status === "in_progress" ? "secondary" : "outline"} className={status === "completed" ? "bg-success" : ""}>
+                      {status === "completed" && <CheckCircle2 className="w-3 h-3 mr-1" />}
+                      {status === "in_progress" && <Clock className="w-3 h-3 mr-1" />}
+                      {status === "completed" ? t("common.completed") : status === "in_progress" ? t("common.inProgress") : t("common.notStarted")}
+                    </Badge>
+                  </div>
+                  <CardTitle className="text-lg">{test.name}</CardTitle>
+                  <CardDescription>{test.description}</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center justify-between text-sm text-muted-foreground mb-3">
+                    <span className="flex items-center gap-1"><Clock className="w-4 h-4" />{test.estimatedTime}</span>
+                    <span>{test.questionCount} {t("common.questions")}</span>
+                  </div>
+                  {status !== "not_started" && <Progress value={progress} className="h-2 mb-3" />}
+                  <Link to={`/candidate/test/competency/${code}`}>
+                    <Button className="w-full gap-2" variant={status === "completed" ? "outline" : "default"}>
+                      {status === "completed" ? (<>{t("common.seeResults")}<ChevronRight className="w-4 h-4" /></>) : status === "in_progress" ? (<>{t("common.continue")}<ChevronRight className="w-4 h-4" /></>) : (<>{t("common.start")}<Play className="w-4 h-4" /></>)}
+                    </Button>
+                  </Link>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+      </section>
+
+      <section className="mb-8">
+        <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+          <span className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${allCompetencyTestsCompleted ? "bg-accent text-accent-foreground" : "bg-muted text-muted-foreground"}`}>2</span>
+          {t("candidate.dashboard.cultureTest")}
+        </h2>
+        <Card className={!allCompetencyTestsCompleted ? "opacity-60" : ""}>
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-lg bg-cta/10 flex items-center justify-center">
+                  <Users className="w-6 h-6 text-cta" />
+                </div>
+                <div>
+                  <h3 className="font-semibold">{t("candidate.dashboard.cultureTest")}</h3>
+                  <p className="text-sm text-muted-foreground">{t("candidate.dashboard.cultureTestDescription")}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-4">
+                <Badge variant={cultureTestCompleted ? "default" : "outline"} className={cultureTestCompleted ? "bg-success" : ""}>
+                  {cultureTestCompleted ? t("common.completed") : t("common.toDo")}
+                </Badge>
+                <Link to="/candidate/test/culture">
+                  <Button disabled={!allCompetencyTestsCompleted} className="gap-2">
+                    {cultureTestCompleted ? t("common.seeResults") : t("common.start")}
+                    <ChevronRight className="w-4 h-4" />
+                  </Button>
+                </Link>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </section>
+
+      <section className="mb-8">
+        <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+          <span className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${cultureTestCompleted ? "bg-accent text-accent-foreground" : "bg-muted text-muted-foreground"}`}>3</span>
+          {t("candidate.dashboard.additionalQuestions")}
+        </h2>
+        <Card className={!cultureTestCompleted ? "opacity-60" : ""}>
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <Target className="w-6 h-6 text-primary" />
+                </div>
+                <div>
+                  <h3 className="font-semibold">{t("candidate.dashboard.contextualData")}</h3>
+                  <p className="text-sm text-muted-foreground">{t("candidate.dashboard.contextualDataDescription")}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-4">
+                <Badge variant={additionalCompleted ? "default" : "outline"} className={additionalCompleted ? "bg-success" : ""}>
+                  {additionalCompleted ? t("common.completed") : t("common.toDo")}
+                </Badge>
+                <Link to="/candidate/additional">
+                  <Button disabled={!cultureTestCompleted} className="gap-2">
+                    {additionalCompleted ? t("common.edit") : t("common.fill")}
+                    <ChevronRight className="w-4 h-4" />
+                  </Button>
+                </Link>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </section>
+
+      {/* Matches section - only show when tests are completed */}
+      {testResults?.all_tests_completed && (
+        <section>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-bold">{t("candidate.dashboard.yourMatches")}</h2>
+            {matches.length > 0 && (
+              <Link to="/candidate/matches">
+                <Button variant="outline" size="sm" className="gap-2">
+                  {t("candidate.dashboard.viewAllMatches")}
+                  <ChevronRight className="w-4 h-4" />
+                </Button>
+              </Link>
+            )}
+          </div>
+          
+          {matches.length === 0 ? (
+            <Card className="border-accent/20 bg-accent/5">
+              <CardContent className="pt-6 text-center py-12">
+                <div className="w-12 h-12 rounded-full bg-accent/20 mx-auto mb-4 flex items-center justify-center">
+                  <Building2 className="w-6 h-6 text-accent" />
+                </div>
+                <h3 className="text-lg font-semibold mb-2">{t("candidate.dashboard.searchingMatches")}</h3>
+                <p className="text-muted-foreground max-w-md mx-auto">{t("candidate.dashboard.searchingMatchesDescription")}</p>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="grid gap-4">
+              {matches.slice(0, 3).map((match) => {
+                const employer = employers[match.employer_user_id];
+                return (
+                  <Card key={match.id} className="hover:shadow-lg transition-shadow">
+                    <CardContent className="pt-6">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                          <div className="w-12 h-12 rounded-full bg-accent/20 flex items-center justify-center">
+                            <Building2 className="w-6 h-6 text-accent" />
+                          </div>
+                          <div>
+                            <h3 className="font-semibold">{employer?.company_name || t("candidate.matches.company")}</h3>
+                            <p className="text-sm text-muted-foreground">{t("common.competencies")}: {match.competence_percent}% | {t("common.culture")}: {match.culture_percent}%</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-4">
+                          <div className="text-right">
+                            <div className="text-2xl font-bold text-accent">{match.overall_percent}%</div>
+                            <div className="text-xs text-muted-foreground">{t("common.match")}</div>
                           </div>
                           <Link to={`/candidate/employer/${match.employer_user_id}`}>
-                            <Button variant="outline" className="gap-2">
-                              {t("common.viewProfile")}
-                              <ChevronRight className="w-4 h-4" />
-                            </Button>
+                            <Button>{t("common.viewDetails")}<ChevronRight className="w-4 h-4 ml-2" /></Button>
                           </Link>
                         </div>
-                      </CardContent>
-                    </Card>
-                  );
-                })}
-                {matches.length > 3 && (
-                  <Link to="/candidate/matches" className="block">
-                    <Card className="hover:shadow-lg transition-shadow border-dashed cursor-pointer">
-                      <CardContent className="py-4 text-center">
-                        <span className="text-muted-foreground">{t("candidate.dashboard.andMoreEmployers", { count: matches.length - 3 })}</span>
-                      </CardContent>
-                    </Card>
-                  </Link>
-                )}
-              </div>
-            )}
-            </section>
-          </>
-        )}
-      </main>
-    </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+              {matches.length > 3 && (
+                <Link to="/candidate/matches" className="block">
+                  <Card className="hover:shadow-lg transition-shadow border-dashed cursor-pointer">
+                    <CardContent className="py-4 text-center">
+                      <span className="text-muted-foreground">{t("candidate.dashboard.andMoreEmployers", { count: matches.length - 3 })}</span>
+                    </CardContent>
+                  </Card>
+                </Link>
+              )}
+            </div>
+          )}
+        </section>
+      )}
+    </DashboardLayout>
   );
 };
 
