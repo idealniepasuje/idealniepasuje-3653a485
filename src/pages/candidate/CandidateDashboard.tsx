@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { LogOut, MessageSquare, Brain, Lightbulb, Target, RefreshCw, Users, ChevronRight, CheckCircle2, Clock, Play, Building2, ClipboardList, Heart, Briefcase, Sparkles, PartyPopper, Mail, ExternalLink } from "lucide-react";
+import { LogOut, MessageSquare, Brain, Lightbulb, Target, RefreshCw, Users, ChevronRight, CheckCircle2, Clock, Play, Building2, ClipboardList, Heart, Briefcase, Sparkles, PartyPopper, Mail, ExternalLink, Award } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { getLocalizedCompetencyTests } from "@/data/competencyQuestions";
@@ -150,6 +150,10 @@ const CandidateDashboard = () => {
         <div className="mb-6">
           <h1 className="text-3xl font-bold mb-1">Cześć 👋</h1>
           <p className="text-muted-foreground">{t("candidate.dashboard.introSubtitle")}</p>
+          <div className="flex items-center gap-2 mt-3 text-sm text-muted-foreground">
+            <Award className="w-4 h-4 text-accent" />
+            <span>{t("expert.badge")} – {t("expert.description").toLowerCase()}</span>
+          </div>
         </div>
 
         {/* Show intro card only when tests are NOT completed */}
