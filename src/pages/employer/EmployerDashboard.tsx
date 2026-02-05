@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { Building2, Users, ChevronRight, Plus, MapPin, Briefcase, Calendar, Clock, FileText, Settings, Heart, CheckCircle2 } from "lucide-react";
+import { Building2, Users, ChevronRight, Plus, Briefcase, Calendar, Clock, FileText, Settings, Heart, CheckCircle2, Sparkles, MessageSquare, CheckCircle } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { logError } from "@/lib/errorLogger";
@@ -129,42 +129,67 @@ const EmployerDashboard = () => {
 
   return (
     <DashboardLayout sidebar={<EmployerSidebar />}>
-      {/* Welcome Header */}
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold mb-1">Cześć 👋</h1>
-        <p className="text-muted-foreground">{t("employer.dashboard.subtitle")}</p>
+      {/* Expert Badge */}
+      <div className="flex items-center gap-2 text-sm text-muted-foreground mb-6">
+        <Sparkles className="w-4 h-4 text-accent" />
+        <span>{t("expert.badge")} – {t("expert.description")}</span>
       </div>
 
-      {/* Company Profile Card */}
-      <Card className="mb-8 border-cta/20 bg-cta/5">
-        <CardContent className="pt-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="w-14 h-14 rounded-xl bg-cta/20 flex items-center justify-center">
-                <Building2 className="w-7 h-7 text-cta" />
+      {/* Intro Card - Show when profile is NOT complete */}
+      {!isProfileComplete && (
+        <Card className="mb-6 bg-gradient-to-r from-cta/10 to-accent/10 border-cta/20">
+          <CardContent className="pt-6">
+            <div className="flex items-start gap-4">
+              <div className="w-14 h-14 rounded-full bg-cta/20 flex items-center justify-center shrink-0">
+                <Sparkles className="w-7 h-7 text-cta" />
               </div>
-              <div>
-                <p className="text-xs text-muted-foreground mb-0.5">{t("employer.profile.companyInfo")}</p>
-                <h2 className="text-xl font-bold">{employerProfile?.company_name || t("common.companyName")}</h2>
-                <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
-                  {employerProfile?.industry && (
-                    <span className="flex items-center gap-1">
-                      <Briefcase className="w-3.5 h-3.5" />
-                      {employerProfile.industry}
-                    </span>
-                  )}
-                  {employerProfile?.created_at && (
-                    <span className="flex items-center gap-1">
-                      <Calendar className="w-3.5 h-3.5" />
-                      {formatDate(employerProfile.created_at)}
-                    </span>
-                  )}
+              <div className="flex-1">
+                <h2 className="text-xl font-bold mb-2">{t("employer.dashboard.introTitle")}</h2>
+                <p className="text-muted-foreground mb-3">
+                  {t("employer.dashboard.introGreeting")}
+                </p>
+                <div className="flex flex-wrap gap-2 mb-3">
+                  <Badge variant="secondary">{t("employer.dashboard.introBadge1")}</Badge>
+                  <Badge variant="secondary">{t("employer.dashboard.introBadge2")}</Badge>
+                  <Badge variant="secondary">{t("employer.dashboard.introBadge3")}</Badge>
                 </div>
+                <p className="text-sm text-muted-foreground italic">
+                  {t("employer.dashboard.introReminder")}
+                </p>
               </div>
             </div>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Thank You Card - Show when profile is complete */}
+      {isProfileComplete && (
+        <Card className="mb-6 bg-gradient-to-r from-accent to-primary text-primary-foreground border-0">
+          <CardContent className="pt-6">
+            <div className="flex items-start gap-4">
+              <div className="w-14 h-14 rounded-full bg-primary-foreground/20 flex items-center justify-center shrink-0">
+                <Sparkles className="w-7 h-7" />
+              </div>
+              <div className="flex-1">
+                <h2 className="text-xl font-bold mb-2">{t("employer.dashboard.profileCompleteTitle")}</h2>
+                <p className="text-primary-foreground/90 mb-3">
+                  {t("employer.dashboard.profileCompleteDescription")}
+                </p>
+                <div className="flex items-center gap-2 text-primary-foreground/80 text-sm mb-4">
+                  <CheckCircle className="w-4 h-4" />
+                  <span>{t("employer.dashboard.profileCompleteMatch")}</span>
+                </div>
+                <Link to="/employer/feedback">
+                  <Button variant="secondary" size="sm" className="gap-2">
+                    <MessageSquare className="w-4 h-4" />
+                    {t("employer.dashboard.shareFeedback")}
+                  </Button>
+                </Link>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Profile Progress Section - Show if not complete */}
       {!isProfileComplete && (
