@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState, ReactNode } from 'react
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { logError } from '@/lib/errorLogger';
+import { ensureUserBootstrap } from '@/lib/ensureUserBootstrap';
 
 interface AuthContextType {
   user: User | null;
@@ -37,20 +38,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [userType, setUserType] = useState<'candidate' | 'employer' | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const fetchUserType = async (userId: string) => {
+  const fetchUserType = async (authUser: User) => {
     try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('user_type')
-        .eq('user_id', userId)
-        .single();
-      
-      if (error) {
-        logError('AuthContext.fetchUserType', error);
-        return null;
-      }
-      
-      return data?.user_type as 'candidate' | 'employer' | null;
+      return await ensureUserBootstrap(authUser);
     } catch (error) {
       logError('AuthContext.fetchUserType', error);
       return null;
@@ -67,7 +57,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         if (currentSession?.user) {
           // Use setTimeout to avoid blocking the auth state change
           setTimeout(async () => {
-            const type = await fetchUserType(currentSession.user.id);
+            const type = await fetchUserType(currentSession.user);
             setUserType(type);
             setLoading(false);
           }, 0);
@@ -84,7 +74,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       setUser(initialSession?.user ?? null);
       
       if (initialSession?.user) {
-        const type = await fetchUserType(initialSession.user.id);
+        const type = await fetchUserType(initialSession.user);
         setUserType(type);
       }
       setLoading(false);

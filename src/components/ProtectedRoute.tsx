@@ -1,9 +1,9 @@
 import { useEffect, useState, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
 import { Sparkles } from "lucide-react";
 import { logError } from "@/lib/errorLogger";
+import { ensureUserBootstrap } from "@/lib/ensureUserBootstrap";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -50,26 +50,21 @@ export const ProtectedRoute = ({
         return;
       }
 
-      // Server-side validation of user type
+      // Validate user type based on server-side DB state.
+      // Also bootstraps missing rows (profiles/employer_profiles/candidate_test_results)
+      // to prevent flows where updates affect 0 rows.
       try {
-        const { data, error } = await supabase
-          .from("profiles")
-          .select("user_type")
-          .eq("user_id", user.id)
-          .single();
+        const actualType = await ensureUserBootstrap(user);
 
-        if (error) {
-          logError("ProtectedRoute.validateAccess", error);
-          // On error, set invalid but don't redirect to prevent loops
+        if (!actualType) {
           setIsValid(false);
           setValidating(false);
           return;
         }
 
-        if (data?.user_type !== allowedUserType) {
-          // User type doesn't match - redirect to appropriate dashboard
+        if (actualType !== allowedUserType) {
           handledPath.current = location.pathname;
-          const correctDashboard = data?.user_type === "employer" 
+          const correctDashboard = actualType === "employer" 
             ? "/employer/dashboard" 
             : "/candidate/dashboard";
           navigate(correctDashboard, { replace: true });
@@ -80,7 +75,6 @@ export const ProtectedRoute = ({
         setValidating(false);
       } catch (error) {
         logError("ProtectedRoute.validateAccess", error);
-        // Don't redirect on error - just show invalid state
         setIsValid(false);
         setValidating(false);
       }
