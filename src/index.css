@@ -219,11 +219,9 @@
 
   .cta-button {
     @apply bg-cta text-cta-foreground hover:bg-cta/90 transition-all duration-200;
-    box-shadow: 0 4px 14px hsl(42 99% 63% / 0.4);
   }
 
   .cta-button:hover {
-    box-shadow: 0 6px 20px hsl(42 99% 63% / 0.5);
     transform: translateY(-1px);
   }
 }
