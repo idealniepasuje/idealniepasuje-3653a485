@@ -15,6 +15,7 @@ import { agreementScale, getLocalizedData } from "@/data/additionalQuestions";
 import { getLevel, getFeedback } from "@/data/feedbackData";
 import { useQuestionTimer } from "@/hooks/useQuestionTimer";
 import { QuestionTimer } from "@/components/QuestionTimer";
+import { ensureFirstJobOfferFromEmployerProfile } from "@/lib/ensureFirstJobOffer";
 
 const EmployerCulture = () => {
   const { user, loading: authLoading } = useAuth();
@@ -102,6 +103,9 @@ const EmployerCulture = () => {
         setSaving(false);
         return;
       }
+
+      // Ensure the onboarding creates the first "zlecenie" (job offer) from employer profile
+      await ensureFirstJobOfferFromEmployerProfile(user!.id, t("employer.offers.createNew"));
       
       // Generate matches automatically after profile completion
       await generateMatches();

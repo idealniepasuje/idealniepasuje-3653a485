@@ -12,6 +12,7 @@ import { logError } from "@/lib/errorLogger";
 import { DashboardLayout } from "@/components/layouts/DashboardLayout";
 import { EmployerSidebar } from "@/components/layouts/EmployerSidebar";
 import { MatchStatusBadge, MatchStatus } from "@/components/match/MatchStatusBadge";
+import { ensureFirstJobOfferFromEmployerProfile } from "@/lib/ensureFirstJobOffer";
 
 const EmployerDashboard = () => {
   const { user, loading: authLoading } = useAuth();
@@ -47,8 +48,25 @@ const EmployerDashboard = () => {
         .eq("user_id", user.id)
         .order("created_at", { ascending: false })
         .limit(3);
-      if (offersError) logError("EmployerDashboard.fetchData.offers", offersError);
-      else setOffers(offersData || []);
+
+      if (offersError) {
+        logError("EmployerDashboard.fetchData.offers", offersError);
+      }
+
+      // If onboarding is complete but there is still no offer, create the first one from the profile.
+      if (profile?.profile_completed && (!offersData || offersData.length === 0)) {
+        await ensureFirstJobOfferFromEmployerProfile(user.id, t("employer.offers.createNew"));
+      }
+
+      // Re-fetch offers after possible creation
+      const { data: effectiveOffers, error: effectiveOffersError } = await supabase
+        .from("job_offers")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false })
+        .limit(3);
+      if (effectiveOffersError) logError("EmployerDashboard.fetchData.offers.refetch", effectiveOffersError);
+      setOffers(effectiveOffers || []);
 
       // Fetch matches - only those linked to job offers
       const { data: matchData, error: matchError } = await supabase
@@ -62,9 +80,9 @@ const EmployerDashboard = () => {
       else setMatches(matchData || []);
 
       // Calculate stats for each offer
-      if (offersData && offersData.length > 0) {
+      if (effectiveOffers && effectiveOffers.length > 0) {
         const counts: Record<string, { count: number; avgMatch: number }> = {};
-        for (const offer of offersData) {
+        for (const offer of effectiveOffers) {
           const { data: offerMatches } = await supabase
             .from("match_results")
             .select("overall_percent")
