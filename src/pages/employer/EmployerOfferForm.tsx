@@ -151,17 +151,46 @@ const EmployerOfferForm = () => {
     }
   };
 
+  const [currentOfferId, setCurrentOfferId] = useState<string | null>(isNew ? null : offerId || null);
+
+  const createOfferIfNeeded = async (): Promise<string | null> => {
+    if (!user) return null;
+    if (currentOfferId && currentOfferId !== "new") return currentOfferId;
+    
+    // Create new offer
+    const { data, error } = await supabase
+      .from("job_offers")
+      .insert({
+        user_id: user.id,
+        title: formData.title || t("employer.offers.createNew")
+      })
+      .select("id")
+      .single();
+    
+    if (error) throw error;
+    if (data) {
+      setCurrentOfferId(data.id);
+      // Update URL to reflect the real ID
+      window.history.replaceState(null, "", `/employer/offer/${data.id}`);
+      return data.id;
+    }
+    return null;
+  };
+
   const saveRole = async () => {
-    if (!user || !offerId) return;
+    if (!user) return;
     setSaving(true);
     try {
+      const realOfferId = await createOfferIfNeeded();
+      if (!realOfferId) throw new Error("Failed to create offer");
+      
       const { error } = await supabase
         .from("job_offers")
         .update({
           role_description: formData.roleDescription,
           role_responsibilities: formData.roleResponsibilities
         })
-        .eq("id", offerId)
+        .eq("id", realOfferId)
         .eq("user_id", user.id);
       if (error) throw error;
       setRoleCompleted(true);
@@ -176,7 +205,7 @@ const EmployerOfferForm = () => {
   };
 
   const saveRequirements = async () => {
-    if (!user || !offerId) return;
+    if (!user) return;
     
     if (!formData.industry || !formData.positionLevel) { 
       toast.error(t("employer.requirements.fillRequiredFields")); 
@@ -189,6 +218,9 @@ const EmployerOfferForm = () => {
 
     setSaving(true);
     try {
+      const realOfferId = await createOfferIfNeeded();
+      if (!realOfferId) throw new Error("Failed to create offer");
+
       const validAcceptedReqs = acceptFromOtherIndustries 
         ? acceptedIndustryRequirements.filter(r => r.industry && r.years && r.positionLevel)
         : [];
@@ -208,7 +240,7 @@ const EmployerOfferForm = () => {
           req_determinacja: competencyReqs.determinacja,
           req_adaptacja: competencyReqs.adaptacja
         })
-        .eq("id", offerId)
+        .eq("id", realOfferId)
         .eq("user_id", user.id);
       if (error) throw error;
       setRequirementsCompleted(true);
