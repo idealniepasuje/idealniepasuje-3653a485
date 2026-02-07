@@ -24,23 +24,32 @@ interface CandidateData {
   wants_to_change_industry: string | null;
 }
 
-interface EmployerData {
+interface JobOfferData {
+  id: string;
   user_id: string;
+  title: string;
   req_komunikacja: number | null;
   req_myslenie_analityczne: number | null;
   req_out_of_the_box: number | null;
   req_determinacja: number | null;
   req_adaptacja: number | null;
+  industry: string | null;
+  required_experience: string | null;
+  position_level: string | null;
+  accepted_industries: string[] | null;
+  role_description: string | null;
+  role_responsibilities: string | null;
+}
+
+interface EmployerProfileData {
+  user_id: string;
+  company_name: string | null;
   culture_relacja_wspolpraca: number | null;
   culture_elastycznosc_innowacyjnosc: number | null;
   culture_wyniki_cele: number | null;
   culture_stabilnosc_struktura: number | null;
   culture_autonomia_styl_pracy: number | null;
   culture_wlb_dobrostan: number | null;
-  industry: string | null;
-  required_experience: string | null;
-  position_level: string | null;
-  accepted_industries: string[] | null;
 }
 
 // Calculate dimension match (scale 0-1)
@@ -49,8 +58,8 @@ const calculateDimensionMatch = (candidateValue: number, employerValue: number):
   return Math.max(0, 1 - diff / 4);
 };
 
-// Calculate competence match
-const calculateCompetenceMatch = (candidate: CandidateData, employer: EmployerData) => {
+// Calculate competence match using job offer requirements
+const calculateCompetenceMatch = (candidate: CandidateData, offer: JobOfferData) => {
   const competencies = [
     { key: 'komunikacja', cKey: 'komunikacja_score', eKey: 'req_komunikacja' },
     { key: 'myslenie_analityczne', cKey: 'myslenie_analityczne_score', eKey: 'req_myslenie_analityczne' },
@@ -61,8 +70,8 @@ const calculateCompetenceMatch = (candidate: CandidateData, employer: EmployerDa
 
   const details = competencies.map(comp => {
     const candidateScore = (candidate as any)[comp.cKey] || 3;
-    const employerReq = (employer as any)[comp.eKey] || 3;
-    const matchScore = calculateDimensionMatch(candidateScore, employerReq);
+    const offerReq = (offer as any)[comp.eKey] || 3;
+    const matchScore = calculateDimensionMatch(candidateScore, offerReq);
     const matchPercent = matchScore * 100;
     
     let status: 'excellent' | 'good' | 'needs_work';
@@ -73,7 +82,7 @@ const calculateCompetenceMatch = (candidate: CandidateData, employer: EmployerDa
     return {
       competency: comp.key,
       candidateScore,
-      employerRequirement: employerReq,
+      employerRequirement: offerReq,
       matchPercent,
       status,
     };
@@ -83,8 +92,8 @@ const calculateCompetenceMatch = (candidate: CandidateData, employer: EmployerDa
   return { percent: avgScore, details };
 };
 
-// Calculate culture match
-const calculateCultureMatch = (candidate: CandidateData, employer: EmployerData) => {
+// Calculate culture match using employer profile
+const calculateCultureMatch = (candidate: CandidateData, employer: EmployerProfileData) => {
   const dimensions = [
     'culture_relacja_wspolpraca',
     'culture_elastycznosc_innowacyjnosc',
@@ -121,8 +130,8 @@ const calculateCultureMatch = (candidate: CandidateData, employer: EmployerData)
   return { percent: avgScore, details };
 };
 
-// Calculate extra match
-const calculateExtraMatch = (candidate: CandidateData, employer: EmployerData) => {
+// Calculate extra match using job offer requirements
+const calculateExtraMatch = (candidate: CandidateData, offer: JobOfferData) => {
   const details: { 
     field: string; 
     matched: boolean;
@@ -133,38 +142,38 @@ const calculateExtraMatch = (candidate: CandidateData, employer: EmployerData) =
   
   // Industry match
   const industryMatch = 
-    candidate.industry === employer.industry ||
-    (employer.accepted_industries?.includes(candidate.industry || '') ?? false);
+    candidate.industry === offer.industry ||
+    (offer.accepted_industries?.includes(candidate.industry || '') ?? false);
   details.push({ 
     field: 'Branża', 
     matched: industryMatch,
     candidateValue: candidate.industry,
-    employerValue: employer.industry,
-    acceptedValues: employer.accepted_industries || [],
+    employerValue: offer.industry,
+    acceptedValues: offer.accepted_industries || [],
   });
   
   // Experience match - compare years
   const candidateExp = parseInt(candidate.experience || '0') || 0;
-  const requiredExp = parseInt(employer.required_experience || '0') || 0;
+  const requiredExp = parseInt(offer.required_experience || '0') || 0;
   const experienceMatch = candidateExp >= requiredExp;
   details.push({ 
     field: 'Doświadczenie', 
     matched: experienceMatch,
     candidateValue: candidate.experience,
-    employerValue: employer.required_experience,
+    employerValue: offer.required_experience,
   });
   
   // Position level match
   const positionLevelOrder = ['junior', 'mid', 'senior', 'lead', 'manager', 'director'];
   const candidateLevelIndex = positionLevelOrder.indexOf(candidate.position_level || '');
-  const employerLevelIndex = positionLevelOrder.indexOf(employer.position_level || '');
-  const positionMatch = candidate.position_level === employer.position_level || 
+  const employerLevelIndex = positionLevelOrder.indexOf(offer.position_level || '');
+  const positionMatch = candidate.position_level === offer.position_level || 
     (candidateLevelIndex >= employerLevelIndex && employerLevelIndex !== -1);
   details.push({ 
     field: 'Poziom stanowiska', 
     matched: positionMatch,
     candidateValue: candidate.position_level,
-    employerValue: employer.position_level,
+    employerValue: offer.position_level,
   });
   
   // Industry flexibility
@@ -176,7 +185,7 @@ const calculateExtraMatch = (candidate: CandidateData, employer: EmployerData) =
     field: 'Elastyczność branżowa', 
     matched: industryFlexibility || industryMatch,
     candidateValue: openToChange ? 'Tak' : 'Nie',
-    employerValue: employer.accepted_industries && employer.accepted_industries.length > 0 ? 'Akceptuje inne branże' : 'Tylko wybrana branża',
+    employerValue: offer.accepted_industries && offer.accepted_industries.length > 0 ? 'Akceptuje inne branże' : 'Tylko wybrana branża',
   });
   
   const matchedCount = details.filter(d => d.matched).length;
@@ -317,25 +326,65 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Get all employers with completed profiles
-    const { data: employers, error: employersError } = await supabase
-      .from('employer_profiles')
+    // Get all active job offers with employer profiles (culture data)
+    const { data: jobOffers, error: offersError } = await supabase
+      .from('job_offers')
       .select('*')
-      .eq('profile_completed', true);
+      .eq('is_active', true);
 
-    if (employersError) {
-      return new Response(JSON.stringify({ error: 'Failed to fetch employers' }), {
+    if (offersError) {
+      console.error('Failed to fetch job offers:', offersError);
+      return new Response(JSON.stringify({ error: 'Failed to fetch job offers' }), {
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
+    if (!jobOffers || jobOffers.length === 0) {
+      console.log('No active job offers found');
+      return new Response(JSON.stringify({ 
+        success: true, 
+        matches_count: 0,
+        matches: [],
+        message: 'No active job offers available'
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    // Get employer profiles for culture data
+    const employerUserIds = [...new Set(jobOffers.map(o => o.user_id))];
+    const { data: employerProfiles, error: profilesError } = await supabase
+      .from('employer_profiles')
+      .select('*')
+      .in('user_id', employerUserIds);
+
+    if (profilesError) {
+      console.error('Failed to fetch employer profiles:', profilesError);
+      return new Response(JSON.stringify({ error: 'Failed to fetch employer profiles' }), {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    // Create a map for quick lookup
+    const employerProfileMap = new Map(
+      (employerProfiles || []).map(p => [p.user_id, p])
+    );
+
     const matches: any[] = [];
 
-    for (const employer of employers || []) {
-      const competence = calculateCompetenceMatch(candidate as CandidateData, employer as EmployerData);
-      const culture = calculateCultureMatch(candidate as CandidateData, employer as EmployerData);
-      const extra = calculateExtraMatch(candidate as CandidateData, employer as EmployerData);
+    for (const offer of jobOffers) {
+      const employerProfile = employerProfileMap.get(offer.user_id);
+      
+      if (!employerProfile) {
+        console.log(`No employer profile found for offer ${offer.id}, skipping`);
+        continue;
+      }
+
+      const competence = calculateCompetenceMatch(candidate as CandidateData, offer as JobOfferData);
+      const culture = calculateCultureMatch(candidate as CandidateData, employerProfile as EmployerProfileData);
+      const extra = calculateExtraMatch(candidate as CandidateData, offer as JobOfferData);
       
       const overallPercent = 
         WEIGHTS.competence * competence.percent +
@@ -356,8 +405,9 @@ Deno.serve(async (req) => {
       const { error: upsertError } = await supabase
         .from('match_results')
         .upsert({
-          employer_user_id: employer.user_id,
+          employer_user_id: offer.user_id,
           candidate_user_id,
+          job_offer_id: offer.id,
           overall_percent: Math.round(overallPercent),
           competence_percent: Math.round(competence.percent),
           culture_percent: Math.round(culture.percent),
@@ -365,21 +415,25 @@ Deno.serve(async (req) => {
           match_details: matchDetails,
           status: 'pending',
         }, {
-          onConflict: 'employer_user_id,candidate_user_id',
+          onConflict: 'employer_user_id,candidate_user_id,job_offer_id',
         });
 
-      if (!upsertError) {
+      if (upsertError) {
+        console.error(`Failed to upsert match for offer ${offer.id}:`, upsertError);
+      } else {
         matches.push({
-          employer_user_id: employer.user_id,
+          employer_user_id: offer.user_id,
+          job_offer_id: offer.id,
+          job_offer_title: offer.title,
           overall_percent: Math.round(overallPercent),
           competence_percent: Math.round(competence.percent),
           culture_percent: Math.round(culture.percent),
           extra_percent: Math.round(extra.percent),
-          role_description: employer.role_description,
-          role_responsibilities: employer.role_responsibilities,
-          industry: employer.industry,
-          position_level: employer.position_level,
-          company_name: employer.company_name,
+          role_description: offer.role_description,
+          role_responsibilities: offer.role_responsibilities,
+          industry: offer.industry,
+          position_level: offer.position_level,
+          company_name: employerProfile.company_name,
         });
       }
     }
@@ -392,7 +446,10 @@ Deno.serve(async (req) => {
 
       if (candidateEmail) {
         // Send notification for the best match
-        const bestMatch = matches[0];
+        const bestMatch = matches.reduce((best, current) => 
+          current.overall_percent > best.overall_percent ? current : best
+        , matches[0]);
+        
         try {
           const notificationResponse = await fetch(
             `${supabaseUrl}/functions/v1/send-match-notification`,
@@ -462,6 +519,8 @@ Deno.serve(async (req) => {
         console.error(`Error sending no-match notification:`, emailError);
       }
     }
+
+    console.log(`Generated ${matches.length} matches for candidate ${candidate_user_id}`);
 
     return new Response(JSON.stringify({ 
       success: true, 
