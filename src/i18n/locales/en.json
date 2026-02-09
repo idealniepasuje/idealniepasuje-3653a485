@@ -324,11 +324,9 @@
       "andMoreCandidates": "...and {{count}} more candidates",
       "searchingCandidates": "Searching for ideal candidates",
       "searchingCandidatesDescription": "We're now working on finding the ideal candidate. When we find one, you'll receive a notification.",
-      "recentOffers": "Your recent job offers",
-      "newOffer": "New offer",
-      "recentMatches": "Recent matches",
-      "avgMatch": "Average match",
-      "viewMore": "View more"
+      "yourOrders": "Your orders",
+      "newOffer": "New order",
+      "viewMore": "View all"
     },
     "role": {
       "title": "Role description",
@@ -376,6 +374,12 @@
       "thankYou": "Thank you for your feedback!",
       "thankYouTitle": "Thank you for your feedback!",
       "thankYouDescription": "Your response is very valuable to us and will help us improve the tool."
+    },
+    "orderDetail": {
+      "detailsTitle": "Order details",
+      "detailsDescription": "Information about the order and its status",
+      "candidatesTitle": "Matched candidates",
+      "noCandidatesYet": "No matches yet – searching for candidates"
     },
     "candidates": {
       "title": "Matched candidates",
@@ -427,6 +431,7 @@
       "deleteConfirmTitle": "Delete offer?",
       "deleteConfirmDescription": "This action cannot be undone. All matches related to this offer will be removed.",
       "viewCandidates": "View candidates",
+      "viewDetails": "View details",
       "createNew": "New job offer",
       "edit": "Edit offer",
       "created": "Offer created",
