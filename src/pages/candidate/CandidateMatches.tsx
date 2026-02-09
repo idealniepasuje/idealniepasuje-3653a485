@@ -17,6 +17,7 @@ const CandidateMatches = () => {
   const { t } = useTranslation();
   const [matches, setMatches] = useState<any[]>([]);
   const [employers, setEmployers] = useState<Record<string, any>>({});
+  const [offerTitles, setOfferTitles] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -47,20 +48,35 @@ const CandidateMatches = () => {
         });
         setMatches(sorted);
         
-        // Fetch employer profiles for company names
+        // Fetch employer profiles and job offer titles
         if (matchData && matchData.length > 0) {
           const employerIds = matchData.map(m => m.employer_user_id);
-          const { data: employerData, error: employerError } = await supabase
-            .from("employer_profiles")
-            .select("user_id, company_name, industry, role_description")
-            .in("user_id", employerIds);
+          const offerIds = matchData.map(m => m.job_offer_id).filter(Boolean);
           
-          if (!employerError && employerData) {
+          const [employerResult, offerResult] = await Promise.all([
+            supabase
+              .from("employer_profiles")
+              .select("user_id, company_name, industry, role_description")
+              .in("user_id", employerIds),
+            offerIds.length > 0
+              ? supabase.from("job_offers").select("id, title").in("id", offerIds)
+              : Promise.resolve({ data: [], error: null })
+          ]);
+          
+          if (!employerResult.error && employerResult.data) {
             const employerMap: Record<string, any> = {};
-            employerData.forEach(emp => {
+            employerResult.data.forEach(emp => {
               employerMap[emp.user_id] = emp;
             });
             setEmployers(employerMap);
+          }
+          
+          if (!offerResult.error && offerResult.data) {
+            const titleMap: Record<string, string> = {};
+            (offerResult.data as any[]).forEach((o: any) => {
+              titleMap[o.id] = o.title;
+            });
+            setOfferTitles(titleMap);
           }
         }
       }
@@ -120,6 +136,7 @@ const CandidateMatches = () => {
               key={match.id} 
               match={match} 
               employer={employers[match.employer_user_id]}
+              offerTitle={match.job_offer_id ? offerTitles[match.job_offer_id] : undefined}
             />
           ))}
         </div>
