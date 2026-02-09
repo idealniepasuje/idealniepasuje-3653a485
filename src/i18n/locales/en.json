@@ -206,6 +206,7 @@
     "employerDetail": {
       "notFound": "Match not found",
       "roleDescription": "Role description",
+      "roleResponsibilities": "Role responsibilities",
       "strengths": "Your strengths",
       "areasToImprove": "Areas to improve",
       "competencies": "Competency match",
@@ -435,6 +436,8 @@
       "viewAll": "View all offers"
     },
     "offerForm": {
+      "titleLabel": "Order name",
+      "titlePlaceholder": "e.g. UX Designer, Frontend Developer...",
       "roleTitle": "Role description",
       "roleDescription": "Describe the position and responsibilities",
       "requirementsTitle": "Requirements",

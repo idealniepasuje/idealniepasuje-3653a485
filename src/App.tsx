@@ -58,7 +58,7 @@ const App = () => (
               <Route path="/candidate/test/culture" element={<ProtectedRoute allowedUserType="candidate"><CultureTest /></ProtectedRoute>} />
               <Route path="/candidate/additional" element={<ProtectedRoute allowedUserType="candidate"><CandidateAdditional /></ProtectedRoute>} />
               <Route path="/candidate/matches" element={<ProtectedRoute allowedUserType="candidate"><CandidateMatches /></ProtectedRoute>} />
-              <Route path="/candidate/employer/:employerId" element={<ProtectedRoute allowedUserType="candidate"><CandidateEmployerDetail /></ProtectedRoute>} />
+              <Route path="/candidate/match/:matchId" element={<ProtectedRoute allowedUserType="candidate"><CandidateEmployerDetail /></ProtectedRoute>} />
               <Route path="/candidate/feedback" element={<ProtectedRoute allowedUserType="candidate"><CandidateFeedback /></ProtectedRoute>} />
               {/* Employer routes - protected and validated */}
               <Route path="/employer/dashboard" element={<ProtectedRoute allowedUserType="employer"><EmployerDashboard /></ProtectedRoute>} />

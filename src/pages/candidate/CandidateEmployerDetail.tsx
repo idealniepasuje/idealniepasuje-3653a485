@@ -53,55 +53,64 @@ const cultureNames: Record<string, { pl: string; en: string }> = {
 };
 
 const CandidateEmployerDetail = () => {
-  const { employerId } = useParams<{ employerId: string }>();
+  const { matchId } = useParams<{ matchId: string }>();
   const { user, signOut, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
   const [match, setMatch] = useState<any>(null);
   const [employer, setEmployer] = useState<any>(null);
+  const [jobOffer, setJobOffer] = useState<any>(null);
   const [candidateData, setCandidateData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!authLoading && !user) { navigate("/login"); return; }
-    if (user && employerId) fetchMatchData();
-  }, [user, authLoading, navigate, employerId]);
+    if (user && matchId) fetchMatchData();
+  }, [user, authLoading, navigate, matchId]);
 
   const fetchMatchData = async () => {
-    if (!user || !employerId) return;
+    if (!user || !matchId) return;
     try {
-      const [matchResult, employerResult, candidateResult] = await Promise.all([
-        supabase
-          .from("match_results")
-          .select("*")
-          .eq("candidate_user_id", user.id)
-          .eq("employer_user_id", employerId)
-          .single(),
+      // First fetch the match to get employer_user_id and job_offer_id
+      const { data: matchData, error: matchError } = await supabase
+        .from("match_results")
+        .select("*")
+        .eq("id", matchId)
+        .eq("candidate_user_id", user.id)
+        .single();
+      
+      if (matchError) {
+        logError("CandidateEmployerDetail.fetchMatchData", matchError);
+        setLoading(false);
+        return;
+      }
+      
+      setMatch(matchData);
+      
+      // Fetch employer profile, job offer details, and candidate data in parallel
+      const [employerResult, candidateResult, offerResult] = await Promise.all([
         supabase
           .from("employer_profiles")
           .select("company_name, role_description, industry, required_experience, position_level, accepted_industries, no_experience_required")
-          .eq("user_id", employerId)
+          .eq("user_id", matchData.employer_user_id)
           .single(),
         supabase
           .from("candidate_test_results")
           .select("industry, experience, position_level, target_industries")
           .eq("user_id", user.id)
-          .single()
+          .single(),
+        matchData.job_offer_id
+          ? supabase
+              .from("job_offers")
+              .select("title, role_description, role_responsibilities, industry, required_experience, position_level, no_experience_required, accepted_industries")
+              .eq("id", matchData.job_offer_id)
+              .single()
+          : Promise.resolve({ data: null, error: null })
       ]);
-      
-      if (matchResult.error) {
-        logError("CandidateEmployerDetail.fetchMatchData", matchResult.error);
-      } else {
-        setMatch(matchResult.data);
-      }
 
-      if (!employerResult.error) {
-        setEmployer(employerResult.data);
-      }
-      
-      if (!candidateResult.error) {
-        setCandidateData(candidateResult.data);
-      }
+      if (!employerResult.error) setEmployer(employerResult.data);
+      if (!candidateResult.error) setCandidateData(candidateResult.data);
+      if (!offerResult.error && offerResult.data) setJobOffer(offerResult.data);
     } catch (error) {
       logError("CandidateEmployerDetail.fetchMatchData", error);
     } finally {
@@ -177,9 +186,12 @@ const CandidateEmployerDetail = () => {
                   <Building2 className="w-8 h-8 text-accent" />
                 </div>
                 <div>
-                  <h1 className="text-2xl font-bold mb-2">
+                  <h1 className="text-2xl font-bold mb-1">
                     {employer?.company_name || t("candidate.matches.company")}
                   </h1>
+                  {jobOffer?.title && (
+                    <p className="text-lg font-medium text-accent mb-2">{jobOffer.title}</p>
+                  )}
                   {employer?.industry && (
                     <p className="text-muted-foreground mb-2">{employer.industry}</p>
                   )}
@@ -204,14 +216,26 @@ const CandidateEmployerDetail = () => {
           </CardContent>
         </Card>
 
-        {/* Role description */}
-        {employer?.role_description && (
+        {/* Role description from job offer */}
+        {(jobOffer?.role_description || employer?.role_description) && (
           <Card className="mb-6">
             <CardHeader>
               <CardTitle>{t("candidate.employerDetail.roleDescription")}</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-muted-foreground">{employer.role_description}</p>
+              <p className="text-muted-foreground">{jobOffer?.role_description || employer?.role_description}</p>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Role responsibilities from job offer */}
+        {jobOffer?.role_responsibilities && (
+          <Card className="mb-6">
+            <CardHeader>
+              <CardTitle>{t("candidate.employerDetail.roleResponsibilities")}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground whitespace-pre-line">{jobOffer.role_responsibilities}</p>
             </CardContent>
           </Card>
         )}
@@ -376,18 +400,20 @@ const CandidateEmployerDetail = () => {
           </CardHeader>
           <CardContent>
             {(() => {
+              // Use job offer data when available, fall back to employer profile
+              const offerData = jobOffer || employer;
               const positionLevelOrder = ['junior', 'mid', 'senior', 'lead', 'manager', 'director'];
               const candidateLevelIndex = positionLevelOrder.indexOf(candidateData?.position_level || '');
-              const employerLevelIndex = positionLevelOrder.indexOf(employer?.position_level || '');
+              const employerLevelIndex = positionLevelOrder.indexOf(offerData?.position_level || '');
               
-              const industryMatch = candidateData?.industry === employer?.industry || 
-                (employer?.accepted_industries && employer.accepted_industries.includes(candidateData?.industry));
+              const industryMatch = candidateData?.industry === offerData?.industry || 
+                (offerData?.accepted_industries && offerData.accepted_industries.includes(candidateData?.industry));
               
               const candidateExp = parseInt(candidateData?.experience || '0', 10);
-              const employerExp = parseInt(employer?.required_experience || '0', 10);
-              const experienceMatch = employer?.no_experience_required || candidateExp >= employerExp;
+              const employerExp = parseInt(offerData?.required_experience || '0', 10);
+              const experienceMatch = offerData?.no_experience_required || candidateExp >= employerExp;
               
-              const positionMatch = candidateData?.position_level === employer?.position_level || 
+              const positionMatch = candidateData?.position_level === offerData?.position_level || 
                 (candidateLevelIndex >= employerLevelIndex && employerLevelIndex !== -1);
 
               const criteria = [
@@ -395,19 +421,19 @@ const CandidateEmployerDetail = () => {
                   field: t("employer.candidateDetail.criteriaIndustry"),
                   matched: industryMatch,
                   candidateValue: candidateData?.industry,
-                  employerValue: employer?.industry,
+                  employerValue: offerData?.industry,
                 },
                 {
                   field: t("employer.candidateDetail.criteriaExperience"),
                   matched: experienceMatch,
                   candidateValue: candidateData?.experience ? `${candidateData.experience} ${t("common.years")}` : null,
-                  employerValue: employer?.no_experience_required ? t("employer.requirements.noExperienceRequired") : `${employer?.required_experience || 0} ${t("common.years")}`,
+                  employerValue: offerData?.no_experience_required ? t("employer.requirements.noExperienceRequired") : `${offerData?.required_experience || 0} ${t("common.years")}`,
                 },
                 {
                   field: t("employer.candidateDetail.criteriaPositionLevel"),
                   matched: positionMatch,
                   candidateValue: candidateData?.position_level,
-                  employerValue: employer?.position_level,
+                  employerValue: offerData?.position_level,
                 },
               ];
 

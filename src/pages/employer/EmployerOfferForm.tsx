@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -323,9 +324,20 @@ const EmployerOfferForm = () => {
             <Button variant="ghost" size="sm" onClick={() => navigate("/employer/offers")} className="gap-2 mb-4">
               <ArrowLeft className="w-4 h-4" />{t("common.back")}
             </Button>
-            <h1 className="text-2xl font-bold mb-2">
-              {formData.title || t("employer.offers.edit")}
-            </h1>
+            <div className="space-y-2">
+              <Label className="text-sm text-muted-foreground">{t("employer.offerForm.titleLabel")}</Label>
+              <Input
+                value={formData.title}
+                onChange={(e) => setFormData(p => ({ ...p, title: e.target.value }))}
+                onBlur={async () => {
+                  if (currentOfferId && currentOfferId !== "new" && formData.title) {
+                    await supabase.from("job_offers").update({ title: formData.title }).eq("id", currentOfferId);
+                  }
+                }}
+                placeholder={t("employer.offerForm.titlePlaceholder")}
+                className="text-2xl font-bold h-auto py-2 border-dashed"
+              />
+            </div>
           </div>
 
           <div className="grid md:grid-cols-3 gap-4">

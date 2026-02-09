@@ -206,6 +206,7 @@
     "employerDetail": {
       "notFound": "Nie znaleziono dopasowania",
       "roleDescription": "Opis stanowiska",
+      "roleResponsibilities": "Obowiązki na stanowisku",
       "strengths": "Twoje mocne strony",
       "areasToImprove": "Obszary do rozwoju",
       "competencies": "Dopasowanie kompetencji",
@@ -435,6 +436,8 @@
       "viewAll": "Zobacz wszystkie zlecenia"
     },
     "offerForm": {
+      "titleLabel": "Nazwa zlecenia",
+      "titlePlaceholder": "np. UX Designer, Frontend Developer...",
       "roleTitle": "Opis roli",
       "roleDescription": "Opisz stanowisko i obowiązki",
       "requirementsTitle": "Wymagania",

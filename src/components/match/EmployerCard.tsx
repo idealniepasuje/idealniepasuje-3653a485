@@ -10,6 +10,7 @@ interface EmployerCardProps {
   match: {
     id: string;
     employer_user_id: string;
+    job_offer_id?: string;
     overall_percent: number;
     competence_percent: number;
     culture_percent: number;
@@ -22,9 +23,10 @@ interface EmployerCardProps {
     industry?: string;
     role_description?: string;
   };
+  offerTitle?: string;
 }
 
-export const EmployerCard = ({ match, employer }: EmployerCardProps) => {
+export const EmployerCard = ({ match, employer, offerTitle }: EmployerCardProps) => {
   const { t } = useTranslation();
   const isRejected = match.status === 'rejected';
   const isBestMatch = match.overall_percent >= 80;
@@ -82,6 +84,11 @@ export const EmployerCard = ({ match, employer }: EmployerCardProps) => {
                 {employer?.company_name || t("candidate.matches.company")}
               </h3>
               
+              {/* Offer title */}
+              {offerTitle && (
+                <p className="text-sm font-medium text-accent mb-1">{offerTitle}</p>
+              )}
+              
               {/* Industry */}
               {employer?.industry && (
                 <p className="text-muted-foreground mb-2">
@@ -113,7 +120,7 @@ export const EmployerCard = ({ match, employer }: EmployerCardProps) => {
               <span className="text-3xl font-bold text-accent">{match.overall_percent}%</span>
               <p className="text-xs text-muted-foreground">{t("common.match")}</p>
             </div>
-            <Link to={`/candidate/employer/${match.employer_user_id}`}>
+            <Link to={`/candidate/match/${match.id}`}>
               <Button className="gap-2">
                 {t("common.viewProfile")}
                 <ChevronRight className="w-4 h-4" />
