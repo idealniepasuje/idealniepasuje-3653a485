@@ -143,7 +143,7 @@ const EmployerOffers = () => {
         <div className="grid gap-4">
           {offers.map((offer) => (
             <Card key={offer.id} className="hover:shadow-lg transition-shadow">
-              <Link to={`/employer/offer/${offer.id}`} className="block">
+              <Link to={`/employer/order/${offer.id}`} className="block">
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between">
                     <div className="flex items-center gap-3">
@@ -201,9 +201,9 @@ const EmployerOffers = () => {
                     <Users className="w-4 h-4" />
                     <span>{matchCounts[offer.id] || 0} {t("common.matchedCandidates")}</span>
                   </div>
-                  <Link to={`/employer/candidates?offerId=${offer.id}`}>
+                  <Link to={`/employer/order/${offer.id}`}>
                     <Button variant="outline" size="sm" className="gap-2">
-                      {t("employer.offers.viewCandidates")}
+                      {t("employer.offers.viewDetails")}
                       <ChevronRight className="w-4 h-4" />
                     </Button>
                   </Link>

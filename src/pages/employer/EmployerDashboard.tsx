@@ -5,13 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { Building2, Users, ChevronRight, Plus, Briefcase, Calendar, Clock, FileText, Settings, Heart, CheckCircle2, Sparkles, MessageSquare, CheckCircle } from "lucide-react";
+import { Building2, Users, ChevronRight, Plus, Briefcase, Calendar, FileText, Settings, Heart, CheckCircle2, Sparkles, MessageSquare, CheckCircle } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { logError } from "@/lib/errorLogger";
 import { DashboardLayout } from "@/components/layouts/DashboardLayout";
 import { EmployerSidebar } from "@/components/layouts/EmployerSidebar";
-import { MatchStatusBadge, MatchStatus } from "@/components/match/MatchStatusBadge";
+
 import { ensureFirstJobOfferFromEmployerProfile } from "@/lib/ensureFirstJobOffer";
 
 const EmployerDashboard = () => {
@@ -20,7 +20,7 @@ const EmployerDashboard = () => {
   const { t } = useTranslation();
   const [employerProfile, setEmployerProfile] = useState<any>(null);
   const [offers, setOffers] = useState<any[]>([]);
-  const [matches, setMatches] = useState<any[]>([]);
+  
   const [offerMatchCounts, setOfferMatchCounts] = useState<Record<string, { count: number; avgMatch: number }>>({});
   const [loading, setLoading] = useState(true);
 
@@ -64,20 +64,9 @@ const EmployerDashboard = () => {
         .select("*")
         .eq("user_id", user.id)
         .order("created_at", { ascending: false })
-        .limit(3);
+        .limit(10);
       if (effectiveOffersError) logError("EmployerDashboard.fetchData.offers.refetch", effectiveOffersError);
       setOffers(effectiveOffers || []);
-
-      // Fetch matches - only those linked to job offers
-      const { data: matchData, error: matchError } = await supabase
-        .from("match_results")
-        .select("*")
-        .eq("employer_user_id", user.id)
-        .not("job_offer_id", "is", null)
-        .order("created_at", { ascending: false })
-        .limit(3);
-      if (matchError) logError("EmployerDashboard.fetchData.matches", matchError);
-      else setMatches(matchData || []);
 
       // Calculate stats for each offer
       if (effectiveOffers && effectiveOffers.length > 0) {
@@ -114,22 +103,6 @@ const EmployerDashboard = () => {
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('pl-PL', { day: '2-digit', month: '2-digit', year: 'numeric' });
-  };
-
-  const formatTimeAgo = (dateString: string) => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
-    if (diffHours < 1) return t("match.timeAgo.justNow");
-    if (diffHours < 24) return t("match.timeAgo.hoursAgo", { count: diffHours });
-    const diffDays = Math.floor(diffHours / 24);
-    return t("match.timeAgo.daysAgo", { count: diffDays });
-  };
-
-  const getAvatarColor = (id: string) => {
-    const colors = ['bg-accent/20', 'bg-cta/20', 'bg-primary/20', 'bg-success/20'];
-    const index = parseInt(id.slice(0, 2), 16) % colors.length;
-    return colors[index];
   };
 
   if (authLoading || loading) {
@@ -314,16 +287,15 @@ const EmployerDashboard = () => {
         </>
       )}
 
-      {/* Two Column Layout: Offers + Matches */}
+      {/* Orders List - Show when profile is complete */}
       {isProfileComplete && (
-        <div className={`grid ${offers.length > 0 ? 'lg:grid-cols-2' : ''} gap-6`}>
-          {/* Recent Offers Column */}
+        <div>
           <Card>
             <CardHeader className="pb-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Briefcase className="w-5 h-5 text-accent" />
-                  <CardTitle className="text-lg text-accent">{t("employer.dashboard.recentOffers")}</CardTitle>
+                  <CardTitle className="text-lg text-accent">{t("employer.dashboard.yourOrders")}</CardTitle>
                 </div>
                 <Link to="/employer/offer/new">
                   <Button size="sm" className="gap-1">
@@ -333,7 +305,7 @@ const EmployerDashboard = () => {
                 </Link>
               </div>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-3">
               {offers.length === 0 ? (
                 <div className="text-center py-8 text-muted-foreground">
                   <Briefcase className="w-10 h-10 mx-auto mb-3 opacity-40" />
@@ -349,37 +321,29 @@ const EmployerDashboard = () => {
                   {offers.map((offer) => {
                     const stats = offerMatchCounts[offer.id] || { count: 0, avgMatch: 0 };
                     return (
-                      <Link key={offer.id} to={`/employer/offer/${offer.id}`} className="block">
+                      <Link key={offer.id} to={`/employer/order/${offer.id}`} className="block">
                         <div className="p-4 border rounded-lg hover:shadow-md transition-shadow cursor-pointer">
-                          <div className="flex items-start justify-between mb-2">
-                            <div className="flex-1">
+                          <div className="flex items-center justify-between">
+                            <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-2 mb-1">
-                                <h3 className="font-semibold">{offer.title}</h3>
-                                <Badge variant={offer.is_active ? "default" : "secondary"} className={offer.is_active ? "bg-success text-success-foreground" : ""}>
+                                <Briefcase className="w-4 h-4 text-accent shrink-0" />
+                                <h3 className="font-semibold truncate">{offer.title}</h3>
+                                <Badge variant={offer.is_active ? "default" : "secondary"} className={`shrink-0 ${offer.is_active ? "bg-success text-success-foreground" : ""}`}>
                                   {offer.is_active ? t("employer.offers.active") : t("employer.offers.inactive")}
                                 </Badge>
                               </div>
-                              <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                                <span className="flex items-center gap-1">
-                                  <Users className="w-3 h-3" />
-                                  {stats.count} {t("common.candidates")}
-                                </span>
+                              <div className="flex items-center gap-4 text-xs text-muted-foreground ml-6">
                                 <span className="flex items-center gap-1">
                                   <Calendar className="w-3 h-3" />
                                   {formatDate(offer.created_at)}
                                 </span>
+                                <span className="flex items-center gap-1">
+                                  <Users className="w-3 h-3" />
+                                  {stats.count} {stats.count === 1 ? t("common.matchedCandidate") : t("common.matchedCandidates")}
+                                </span>
                               </div>
                             </div>
-                          </div>
-                          {offer.role_description && (
-                            <p className="text-sm text-muted-foreground mb-3 line-clamp-2">{offer.role_description}</p>
-                          )}
-                          <div className="space-y-1">
-                            <div className="flex justify-between text-sm">
-                              <span className="text-muted-foreground">{t("employer.dashboard.avgMatch")}</span>
-                              <span className="font-semibold text-accent">{stats.avgMatch}%</span>
-                            </div>
-                            <Progress value={stats.avgMatch} className="h-2" />
+                            <ChevronRight className="w-5 h-5 text-muted-foreground shrink-0" />
                           </div>
                         </div>
                       </Link>
@@ -394,72 +358,6 @@ const EmployerDashboard = () => {
               )}
             </CardContent>
           </Card>
-
-          {/* Recent Matches Column - Only show if there are offers */}
-          {offers.length > 0 && (
-          <Card>
-            <CardHeader className="pb-4">
-              <div className="flex items-center gap-2">
-                <Users className="w-5 h-5 text-accent" />
-                <CardTitle className="text-lg text-accent">{t("employer.dashboard.recentMatches")}</CardTitle>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {matches.length === 0 ? (
-                <div className="text-center py-8 text-muted-foreground">
-                  <Users className="w-10 h-10 mx-auto mb-3 opacity-40" />
-                  <p>{t("employer.dashboard.searchingCandidates")}</p>
-                  <p className="text-sm mt-1">{t("employer.dashboard.searchingCandidatesDescription")}</p>
-                </div>
-              ) : (
-                <>
-                  {matches.map((match) => (
-                    <div key={match.id} className="p-4 border rounded-lg hover:shadow-md transition-shadow">
-                      <div className="flex items-start gap-3">
-                        <div className={`w-10 h-10 rounded-full ${getAvatarColor(match.candidate_user_id)} flex items-center justify-center shrink-0`}>
-                          <Users className="w-5 h-5 text-accent" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center justify-between mb-1">
-                            <div className="flex items-center gap-2">
-                              <h3 className="font-semibold">
-                                {t("employer.candidates.candidateNumber")} #{match.candidate_user_id.slice(0, 8)}
-                              </h3>
-                              {match.status && match.status !== 'pending' && (
-                                <MatchStatusBadge status={match.status as MatchStatus} perspective="employer" />
-                              )}
-                            </div>
-                            <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                              <Clock className="w-3 h-3" />
-                              {formatTimeAgo(match.created_at)}
-                            </div>
-                          </div>
-                          <div className="space-y-1 mb-3">
-                            <div className="flex justify-between text-sm">
-                              <span className="text-muted-foreground">{t("common.match")}</span>
-                              <span className="font-semibold text-accent">{match.overall_percent}%</span>
-                            </div>
-                            <Progress value={match.overall_percent} className="h-2" />
-                          </div>
-                          <Link to={`/employer/candidate/${match.candidate_user_id}`}>
-                            <Button size="sm" className="w-full">
-                              {t("common.viewProfile")}
-                            </Button>
-                          </Link>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                  <Link to="/employer/candidates" className="block text-center">
-                    <Button variant="ghost" size="sm" className="w-full">
-                      {t("employer.dashboard.viewMore")}
-                    </Button>
-                  </Link>
-                </>
-              )}
-            </CardContent>
-          </Card>
-          )}
         </div>
       )}
     </DashboardLayout>

@@ -324,11 +324,9 @@
       "andMoreCandidates": "...i jeszcze {{count}} kandydatów",
       "searchingCandidates": "Szukamy idealnych kandydatów",
       "searchingCandidatesDescription": "Pracujemy teraz nad znalezieniem idealnego kandydata. Gdy go znajdziemy, otrzymasz powiadomienie.",
-      "recentOffers": "Twoje ostatnie zlecenia",
+      "yourOrders": "Twoje zlecenia",
       "newOffer": "Nowe zlecenie",
-      "recentMatches": "Ostatnie dopasowania",
-      "avgMatch": "Średnia dopasowania",
-      "viewMore": "Zobacz więcej"
+      "viewMore": "Zobacz wszystkie"
     },
     "role": {
       "title": "Opis roli",
@@ -376,6 +374,12 @@
       "thankYou": "Dziękujemy za opinię!",
       "thankYouTitle": "Dziękujemy za Twoją opinię!",
       "thankYouDescription": "Twoja odpowiedź jest dla nas bardzo cenna i pomoże nam udoskonalić narzędzie."
+    },
+    "orderDetail": {
+      "detailsTitle": "Szczegóły zapytania",
+      "detailsDescription": "Informacje o zleceniu i jego statusie",
+      "candidatesTitle": "Dopasowani kandydaci",
+      "noCandidatesYet": "Brak dopasowań – szukamy kandydatów"
     },
     "candidates": {
       "title": "Dopasowani kandydaci",
@@ -427,6 +431,7 @@
       "deleteConfirmTitle": "Usunąć ofertę?",
       "deleteConfirmDescription": "Tej operacji nie można cofnąć. Wszystkie dopasowania związane z tą ofertą zostaną usunięte.",
       "viewCandidates": "Zobacz kandydatów",
+      "viewDetails": "Zobacz szczegóły",
       "createNew": "Nowa oferta pracy",
       "edit": "Edytuj ofertę",
       "created": "Oferta utworzona",
