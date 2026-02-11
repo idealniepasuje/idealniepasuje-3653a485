@@ -36,6 +36,7 @@ const EmployerOfferForm = () => {
   const { t, i18n } = useTranslation();
   
   const [currentStep, setCurrentStep] = useState<Step>("overview");
+  const [titleError, setTitleError] = useState<string>("");
   const [formData, setFormData] = useState({
     title: "",
     roleDescription: "",
@@ -45,6 +46,19 @@ const EmployerOfferForm = () => {
     positionLevel: "",
     noExperienceRequired: false
   });
+
+  const validateTitle = (value: string): string => {
+    const trimmed = value.trim();
+    if (!trimmed) return t("employer.offerForm.titleRequired");
+    if (trimmed.length < 3) return t("employer.offerForm.titleMinLength");
+    if (trimmed.length > 100) return t("employer.offerForm.titleMaxLength");
+    if (!/^[a-zA-ZąćęłńóśźżĄĆĘŁŃÓŚŹŻ\s\-/]+$/.test(trimmed)) return t("employer.offerForm.titleLettersOnly");
+    return "";
+  };
+
+  const isTitleValid = formData.title.trim().length >= 3 && 
+    formData.title.trim().length <= 100 && 
+    /^[a-zA-ZąćęłńóśźżĄĆĘŁŃÓŚŹŻ\s\-/]+$/.test(formData.title.trim());
   const [acceptFromOtherIndustries, setAcceptFromOtherIndustries] = useState(false);
   const [acceptedIndustryRequirements, setAcceptedIndustryRequirements] = useState<AcceptedIndustryRequirement[]>([]);
   const [competencyReqs, setCompetencyReqs] = useState({ 
@@ -157,13 +171,19 @@ const EmployerOfferForm = () => {
   const createOfferIfNeeded = async (): Promise<string | null> => {
     if (!user) return null;
     if (currentOfferId && currentOfferId !== "new") return currentOfferId;
+    // Validate title before creating
+    const titleErr = validateTitle(formData.title);
+    if (titleErr) {
+      setTitleError(titleErr);
+      return null;
+    }
     
     // Create new offer
     const { data, error } = await supabase
       .from("job_offers")
       .insert({
         user_id: user.id,
-        title: formData.title || t("employer.offers.createNew")
+        title: formData.title.trim()
       })
       .select("id")
       .single();
@@ -325,18 +345,27 @@ const EmployerOfferForm = () => {
               <ArrowLeft className="w-4 h-4" />{t("common.back")}
             </Button>
             <div className="space-y-2">
-              <Label className="text-sm text-muted-foreground">{t("employer.offerForm.titleLabel")}</Label>
+              <Label className="text-sm font-medium">{t("employer.offerForm.titleLabel")} *</Label>
               <Input
                 value={formData.title}
-                onChange={(e) => setFormData(p => ({ ...p, title: e.target.value }))}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setFormData(p => ({ ...p, title: val }));
+                  if (titleError) setTitleError(validateTitle(val));
+                }}
                 onBlur={async () => {
-                  if (currentOfferId && currentOfferId !== "new" && formData.title) {
-                    await supabase.from("job_offers").update({ title: formData.title }).eq("id", currentOfferId);
+                  const error = validateTitle(formData.title);
+                  setTitleError(error);
+                  if (!error && currentOfferId && currentOfferId !== "new") {
+                    await supabase.from("job_offers").update({ title: formData.title.trim() }).eq("id", currentOfferId);
                   }
                 }}
                 placeholder={t("employer.offerForm.titlePlaceholder")}
-                className="text-2xl font-bold h-auto py-2 border-dashed"
+                className={`text-2xl font-bold h-auto py-2 border-dashed ${titleError ? "border-destructive" : ""}`}
+                maxLength={100}
               />
+              {titleError && <p className="text-sm text-destructive">{titleError}</p>}
+              <p className="text-xs text-muted-foreground">{formData.title.trim().length}/100</p>
             </div>
           </div>
 
@@ -344,7 +373,7 @@ const EmployerOfferForm = () => {
             {steps.map((step) => {
               const IconComponent = step.icon;
               return (
-                <Card key={step.id} className="group hover:shadow-lg transition-shadow cursor-pointer" onClick={() => setCurrentStep(step.id)}>
+                <Card key={step.id} className={`group transition-shadow ${isTitleValid ? "hover:shadow-lg cursor-pointer" : "opacity-50 cursor-not-allowed"}`} onClick={() => { if (isTitleValid) setCurrentStep(step.id); else setTitleError(validateTitle(formData.title)); }}>
                   <CardHeader className="pb-3">
                     <div className="flex items-start justify-between">
                       <div className={`w-12 h-12 rounded-lg ${step.iconBg} flex items-center justify-center group-hover:scale-105 transition-transform`}>
