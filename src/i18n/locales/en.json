@@ -420,7 +420,7 @@
     "offers": {
       "title": "Job Offers",
       "subtitle": "Manage your job listings",
-      "addNew": "Add offer",
+      "addNew": "New order",
       "noOffers": "No job offers",
       "noOffersDescription": "You don't have any job offers yet. Create your first offer to start matching candidates.",
       "createFirst": "Create first offer",
@@ -450,7 +450,11 @@
       "cultureTitle": "Work culture",
       "cultureDescription": "Company values and work style",
       "profileComplete": "Profile completed!",
-      "profileCompleteDescription": "We're now working on finding the ideal candidate. When we find one, you'll receive a notification."
+      "profileCompleteDescription": "We're now working on finding the ideal candidate. When we find one, you'll receive a notification.",
+      "titleRequired": "Role name is required",
+      "titleMinLength": "Role name must be at least 3 characters",
+      "titleMaxLength": "Role name cannot exceed 100 characters",
+      "titleLettersOnly": "Role name can only contain letters"
     },
     "profile": {
       "title": "Company Profile",

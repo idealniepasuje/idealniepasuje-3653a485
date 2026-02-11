@@ -420,7 +420,7 @@
     "offers": {
       "title": "Oferty pracy",
       "subtitle": "Zarządzaj swoimi ofertami pracy",
-      "addNew": "Dodaj ofertę",
+      "addNew": "Nowe zlecenie",
       "noOffers": "Brak ofert pracy",
       "noOffersDescription": "Nie masz jeszcze żadnych ofert pracy. Utwórz pierwszą ofertę, aby rozpocząć dopasowywanie kandydatów.",
       "createFirst": "Utwórz pierwszą ofertę",
@@ -450,7 +450,11 @@
       "cultureTitle": "Kultura pracy",
       "cultureDescription": "Wartości i styl pracy w firmie",
       "profileComplete": "Profil ukończony!",
-      "profileCompleteDescription": "Teraz my zajmujemy się znalezieniem idealnego kandydata. Gdy tylko go znajdziemy, otrzymasz powiadomienie."
+      "profileCompleteDescription": "Teraz my zajmujemy się znalezieniem idealnego kandydata. Gdy tylko go znajdziemy, otrzymasz powiadomienie.",
+      "titleRequired": "Nazwa roli jest wymagana",
+      "titleMinLength": "Nazwa roli musi mieć minimum 3 znaki",
+      "titleMaxLength": "Nazwa roli może mieć maksymalnie 100 znaków",
+      "titleLettersOnly": "Nazwa roli może zawierać tylko litery"
     },
     "profile": {
       "title": "Profil firmy",
