@@ -344,29 +344,33 @@ const EmployerOfferForm = () => {
             <Button variant="ghost" size="sm" onClick={() => navigate("/employer/offers")} className="gap-2 mb-4">
               <ArrowLeft className="w-4 h-4" />{t("common.back")}
             </Button>
-            <div className="space-y-2">
-              <Label className="text-sm font-medium">{t("employer.offerForm.titleLabel")} *</Label>
-              <Input
-                value={formData.title}
-                onChange={(e) => {
-                  const val = e.target.value;
-                  setFormData(p => ({ ...p, title: val }));
-                  if (titleError) setTitleError(validateTitle(val));
-                }}
-                onBlur={async () => {
-                  const error = validateTitle(formData.title);
-                  setTitleError(error);
-                  if (!error && currentOfferId && currentOfferId !== "new") {
-                    await supabase.from("job_offers").update({ title: formData.title.trim() }).eq("id", currentOfferId);
-                  }
-                }}
-                placeholder={t("employer.offerForm.titlePlaceholder")}
-                className={`text-2xl font-bold h-auto py-2 border-dashed ${titleError ? "border-destructive" : ""}`}
-                maxLength={100}
-              />
-              {titleError && <p className="text-sm text-destructive">{titleError}</p>}
-              <p className="text-xs text-muted-foreground">{formData.title.trim().length}/100</p>
-            </div>
+            <Card className="mb-2">
+              <CardContent className="pt-6 space-y-2">
+                <Label className="text-base font-semibold">{t("employer.offerForm.titleLabel")} *</Label>
+                <p className="text-sm text-muted-foreground mb-2">{t("employer.offerForm.titleHint")}</p>
+                <Input
+                  value={formData.title}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setFormData(p => ({ ...p, title: val }));
+                    if (titleError) setTitleError(validateTitle(val));
+                  }}
+                  onBlur={async () => {
+                    const error = validateTitle(formData.title);
+                    setTitleError(error);
+                    if (!error && currentOfferId && currentOfferId !== "new") {
+                      await supabase.from("job_offers").update({ title: formData.title.trim() }).eq("id", currentOfferId);
+                    }
+                  }}
+                  placeholder={t("employer.offerForm.titlePlaceholder")}
+                  className={`text-lg font-semibold h-12 ${titleError ? "border-destructive" : ""}`}
+                  maxLength={100}
+                  autoFocus
+                />
+                {titleError && <p className="text-sm text-destructive">{titleError}</p>}
+                <p className="text-xs text-muted-foreground text-right">{formData.title.trim().length}/100</p>
+              </CardContent>
+            </Card>
           </div>
 
           <div className="grid md:grid-cols-3 gap-4">

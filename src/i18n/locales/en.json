@@ -441,8 +441,9 @@
       "viewAll": "View all offers"
     },
     "offerForm": {
-      "titleLabel": "Order name",
+      "titleLabel": "Enter position name",
       "titlePlaceholder": "e.g. UX Designer, Frontend Developer...",
+      "titleHint": "This name will be displayed on your dashboard in the orders list",
       "roleTitle": "Role description",
       "roleDescription": "Describe the position and responsibilities",
       "requirementsTitle": "Requirements",
