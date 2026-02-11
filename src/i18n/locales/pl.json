@@ -441,8 +441,9 @@
       "viewAll": "Zobacz wszystkie zlecenia"
     },
     "offerForm": {
-      "titleLabel": "Nazwa zlecenia",
+      "titleLabel": "Podaj nazwę stanowiska",
       "titlePlaceholder": "np. UX Designer, Frontend Developer...",
+      "titleHint": "Ta nazwa będzie widoczna na dashboardzie w liście Twoich zleceń",
       "roleTitle": "Opis roli",
       "roleDescription": "Opisz stanowisko i obowiązki",
       "requirementsTitle": "Wymagania",
