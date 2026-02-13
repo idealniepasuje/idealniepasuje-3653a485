@@ -415,7 +415,12 @@
       "acceptedIndustries": "Accepted industries",
       "criteriaIndustry": "Industry",
       "criteriaExperience": "Experience",
-      "criteriaPositionLevel": "Position level"
+      "criteriaPositionLevel": "Position level",
+      "reliabilityScale": "Response reliability scale",
+      "reliabilityDescription": "Indicates how reliably the candidate answered competency tests. Based on the social approval scale.",
+      "reliabilityHigh": "High reliability",
+      "reliabilityMedium": "Medium reliability",
+      "reliabilityLow": "Low reliability"
     },
     "offers": {
       "title": "Job Offers",

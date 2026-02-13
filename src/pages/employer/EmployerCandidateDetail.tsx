@@ -5,13 +5,14 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { LogOut, ArrowLeft, Target, Heart, Briefcase, CheckCircle2, AlertCircle, TrendingUp, TrendingDown, User, ThumbsUp, ThumbsDown, Sparkles } from "lucide-react";
+import { LogOut, ArrowLeft, Target, Heart, Briefcase, CheckCircle2, AlertCircle, TrendingUp, TrendingDown, User, ThumbsUp, ThumbsDown, Sparkles, ShieldCheck } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { logError } from "@/lib/errorLogger";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { toast } from "sonner";
 import { getLevel, getFeedback, getLocalizedLevelLabels } from "@/data/feedbackData";
+import { getAprobataQuestions } from "@/data/competencyQuestions";
 
 interface MatchDetails {
   competenceDetails: {
@@ -104,7 +105,7 @@ const EmployerCandidateDetail = () => {
       // Fetch candidate test results for additional info
       const { data: testData } = await supabase
         .from("candidate_test_results")
-        .select("industry, experience, position_level, work_description, target_industries, has_no_experience, industry_experiences")
+        .select("industry, experience, position_level, work_description, target_industries, has_no_experience, industry_experiences, competency_answers")
         .eq("user_id", candidateId)
         .single();
 
@@ -433,7 +434,63 @@ const EmployerCandidateDetail = () => {
           </CardContent>
         </Card>
 
-        {/* Culture */}
+        {/* Social Approval / Reliability Scale - visible only to employer */}
+        {candidateData?.competency_answers && (
+          <Card className="mt-6 border-accent/20">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <ShieldCheck className="w-5 h-5 text-accent" />
+                {t("employer.candidateDetail.reliabilityScale")}
+              </CardTitle>
+              <p className="text-sm text-muted-foreground">{t("employer.candidateDetail.reliabilityDescription")}</p>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {Object.keys(competencyNames).map(compCode => {
+                  const compAnswers = (candidateData.competency_answers as Record<string, Record<string, number>>)?.[compCode];
+                  if (!compAnswers) return null;
+                  
+                  const aprobataQs = getAprobataQuestions(compCode);
+                  if (aprobataQs.length === 0) return null;
+                  
+                  let sum = 0, count = 0;
+                  aprobataQs.forEach(q => {
+                    if (compAnswers[q.id] !== undefined) {
+                      const value = q.reversed ? (6 - compAnswers[q.id]) : compAnswers[q.id];
+                      sum += value;
+                      count++;
+                    }
+                  });
+                  const aprobataScore = count > 0 ? sum / count : 0;
+                  if (count === 0) return null;
+                  
+                  const level = aprobataScore >= 4.5 ? 'low' : aprobataScore >= 2.5 ? 'medium' : 'high';
+                  // High aprobata score = likely low reliability (answers too "perfect")
+                  
+                  return (
+                    <div key={compCode} className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
+                      <span className="font-medium text-sm">
+                        {competencyNames[compCode]?.[lang] || compCode}
+                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className={`text-xs font-semibold px-2 py-0.5 rounded ${
+                          aprobataScore >= 4.5 ? 'bg-destructive/20 text-destructive' :
+                          aprobataScore >= 3.5 ? 'bg-cta/20 text-cta' :
+                          'bg-success/20 text-success'
+                        }`}>
+                          {aprobataScore >= 4.5 ? t("employer.candidateDetail.reliabilityLow") :
+                           aprobataScore >= 3.5 ? t("employer.candidateDetail.reliabilityMedium") :
+                           t("employer.candidateDetail.reliabilityHigh")}
+                        </span>
+                        <span className="text-sm text-muted-foreground">{aprobataScore.toFixed(1)}/5.0</span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
+        )}
         <Card className="mt-6">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">

@@ -10,7 +10,7 @@ import { ArrowLeft, ArrowRight, CheckCircle2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { getLocalizedCompetencyTests, getLocalizedQuestionsByCompetency } from "@/data/competencyQuestions";
+import { getLocalizedCompetencyTests, getLocalizedQuestionsByCompetency, getNonAprobataQuestions, getAprobataQuestions } from "@/data/competencyQuestions";
 import { getLocalizedData, agreementScale } from "@/data/additionalQuestions";
 import { getLevel, getLocalizedLevelLabels } from "@/data/feedbackData";
 import { CompetencyScoreWithFeedback } from "@/components/CompetencyScoreWithFeedback";
@@ -61,16 +61,36 @@ const CompetencyTest = () => {
   };
 
   const calculateAndShowResults = (answerData: Record<string, number>) => {
+    if (!competencyCode) return;
+    // Calculate overall score EXCLUDING aprobata questions
+    const nonAprobataQs = getNonAprobataQuestions(competencyCode);
     let sum = 0, count = 0;
-    questions.forEach(q => {
+    nonAprobataQs.forEach(q => {
       if (answerData[q.id] !== undefined) {
         const value = q.reversed ? (6 - answerData[q.id]) : answerData[q.id];
         sum += value;
         count++;
       }
     });
-    setAverageScore(count > 0 ? sum / count : 0);
+    const mainScore = count > 0 ? sum / count : 0;
+    setAverageScore(mainScore);
+
+    // Save the computed score to DB
+    saveCompetencyScore(mainScore);
+
     setShowResults(true);
+  };
+
+  const saveCompetencyScore = async (score: number) => {
+    if (!user || !competencyCode) return;
+    const scoreColumn = `${competencyCode}_score`;
+    try {
+      await supabase.from("candidate_test_results").update({
+        [scoreColumn]: score,
+      }).eq("user_id", user.id);
+    } catch (error) {
+      logError("CompetencyTest.saveCompetencyScore", error);
+    }
   };
 
   const handleAnswer = (value: number) => {
