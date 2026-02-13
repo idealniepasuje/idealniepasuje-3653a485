@@ -415,7 +415,12 @@
       "acceptedIndustries": "Akceptowane branże",
       "criteriaIndustry": "Branża",
       "criteriaExperience": "Doświadczenie",
-      "criteriaPositionLevel": "Poziom stanowiska"
+      "criteriaPositionLevel": "Poziom stanowiska",
+      "reliabilityScale": "Skala rzetelności odpowiedzi",
+      "reliabilityDescription": "Wskazuje, w jakim stopniu kandydat odpowiadał rzetelnie w testach kompetencji. Wynik oparty na skali aprobaty społecznej.",
+      "reliabilityHigh": "Wysoka rzetelność",
+      "reliabilityMedium": "Średnia rzetelność",
+      "reliabilityLow": "Niska rzetelność"
     },
     "offers": {
       "title": "Oferty pracy",

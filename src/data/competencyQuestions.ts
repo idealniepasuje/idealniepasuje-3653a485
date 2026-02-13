@@ -202,3 +202,33 @@ export const getQuestionsByCompetency = (competencyCode: string) => {
     }));
 };
 
+// Helper: get non-aprobata questions for a competency (for overall score)
+export const getNonAprobataQuestions = (competencyCode: string) => {
+  return competencyQuestions.filter(
+    q => q.competencyCode === competencyCode && q.subdimensionCode !== 'aprobata'
+  );
+};
+
+// Helper: get aprobata questions for a competency (for reliability score)
+export const getAprobataQuestions = (competencyCode: string) => {
+  return competencyQuestions.filter(
+    q => q.competencyCode === competencyCode && q.subdimensionCode === 'aprobata'
+  );
+};
+
+// Helper: get localized non-aprobata questions
+export const getLocalizedNonAprobataQuestions = (competencyCode: string, lang: string) => {
+  return getNonAprobataQuestions(competencyCode).map(q => ({
+    ...q,
+    text: lang === 'en' ? q.text.en : q.text.pl
+  }));
+};
+
+// Helper: get localized aprobata questions
+export const getLocalizedAprobataQuestions = (competencyCode: string, lang: string) => {
+  return getAprobataQuestions(competencyCode).map(q => ({
+    ...q,
+    text: lang === 'en' ? q.text.en : q.text.pl
+  }));
+};
+
