@@ -88,14 +88,16 @@ const EmployerCulture = () => {
     if (currentQuestionIndex < questions.length - 1) { setCurrentQuestionIndex(i => i + 1); }
     else {
       setSaving(true);
+      // Use functional state to get the latest answers (avoids stale closure)
+      const latestAnswers = { ...answers };
       const scores: Record<string, number> = {};
       Object.keys(localizedDimensions).forEach(dim => {
         const dimQuestions = questions.filter(q => q.dimensionCode === dim);
         let sum = 0, count = 0;
-        dimQuestions.forEach(q => { if (answers[q.id]) { sum += answers[q.id]; count++; } });
+        dimQuestions.forEach(q => { if (latestAnswers[q.id]) { sum += latestAnswers[q.id]; count++; } });
         scores[dim] = count > 0 ? sum / count : 0;
       });
-      const { error } = await supabase.from("employer_profiles").update({ culture_answers: answers, culture_completed: true, profile_completed: true, culture_relacja_wspolpraca: scores.relacja_wspolpraca, culture_elastycznosc_innowacyjnosc: scores.elastycznosc_innowacyjnosc, culture_wyniki_cele: scores.wyniki_cele, culture_stabilnosc_struktura: scores.stabilnosc_struktura, culture_autonomia_styl_pracy: scores.autonomia_styl_pracy, culture_wlb_dobrostan: scores.wlb_dobrostan }).eq("user_id", user!.id);
+      const { error } = await supabase.from("employer_profiles").update({ culture_answers: latestAnswers, culture_completed: true, profile_completed: true, culture_relacja_wspolpraca: scores.relacja_wspolpraca, culture_elastycznosc_innowacyjnosc: scores.elastycznosc_innowacyjnosc, culture_wyniki_cele: scores.wyniki_cele, culture_stabilnosc_struktura: scores.stabilnosc_struktura, culture_autonomia_styl_pracy: scores.autonomia_styl_pracy, culture_wlb_dobrostan: scores.wlb_dobrostan }).eq("user_id", user!.id);
       
       if (error) {
         console.error("Error saving culture:", error);
@@ -113,7 +115,7 @@ const EmployerCulture = () => {
       // Send results email to employer
       await sendEmployerResultsEmail();
       
-      setSaving(false); calculateResults(answers); toast.success(t("employer.culture.completedMessage"));
+      setSaving(false); calculateResults(latestAnswers); toast.success(t("employer.culture.completedMessage"));
     }
   }, [currentQuestionIndex, questions, answers, user, t, localizedDimensions]);
 
