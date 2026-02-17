@@ -18,6 +18,7 @@ const EmployerOrderDetail = () => {
   const { t } = useTranslation();
   const [offer, setOffer] = useState<any>(null);
   const [matchCount, setMatchCount] = useState(0);
+  const [cultureCompleted, setCultureCompleted] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -28,14 +29,16 @@ const EmployerOrderDetail = () => {
   const fetchOrder = async () => {
     if (!user || !orderId) return;
     try {
-      const [offerResult, matchResult] = await Promise.all([
+      const [offerResult, matchResult, profileResult] = await Promise.all([
         supabase.from("job_offers").select("*").eq("id", orderId).eq("user_id", user.id).single(),
-        supabase.from("match_results").select("*", { count: "exact", head: true }).eq("job_offer_id", orderId)
+        supabase.from("match_results").select("*", { count: "exact", head: true }).eq("job_offer_id", orderId),
+        supabase.from("employer_profiles").select("culture_completed").eq("user_id", user.id).single()
       ]);
 
       if (offerResult.error) throw offerResult.error;
       setOffer(offerResult.data);
       setMatchCount(matchResult.count || 0);
+      setCultureCompleted(profileResult.data?.culture_completed || false);
     } catch (error) {
       logError("EmployerOrderDetail.fetchOrder", error);
       navigate("/employer/dashboard");
@@ -80,7 +83,7 @@ const EmployerOrderDetail = () => {
     {
       title: t("employer.offerForm.cultureTitle"),
       description: t("employer.offerForm.cultureDescription"),
-      completed: false, // culture is on employer_profiles
+      completed: cultureCompleted,
       icon: Heart,
     },
   ];
