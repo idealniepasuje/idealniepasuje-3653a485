@@ -417,7 +417,8 @@
       "criteriaExperience": "Experience",
       "criteriaPositionLevel": "Position level",
       "reliabilityScale": "Response reliability scale",
-      "reliabilityDescription": "Indicates how reliably the candidate answered competency tests. Based on the social approval scale.",
+      "reliabilityDescription": "Indicates how well the candidate's responses form a consistent and credible competency profile. The higher the level, the greater the confidence that the result reflects their natural way of working.",
+      "reliabilityNotApplicable": "No reliability indicator – does not apply to this competency.",
       "reliabilityHigh": "High reliability",
       "reliabilityMedium": "Medium reliability",
       "reliabilityLow": "Low reliability"

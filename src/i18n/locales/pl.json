@@ -417,7 +417,8 @@
       "criteriaExperience": "Doświadczenie",
       "criteriaPositionLevel": "Poziom stanowiska",
       "reliabilityScale": "Skala rzetelności odpowiedzi",
-      "reliabilityDescription": "Wskazuje, w jakim stopniu kandydat odpowiadał rzetelnie w testach kompetencji. Wynik oparty na skali aprobaty społecznej.",
+      "reliabilityDescription": "Wskazuje, na ile odpowiedzi kandydata tworzą spójny i wiarygodny profil kompetencyjny. Im wyższy poziom, tym większa pewność, że wynik odzwierciedla jego naturalny sposób działania.",
+      "reliabilityNotApplicable": "Brak wskaźnika rzetelności – nie dotyczy tej kompetencji.",
       "reliabilityHigh": "Wysoka rzetelność",
       "reliabilityMedium": "Średnia rzetelność",
       "reliabilityLow": "Niska rzetelność"

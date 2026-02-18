@@ -444,26 +444,38 @@ const EmployerCandidateDetail = () => {
                       <p className="text-xs text-muted-foreground leading-relaxed">{feedback}</p>
                     </div>
                     {/* Aprobata / reliability inline */}
-                    {aprobataScore !== null && (
-                      <div className="flex items-center justify-between p-2 rounded-lg bg-accent/5 border border-accent/10">
-                        <span className="text-xs text-muted-foreground flex items-center gap-1.5">
-                          <ShieldCheck className="w-3.5 h-3.5 text-accent" />
-                          {t("employer.candidateDetail.reliabilityScale")}
+                    {comp.competency === 'out_of_the_box' ? (
+                      <div className="flex items-center gap-1.5 p-2 rounded-lg bg-muted/30 border border-border/50">
+                        <ShieldCheck className="w-3.5 h-3.5 text-muted-foreground" />
+                        <span className="text-xs text-muted-foreground italic">
+                          {t("employer.candidateDetail.reliabilityNotApplicable")}
                         </span>
-                        <div className="flex items-center gap-2">
-                          <span className={`text-xs font-semibold px-2 py-0.5 rounded ${
-                            aprobataScore >= 4.5 ? 'bg-destructive/20 text-destructive' :
-                            aprobataScore >= 3.5 ? 'bg-cta/20 text-cta' :
-                            'bg-success/20 text-success'
-                          }`}>
-                            {aprobataScore >= 4.5 ? t("employer.candidateDetail.reliabilityLow") :
-                             aprobataScore >= 3.5 ? t("employer.candidateDetail.reliabilityMedium") :
-                             t("employer.candidateDetail.reliabilityHigh")}
-                          </span>
-                          <span className="text-xs text-muted-foreground">{aprobataScore.toFixed(1)}/5.0</span>
-                        </div>
                       </div>
-                    )}
+                    ) : aprobataScore !== null ? (
+                      <div className="p-2 rounded-lg bg-accent/5 border border-accent/10 space-y-1">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs text-muted-foreground flex items-center gap-1.5">
+                            <ShieldCheck className="w-3.5 h-3.5 text-accent" />
+                            {t("employer.candidateDetail.reliabilityScale")}
+                          </span>
+                          <div className="flex items-center gap-2">
+                            <span className={`text-xs font-semibold px-2 py-0.5 rounded ${
+                              aprobataScore >= 4.5 ? 'bg-destructive/20 text-destructive' :
+                              aprobataScore >= 3.5 ? 'bg-cta/20 text-cta' :
+                              'bg-success/20 text-success'
+                            }`}>
+                              {aprobataScore >= 4.5 ? t("employer.candidateDetail.reliabilityLow") :
+                               aprobataScore >= 3.5 ? t("employer.candidateDetail.reliabilityMedium") :
+                               t("employer.candidateDetail.reliabilityHigh")}
+                            </span>
+                            <span className="text-xs text-muted-foreground">{aprobataScore.toFixed(1)}/5.0</span>
+                          </div>
+                        </div>
+                        <p className="text-xs text-muted-foreground/70 leading-relaxed">
+                          {t("employer.candidateDetail.reliabilityDescription")}
+                        </p>
+                      </div>
+                    ) : null}
                   </div>
                 );
               })}
