@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
 import { SMTPClient } from "https://deno.land/x/denomailer@1.6.0/mod.ts";
 
 const corsHeaders = {
@@ -19,15 +20,58 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
+    // Validate Authorization header
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return new Response(
+        JSON.stringify({ error: "Missing authorization header" }),
+        { status: 401, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+    const supabaseClient = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader } },
+    });
+
+    const token = authHeader.replace("Bearer ", "");
+    const { data: claimsData, error: claimsError } = await supabaseClient.auth.getClaims(token);
+    if (claimsError || !claimsData?.claims) {
+      return new Response(
+        JSON.stringify({ error: "Unauthorized - invalid or expired token" }),
+        { status: 401, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    const authenticatedUserId = claimsData.claims.sub;
+
     const gmailAppPassword = Deno.env.get("GMAIL_APP_PASSWORD");
     if (!gmailAppPassword) {
       throw new Error("GMAIL_APP_PASSWORD is not configured");
     }
 
-    const { candidate_email, feedback_url }: EmailRequest = await req.json();
+    const { candidate_user_id, candidate_email, feedback_url }: EmailRequest = await req.json();
+
+    // Verify authenticated user matches the request
+    if (authenticatedUserId !== candidate_user_id) {
+      return new Response(
+        JSON.stringify({ error: "Forbidden - can only send emails for own account" }),
+        { status: 403, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
 
     if (!candidate_email) {
       throw new Error("Missing required field: candidate_email");
+    }
+
+    // Verify email matches authenticated user's email
+    const authenticatedEmail = claimsData.claims.email;
+    if (authenticatedEmail !== candidate_email) {
+      return new Response(
+        JSON.stringify({ error: "Forbidden - email must match authenticated user" }),
+        { status: 403, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
     }
 
     const feedbackLink = feedback_url || "https://idealniepasuje.lovable.app/candidate/feedback";
@@ -119,7 +163,7 @@ const handler = async (req: Request): Promise<Response> => {
   } catch (error: any) {
     console.error("Error in send-candidate-results function:", error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: "Internal server error" }),
       {
         status: 500,
         headers: { "Content-Type": "application/json", ...corsHeaders },
