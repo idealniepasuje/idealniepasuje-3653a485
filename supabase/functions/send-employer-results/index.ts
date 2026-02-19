@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
 import { SMTPClient } from "https://deno.land/x/denomailer@1.6.0/mod.ts";
 
 const corsHeaders = {
@@ -19,10 +20,53 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const { employer_email, feedback_url }: EmailRequest = await req.json();
+    // Validate Authorization header
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return new Response(
+        JSON.stringify({ error: "Missing authorization header" }),
+        { status: 401, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+    const supabaseClient = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader } },
+    });
+
+    const token = authHeader.replace("Bearer ", "");
+    const { data: claimsData, error: claimsError } = await supabaseClient.auth.getClaims(token);
+    if (claimsError || !claimsData?.claims) {
+      return new Response(
+        JSON.stringify({ error: "Unauthorized - invalid or expired token" }),
+        { status: 401, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    const authenticatedUserId = claimsData.claims.sub;
+
+    const { employer_user_id, employer_email, feedback_url }: EmailRequest = await req.json();
+
+    // Verify authenticated user matches the request
+    if (authenticatedUserId !== employer_user_id) {
+      return new Response(
+        JSON.stringify({ error: "Forbidden - can only send emails for own account" }),
+        { status: 403, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
 
     if (!employer_email) {
       throw new Error("Missing required field: employer_email");
+    }
+
+    // Verify email matches authenticated user's email
+    const authenticatedEmail = claimsData.claims.email;
+    if (authenticatedEmail !== employer_email) {
+      return new Response(
+        JSON.stringify({ error: "Forbidden - email must match authenticated user" }),
+        { status: 403, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
     }
 
     const gmailAppPassword = Deno.env.get("GMAIL_APP_PASSWORD");
@@ -111,7 +155,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     await client.close();
 
-    console.log(`Feedback request email sent to ${employer_email}`);
+    console.log("Feedback request email sent successfully");
 
     return new Response(
       JSON.stringify({ success: true, message: "Feedback request email sent successfully" }),
@@ -123,7 +167,7 @@ const handler = async (req: Request): Promise<Response> => {
   } catch (error: any) {
     console.error("Error in send-employer-results function:", error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: "Internal server error" }),
       {
         status: 500,
         headers: { "Content-Type": "application/json", ...corsHeaders },

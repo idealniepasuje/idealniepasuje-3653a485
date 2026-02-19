@@ -335,6 +335,16 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
+    // Validate service role authorization (server-to-server only)
+    const authHeader = req.headers.get("Authorization");
+    const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+    if (!authHeader || authHeader !== `Bearer ${serviceRoleKey}`) {
+      return new Response(
+        JSON.stringify({ error: "Unauthorized - service role required" }),
+        { status: 401, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
     const { employer_user_id, employer_email, dashboard_url }: MatchSummaryRequest = await req.json();
 
     if (!employer_user_id || !employer_email) {
@@ -440,7 +450,7 @@ const handler = async (req: Request): Promise<Response> => {
   } catch (error: any) {
     console.error("Error in send-employer-match-summary function:", error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: "Internal server error" }),
       {
         status: 500,
         headers: { "Content-Type": "application/json", ...corsHeaders },
