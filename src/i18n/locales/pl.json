@@ -73,7 +73,18 @@
     "candidates": "kandydatów",
     "matchedCandidates": "dopasowanych kandydatów",
     "matchedCandidate": "dopasowany kandydat",
-    "noMatchedCandidates": "Brak dopasowanych kandydatów"
+    "noMatchedCandidates": "Brak dopasowanych kandydatów",
+    "workMode": "Tryb pracy",
+    "selectWorkMode": "Wybierz tryb pracy",
+    "remote": "Zdalna",
+    "hybrid": "Hybrydowa",
+    "onsite": "Stacjonarna",
+    "city": "Lokalizacja (miasto)",
+    "selectCity": "Wpisz i wybierz miasto",
+    "later": "Później",
+    "send": "Wyślij",
+    "thankYou": "Dziękujemy!",
+    "noData": "Brak danych"
   },
   "hero": {
     "title": "Znajdź idealne dopasowanie",
@@ -243,7 +254,13 @@
       "submit": "Wyślij opinię",
       "thankYou": "Dziękujemy za opinię!",
       "thankYouTitle": "Dziękujemy za Twoją opinię!",
-      "thankYouDescription": "Twoja odpowiedź jest dla nas bardzo cenna i pomoże nam udoskonalić narzędzie."
+      "thankYouDescription": "Twoja odpowiedź jest dla nas bardzo cenna i pomoże nam udoskonalić narzędzie.",
+      "likesSolutionQuestion": "Czy podoba Ci się nasze rozwiązanie?",
+      "wouldChangeQuestion": "Czy coś byś zmienił w naszym rozwiązaniu?",
+      "likesReasonPlaceholder": "Napisz dlaczego...",
+      "changeReasonPlaceholder": "Co byś zmienił i dlaczego?",
+      "yes": "Tak",
+      "no": "Nie"
     },
     "test": {
       "testCompleted": "Test ukończony!",
@@ -279,6 +296,11 @@
       "selectAtLeastOneIndustry": "Wybierz co najmniej jedną branżę",
       "linkedinLabel": "Link do LinkedIn (opcjonalnie)",
       "linkedinPlaceholder": "https://www.linkedin.com/in/...",
+      "linkedinHint": "Link będzie widoczny dla pracodawcy dopiero po oznaczeniu Cię jako zainteresowanego.",
+      "linkedinInvalidUrl": "Podaj poprawny URL LinkedIn (linkedin.com/in/...)",
+      "workModeLabel": "Jakiego trybu pracy szukasz? *",
+      "workModeRequired": "Wybierz tryb pracy",
+      "cityRequired": "Podaj lokalizację (miasto)",
       "finishAndSave": "Zakończ i zapisz",
       "fillRequiredFields": "Wypełnij wszystkie wymagane pola",
       "thankYou": "Dziękujemy!",
@@ -373,7 +395,13 @@
       "submit": "Wyślij opinię",
       "thankYou": "Dziękujemy za opinię!",
       "thankYouTitle": "Dziękujemy za Twoją opinię!",
-      "thankYouDescription": "Twoja odpowiedź jest dla nas bardzo cenna i pomoże nam udoskonalić narzędzie."
+      "thankYouDescription": "Twoja odpowiedź jest dla nas bardzo cenna i pomoże nam udoskonalić narzędzie.",
+      "likesSolutionQuestion": "Czy podoba Ci się nasze rozwiązanie?",
+      "wouldChangeQuestion": "Czy coś byś zmienił w naszym rozwiązaniu?",
+      "likesReasonPlaceholder": "Napisz dlaczego...",
+      "changeReasonPlaceholder": "Co byś zmienił i dlaczego?",
+      "yes": "Tak",
+      "no": "Nie"
     },
     "orderDetail": {
       "detailsTitle": "Szczegóły zapytania",
@@ -421,7 +449,12 @@
       "reliabilityNotApplicable": "Brak wskaźnika rzetelności – nie dotyczy tej kompetencji.",
       "reliabilityHigh": "Wysoka rzetelność",
       "reliabilityMedium": "Średnia rzetelność",
-      "reliabilityLow": "Niska rzetelność"
+      "reliabilityLow": "Niska rzetelność",
+      "linkedinSection": "LinkedIn",
+      "contactHidden": "Dane kontaktowe oraz LinkedIn będą dostępne po oznaczeniu kandydata jako zainteresowanego.",
+      "requestLinkedin": "Poproś kandydata o uzupełnienie LinkedIn",
+      "requestLinkedinSent": "Prośba o LinkedIn została wysłana do kandydata",
+      "noLinkedin": "Kandydat nie podał jeszcze profilu LinkedIn"
     },
     "offers": {
       "title": "Oferty pracy",
