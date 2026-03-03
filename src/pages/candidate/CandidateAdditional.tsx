@@ -14,6 +14,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { industries, experienceLevels, positionLevels, getLocalizedData } from "@/data/additionalQuestions";
 import { logError } from "@/lib/errorLogger";
+import { WorkModeSelector } from "@/components/WorkModeSelector";
 import type { Json } from "@/integrations/supabase/types";
 
 interface IndustryExperience {
@@ -21,6 +22,11 @@ interface IndustryExperience {
   years: string;
   positionLevel: string;
 }
+
+const validateLinkedinUrl = (url: string): boolean => {
+  if (!url) return true;
+  return /^https?:\/\/(www\.)?linkedin\.com\/in\/.+/.test(url);
+};
 
 const CandidateAdditional = () => {
   const { user, loading: authLoading } = useAuth();
@@ -36,6 +42,8 @@ const CandidateAdditional = () => {
   ]);
   const [targetIndustries, setTargetIndustries] = useState<string[]>([]);
   const [linkedinUrl, setLinkedinUrl] = useState("");
+  const [workMode, setWorkMode] = useState("");
+  const [city, setCity] = useState("");
   
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -51,7 +59,7 @@ const CandidateAdditional = () => {
     try {
       const { data, error } = await supabase
         .from("candidate_test_results")
-        .select("industry_experiences, has_no_experience, target_industries, linkedin_url, additional_completed")
+        .select("industry_experiences, has_no_experience, target_industries, linkedin_url, additional_completed, work_mode, city")
         .eq("user_id", user.id)
         .single();
       if (error && error.code !== "PGRST116") logError("CandidateAdditional.fetchExistingData", error);
@@ -63,6 +71,8 @@ const CandidateAdditional = () => {
         }
         setTargetIndustries(data.target_industries || []);
         setLinkedinUrl((data as any).linkedin_url || "");
+        setWorkMode((data as any).work_mode || "");
+        setCity((data as any).city || "");
       }
     } catch (error) {
       logError("CandidateAdditional.fetchExistingData", error);
@@ -77,16 +87,12 @@ const CandidateAdditional = () => {
       const experienceIndustries = industryExperiences
         .filter(exp => exp.industry)
         .map(exp => exp.industry);
-      
-      // Add experience industries that aren't already in target
       const newTargets = [...targetIndustries];
       experienceIndustries.forEach(ind => {
         if (!newTargets.includes(ind) && newTargets.length < 3) {
           newTargets.push(ind);
         }
       });
-      
-      // Only update if different
       if (JSON.stringify(newTargets) !== JSON.stringify(targetIndustries)) {
         setTargetIndustries(newTargets);
       }
@@ -112,13 +118,8 @@ const CandidateAdditional = () => {
     try {
       const feedbackUrl = `${window.location.origin}/candidate/feedback`;
       await supabase.functions.invoke('send-candidate-results', {
-        body: { 
-          candidate_user_id: user.id,
-          candidate_email: user.email,
-          feedback_url: feedbackUrl
-        }
+        body: { candidate_user_id: user.id, candidate_email: user.email, feedback_url: feedbackUrl }
       });
-      console.log('Results email sent successfully');
     } catch (error) {
       console.error('Error sending results email:', error);
     }
@@ -135,8 +136,6 @@ const CandidateAdditional = () => {
       const removed = industryExperiences[index];
       const newExperiences = industryExperiences.filter((_, i) => i !== index);
       setIndustryExperiences(newExperiences);
-      
-      // Also remove from target industries if it was auto-added
       if (removed.industry && targetIndustries.includes(removed.industry)) {
         const remainingIndustries = newExperiences.map(e => e.industry).filter(Boolean);
         if (!remainingIndustries.includes(removed.industry)) {
@@ -151,10 +150,7 @@ const CandidateAdditional = () => {
     const oldIndustry = updated[index].industry;
     updated[index] = { ...updated[index], [field]: value };
     setIndustryExperiences(updated);
-    
-    // If industry changed, update target industries
     if (field === 'industry' && oldIndustry !== value) {
-      // Remove old industry from targets if no other experience has it
       if (oldIndustry && !updated.some((e, i) => i !== index && e.industry === oldIndustry)) {
         setTargetIndustries(prev => prev.filter(t => t !== oldIndustry));
       }
@@ -179,15 +175,24 @@ const CandidateAdditional = () => {
     setTargetIndustries(targetIndustries.filter(i => i !== industry));
   };
 
-  // Check if an industry came from experience (for badge styling)
   const isFromExperience = (industry: string) => {
     return industryExperiences.some(exp => exp.industry === industry);
   };
 
   const handleSubmit = async () => {
     if (!user) return;
+
+    // Work mode validation
+    if (!workMode) {
+      toast.error(t("candidate.additional.workModeRequired"));
+      return;
+    }
+    if ((workMode === "hybrid" || workMode === "onsite") && !city) {
+      toast.error(t("candidate.additional.cityRequired"));
+      return;
+    }
     
-    // Validation
+    // Experience validation
     if (!hasNoExperience) {
       const hasValidExperience = industryExperiences.some(
         exp => exp.industry && exp.years && exp.positionLevel
@@ -198,9 +203,14 @@ const CandidateAdditional = () => {
       }
     }
     
-    // Target industries are always required
     if (targetIndustries.length === 0) {
       toast.error(t("candidate.additional.selectAtLeastOneIndustry"));
+      return;
+    }
+
+    // LinkedIn validation
+    if (linkedinUrl && !validateLinkedinUrl(linkedinUrl)) {
+      toast.error(t("candidate.additional.linkedinInvalidUrl"));
       return;
     }
 
@@ -214,8 +224,9 @@ const CandidateAdditional = () => {
         industry_experiences: JSON.parse(JSON.stringify(validExperiences)) as Json,
         has_no_experience: hasNoExperience,
         target_industries: targetIndustries,
-        linkedin_url: linkedinUrl,
-        // Keep backward compatibility
+        linkedin_url: linkedinUrl || null,
+        work_mode: workMode,
+        city: (workMode === "hybrid" || workMode === "onsite") ? city : null,
         industry: validExperiences[0]?.industry || null,
         experience: validExperiences[0]?.years || null,
         position_level: validExperiences[0]?.positionLevel || null,
@@ -302,6 +313,15 @@ const CandidateAdditional = () => {
 
         <Card>
           <CardContent className="pt-6 space-y-6">
+            {/* Work mode - required */}
+            <WorkModeSelector
+              workMode={workMode}
+              city={city}
+              onWorkModeChange={setWorkMode}
+              onCityChange={setCity}
+              required
+            />
+
             {/* No experience checkbox */}
             <div className="flex items-center space-x-2">
               <Checkbox 
@@ -391,7 +411,7 @@ const CandidateAdditional = () => {
               </div>
             )}
 
-            {/* Target industries - always visible */}
+            {/* Target industries */}
             <div className="space-y-2">
               <Label>
                 {t("candidate.additional.searchIndustriesLabel")} ({targetIndustries.length}/3)
@@ -403,7 +423,6 @@ const CandidateAdditional = () => {
                 }
               </p>
               
-              {/* Selected industries as badges */}
               {targetIndustries.length > 0 && (
                 <div className="flex flex-wrap gap-2 mb-2">
                   {targetIndustries.map((ind) => (
@@ -420,12 +439,8 @@ const CandidateAdditional = () => {
                 </div>
               )}
               
-              {/* Add more industries */}
               {targetIndustries.length < 3 && (
-                <Select 
-                  value="" 
-                  onValueChange={addTargetIndustry}
-                >
+                <Select value="" onValueChange={addTargetIndustry}>
                   <SelectTrigger>
                     <SelectValue placeholder={t("candidate.additional.addIndustryPlaceholder")} />
                   </SelectTrigger>
@@ -452,6 +467,12 @@ const CandidateAdditional = () => {
                 value={linkedinUrl}
                 onChange={(e) => setLinkedinUrl(e.target.value)}
               />
+              <p className="text-xs text-muted-foreground">
+                {t("candidate.additional.linkedinHint")}
+              </p>
+              {linkedinUrl && !validateLinkedinUrl(linkedinUrl) && (
+                <p className="text-xs text-destructive">{t("candidate.additional.linkedinInvalidUrl")}</p>
+              )}
             </div>
 
             <Button 

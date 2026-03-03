@@ -73,7 +73,18 @@
     "candidates": "candidates",
     "matchedCandidates": "matched candidates",
     "matchedCandidate": "matched candidate",
-    "noMatchedCandidates": "No matched candidates"
+    "noMatchedCandidates": "No matched candidates",
+    "workMode": "Work mode",
+    "selectWorkMode": "Select work mode",
+    "remote": "Remote",
+    "hybrid": "Hybrid",
+    "onsite": "On-site",
+    "city": "Location (city)",
+    "selectCity": "Type and select city",
+    "later": "Later",
+    "send": "Send",
+    "thankYou": "Thank you!",
+    "noData": "No data"
   },
   "hero": {
     "title": "Find the perfect match",
@@ -243,7 +254,13 @@
       "submit": "Submit feedback",
       "thankYou": "Thank you for your feedback!",
       "thankYouTitle": "Thank you for your feedback!",
-      "thankYouDescription": "Your response is very valuable to us and will help us improve the tool."
+      "thankYouDescription": "Your response is very valuable to us and will help us improve the tool.",
+      "likesSolutionQuestion": "Do you like our solution?",
+      "wouldChangeQuestion": "Would you change anything about our solution?",
+      "likesReasonPlaceholder": "Tell us why...",
+      "changeReasonPlaceholder": "What would you change and why?",
+      "yes": "Yes",
+      "no": "No"
     },
     "test": {
       "testCompleted": "Test completed!",
@@ -279,6 +296,11 @@
       "selectAtLeastOneIndustry": "Please select at least one industry",
       "linkedinLabel": "LinkedIn profile (optional)",
       "linkedinPlaceholder": "https://www.linkedin.com/in/...",
+      "linkedinHint": "Your LinkedIn link will only be visible to the employer after they mark you as interested.",
+      "linkedinInvalidUrl": "Please enter a valid LinkedIn URL (linkedin.com/in/...)",
+      "workModeLabel": "What work mode are you looking for? *",
+      "workModeRequired": "Please select a work mode",
+      "cityRequired": "Please provide a location (city)",
       "finishAndSave": "Finish and save",
       "fillRequiredFields": "Please fill all required fields",
       "thankYou": "Thank you!",
@@ -373,7 +395,13 @@
       "submit": "Submit feedback",
       "thankYou": "Thank you for your feedback!",
       "thankYouTitle": "Thank you for your feedback!",
-      "thankYouDescription": "Your response is very valuable to us and will help us improve the tool."
+      "thankYouDescription": "Your response is very valuable to us and will help us improve the tool.",
+      "likesSolutionQuestion": "Do you like our solution?",
+      "wouldChangeQuestion": "Would you change anything about our solution?",
+      "likesReasonPlaceholder": "Tell us why...",
+      "changeReasonPlaceholder": "What would you change and why?",
+      "yes": "Yes",
+      "no": "No"
     },
     "orderDetail": {
       "detailsTitle": "Order details",
@@ -421,7 +449,12 @@
       "reliabilityNotApplicable": "No reliability indicator – does not apply to this competency.",
       "reliabilityHigh": "High reliability",
       "reliabilityMedium": "Medium reliability",
-      "reliabilityLow": "Low reliability"
+      "reliabilityLow": "Low reliability",
+      "linkedinSection": "LinkedIn",
+      "contactHidden": "Contact details and LinkedIn will be available after marking the candidate as interested.",
+      "requestLinkedin": "Ask candidate to complete LinkedIn",
+      "requestLinkedinSent": "LinkedIn request has been sent to the candidate",
+      "noLinkedin": "Candidate has not provided their LinkedIn profile yet"
     },
     "offers": {
       "title": "Job Offers",

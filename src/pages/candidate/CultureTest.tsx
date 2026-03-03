@@ -222,10 +222,18 @@ const CultureTest = () => {
           <CardContent>
             <RadioGroup value={answers[currentQuestion.id]?.toString() || ""} onValueChange={(value) => handleAnswer(parseInt(value))} className="space-y-3">
               {localizedAgreementScale.map((option) => (
-                <div key={option.value} className="flex items-center space-x-3 p-3 rounded-lg border border-border hover:bg-muted/50 transition-colors cursor-pointer">
-                  <RadioGroupItem value={option.value.toString()} id={`option-${option.value}`} />
-                  <Label htmlFor={`option-${option.value}`} className="flex-1 cursor-pointer">{option.label}</Label>
-                </div>
+                <label
+                  key={option.value}
+                  htmlFor={`culture-option-${option.value}`}
+                  className={`flex items-center space-x-3 p-4 rounded-lg border-2 transition-colors cursor-pointer min-h-[52px] ${
+                    answers[currentQuestion.id] === option.value
+                      ? 'border-accent bg-accent/10'
+                      : 'border-border hover:bg-muted/50'
+                  }`}
+                >
+                  <RadioGroupItem value={option.value.toString()} id={`culture-option-${option.value}`} />
+                  <Label htmlFor={`culture-option-${option.value}`} className="flex-1 cursor-pointer text-base">{option.label}</Label>
+                </label>
               ))}
             </RadioGroup>
             <div className="flex justify-between mt-8">

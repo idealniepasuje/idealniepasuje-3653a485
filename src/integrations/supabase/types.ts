@@ -49,6 +49,7 @@ export type Database = {
           adaptacja_score: number | null
           additional_completed: boolean | null
           all_tests_completed: boolean | null
+          city: string | null
           competency_answers: Json | null
           competency_tests_completed: boolean | null
           created_at: string
@@ -76,11 +77,13 @@ export type Database = {
           user_id: string
           wants_to_change_industry: string | null
           work_description: string | null
+          work_mode: string | null
         }
         Insert: {
           adaptacja_score?: number | null
           additional_completed?: boolean | null
           all_tests_completed?: boolean | null
+          city?: string | null
           competency_answers?: Json | null
           competency_tests_completed?: boolean | null
           created_at?: string
@@ -108,11 +111,13 @@ export type Database = {
           user_id: string
           wants_to_change_industry?: string | null
           work_description?: string | null
+          work_mode?: string | null
         }
         Update: {
           adaptacja_score?: number | null
           additional_completed?: boolean | null
           all_tests_completed?: boolean | null
+          city?: string | null
           competency_answers?: Json | null
           competency_tests_completed?: boolean | null
           created_at?: string
@@ -140,6 +145,7 @@ export type Database = {
           user_id?: string
           wants_to_change_industry?: string | null
           work_description?: string | null
+          work_mode?: string | null
         }
         Relationships: []
       }
@@ -276,6 +282,8 @@ export type Database = {
         Row: {
           accepted_industries: string[] | null
           accepted_industry_requirements: Json | null
+          city: string | null
+          company_name: string | null
           created_at: string
           id: string
           industry: string | null
@@ -293,10 +301,13 @@ export type Database = {
           title: string
           updated_at: string
           user_id: string
+          work_mode: string | null
         }
         Insert: {
           accepted_industries?: string[] | null
           accepted_industry_requirements?: Json | null
+          city?: string | null
+          company_name?: string | null
           created_at?: string
           id?: string
           industry?: string | null
@@ -314,10 +325,13 @@ export type Database = {
           title: string
           updated_at?: string
           user_id: string
+          work_mode?: string | null
         }
         Update: {
           accepted_industries?: string[] | null
           accepted_industry_requirements?: Json | null
+          city?: string | null
+          company_name?: string | null
           created_at?: string
           id?: string
           industry?: string | null
@@ -335,6 +349,7 @@ export type Database = {
           title?: string
           updated_at?: string
           user_id?: string
+          work_mode?: string | null
         }
         Relationships: []
       }
@@ -397,6 +412,7 @@ export type Database = {
       profiles: {
         Row: {
           created_at: string
+          feedback_modal_dismissed_at: string | null
           full_name: string | null
           id: string
           updated_at: string
@@ -405,6 +421,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          feedback_modal_dismissed_at?: string | null
           full_name?: string | null
           id?: string
           updated_at?: string
@@ -413,6 +430,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          feedback_modal_dismissed_at?: string | null
           full_name?: string | null
           id?: string
           updated_at?: string
