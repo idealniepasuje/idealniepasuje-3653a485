@@ -13,6 +13,7 @@ import { DashboardLayout } from "@/components/layouts/DashboardLayout";
 import { EmployerSidebar } from "@/components/layouts/EmployerSidebar";
 
 import { ensureFirstJobOfferFromEmployerProfile } from "@/lib/ensureFirstJobOffer";
+import { FeedbackModal } from "@/components/FeedbackModal";
 
 const EmployerDashboard = () => {
   const { user, loading: authLoading } = useAuth();
@@ -360,6 +361,7 @@ const EmployerDashboard = () => {
           </Card>
         </div>
       )}
+      <FeedbackModal userType="employer" isComplete={isProfileComplete || false} />
     </DashboardLayout>
   );
 };

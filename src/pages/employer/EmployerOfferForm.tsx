@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowLeft, Plus, X, FileText, Settings, Heart, ChevronRight, CheckCircle2, CheckCircle } from "lucide-react";
+import { ArrowLeft, Plus, X, FileText, Settings, Heart, ChevronRight, CheckCircle2, CheckCircle, Laptop } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -18,6 +18,7 @@ import { CompetencySliderWithFeedback } from "@/components/CompetencySliderWithF
 import { DashboardLayout } from "@/components/layouts/DashboardLayout";
 import { EmployerSidebar } from "@/components/layouts/EmployerSidebar";
 import { logError } from "@/lib/errorLogger";
+import { WorkModeSelector } from "@/components/WorkModeSelector";
 import type { Json } from "@/integrations/supabase/types";
 
 interface AcceptedIndustryRequirement {
@@ -39,12 +40,15 @@ const EmployerOfferForm = () => {
   const [titleError, setTitleError] = useState<string>("");
   const [formData, setFormData] = useState({
     title: "",
+    companyName: "",
     roleDescription: "",
     roleResponsibilities: "",
     industry: "",
     requiredExperience: "",
     positionLevel: "",
-    noExperienceRequired: false
+    noExperienceRequired: false,
+    workMode: "",
+    city: "",
   });
 
   const validateTitle = (value: string): string => {
@@ -96,12 +100,15 @@ const EmployerOfferForm = () => {
       if (data) {
         setFormData({
           title: data.title || "",
+          companyName: data.company_name || "",
           roleDescription: data.role_description || "",
           roleResponsibilities: data.role_responsibilities || "",
           industry: data.industry || "",
           requiredExperience: data.required_experience || "",
           positionLevel: data.position_level || "",
-          noExperienceRequired: data.no_experience_required || false
+          noExperienceRequired: data.no_experience_required || false,
+          workMode: data.work_mode || "",
+          city: data.city || "",
         });
         
         const acceptedReqs = data.accepted_industry_requirements as unknown as AcceptedIndustryRequirement[] | null;
@@ -183,7 +190,8 @@ const EmployerOfferForm = () => {
       .from("job_offers")
       .insert({
         user_id: user.id,
-        title: formData.title.trim()
+        title: formData.title.trim(),
+        company_name: formData.companyName.trim() || null,
       })
       .select("id")
       .single();
@@ -209,7 +217,10 @@ const EmployerOfferForm = () => {
         .from("job_offers")
         .update({
           role_description: formData.roleDescription,
-          role_responsibilities: formData.roleResponsibilities
+          role_responsibilities: formData.roleResponsibilities,
+          work_mode: formData.workMode || null,
+          city: (formData.workMode === 'hybrid' || formData.workMode === 'onsite') ? formData.city : null,
+          company_name: formData.companyName.trim() || null,
         })
         .eq("id", realOfferId)
         .eq("user_id", user.id);
@@ -442,6 +453,25 @@ const EmployerOfferForm = () => {
                   placeholder={t("employer.role.responsibilitiesPlaceholder")}
                 />
               </div>
+
+              {/* Company name */}
+              <div className="space-y-2">
+                <Label>{t("employer.offerForm.companyNameLabel")}</Label>
+                <Input
+                  value={formData.companyName}
+                  onChange={(e) => setFormData(p => ({ ...p, companyName: e.target.value }))}
+                  placeholder={t("employer.offerForm.companyNamePlaceholder")}
+                  maxLength={200}
+                />
+              </div>
+
+              {/* Work mode */}
+              <WorkModeSelector
+                workMode={formData.workMode}
+                city={formData.city}
+                onWorkModeChange={(v) => setFormData(p => ({ ...p, workMode: v }))}
+                onCityChange={(v) => setFormData(p => ({ ...p, city: v }))}
+              />
 
               <Button onClick={saveRole} disabled={saving} className="w-full bg-cta hover:bg-cta/90 text-cta-foreground">
                 {saving ? t("common.saving") : t("common.saveAndContinue")}

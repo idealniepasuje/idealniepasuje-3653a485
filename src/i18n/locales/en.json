@@ -454,7 +454,9 @@
       "contactHidden": "Contact details and LinkedIn will be available after marking the candidate as interested.",
       "requestLinkedin": "Ask candidate to complete LinkedIn",
       "requestLinkedinSent": "LinkedIn request has been sent to the candidate",
-      "noLinkedin": "Candidate has not provided their LinkedIn profile yet"
+      "noLinkedin": "Candidate has not provided their LinkedIn profile yet",
+      "linkedinLocked": "LinkedIn is hidden",
+      "linkedinLockedHint": "Mark the candidate as \"Interested\" to see their LinkedIn profile."
     },
     "offers": {
       "title": "Job Offers",
@@ -494,7 +496,9 @@
       "titleRequired": "Role name is required",
       "titleMinLength": "Role name must be at least 3 characters",
       "titleMaxLength": "Role name cannot exceed 100 characters",
-      "titleLettersOnly": "Role name can only contain letters"
+      "titleLettersOnly": "Role name can only contain letters",
+      "companyNameLabel": "Company name",
+      "companyNamePlaceholder": "e.g. Acme Inc."
     },
     "profile": {
       "title": "Company Profile",

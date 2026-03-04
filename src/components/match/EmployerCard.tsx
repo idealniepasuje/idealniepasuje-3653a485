@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Building2, ChevronRight, Brain, Heart, Building } from "lucide-react";
 import { MatchStatusBadge, MatchStatus } from "@/components/match/MatchStatusBadge";
+import { WorkModeBadge } from "@/components/WorkModeSelector";
 
 interface EmployerCardProps {
   match: {
@@ -22,6 +23,8 @@ interface EmployerCardProps {
     company_name?: string;
     industry?: string;
     role_description?: string;
+    work_mode?: string;
+    city?: string;
   };
   offerTitle?: string;
 }
@@ -96,6 +99,13 @@ export const EmployerCard = ({ match, employer, offerTitle }: EmployerCardProps)
                 </p>
               )}
               
+              {/* Work mode badge */}
+              {employer?.work_mode && (
+                <div className="mb-2">
+                  <WorkModeBadge workMode={employer.work_mode} city={employer.city} />
+                </div>
+              )}
+
               {/* Competence, culture & additional badges */}
               <div className="flex flex-wrap gap-2">
                 <Badge variant="outline" className="text-xs gap-1">
