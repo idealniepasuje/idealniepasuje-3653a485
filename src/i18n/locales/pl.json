@@ -454,7 +454,9 @@
       "contactHidden": "Dane kontaktowe oraz LinkedIn będą dostępne po oznaczeniu kandydata jako zainteresowanego.",
       "requestLinkedin": "Poproś kandydata o uzupełnienie LinkedIn",
       "requestLinkedinSent": "Prośba o LinkedIn została wysłana do kandydata",
-      "noLinkedin": "Kandydat nie podał jeszcze profilu LinkedIn"
+      "noLinkedin": "Kandydat nie podał jeszcze profilu LinkedIn",
+      "linkedinLocked": "LinkedIn jest ukryty",
+      "linkedinLockedHint": "Oznacz kandydata jako Zainteresowany, aby zobaczyć jego profil LinkedIn."
     },
     "offers": {
       "title": "Oferty pracy",
@@ -494,7 +496,9 @@
       "titleRequired": "Nazwa roli jest wymagana",
       "titleMinLength": "Nazwa roli musi mieć minimum 3 znaki",
       "titleMaxLength": "Nazwa roli może mieć maksymalnie 100 znaków",
-      "titleLettersOnly": "Nazwa roli może zawierać tylko litery"
+      "titleLettersOnly": "Nazwa roli może zawierać tylko litery",
+      "companyNameLabel": "Nazwa firmy",
+      "companyNamePlaceholder": "np. Acme Sp. z o.o."
     },
     "profile": {
       "title": "Profil firmy",

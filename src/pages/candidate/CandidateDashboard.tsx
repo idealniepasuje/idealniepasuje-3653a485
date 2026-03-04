@@ -13,6 +13,7 @@ import { logError } from "@/lib/errorLogger";
 import { DashboardLayout } from "@/components/layouts/DashboardLayout";
 import { CandidateSidebar } from "@/components/layouts/CandidateSidebar";
 import { EmployerCard } from "@/components/match/EmployerCard";
+import { FeedbackModal } from "@/components/FeedbackModal";
 
 const CandidateDashboard = () => {
   const { user, loading: authLoading } = useAuth();
@@ -390,6 +391,7 @@ const CandidateDashboard = () => {
           </Card>
         </section>
       )}
+      <FeedbackModal userType="candidate" isComplete={testResults?.all_tests_completed || false} />
     </DashboardLayout>
   );
 };

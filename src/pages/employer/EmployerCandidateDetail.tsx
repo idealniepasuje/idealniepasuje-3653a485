@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { LogOut, ArrowLeft, Target, Heart, Briefcase, CheckCircle2, AlertCircle, TrendingUp, TrendingDown, User, ThumbsUp, ThumbsDown, Sparkles, ShieldCheck } from "lucide-react";
+import { LogOut, ArrowLeft, Target, Heart, Briefcase, CheckCircle2, AlertCircle, TrendingUp, TrendingDown, User, ThumbsUp, ThumbsDown, Sparkles, ShieldCheck, Linkedin, Lock } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { logError } from "@/lib/errorLogger";
@@ -105,7 +105,7 @@ const EmployerCandidateDetail = () => {
       // Fetch candidate test results for additional info
       const { data: testData } = await supabase
         .from("candidate_test_results")
-        .select("industry, experience, position_level, work_description, target_industries, has_no_experience, industry_experiences, competency_answers")
+        .select("industry, experience, position_level, work_description, target_industries, has_no_experience, industry_experiences, competency_answers, linkedin_url, work_mode, city")
         .eq("user_id", candidateId)
         .single();
 
@@ -649,6 +649,36 @@ const EmployerCandidateDetail = () => {
                 ));
               })()}
             </div>
+          </CardContent>
+        </Card>
+
+        {/* LinkedIn section */}
+        <Card className="mt-6">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Linkedin className="w-5 h-5" />
+              LinkedIn
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {currentStatus === 'considering' ? (
+              candidateData?.linkedin_url ? (
+                <a href={candidateData.linkedin_url} target="_blank" rel="noopener noreferrer" className="text-accent hover:underline flex items-center gap-2">
+                  <Linkedin className="w-4 h-4" />
+                  {candidateData.linkedin_url}
+                </a>
+              ) : (
+                <p className="text-muted-foreground text-sm">{t("employer.candidateDetail.noLinkedin")}</p>
+              )
+            ) : (
+              <div className="flex items-center gap-3 p-4 rounded-lg bg-muted/50 border">
+                <Lock className="w-5 h-5 text-muted-foreground" />
+                <div>
+                  <p className="text-sm font-medium">{t("employer.candidateDetail.linkedinLocked")}</p>
+                  <p className="text-xs text-muted-foreground">{t("employer.candidateDetail.linkedinLockedHint")}</p>
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
 

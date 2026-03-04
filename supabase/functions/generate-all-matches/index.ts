@@ -22,6 +22,8 @@ interface CandidateData {
   experience: string | null;
   position_level: string | null;
   wants_to_change_industry: string | null;
+  work_mode: string | null;
+  city: string | null;
 }
 
 interface JobOfferData {
@@ -37,6 +39,8 @@ interface JobOfferData {
   required_experience: string | null;
   position_level: string | null;
   accepted_industries: string[] | null;
+  work_mode: string | null;
+  city: string | null;
 }
 
 interface EmployerProfileData {
@@ -153,6 +157,14 @@ const calculateExtraMatch = (candidate: CandidateData, offer: JobOfferData) => {
     candidate.wants_to_change_industry === 'Tak' ||
     candidate.wants_to_change_industry === 'Jestem otwarty/a';
   details.push({ field: 'Elastyczność branżowa', matched: !industryMatch && openToChange || industryMatch });
+
+  // Work mode match
+  if (candidate.work_mode && offer.work_mode) {
+    const workModeMatch = candidate.work_mode === offer.work_mode ||
+      candidate.work_mode === 'remote' ||
+      (candidate.work_mode === 'hybrid' && offer.work_mode === 'onsite');
+    details.push({ field: 'Tryb pracy', matched: workModeMatch });
+  }
   
   const matchedCount = details.filter(d => d.matched).length;
   const percent = (matchedCount / details.length) * 100;

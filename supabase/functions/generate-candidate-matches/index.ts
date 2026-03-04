@@ -22,6 +22,8 @@ interface CandidateData {
   experience: string | null;
   position_level: string | null;
   wants_to_change_industry: string | null;
+  work_mode: string | null;
+  city: string | null;
 }
 
 interface JobOfferData {
@@ -39,6 +41,8 @@ interface JobOfferData {
   accepted_industries: string[] | null;
   role_description: string | null;
   role_responsibilities: string | null;
+  work_mode: string | null;
+  city: string | null;
 }
 
 interface EmployerProfileData {
@@ -187,6 +191,19 @@ const calculateExtraMatch = (candidate: CandidateData, offer: JobOfferData) => {
     candidateValue: openToChange ? 'Tak' : 'Nie',
     employerValue: offer.accepted_industries && offer.accepted_industries.length > 0 ? 'Akceptuje inne branże' : 'Tylko wybrana branża',
   });
+
+  // Work mode match
+  if (candidate.work_mode && offer.work_mode) {
+    const workModeMatch = candidate.work_mode === offer.work_mode ||
+      candidate.work_mode === 'remote' || // remote candidates can work anywhere
+      (candidate.work_mode === 'hybrid' && offer.work_mode === 'onsite'); // hybrid candidates can do onsite
+    details.push({
+      field: 'Tryb pracy',
+      matched: workModeMatch,
+      candidateValue: candidate.work_mode,
+      employerValue: offer.work_mode,
+    });
+  }
   
   const matchedCount = details.filter(d => d.matched).length;
   const percent = (matchedCount / details.length) * 100;
