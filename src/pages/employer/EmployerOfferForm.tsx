@@ -434,6 +434,32 @@ const EmployerOfferForm = () => {
 
           <Card>
             <CardContent className="pt-6 space-y-6">
+              {/* Nazwa stanowiska */}
+              <div className="space-y-2">
+                <Label>{t("employer.offerForm.titleLabel")} *</Label>
+                <p className="text-sm text-muted-foreground">{t("employer.offerForm.titleHint")}</p>
+                <Input
+                  value={formData.title}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setFormData(p => ({ ...p, title: val }));
+                    if (titleError) setTitleError(validateTitle(val));
+                  }}
+                  onBlur={async () => {
+                    const error = validateTitle(formData.title);
+                    setTitleError(error);
+                    if (!error && currentOfferId && currentOfferId !== "new") {
+                      await supabase.from("job_offers").update({ title: formData.title.trim() }).eq("id", currentOfferId);
+                    }
+                  }}
+                  placeholder={t("employer.offerForm.titlePlaceholder")}
+                  className={`text-lg font-semibold h-12 ${titleError ? "border-destructive" : ""}`}
+                  maxLength={100}
+                />
+                {titleError && <p className="text-sm text-destructive">{titleError}</p>}
+                <p className="text-xs text-muted-foreground text-right">{formData.title.trim().length}/100</p>
+              </div>
+
               <div className="space-y-2">
                 <Label>{t("employer.role.roleDescriptionLabel")} *</Label>
                 <Textarea

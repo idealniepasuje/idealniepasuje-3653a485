@@ -144,7 +144,7 @@ export const FeedbackModal = ({ userType, isComplete }: FeedbackModalProps) => {
                 </label>
               ))}
             </RadioGroup>
-            {answers.wouldChange === "yes" && (
+            {answers.wouldChange === "tak" && (
               <Textarea
                 value={answers.changeReason}
                 onChange={(e) => setAnswers(p => ({ ...p, changeReason: e.target.value }))}
