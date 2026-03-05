@@ -460,6 +460,18 @@ const EmployerOfferForm = () => {
                 <p className="text-xs text-muted-foreground text-right">{formData.title.trim().length}/100</p>
               </div>
 
+              {/* Nazwa firmy */}
+              <div className="space-y-2">
+                <Label>{t("employer.offerForm.companyNameLabel")}</Label>
+                <Input
+                  value={formData.companyName}
+                  onChange={(e) => setFormData(p => ({ ...p, companyName: e.target.value }))}
+                  placeholder={t("employer.offerForm.companyNamePlaceholder")}
+                  maxLength={200}
+                />
+              </div>
+
+              {/* Opis roli */}
               <div className="space-y-2">
                 <Label>{t("employer.role.roleDescriptionLabel")} *</Label>
                 <Textarea
@@ -470,6 +482,7 @@ const EmployerOfferForm = () => {
                 />
               </div>
 
+              {/* Obowiązki */}
               <div className="space-y-2">
                 <Label>{t("employer.role.responsibilitiesLabel")}</Label>
                 <Textarea
@@ -477,17 +490,6 @@ const EmployerOfferForm = () => {
                   onChange={(e) => setFormData(p => ({ ...p, roleResponsibilities: e.target.value }))}
                   rows={5}
                   placeholder={t("employer.role.responsibilitiesPlaceholder")}
-                />
-              </div>
-
-              {/* Company name */}
-              <div className="space-y-2">
-                <Label>{t("employer.offerForm.companyNameLabel")}</Label>
-                <Input
-                  value={formData.companyName}
-                  onChange={(e) => setFormData(p => ({ ...p, companyName: e.target.value }))}
-                  placeholder={t("employer.offerForm.companyNamePlaceholder")}
-                  maxLength={200}
                 />
               </div>
 
