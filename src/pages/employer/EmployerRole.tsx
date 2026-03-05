@@ -1,10 +1,9 @@
 import { useState, useEffect } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { ArrowLeft } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
@@ -22,23 +21,11 @@ const EmployerRole = () => {
   const [formData, setFormData] = useState({
     roleDescription: "",
     roleResponsibilities: "",
-    companyName: "",
     workMode: "",
     city: "",
   });
-  const [jobOfferTitle, setJobOfferTitle] = useState("");
-  const [titleError, setTitleError] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-
-  const validateTitle = (value: string): string => {
-    const trimmed = value.trim();
-    if (!trimmed) return t("employer.offerForm.titleRequired");
-    if (trimmed.length < 3) return t("employer.offerForm.titleMinLength");
-    if (trimmed.length > 100) return t("employer.offerForm.titleMaxLength");
-    if (!/^[a-zA-ZąćęłńóśźżĄĆĘŁŃÓŚŹŻ\s\-/]+$/.test(trimmed)) return t("employer.offerForm.titleLettersOnly");
-    return "";
-  };
 
   useEffect(() => {
     if (!authLoading && !user) { navigate("/login"); return; }
@@ -50,30 +37,27 @@ const EmployerRole = () => {
     try {
       const { data } = await supabase
         .from("employer_profiles")
-        .select("role_description, role_responsibilities, company_name")
+        .select("role_description, role_responsibilities")
         .eq("user_id", user.id)
         .single();
       if (data) {
-        setFormData({
+        setFormData(p => ({
+          ...p,
           roleDescription: data.role_description || "",
           roleResponsibilities: data.role_responsibilities || "",
-          companyName: data.company_name || "",
-          workMode: "",
-          city: "",
-        });
+        }));
       }
 
-      // Check if there's already a job offer to get title/work mode
+      // Load work mode from existing job offer
       const { data: offerData } = await supabase
         .from("job_offers")
-        .select("title, work_mode, city")
+        .select("work_mode, city")
         .eq("user_id", user.id)
         .order("created_at", { ascending: false })
         .limit(1)
         .maybeSingle();
 
       if (offerData) {
-        setJobOfferTitle(offerData.title || "");
         setFormData(p => ({
           ...p,
           workMode: offerData.work_mode || "",
@@ -89,10 +73,6 @@ const EmployerRole = () => {
   const handleSubmit = async () => {
     if (!user) return;
 
-    // Validate title
-    const tErr = validateTitle(jobOfferTitle);
-    if (tErr) { setTitleError(tErr); return; }
-
     if (!formData.roleDescription) { toast.error(t("employer.role.fillRoleDescription")); return; }
 
     if ((formData.workMode === "hybrid" || formData.workMode === "onsite") && !formData.city) {
@@ -106,12 +86,11 @@ const EmployerRole = () => {
       const { error } = await supabase.from("employer_profiles").update({
         role_description: formData.roleDescription,
         role_responsibilities: formData.roleResponsibilities,
-        company_name: formData.companyName.trim() || null,
         role_completed: true,
       }).eq("user_id", user.id);
       if (error) throw error;
 
-      // Upsert job offer with the title and work mode
+      // Update job offer with role data and work mode
       const { data: existingOffer } = await supabase
         .from("job_offers")
         .select("id")
@@ -122,23 +101,11 @@ const EmployerRole = () => {
 
       if (existingOffer) {
         await supabase.from("job_offers").update({
-          title: jobOfferTitle.trim(),
-          company_name: formData.companyName.trim() || null,
           role_description: formData.roleDescription,
           role_responsibilities: formData.roleResponsibilities,
           work_mode: formData.workMode || null,
           city: (formData.workMode === "hybrid" || formData.workMode === "onsite") ? formData.city : null,
         }).eq("id", existingOffer.id);
-      } else {
-        await supabase.from("job_offers").insert({
-          user_id: user.id,
-          title: jobOfferTitle.trim(),
-          company_name: formData.companyName.trim() || null,
-          role_description: formData.roleDescription,
-          role_responsibilities: formData.roleResponsibilities,
-          work_mode: formData.workMode || null,
-          city: (formData.workMode === "hybrid" || formData.workMode === "onsite") ? formData.city : null,
-        });
       }
 
       toast.success(t("employer.role.saved"));
@@ -173,36 +140,6 @@ const EmployerRole = () => {
 
         <Card>
           <CardContent className="pt-6 space-y-6">
-            {/* Nazwa stanowiska */}
-            <div className="space-y-2">
-              <Label>{t("employer.offerForm.titleLabel")} *</Label>
-              <p className="text-sm text-muted-foreground">{t("employer.offerForm.titleHint")}</p>
-              <Input
-                value={jobOfferTitle}
-                onChange={(e) => {
-                  setJobOfferTitle(e.target.value);
-                  if (titleError) setTitleError(validateTitle(e.target.value));
-                }}
-                onBlur={() => setTitleError(validateTitle(jobOfferTitle))}
-                placeholder={t("employer.offerForm.titlePlaceholder")}
-                className={`text-lg font-semibold h-12 ${titleError ? "border-destructive" : ""}`}
-                maxLength={100}
-              />
-              {titleError && <p className="text-sm text-destructive">{titleError}</p>}
-              <p className="text-xs text-muted-foreground text-right">{jobOfferTitle.trim().length}/100</p>
-            </div>
-
-            {/* Nazwa firmy */}
-            <div className="space-y-2">
-              <Label>{t("employer.offerForm.companyNameLabel")}</Label>
-              <Input
-                value={formData.companyName}
-                onChange={(e) => setFormData(p => ({ ...p, companyName: e.target.value }))}
-                placeholder={t("employer.offerForm.companyNamePlaceholder")}
-                maxLength={200}
-              />
-            </div>
-
             {/* Opis roli */}
             <div className="space-y-2">
               <Label>{t("employer.role.roleDescriptionLabel")} *</Label>
