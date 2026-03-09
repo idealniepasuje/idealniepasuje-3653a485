@@ -73,10 +73,28 @@ const CandidateMatches = () => {
           
           if (!offerResult.error && offerResult.data) {
             const titleMap: Record<string, string> = {};
+            const offerDataMap: Record<string, any> = {};
             (offerResult.data as any[]).forEach((o: any) => {
               titleMap[o.id] = o.title;
+              offerDataMap[o.id] = o;
             });
             setOfferTitles(titleMap);
+            
+            // Merge offer-level data (work_mode, city, company_name, industry) into employer map
+            (matchData || []).forEach(m => {
+              if (m.job_offer_id && offerDataMap[m.job_offer_id]) {
+                const offer = offerDataMap[m.job_offer_id];
+                const emp = employerMap[m.employer_user_id] || {};
+                employerMap[m.employer_user_id] = {
+                  ...emp,
+                  company_name: offer.company_name || emp.company_name,
+                  industry: offer.industry || emp.industry,
+                  work_mode: offer.work_mode || emp.work_mode,
+                  city: offer.city || emp.city,
+                };
+              }
+            });
+            setEmployers({...employerMap});
           }
         }
       }
