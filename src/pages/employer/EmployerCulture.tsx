@@ -162,7 +162,20 @@ const EmployerCulture = () => {
           <p className="text-xs text-muted-foreground mb-2">{t("employer.culture.rateStatement")}</p>
           <h3 className="text-lg font-semibold mb-4">{currentQuestion.text[i18n.language as 'pl' | 'en']}</h3>
           <RadioGroup key={currentQuestion.id} value={answers[currentQuestion.id]?.toString() || ""} onValueChange={(v) => setAnswers(p => ({...p, [currentQuestion.id]: parseInt(v)}))} className="space-y-2">
-            {localizedScale.map(o => (<div key={o.value} className="flex items-center space-x-3 p-3 rounded-lg border hover:bg-muted/50 cursor-pointer"><RadioGroupItem value={o.value.toString()} id={`o-${o.value}`} /><Label htmlFor={`o-${o.value}`} className="flex-1 cursor-pointer">{o.label}</Label></div>))}
+            {localizedScale.map(o => (
+              <label
+                key={o.value}
+                htmlFor={`o-${o.value}`}
+                className={`flex items-center space-x-3 p-4 rounded-lg border-2 transition-colors cursor-pointer min-h-[52px] ${
+                  answers[currentQuestion.id] === o.value
+                    ? 'border-accent bg-accent/10'
+                    : 'border-border hover:bg-muted/50'
+                }`}
+              >
+                <RadioGroupItem value={o.value.toString()} id={`o-${o.value}`} />
+                <Label htmlFor={`o-${o.value}`} className="flex-1 cursor-pointer text-base">{o.label}</Label>
+              </label>
+            ))}
           </RadioGroup>
           <div className="flex justify-between mt-6">
             <Button variant="outline" onClick={() => setCurrentQuestionIndex(i => i - 1)} disabled={currentQuestionIndex === 0}><ArrowLeft className="w-4 h-4 mr-2" />{t("common.previous")}</Button>
