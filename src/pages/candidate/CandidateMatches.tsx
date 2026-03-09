@@ -63,39 +63,34 @@ const CandidateMatches = () => {
               : Promise.resolve({ data: [], error: null })
           ]);
           
+          const employerMap: Record<string, any> = {};
           if (!employerResult.error && employerResult.data) {
-            const employerMap: Record<string, any> = {};
             employerResult.data.forEach(emp => {
               employerMap[emp.user_id] = emp;
             });
-            setEmployers(employerMap);
           }
           
           if (!offerResult.error && offerResult.data) {
             const titleMap: Record<string, string> = {};
-            const offerDataMap: Record<string, any> = {};
             (offerResult.data as any[]).forEach((o: any) => {
               titleMap[o.id] = o.title;
-              offerDataMap[o.id] = o;
-            });
-            setOfferTitles(titleMap);
-            
-            // Merge offer-level data (work_mode, city, company_name, industry) into employer map
-            (matchData || []).forEach(m => {
-              if (m.job_offer_id && offerDataMap[m.job_offer_id]) {
-                const offer = offerDataMap[m.job_offer_id];
-                const emp = employerMap[m.employer_user_id] || {};
-                employerMap[m.employer_user_id] = {
+              // Merge offer-level data into employer map
+              const matchForOffer = matchData?.find(m => m.job_offer_id === o.id);
+              if (matchForOffer) {
+                const emp = employerMap[matchForOffer.employer_user_id] || {};
+                employerMap[matchForOffer.employer_user_id] = {
                   ...emp,
-                  company_name: offer.company_name || emp.company_name,
-                  industry: offer.industry || emp.industry,
-                  work_mode: offer.work_mode || emp.work_mode,
-                  city: offer.city || emp.city,
+                  company_name: o.company_name || emp.company_name,
+                  industry: o.industry || emp.industry,
+                  work_mode: o.work_mode || emp.work_mode,
+                  city: o.city || emp.city,
                 };
               }
             });
-            setEmployers({...employerMap});
+            setOfferTitles(titleMap);
           }
+          
+          setEmployers(employerMap);
         }
       }
     } catch (error) {
