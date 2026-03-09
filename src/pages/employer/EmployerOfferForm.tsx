@@ -208,6 +208,11 @@ const EmployerOfferForm = () => {
 
   const saveRole = async () => {
     if (!user) return;
+    
+    // Validate title
+    const titleErr = validateTitle(formData.title);
+    if (titleErr) { setTitleError(titleErr); return; }
+    
     setSaving(true);
     try {
       const realOfferId = await createOfferIfNeeded();
@@ -216,6 +221,7 @@ const EmployerOfferForm = () => {
       const { error } = await supabase
         .from("job_offers")
         .update({
+          title: formData.title.trim(),
           role_description: formData.roleDescription,
           role_responsibilities: formData.roleResponsibilities,
           work_mode: formData.workMode || null,

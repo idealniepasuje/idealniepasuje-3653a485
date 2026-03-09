@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { ArrowLeft } from "lucide-react";
@@ -19,6 +20,7 @@ const EmployerRole = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const [formData, setFormData] = useState({
+    title: "",
     roleDescription: "",
     roleResponsibilities: "",
     workMode: "",
@@ -26,6 +28,16 @@ const EmployerRole = () => {
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [titleError, setTitleError] = useState("");
+
+  const validateTitle = (value: string): string => {
+    const trimmed = value.trim();
+    if (!trimmed) return t("employer.offerForm.titleRequired");
+    if (trimmed.length < 3) return t("employer.offerForm.titleMinLength");
+    if (trimmed.length > 100) return t("employer.offerForm.titleMaxLength");
+    if (!/^[a-zA-ZąćęłńóśźżĄĆĘŁŃÓŚŹŻ\s\-/]+$/.test(trimmed)) return t("employer.offerForm.titleLettersOnly");
+    return "";
+  };
 
   useEffect(() => {
     if (!authLoading && !user) { navigate("/login"); return; }
@@ -48,10 +60,10 @@ const EmployerRole = () => {
         }));
       }
 
-      // Load work mode from existing job offer
+      // Load title and work mode from existing job offer
       const { data: offerData } = await supabase
         .from("job_offers")
-        .select("work_mode, city")
+        .select("title, work_mode, city")
         .eq("user_id", user.id)
         .order("created_at", { ascending: false })
         .limit(1)
@@ -60,6 +72,7 @@ const EmployerRole = () => {
       if (offerData) {
         setFormData(p => ({
           ...p,
+          title: offerData.title || "",
           workMode: offerData.work_mode || "",
           city: offerData.city || "",
         }));
@@ -72,6 +85,9 @@ const EmployerRole = () => {
 
   const handleSubmit = async () => {
     if (!user) return;
+
+    const titleErr = validateTitle(formData.title);
+    if (titleErr) { setTitleError(titleErr); return; }
 
     if (!formData.roleDescription) { toast.error(t("employer.role.fillRoleDescription")); return; }
 
@@ -90,7 +106,7 @@ const EmployerRole = () => {
       }).eq("user_id", user.id);
       if (error) throw error;
 
-      // Update job offer with role data and work mode
+      // Update job offer with title, role data and work mode
       const { data: existingOffer } = await supabase
         .from("job_offers")
         .select("id")
@@ -101,6 +117,7 @@ const EmployerRole = () => {
 
       if (existingOffer) {
         await supabase.from("job_offers").update({
+          title: formData.title.trim(),
           role_description: formData.roleDescription,
           role_responsibilities: formData.roleResponsibilities,
           work_mode: formData.workMode || null,
@@ -140,6 +157,25 @@ const EmployerRole = () => {
 
         <Card>
           <CardContent className="pt-6 space-y-6">
+            {/* Nazwa stanowiska */}
+            <div className="space-y-2">
+              <Label className="text-base font-semibold">{t("employer.offerForm.titleLabel")} *</Label>
+              <p className="text-sm text-muted-foreground">{t("employer.offerForm.titleHint")}</p>
+              <Input
+                value={formData.title}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setFormData(p => ({ ...p, title: val }));
+                  if (titleError) setTitleError(validateTitle(val));
+                }}
+                placeholder={t("employer.offerForm.titlePlaceholder")}
+                className={`text-lg font-semibold h-12 ${titleError ? "border-destructive" : ""}`}
+                maxLength={100}
+              />
+              {titleError && <p className="text-sm text-destructive">{titleError}</p>}
+              <p className="text-xs text-muted-foreground text-right">{formData.title.trim().length}/100</p>
+            </div>
+
             {/* Opis roli */}
             <div className="space-y-2">
               <Label>{t("employer.role.roleDescriptionLabel")} *</Label>
