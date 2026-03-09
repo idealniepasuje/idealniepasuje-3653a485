@@ -59,25 +59,38 @@ const CandidateMatches = () => {
               .select("user_id, company_name, industry, role_description")
               .in("user_id", employerIds),
             offerIds.length > 0
-              ? supabase.from("job_offers").select("id, title").in("id", offerIds)
+              ? supabase.from("job_offers").select("id, title, company_name, industry, work_mode, city").in("id", offerIds)
               : Promise.resolve({ data: [], error: null })
           ]);
           
+          const employerMap: Record<string, any> = {};
           if (!employerResult.error && employerResult.data) {
-            const employerMap: Record<string, any> = {};
             employerResult.data.forEach(emp => {
               employerMap[emp.user_id] = emp;
             });
-            setEmployers(employerMap);
           }
           
           if (!offerResult.error && offerResult.data) {
             const titleMap: Record<string, string> = {};
             (offerResult.data as any[]).forEach((o: any) => {
               titleMap[o.id] = o.title;
+              // Merge offer-level data into employer map
+              const matchForOffer = matchData?.find(m => m.job_offer_id === o.id);
+              if (matchForOffer) {
+                const emp = employerMap[matchForOffer.employer_user_id] || {};
+                employerMap[matchForOffer.employer_user_id] = {
+                  ...emp,
+                  company_name: o.company_name || emp.company_name,
+                  industry: o.industry || emp.industry,
+                  work_mode: o.work_mode || emp.work_mode,
+                  city: o.city || emp.city,
+                };
+              }
             });
             setOfferTitles(titleMap);
           }
+          
+          setEmployers(employerMap);
         }
       }
     } catch (error) {
