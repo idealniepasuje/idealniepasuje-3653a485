@@ -72,6 +72,13 @@ const EmployerProfile = () => {
         .eq("user_id", user.id);
       
       if (error) throw error;
+
+      // Sync company_name and industry to all job_offers
+      await supabase
+        .from("job_offers")
+        .update({ company_name: companyName, industry: industry })
+        .eq("user_id", user.id);
+
       toast.success(t("employer.role.saved"));
     } catch (error) {
       logError("EmployerProfile.handleSubmit", error);

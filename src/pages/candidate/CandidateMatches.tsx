@@ -59,7 +59,7 @@ const CandidateMatches = () => {
               .select("user_id, company_name, industry, role_description")
               .in("user_id", employerIds),
             offerIds.length > 0
-              ? supabase.from("job_offers").select("id, title").in("id", offerIds)
+              ? supabase.from("job_offers").select("id, title, company_name, industry, work_mode, city").in("id", offerIds)
               : Promise.resolve({ data: [], error: null })
           ]);
           
