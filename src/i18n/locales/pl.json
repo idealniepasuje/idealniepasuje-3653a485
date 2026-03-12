@@ -348,7 +348,12 @@
       "searchingCandidatesDescription": "Pracujemy teraz nad znalezieniem idealnego kandydata. Gdy go znajdziemy, otrzymasz powiadomienie.",
       "yourOrders": "Twoje zlecenia",
       "newOffer": "Nowe zlecenie",
-      "viewMore": "Zobacz wszystkie"
+      "viewMore": "Zobacz wszystkie",
+      "completeProfileTitle": "Uzupełnij profil firmy",
+      "completeProfileDescription": "Zanim dodasz pierwsze zlecenie, uzupełnij podstawowe informacje o firmie – nazwę i branżę.",
+      "goToProfile": "Przejdź do profilu",
+      "createFirstJobTitle": "Dodaj pierwsze zlecenie",
+      "createFirstJobDescription": "Profil firmy jest gotowy! Teraz możesz dodać swoje pierwsze zlecenie rekrutacyjne."
     },
     "role": {
       "title": "Opis roli",
@@ -498,7 +503,8 @@
       "titleMaxLength": "Nazwa roli może mieć maksymalnie 100 znaków",
       "titleLettersOnly": "Nazwa roli może zawierać tylko litery",
       "companyNameLabel": "Nazwa firmy",
-      "companyNamePlaceholder": "np. Acme Sp. z o.o."
+      "companyNamePlaceholder": "np. Acme Sp. z o.o.",
+      "saveRoleFirst": "Najpierw zapisz opis roli, aby przejść do testu kultury"
     },
     "profile": {
       "title": "Profil firmy",

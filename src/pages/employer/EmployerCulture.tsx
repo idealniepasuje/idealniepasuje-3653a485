@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -15,12 +15,14 @@ import { agreementScale, getLocalizedData } from "@/data/additionalQuestions";
 import { getLevel, getFeedback } from "@/data/feedbackData";
 import { useQuestionTimer } from "@/hooks/useQuestionTimer";
 import { QuestionTimer } from "@/components/QuestionTimer";
-import { ensureFirstJobOfferFromEmployerProfile } from "@/lib/ensureFirstJobOffer";
 
 const EmployerCulture = () => {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
+  const [searchParams] = useSearchParams();
+  const offerId = searchParams.get("offerId");
+  
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
@@ -38,8 +40,28 @@ const EmployerCulture = () => {
 
   const fetchData = async () => {
     if (!user) return;
-    const { data } = await supabase.from("employer_profiles").select("culture_answers, culture_completed").eq("user_id", user.id).single();
-    if (data?.culture_answers) { setAnswers(data.culture_answers as Record<string, number>); if (data.culture_completed) calculateResults(data.culture_answers as Record<string, number>); }
+    
+    // Try to load culture answers from the job offer first
+    if (offerId) {
+      const { data: offerData } = await supabase
+        .from("job_offers")
+        .select("culture_answers, culture_completed")
+        .eq("id", offerId)
+        .eq("user_id", user.id)
+        .single();
+      
+      if (offerData?.culture_answers && Object.keys(offerData.culture_answers as object).length > 0) {
+        setAnswers(offerData.culture_answers as Record<string, number>);
+        if (offerData.culture_completed) calculateResults(offerData.culture_answers as Record<string, number>);
+      }
+    } else {
+      // Fallback: load from employer_profiles (legacy)
+      const { data } = await supabase.from("employer_profiles").select("culture_answers, culture_completed").eq("user_id", user.id).single();
+      if (data?.culture_answers && Object.keys(data.culture_answers as object).length > 0) {
+        setAnswers(data.culture_answers as Record<string, number>);
+        if (data.culture_completed) calculateResults(data.culture_answers as Record<string, number>);
+      }
+    }
     setLoading(false);
   };
 
@@ -78,7 +100,6 @@ const EmployerCulture = () => {
           feedback_url: 'https://idealniepasuje.lovable.app/employer/feedback'
         }
       });
-      console.log('Employer results email sent');
     } catch (error) {
       console.error('Error sending employer results email:', error);
     }
@@ -88,7 +109,6 @@ const EmployerCulture = () => {
     if (currentQuestionIndex < questions.length - 1) { setCurrentQuestionIndex(i => i + 1); }
     else {
       setSaving(true);
-      // Use functional state to get the latest answers (avoids stale closure)
       const latestAnswers = { ...answers };
       const scores: Record<string, number> = {};
       Object.keys(localizedDimensions).forEach(dim => {
@@ -97,27 +117,47 @@ const EmployerCulture = () => {
         dimQuestions.forEach(q => { if (latestAnswers[q.id]) { sum += latestAnswers[q.id]; count++; } });
         scores[dim] = count > 0 ? sum / count : 0;
       });
-      const { error } = await supabase.from("employer_profiles").update({ culture_answers: latestAnswers, culture_completed: true, profile_completed: true, culture_relacja_wspolpraca: scores.relacja_wspolpraca, culture_elastycznosc_innowacyjnosc: scores.elastycznosc_innowacyjnosc, culture_wyniki_cele: scores.wyniki_cele, culture_stabilnosc_struktura: scores.stabilnosc_struktura, culture_autonomia_styl_pracy: scores.autonomia_styl_pracy, culture_wlb_dobrostan: scores.wlb_dobrostan }).eq("user_id", user!.id);
-      
-      if (error) {
-        console.error("Error saving culture:", error);
-        toast.error(t("errors.genericError"));
-        setSaving(false);
-        return;
+
+      // Save culture data to job_offers if offerId is provided
+      if (offerId) {
+        const { error } = await supabase.from("job_offers").update({
+          culture_answers: latestAnswers,
+          culture_completed: true,
+          culture_relacja_wspolpraca: scores.relacja_wspolpraca,
+          culture_elastycznosc_innowacyjnosc: scores.elastycznosc_innowacyjnosc,
+          culture_wyniki_cele: scores.wyniki_cele,
+          culture_stabilnosc_struktura: scores.stabilnosc_struktura,
+          culture_autonomia_styl_pracy: scores.autonomia_styl_pracy,
+          culture_wlb_dobrostan: scores.wlb_dobrostan,
+        }).eq("id", offerId).eq("user_id", user!.id);
+
+        if (error) {
+          console.error("Error saving culture to job:", error);
+          toast.error(t("errors.genericError"));
+          setSaving(false);
+          return;
+        }
       }
 
-      // Ensure the onboarding creates the first "zlecenie" (job offer) from employer profile
-      await ensureFirstJobOfferFromEmployerProfile(user!.id, t("employer.offers.createNew"));
-      
-      // Generate matches automatically after profile completion
+      // Also save to employer_profiles for backward compatibility
+      await supabase.from("employer_profiles").update({
+        culture_answers: latestAnswers,
+        culture_completed: true,
+        profile_completed: true,
+        culture_relacja_wspolpraca: scores.relacja_wspolpraca,
+        culture_elastycznosc_innowacyjnosc: scores.elastycznosc_innowacyjnosc,
+        culture_wyniki_cele: scores.wyniki_cele,
+        culture_stabilnosc_struktura: scores.stabilnosc_struktura,
+        culture_autonomia_styl_pracy: scores.autonomia_styl_pracy,
+        culture_wlb_dobrostan: scores.wlb_dobrostan,
+      }).eq("user_id", user!.id);
+
       await generateMatches();
-      
-      // Send results email to employer
       await sendEmployerResultsEmail();
       
       setSaving(false); calculateResults(latestAnswers); toast.success(t("employer.culture.completedMessage"));
     }
-  }, [currentQuestionIndex, questions, answers, user, t, localizedDimensions]);
+  }, [currentQuestionIndex, questions, answers, user, t, localizedDimensions, offerId]);
 
   const handleTimeUp = useCallback(() => {
     const currentQ = questions[currentQuestionIndex];
@@ -134,19 +174,21 @@ const EmployerCulture = () => {
     enabled: !showResults && !loading && !authLoading,
   });
 
+  const backPath = offerId ? `/employer/offer/${offerId}` : "/employer/dashboard";
+
   if (authLoading || loading) return <div className="min-h-screen flex items-center justify-center"><div className="w-12 h-12 rounded-full bg-accent/20 animate-pulse" /></div>;
   const currentQuestion = questions[currentQuestionIndex];
 
   if (showResults) return (
     <div className="min-h-screen bg-background">
-      <header className="bg-primary text-primary-foreground"><div className="container mx-auto px-4 py-4"><Link to="/employer/dashboard" className="flex items-center gap-2 text-primary-foreground/80"><ArrowLeft className="w-4 h-4" />{t("common.back")}</Link></div></header>
+      <header className="bg-primary text-primary-foreground"><div className="container mx-auto px-4 py-4"><Link to={backPath} className="flex items-center gap-2 text-primary-foreground/80"><ArrowLeft className="w-4 h-4" />{t("common.back")}</Link></div></header>
       <main className="container mx-auto px-4 py-8 max-w-2xl">
         <Card className="border-success/20"><CardContent className="pt-6 space-y-6 text-center">
           <CheckCircle2 className="w-16 h-16 text-success mx-auto" />
           <h2 className="text-2xl font-bold">{t("employer.culture.profileCompleted")}</h2>
           <p className="text-muted-foreground">{t("employer.culture.profileCompletedDescription")}</p>
           <div className="space-y-3 text-left">{Object.entries(localizedDimensions).map(([code, dim]) => (<div key={code} className="bg-muted/50 rounded-lg p-3"><div className="flex justify-between"><span className="font-medium">{dim.name}</span><span>{dimensionScores[code]?.toFixed(1)}/5</span></div><p className="text-xs text-muted-foreground mt-1">{getFeedback('culture', code, getLevel(dimensionScores[code] || 0), 'employer', i18n.language)}</p></div>))}</div>
-          <Link to="/employer/dashboard"><Button className="w-full bg-cta text-cta-foreground">{t("common.backToPanel")}</Button></Link>
+          <Link to={backPath}><Button className="w-full bg-cta text-cta-foreground">{t("common.backToPanel")}</Button></Link>
         </CardContent></Card>
       </main>
     </div>
@@ -154,7 +196,7 @@ const EmployerCulture = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="bg-primary text-primary-foreground"><div className="container mx-auto px-4 py-4 flex justify-between"><Link to="/employer/dashboard" className="flex items-center gap-2 text-primary-foreground/80"><ArrowLeft className="w-4 h-4" />{t("common.saveAndBack")}</Link><span className="text-sm">{currentQuestionIndex + 1}/{questions.length}</span></div></header>
+      <header className="bg-primary text-primary-foreground"><div className="container mx-auto px-4 py-4 flex justify-between"><Link to={backPath} className="flex items-center gap-2 text-primary-foreground/80"><ArrowLeft className="w-4 h-4" />{t("common.saveAndBack")}</Link><span className="text-sm">{currentQuestionIndex + 1}/{questions.length}</span></div></header>
       <main className="container mx-auto px-4 py-8 max-w-2xl">
         <h1 className="text-2xl font-bold mb-2">{t("employer.culture.title")}</h1><Progress value={((currentQuestionIndex + 1) / questions.length) * 100} className="h-2 mb-6" />
         <Card><CardContent className="pt-6">

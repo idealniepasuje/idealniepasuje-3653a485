@@ -348,7 +348,12 @@
       "searchingCandidatesDescription": "We're now working on finding the ideal candidate. When we find one, you'll receive a notification.",
       "yourOrders": "Your orders",
       "newOffer": "New order",
-      "viewMore": "View all"
+      "viewMore": "View all",
+      "completeProfileTitle": "Complete your company profile",
+      "completeProfileDescription": "Before adding your first job, complete basic company information – name and industry.",
+      "goToProfile": "Go to profile",
+      "createFirstJobTitle": "Add your first job",
+      "createFirstJobDescription": "Your company profile is ready! Now you can add your first recruitment order."
     },
     "role": {
       "title": "Role description",
@@ -498,7 +503,8 @@
       "titleMaxLength": "Role name cannot exceed 100 characters",
       "titleLettersOnly": "Role name can only contain letters",
       "companyNameLabel": "Company name",
-      "companyNamePlaceholder": "e.g. Acme Inc."
+      "companyNamePlaceholder": "e.g. Acme Inc.",
+      "saveRoleFirst": "Save the role description first to proceed to the culture test"
     },
     "profile": {
       "title": "Company Profile",

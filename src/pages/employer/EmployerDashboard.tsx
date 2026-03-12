@@ -3,16 +3,13 @@ import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { Building2, Users, ChevronRight, Plus, Briefcase, Calendar, FileText, Settings, Heart, CheckCircle2, Sparkles, MessageSquare, CheckCircle } from "lucide-react";
+import { Building2, Users, ChevronRight, Plus, Briefcase, Calendar, Sparkles, MessageSquare, CheckCircle, Settings } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { logError } from "@/lib/errorLogger";
 import { DashboardLayout } from "@/components/layouts/DashboardLayout";
 import { EmployerSidebar } from "@/components/layouts/EmployerSidebar";
-
-import { ensureFirstJobOfferFromEmployerProfile } from "@/lib/ensureFirstJobOffer";
 import { FeedbackModal } from "@/components/FeedbackModal";
 
 const EmployerDashboard = () => {
@@ -21,7 +18,6 @@ const EmployerDashboard = () => {
   const { t } = useTranslation();
   const [employerProfile, setEmployerProfile] = useState<any>(null);
   const [offers, setOffers] = useState<any[]>([]);
-  
   const [offerMatchCounts, setOfferMatchCounts] = useState<Record<string, { count: number; avgMatch: number }>>({});
   const [loading, setLoading] = useState(true);
 
@@ -33,7 +29,6 @@ const EmployerDashboard = () => {
   const fetchData = async () => {
     if (!user) return;
     try {
-      // Fetch employer profile
       const { data: profile, error: profileError } = await supabase
         .from("employer_profiles")
         .select("*")
@@ -42,37 +37,18 @@ const EmployerDashboard = () => {
       if (profileError && profileError.code !== "PGRST116") logError("EmployerDashboard.fetchData.profile", profileError);
       setEmployerProfile(profile);
 
-      // Fetch job offers
       const { data: offersData, error: offersError } = await supabase
         .from("job_offers")
         .select("*")
         .eq("user_id", user.id)
         .order("created_at", { ascending: false })
-        .limit(3);
-
-      if (offersError) {
-        logError("EmployerDashboard.fetchData.offers", offersError);
-      }
-
-      // If onboarding is complete but there is still no offer, create the first one from the profile.
-      if (profile?.profile_completed && (!offersData || offersData.length === 0)) {
-        await ensureFirstJobOfferFromEmployerProfile(user.id, t("employer.offers.createNew"));
-      }
-
-      // Re-fetch offers after possible creation
-      const { data: effectiveOffers, error: effectiveOffersError } = await supabase
-        .from("job_offers")
-        .select("*")
-        .eq("user_id", user.id)
-        .order("created_at", { ascending: false })
         .limit(10);
-      if (effectiveOffersError) logError("EmployerDashboard.fetchData.offers.refetch", effectiveOffersError);
-      setOffers(effectiveOffers || []);
+      if (offersError) logError("EmployerDashboard.fetchData.offers", offersError);
+      setOffers(offersData || []);
 
-      // Calculate stats for each offer
-      if (effectiveOffers && effectiveOffers.length > 0) {
+      if (offersData && offersData.length > 0) {
         const counts: Record<string, { count: number; avgMatch: number }> = {};
-        for (const offer of effectiveOffers) {
+        for (const offer of offersData) {
           const { data: offerMatches } = await supabase
             .from("match_results")
             .select("overall_percent")
@@ -92,15 +68,6 @@ const EmployerDashboard = () => {
     }
   };
 
-  const getProfileProgress = () => {
-    if (!employerProfile) return 0;
-    let progress = 0;
-    if (employerProfile.role_completed) progress += 33;
-    if (employerProfile.requirements_completed) progress += 33;
-    if (employerProfile.culture_completed) progress += 34;
-    return Math.min(progress, 100);
-  };
-
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('pl-PL', { day: '2-digit', month: '2-digit', year: 'numeric' });
@@ -116,8 +83,8 @@ const EmployerDashboard = () => {
     );
   }
 
-  const progress = getProfileProgress();
-  const isProfileComplete = employerProfile?.profile_completed;
+  const hasCompanyProfile = !!(employerProfile?.company_name && employerProfile?.industry);
+  const hasOffers = offers.length > 0;
 
   return (
     <DashboardLayout sidebar={<EmployerSidebar />}>
@@ -133,35 +100,60 @@ const EmployerDashboard = () => {
         <span>{t("expert.badge")} – {t("expert.description")}</span>
       </div>
 
-      {/* Intro Card - Show when profile is NOT complete */}
-      {!isProfileComplete && (
+      {/* Step 1: Complete company profile */}
+      {!hasCompanyProfile && (
         <Card className="mb-6 bg-gradient-to-r from-cta/10 to-accent/10 border-cta/20">
           <CardContent className="pt-6">
             <div className="flex items-start gap-4">
               <div className="w-14 h-14 rounded-full bg-cta/20 flex items-center justify-center shrink-0">
-                <Sparkles className="w-7 h-7 text-cta" />
+                <Building2 className="w-7 h-7 text-cta" />
               </div>
               <div className="flex-1">
-                <h2 className="text-xl font-bold mb-2">{t("employer.dashboard.introTitle")}</h2>
-                <p className="text-muted-foreground mb-3">
-                  {t("employer.dashboard.introGreeting")}
+                <h2 className="text-xl font-bold mb-2">{t("employer.dashboard.completeProfileTitle")}</h2>
+                <p className="text-muted-foreground mb-4">
+                  {t("employer.dashboard.completeProfileDescription")}
                 </p>
-                <div className="flex flex-wrap gap-2 mb-3">
-                  <Badge variant="secondary">{t("employer.dashboard.introBadge1")}</Badge>
-                  <Badge variant="secondary">{t("employer.dashboard.introBadge2")}</Badge>
-                  <Badge variant="secondary">{t("employer.dashboard.introBadge3")}</Badge>
-                </div>
-                <p className="text-sm text-muted-foreground italic">
-                  {t("employer.dashboard.introReminder")}
-                </p>
+                <Link to="/employer/profile">
+                  <Button className="gap-2 bg-cta text-cta-foreground hover:bg-cta/90">
+                    <Settings className="w-4 h-4" />
+                    {t("employer.dashboard.goToProfile")}
+                    <ChevronRight className="w-4 h-4" />
+                  </Button>
+                </Link>
               </div>
             </div>
           </CardContent>
         </Card>
       )}
 
-      {/* Thank You Card - Show when profile is complete */}
-      {isProfileComplete && (
+      {/* Step 2: Create first job */}
+      {hasCompanyProfile && !hasOffers && (
+        <Card className="mb-6 bg-gradient-to-r from-cta/10 to-accent/10 border-cta/20">
+          <CardContent className="pt-6">
+            <div className="flex items-start gap-4">
+              <div className="w-14 h-14 rounded-full bg-cta/20 flex items-center justify-center shrink-0">
+                <Briefcase className="w-7 h-7 text-cta" />
+              </div>
+              <div className="flex-1">
+                <h2 className="text-xl font-bold mb-2">{t("employer.dashboard.createFirstJobTitle")}</h2>
+                <p className="text-muted-foreground mb-4">
+                  {t("employer.dashboard.createFirstJobDescription")}
+                </p>
+                <Link to="/employer/offer/new">
+                  <Button className="gap-2 bg-cta text-cta-foreground hover:bg-cta/90">
+                    <Plus className="w-4 h-4" />
+                    {t("employer.dashboard.newOffer")}
+                    <ChevronRight className="w-4 h-4" />
+                  </Button>
+                </Link>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Thank You Card - Show when profile is complete and has offers */}
+      {hasCompanyProfile && hasOffers && (
         <Card className="mb-6 bg-gradient-to-r from-accent to-primary text-primary-foreground border-0">
           <CardContent className="pt-6">
             <div className="flex items-start gap-4">
@@ -189,179 +181,64 @@ const EmployerDashboard = () => {
         </Card>
       )}
 
-      {/* Profile Progress Section - Show if not complete */}
-      {!isProfileComplete && (
-        <>
-          <Card className="mb-6 border-cta/20 bg-cta/5">
-            <CardContent className="pt-6">
-              <div className="flex items-center gap-4">
-                <div className="w-14 h-14 rounded-full bg-cta/20 flex items-center justify-center">
-                  <Building2 className="w-7 h-7 text-cta" />
-                </div>
-                <div className="flex-1">
-                  <h2 className="text-lg font-semibold mb-1">{t("employer.dashboard.organizationProfile")}</h2>
-                  <p className="text-sm text-muted-foreground mb-2">
-                    {progress < 33 && t("employer.dashboard.startWithRole")}
-                    {progress >= 33 && progress < 66 && t("employer.dashboard.defineRequirements")}
-                    {progress >= 66 && progress < 100 && t("employer.dashboard.doCultureTest")}
-                    {progress === 100 && t("employer.dashboard.profileComplete")}
-                  </p>
-                  <Progress value={progress} className="h-2" />
-                </div>
+      {/* Orders List */}
+      {hasOffers && (
+        <Card>
+          <CardHeader className="pb-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Briefcase className="w-5 h-5 text-accent" />
+                <CardTitle className="text-lg text-accent">{t("employer.dashboard.yourOrders")}</CardTitle>
               </div>
-            </CardContent>
-          </Card>
-
-          <div className="grid md:grid-cols-3 gap-4 mb-8">
-            <Card className="group hover:shadow-lg transition-shadow">
-              <CardHeader className="pb-3">
-                <div className="flex items-start justify-between">
-                  <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center">
-                    <FileText className="w-5 h-5 text-accent" />
-                  </div>
-                  <Badge variant={employerProfile?.role_completed ? "default" : "outline"} className={employerProfile?.role_completed ? "bg-success" : ""}>
-                    {employerProfile?.role_completed && <CheckCircle2 className="w-3 h-3 mr-1" />}
-                    {employerProfile?.role_completed ? t("common.done") : `${t("common.step")} 1`}
-                  </Badge>
-                </div>
-                <CardTitle className="text-base">{t("employer.dashboard.roleDescription")}</CardTitle>
-                <p className="text-xs text-muted-foreground">{t("employer.dashboard.roleDescriptionSubtitle")}</p>
-              </CardHeader>
-              <CardContent>
-                <Link to="/employer/role">
-                  <Button className="w-full gap-2" size="sm" variant={employerProfile?.role_completed ? "outline" : "default"}>
-                    {employerProfile?.role_completed ? t("common.edit") : t("common.fill")}
-                    <ChevronRight className="w-4 h-4" />
-                  </Button>
-                </Link>
-              </CardContent>
-            </Card>
-
-            <Card className={`group hover:shadow-lg transition-shadow ${!employerProfile?.role_completed ? "opacity-60" : ""}`}>
-              <CardHeader className="pb-3">
-                <div className="flex items-start justify-between">
-                  <div className="w-10 h-10 rounded-lg bg-cta/10 flex items-center justify-center">
-                    <Settings className="w-5 h-5 text-cta" />
-                  </div>
-                  <Badge variant={employerProfile?.requirements_completed ? "default" : "outline"} className={employerProfile?.requirements_completed ? "bg-success" : ""}>
-                    {employerProfile?.requirements_completed && <CheckCircle2 className="w-3 h-3 mr-1" />}
-                    {employerProfile?.requirements_completed ? t("common.done") : `${t("common.step")} 2`}
-                  </Badge>
-                </div>
-                <CardTitle className="text-base">{t("employer.dashboard.requirements")}</CardTitle>
-                <p className="text-xs text-muted-foreground">{t("employer.dashboard.requirementsSubtitle")}</p>
-              </CardHeader>
-              <CardContent>
-                <Link to="/employer/requirements">
-                  <Button className="w-full gap-2" size="sm" variant={employerProfile?.requirements_completed ? "outline" : "default"} disabled={!employerProfile?.role_completed}>
-                    {employerProfile?.requirements_completed ? t("common.edit") : t("common.fill")}
-                    <ChevronRight className="w-4 h-4" />
-                  </Button>
-                </Link>
-              </CardContent>
-            </Card>
-
-            <Card className={`group hover:shadow-lg transition-shadow ${!employerProfile?.requirements_completed ? "opacity-60" : ""}`}>
-              <CardHeader className="pb-3">
-                <div className="flex items-start justify-between">
-                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                    <Heart className="w-5 h-5 text-primary" />
-                  </div>
-                  <Badge variant={employerProfile?.culture_completed ? "default" : "outline"} className={employerProfile?.culture_completed ? "bg-success" : ""}>
-                    {employerProfile?.culture_completed && <CheckCircle2 className="w-3 h-3 mr-1" />}
-                    {employerProfile?.culture_completed ? t("common.done") : `${t("common.step")} 3`}
-                  </Badge>
-                </div>
-                <CardTitle className="text-base">{t("employer.dashboard.workCulture")}</CardTitle>
-                <p className="text-xs text-muted-foreground">{t("employer.dashboard.workCultureSubtitle")}</p>
-              </CardHeader>
-              <CardContent>
-                <Link to="/employer/culture">
-                  <Button className="w-full gap-2" size="sm" variant={employerProfile?.culture_completed ? "outline" : "default"} disabled={!employerProfile?.requirements_completed}>
-                    {employerProfile?.culture_completed ? t("common.edit") : t("common.fill")}
-                    <ChevronRight className="w-4 h-4" />
-                  </Button>
-                </Link>
-              </CardContent>
-            </Card>
-          </div>
-        </>
-      )}
-
-      {/* Orders List - Show when profile is complete */}
-      {isProfileComplete && (
-        <div>
-          <Card>
-            <CardHeader className="pb-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Briefcase className="w-5 h-5 text-accent" />
-                  <CardTitle className="text-lg text-accent">{t("employer.dashboard.yourOrders")}</CardTitle>
-                </div>
-                <Link to="/employer/offer/new">
-                  <Button size="sm" className="gap-1">
-                    <Plus className="w-4 h-4" />
-                    {t("employer.dashboard.newOffer")}
-                  </Button>
-                </Link>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {offers.length === 0 ? (
-                <div className="text-center py-8 text-muted-foreground">
-                  <Briefcase className="w-10 h-10 mx-auto mb-3 opacity-40" />
-                  <p>{t("employer.offers.noOffers")}</p>
-                  <Link to="/employer/offer/new">
-                    <Button variant="outline" size="sm" className="mt-3">
-                      {t("employer.offers.createFirst")}
-                    </Button>
-                  </Link>
-                </div>
-              ) : (
-                <>
-                  {offers.map((offer) => {
-                    const stats = offerMatchCounts[offer.id] || { count: 0, avgMatch: 0 };
-                    return (
-                      <Link key={offer.id} to={`/employer/order/${offer.id}`} className="block">
-                        <div className="p-4 border rounded-lg hover:shadow-md transition-shadow cursor-pointer">
-                          <div className="flex items-center justify-between">
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center gap-2 mb-1">
-                                <Briefcase className="w-4 h-4 text-accent shrink-0" />
-                                <h3 className="font-semibold truncate">{offer.title}</h3>
-                                <Badge variant={offer.is_active ? "default" : "secondary"} className={`shrink-0 ${offer.is_active ? "bg-success text-success-foreground" : ""}`}>
-                                  {offer.is_active ? t("employer.offers.active") : t("employer.offers.inactive")}
-                                </Badge>
-                              </div>
-                              <div className="flex items-center gap-4 text-xs text-muted-foreground ml-6">
-                                <span className="flex items-center gap-1">
-                                  <Calendar className="w-3 h-3" />
-                                  {formatDate(offer.created_at)}
-                                </span>
-                                <span className="flex items-center gap-1">
-                                  <Users className="w-3 h-3" />
-                                  {stats.count} {stats.count === 1 ? t("common.matchedCandidate") : t("common.matchedCandidates")}
-                                </span>
-                              </div>
-                            </div>
-                            <ChevronRight className="w-5 h-5 text-muted-foreground shrink-0" />
-                          </div>
+              <Link to="/employer/offer/new">
+                <Button size="sm" className="gap-1">
+                  <Plus className="w-4 h-4" />
+                  {t("employer.dashboard.newOffer")}
+                </Button>
+              </Link>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {offers.map((offer) => {
+              const stats = offerMatchCounts[offer.id] || { count: 0, avgMatch: 0 };
+              return (
+                <Link key={offer.id} to={`/employer/order/${offer.id}`} className="block">
+                  <div className="p-4 border rounded-lg hover:shadow-md transition-shadow cursor-pointer">
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <Briefcase className="w-4 h-4 text-accent shrink-0" />
+                          <h3 className="font-semibold truncate">{offer.title}</h3>
+                          <Badge variant={offer.is_active ? "default" : "secondary"} className={`shrink-0 ${offer.is_active ? "bg-success text-success-foreground" : ""}`}>
+                            {offer.is_active ? t("employer.offers.active") : t("employer.offers.inactive")}
+                          </Badge>
                         </div>
-                      </Link>
-                    );
-                  })}
-                  <Link to="/employer/offers" className="block text-center">
-                    <Button variant="ghost" size="sm" className="w-full">
-                      {t("employer.dashboard.viewMore")}
-                    </Button>
-                  </Link>
-                </>
-              )}
-            </CardContent>
-          </Card>
-        </div>
+                        <div className="flex items-center gap-4 text-xs text-muted-foreground ml-6">
+                          <span className="flex items-center gap-1">
+                            <Calendar className="w-3 h-3" />
+                            {formatDate(offer.created_at)}
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <Users className="w-3 h-3" />
+                            {stats.count} {stats.count === 1 ? t("common.matchedCandidate") : t("common.matchedCandidates")}
+                          </span>
+                        </div>
+                      </div>
+                      <ChevronRight className="w-5 h-5 text-muted-foreground shrink-0" />
+                    </div>
+                  </div>
+                </Link>
+              );
+            })}
+            <Link to="/employer/offers" className="block text-center">
+              <Button variant="ghost" size="sm" className="w-full">
+                {t("employer.dashboard.viewMore")}
+              </Button>
+            </Link>
+          </CardContent>
+        </Card>
       )}
-      <FeedbackModal userType="employer" isComplete={isProfileComplete || false} />
+      <FeedbackModal userType="employer" isComplete={hasCompanyProfile && hasOffers} />
     </DashboardLayout>
   );
 };

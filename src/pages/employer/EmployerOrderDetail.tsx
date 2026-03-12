@@ -18,7 +18,6 @@ const EmployerOrderDetail = () => {
   const { t } = useTranslation();
   const [offer, setOffer] = useState<any>(null);
   const [matchCount, setMatchCount] = useState(0);
-  const [cultureCompleted, setCultureCompleted] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -29,16 +28,14 @@ const EmployerOrderDetail = () => {
   const fetchOrder = async () => {
     if (!user || !orderId) return;
     try {
-      const [offerResult, matchResult, profileResult] = await Promise.all([
+      const [offerResult, matchResult] = await Promise.all([
         supabase.from("job_offers").select("*").eq("id", orderId).eq("user_id", user.id).single(),
         supabase.from("match_results").select("*", { count: "exact", head: true }).eq("job_offer_id", orderId),
-        supabase.from("employer_profiles").select("culture_completed").eq("user_id", user.id).single()
       ]);
 
       if (offerResult.error) throw offerResult.error;
       setOffer(offerResult.data);
       setMatchCount(matchResult.count || 0);
-      setCultureCompleted(profileResult.data?.culture_completed || false);
     } catch (error) {
       logError("EmployerOrderDetail.fetchOrder", error);
       navigate("/employer/dashboard");
@@ -83,7 +80,7 @@ const EmployerOrderDetail = () => {
     {
       title: t("employer.offerForm.cultureTitle"),
       description: t("employer.offerForm.cultureDescription"),
-      completed: cultureCompleted,
+      completed: !!offer.culture_completed,
       icon: Heart,
     },
   ];
@@ -91,7 +88,6 @@ const EmployerOrderDetail = () => {
   return (
     <DashboardLayout sidebar={<EmployerSidebar />}>
       <div className="max-w-3xl mx-auto">
-        {/* Header */}
         <div className="mb-6">
           <Button variant="ghost" size="sm" onClick={() => navigate("/employer/dashboard")} className="mb-4 gap-2">
             <ArrowLeft className="w-4 h-4" />
@@ -120,7 +116,6 @@ const EmployerOrderDetail = () => {
           </div>
         </div>
 
-        {/* Order Details */}
         <Card className="mb-6">
           <CardHeader>
             <CardTitle className="text-lg">{t("employer.orderDetail.detailsTitle")}</CardTitle>
@@ -161,7 +156,6 @@ const EmployerOrderDetail = () => {
           </CardContent>
         </Card>
 
-        {/* Candidates CTA */}
         <Card className="border-accent/20 hover:shadow-lg transition-shadow">
           <Link to={`/employer/candidates?offerId=${offer.id}`} className="block">
             <CardContent className="pt-6">

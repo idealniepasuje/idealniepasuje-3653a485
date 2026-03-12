@@ -285,6 +285,14 @@ export type Database = {
           city: string | null
           company_name: string | null
           created_at: string
+          culture_answers: Json | null
+          culture_autonomia_styl_pracy: number | null
+          culture_completed: boolean | null
+          culture_elastycznosc_innowacyjnosc: number | null
+          culture_relacja_wspolpraca: number | null
+          culture_stabilnosc_struktura: number | null
+          culture_wlb_dobrostan: number | null
+          culture_wyniki_cele: number | null
           id: string
           industry: string | null
           is_active: boolean | null
@@ -309,6 +317,14 @@ export type Database = {
           city?: string | null
           company_name?: string | null
           created_at?: string
+          culture_answers?: Json | null
+          culture_autonomia_styl_pracy?: number | null
+          culture_completed?: boolean | null
+          culture_elastycznosc_innowacyjnosc?: number | null
+          culture_relacja_wspolpraca?: number | null
+          culture_stabilnosc_struktura?: number | null
+          culture_wlb_dobrostan?: number | null
+          culture_wyniki_cele?: number | null
           id?: string
           industry?: string | null
           is_active?: boolean | null
@@ -333,6 +349,14 @@ export type Database = {
           city?: string | null
           company_name?: string | null
           created_at?: string
+          culture_answers?: Json | null
+          culture_autonomia_styl_pracy?: number | null
+          culture_completed?: boolean | null
+          culture_elastycznosc_innowacyjnosc?: number | null
+          culture_relacja_wspolpraca?: number | null
+          culture_stabilnosc_struktura?: number | null
+          culture_wlb_dobrostan?: number | null
+          culture_wyniki_cele?: number | null
           id?: string
           industry?: string | null
           is_active?: boolean | null
