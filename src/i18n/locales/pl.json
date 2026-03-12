@@ -348,7 +348,12 @@
       "searchingCandidatesDescription": "Pracujemy teraz nad znalezieniem idealnego kandydata. Gdy go znajdziemy, otrzymasz powiadomienie.",
       "yourOrders": "Twoje zlecenia",
       "newOffer": "Nowe zlecenie",
-      "viewMore": "Zobacz wszystkie"
+      "viewMore": "Zobacz wszystkie",
+      "completeProfileTitle": "Uzupełnij profil firmy",
+      "completeProfileDescription": "Zanim dodasz pierwsze zlecenie, uzupełnij podstawowe informacje o firmie – nazwę i branżę.",
+      "goToProfile": "Przejdź do profilu",
+      "createFirstJobTitle": "Dodaj pierwsze zlecenie",
+      "createFirstJobDescription": "Profil firmy jest gotowy! Teraz możesz dodać swoje pierwsze zlecenie rekrutacyjne."
     },
     "role": {
       "title": "Opis roli",
