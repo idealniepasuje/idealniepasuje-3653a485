@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowLeft, Plus, X, FileText, Settings, Heart, ChevronRight, CheckCircle2, CheckCircle, Laptop } from "lucide-react";
+import { ArrowLeft, Plus, X, FileText, Settings, Heart, ChevronRight, CheckCircle2, CheckCircle } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -60,19 +60,14 @@ const EmployerOfferForm = () => {
     return "";
   };
 
-  const isTitleValid = formData.title.trim().length >= 3 && 
-    formData.title.trim().length <= 100 && 
-    /^[a-zA-ZąćęłńóśźżĄĆĘŁŃÓŚŹŻ\s\-/]+$/.test(formData.title.trim());
   const [acceptFromOtherIndustries, setAcceptFromOtherIndustries] = useState(false);
   const [acceptedIndustryRequirements, setAcceptedIndustryRequirements] = useState<AcceptedIndustryRequirement[]>([]);
   const [competencyReqs, setCompetencyReqs] = useState({ 
     komunikacja: 3, myslenie_analityczne: 3, out_of_the_box: 3, determinacja: 3, adaptacja: 3 
   });
-  const [cultureAnswers, setCultureAnswers] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(!isNew);
   const [saving, setSaving] = useState(false);
 
-  // Step completion status
   const [roleCompleted, setRoleCompleted] = useState(false);
   const [requirementsCompleted, setRequirementsCompleted] = useState(false);
   const [cultureCompleted, setCultureCompleted] = useState(false);
@@ -84,7 +79,23 @@ const EmployerOfferForm = () => {
   useEffect(() => {
     if (!authLoading && !user) { navigate("/login"); return; }
     if (user && !isNew) fetchOffer();
+    if (user && isNew) loadCompanyDefaults();
   }, [user, authLoading, navigate, isNew]);
+
+  const loadCompanyDefaults = async () => {
+    if (!user) return;
+    const { data: profile } = await supabase
+      .from("employer_profiles")
+      .select("company_name, industry")
+      .eq("user_id", user.id)
+      .single();
+    if (profile) {
+      setFormData(p => ({
+        ...p,
+        companyName: profile.company_name || "",
+      }));
+    }
+  };
 
   const fetchOffer = async () => {
     if (!user || !offerId) return;
@@ -125,16 +136,9 @@ const EmployerOfferForm = () => {
           adaptacja: data.req_adaptacja || 3
         });
 
-        // Check step completion
         setRoleCompleted(!!(data.role_description || data.role_responsibilities));
         setRequirementsCompleted(!!(data.industry && data.position_level && (data.no_experience_required || data.required_experience)));
-        // Culture is stored in employer_profiles, check it separately
-        const { data: profileData } = await supabase
-          .from("employer_profiles")
-          .select("culture_completed")
-          .eq("user_id", user.id)
-          .single();
-        setCultureCompleted(profileData?.culture_completed || false);
+        setCultureCompleted(!!(data as any).culture_completed);
       }
     } catch (error) {
       logError("EmployerOfferForm.fetchOffer", error);
@@ -178,20 +182,26 @@ const EmployerOfferForm = () => {
   const createOfferIfNeeded = async (): Promise<string | null> => {
     if (!user) return null;
     if (currentOfferId && currentOfferId !== "new") return currentOfferId;
-    // Validate title before creating
+    
     const titleErr = validateTitle(formData.title);
     if (titleErr) {
       setTitleError(titleErr);
       return null;
     }
     
-    // Create new offer
+    // Get company_name from employer profile
+    const { data: profile } = await supabase
+      .from("employer_profiles")
+      .select("company_name")
+      .eq("user_id", user.id)
+      .single();
+    
     const { data, error } = await supabase
       .from("job_offers")
       .insert({
         user_id: user.id,
         title: formData.title.trim(),
-        company_name: formData.companyName.trim() || null,
+        company_name: profile?.company_name || formData.companyName.trim() || null,
       })
       .select("id")
       .single();
@@ -199,7 +209,6 @@ const EmployerOfferForm = () => {
     if (error) throw error;
     if (data) {
       setCurrentOfferId(data.id);
-      // Update URL to reflect the real ID
       window.history.replaceState(null, "", `/employer/offer/${data.id}`);
       return data.id;
     }
@@ -209,7 +218,6 @@ const EmployerOfferForm = () => {
   const saveRole = async () => {
     if (!user) return;
     
-    // Validate title
     const titleErr = validateTitle(formData.title);
     if (titleErr) { setTitleError(titleErr); return; }
     
@@ -291,23 +299,6 @@ const EmployerOfferForm = () => {
     }
   };
 
-  const saveCulture = async () => {
-    if (!user || !offerId) return;
-    setSaving(true);
-    try {
-      // Culture is saved in employer_profiles, not job_offers
-      // For now, just mark as completed
-      setCultureCompleted(true);
-      setCurrentStep("complete");
-      toast.success(t("common.saved"));
-    } catch (error) {
-      logError("EmployerOfferForm.saveCulture", error);
-      toast.error(t("errors.genericError"));
-    } finally {
-      setSaving(false);
-    }
-  };
-
   const usedIndustries = [formData.industry, ...acceptedIndustryRequirements.map(r => r.industry)].filter(Boolean);
 
   if (authLoading || loading) {
@@ -320,7 +311,6 @@ const EmployerOfferForm = () => {
     );
   }
 
-  // Step cards for overview
   const steps = [
     {
       id: "role" as const,
@@ -366,7 +356,18 @@ const EmployerOfferForm = () => {
             {steps.map((step) => {
               const IconComponent = step.icon;
               return (
-                <Card key={step.id} className="group transition-shadow hover:shadow-lg cursor-pointer" onClick={() => setCurrentStep(step.id)}>
+                <Card key={step.id} className="group transition-shadow hover:shadow-lg cursor-pointer" onClick={() => {
+                  if (step.id === "culture") {
+                    const realId = currentOfferId || offerId;
+                    if (realId && realId !== "new") {
+                      navigate(`/employer/culture?offerId=${realId}`);
+                    } else {
+                      toast.error(t("employer.offerForm.saveRoleFirst"));
+                    }
+                  } else {
+                    setCurrentStep(step.id);
+                  }
+                }}>
                   <CardHeader className="pb-3">
                     <div className="flex items-start justify-between">
                       <div className={`w-12 h-12 rounded-lg ${step.iconBg} flex items-center justify-center group-hover:scale-105 transition-transform`}>
@@ -488,7 +489,6 @@ const EmployerOfferForm = () => {
               <div>
                 <h3 className="font-semibold mb-4">{t("employer.requirements.mainRequirements")}</h3>
                 
-                {/* Industry */}
                 <div className="space-y-2 mb-4">
                   <Label>{t("employer.requirements.industryLabel")} *</Label>
                   <Select value={formData.industry} onValueChange={(v) => setFormData(p => ({ ...p, industry: v }))}>
@@ -503,7 +503,6 @@ const EmployerOfferForm = () => {
                   </Select>
                 </div>
 
-                {/* Position level */}
                 <div className="space-y-2 mb-4">
                   <Label>{t("employer.requirements.positionLevelLabel")} *</Label>
                   <Select value={formData.positionLevel} onValueChange={(v) => setFormData(p => ({ ...p, positionLevel: v }))}>
@@ -518,7 +517,6 @@ const EmployerOfferForm = () => {
                   </Select>
                 </div>
 
-                {/* Experience */}
                 <div className="space-y-2 mb-4">
                   <Label>{t("employer.requirements.experienceLabel")} *</Label>
                   <Select 
@@ -668,10 +666,12 @@ const EmployerOfferForm = () => {
     );
   }
 
-  // Culture step - redirects to employer culture page
+  // Culture step - redirects to employer culture page with offerId
   if (currentStep === "culture") {
-    // Redirect to culture test
-    navigate("/employer/culture");
+    const realId = currentOfferId || offerId;
+    if (realId && realId !== "new") {
+      navigate(`/employer/culture?offerId=${realId}`);
+    }
     return null;
   }
 
