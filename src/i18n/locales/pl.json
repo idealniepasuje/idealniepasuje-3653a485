@@ -503,7 +503,8 @@
       "titleMaxLength": "Nazwa roli może mieć maksymalnie 100 znaków",
       "titleLettersOnly": "Nazwa roli może zawierać tylko litery",
       "companyNameLabel": "Nazwa firmy",
-      "companyNamePlaceholder": "np. Acme Sp. z o.o."
+      "companyNamePlaceholder": "np. Acme Sp. z o.o.",
+      "saveRoleFirst": "Najpierw zapisz opis roli, aby przejść do testu kultury"
     },
     "profile": {
       "title": "Profil firmy",

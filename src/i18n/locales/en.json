@@ -503,7 +503,8 @@
       "titleMaxLength": "Role name cannot exceed 100 characters",
       "titleLettersOnly": "Role name can only contain letters",
       "companyNameLabel": "Company name",
-      "companyNamePlaceholder": "e.g. Acme Inc."
+      "companyNamePlaceholder": "e.g. Acme Inc.",
+      "saveRoleFirst": "Save the role description first to proceed to the culture test"
     },
     "profile": {
       "title": "Company Profile",
