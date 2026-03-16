@@ -87,12 +87,19 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     };
   }, []);
 
-  const signOut = async () => {
+  const signOut = useCallback(async () => {
     await supabase.auth.signOut();
     setUser(null);
     setSession(null);
     setUserType(null);
-  };
+  }, []);
+
+  const handleInactivityLogout = useCallback(() => {
+    toast.info('Wylogowano z powodu braku aktywności');
+    signOut();
+  }, [signOut]);
+
+  useInactivityLogout(handleInactivityLogout, 30 * 60 * 1000, !!user);
 
   return (
     <AuthContext.Provider value={{ user, session, userType, loading, signOut }}>
