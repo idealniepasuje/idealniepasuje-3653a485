@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Users, Building2, ArrowLeft } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -24,10 +25,29 @@ const Register = () => {
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
   const [companyName, setCompanyName] = useState("");
+  const [gdprConsent, setGdprConsent] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  const passwordErrors = (() => {
+    const errors: string[] = [];
+    if (password.length > 0 && password.length < 8) errors.push(t("register.passwordMinLength"));
+    if (password.length > 0 && !/[A-Z]/.test(password)) errors.push(t("register.passwordUppercase"));
+    if (password.length > 0 && !/[0-9]/.test(password)) errors.push(t("register.passwordDigit"));
+    return errors;
+  })();
+
+  const isPasswordValid = password.length >= 8 && /[A-Z]/.test(password) && /[0-9]/.test(password);
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!gdprConsent) {
+      toast.error(t("register.gdprRequired"));
+      return;
+    }
+    if (!isPasswordValid) {
+      toast.error(t("register.passwordTooWeak"));
+      return;
+    }
     setLoading(true);
 
     try {
@@ -149,13 +169,32 @@ const Register = () => {
                     placeholder="••••••••"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    minLength={6}
+                    minLength={8}
                     required
                   />
-                  <p className="text-xs text-muted-foreground">{t("register.passwordHint")}</p>
+                  {passwordErrors.length > 0 && (
+                    <ul className="text-xs text-destructive space-y-0.5 mt-1">
+                      {passwordErrors.map((err, i) => <li key={i}>• {err}</li>)}
+                    </ul>
+                  )}
+                  <p className="text-xs text-muted-foreground">{t("register.passwordHintStrong")}</p>
                 </div>
 
-                <Button type="submit" className="w-full bg-cta text-cta-foreground hover:bg-cta/90" disabled={loading}>
+                <div className="flex items-start space-x-2">
+                  <Checkbox
+                    id="gdpr"
+                    checked={gdprConsent}
+                    onCheckedChange={(checked) => setGdprConsent(checked === true)}
+                  />
+                  <label htmlFor="gdpr" className="text-xs text-muted-foreground leading-tight cursor-pointer">
+                    {t("register.gdprLabel")}{" "}
+                    <Link to="/privacy" target="_blank" className="text-accent hover:underline">
+                      {t("register.privacyPolicy")}
+                    </Link>
+                  </label>
+                </div>
+
+                <Button type="submit" className="w-full bg-cta text-cta-foreground hover:bg-cta/90" disabled={loading || !gdprConsent || !isPasswordValid}>
                   {loading ? t("common.creatingAccount") : t("register.title")}
                 </Button>
               </form>
