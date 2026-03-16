@@ -10,6 +10,7 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 const Index = lazy(() => import("./pages/Index"));
 const Login = lazy(() => import("./pages/Login"));
 const Register = lazy(() => import("./pages/Register"));
+const Privacy = lazy(() => import("./pages/Privacy"));
 const CandidateDashboard = lazy(() => import("./pages/candidate/CandidateDashboard"));
 const CompetencyTest = lazy(() => import("./pages/candidate/CompetencyTest"));
 const CultureTest = lazy(() => import("./pages/candidate/CultureTest"));
