@@ -194,7 +194,7 @@ const Register = () => {
                   </label>
                 </div>
 
-                <Button type="submit" className="w-full bg-cta text-cta-foreground hover:bg-cta/90" disabled={loading}>
+                <Button type="submit" className="w-full bg-cta text-cta-foreground hover:bg-cta/90" disabled={loading || !gdprConsent || !isPasswordValid}>
                   {loading ? t("common.creatingAccount") : t("register.title")}
                 </Button>
               </form>
