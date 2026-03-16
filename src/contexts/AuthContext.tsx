@@ -1,8 +1,10 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState, useCallback, ReactNode } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { logError } from '@/lib/errorLogger';
 import { ensureUserBootstrap } from '@/lib/ensureUserBootstrap';
+import { useInactivityLogout } from '@/hooks/useInactivityLogout';
+import { toast } from 'sonner';
 
 interface AuthContextType {
   user: User | null;
