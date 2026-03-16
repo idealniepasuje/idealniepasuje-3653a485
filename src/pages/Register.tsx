@@ -25,7 +25,18 @@ const Register = () => {
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
   const [companyName, setCompanyName] = useState("");
+  const [gdprConsent, setGdprConsent] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  const passwordErrors = (() => {
+    const errors: string[] = [];
+    if (password.length > 0 && password.length < 8) errors.push(t("register.passwordMinLength"));
+    if (password.length > 0 && !/[A-Z]/.test(password)) errors.push(t("register.passwordUppercase"));
+    if (password.length > 0 && !/[0-9]/.test(password)) errors.push(t("register.passwordDigit"));
+    return errors;
+  })();
+
+  const isPasswordValid = password.length >= 8 && /[A-Z]/.test(password) && /[0-9]/.test(password);
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
