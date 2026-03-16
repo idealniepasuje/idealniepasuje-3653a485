@@ -40,6 +40,14 @@ const Register = () => {
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!gdprConsent) {
+      toast.error(t("register.gdprRequired"));
+      return;
+    }
+    if (!isPasswordValid) {
+      toast.error(t("register.passwordTooWeak"));
+      return;
+    }
     setLoading(true);
 
     try {
