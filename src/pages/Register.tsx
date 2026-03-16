@@ -169,10 +169,29 @@ const Register = () => {
                     placeholder="••••••••"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    minLength={6}
+                    minLength={8}
                     required
                   />
-                  <p className="text-xs text-muted-foreground">{t("register.passwordHint")}</p>
+                  {passwordErrors.length > 0 && (
+                    <ul className="text-xs text-destructive space-y-0.5 mt-1">
+                      {passwordErrors.map((err, i) => <li key={i}>• {err}</li>)}
+                    </ul>
+                  )}
+                  <p className="text-xs text-muted-foreground">{t("register.passwordHintStrong")}</p>
+                </div>
+
+                <div className="flex items-start space-x-2">
+                  <Checkbox
+                    id="gdpr"
+                    checked={gdprConsent}
+                    onCheckedChange={(checked) => setGdprConsent(checked === true)}
+                  />
+                  <label htmlFor="gdpr" className="text-xs text-muted-foreground leading-tight cursor-pointer">
+                    {t("register.gdprLabel")}{" "}
+                    <Link to="/privacy" target="_blank" className="text-accent hover:underline">
+                      {t("register.privacyPolicy")}
+                    </Link>
+                  </label>
                 </div>
 
                 <Button type="submit" className="w-full bg-cta text-cta-foreground hover:bg-cta/90" disabled={loading}>
