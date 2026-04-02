@@ -25,6 +25,8 @@ const EmployerProfile = () => {
   const [linkedinUrl, setLinkedinUrl] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [cultureCompleted, setCultureCompleted] = useState(false);
 
   const lang = i18n.language === 'en' ? 'en' : 'pl';
   const industryOptions = getLocalizedData(industries, lang).filter(ind => ind !== (lang === 'pl' ? "Nie mam doświadczenia" : "No experience"));
@@ -39,7 +41,7 @@ const EmployerProfile = () => {
     try {
       const { data, error } = await supabase
         .from("employer_profiles")
-        .select("company_name, industry, linkedin_url")
+        .select("company_name, industry, linkedin_url, culture_completed, profile_completed")
         .eq("user_id", user.id)
         .single();
       
@@ -50,6 +52,7 @@ const EmployerProfile = () => {
         setCompanyName(data.company_name || "");
         setIndustry(data.industry || "");
         setLinkedinUrl(data.linkedin_url || "");
+        setCultureCompleted(!!data.culture_completed);
       }
     } catch (error) {
       logError("EmployerProfile.fetchProfile", error);
@@ -80,6 +83,7 @@ const EmployerProfile = () => {
         .eq("user_id", user.id);
 
       toast.success(t("employer.role.saved"));
+      setSaved(true);
     } catch (error) {
       logError("EmployerProfile.handleSubmit", error);
       toast.error(t("errors.genericError"));
