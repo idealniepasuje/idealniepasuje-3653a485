@@ -12,7 +12,7 @@ import { toast } from "sonner";
 import { DashboardLayout } from "@/components/layouts/DashboardLayout";
 import { EmployerSidebar } from "@/components/layouts/EmployerSidebar";
 import { logError } from "@/lib/errorLogger";
-import { Building2 } from "lucide-react";
+import { Building2, ArrowRight, CheckCircle2 } from "lucide-react";
 import { industries, getLocalizedData } from "@/data/additionalQuestions";
 
 const EmployerProfile = () => {
