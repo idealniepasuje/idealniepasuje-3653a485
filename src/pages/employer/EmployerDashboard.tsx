@@ -84,6 +84,7 @@ const EmployerDashboard = () => {
   }
 
   const hasCompanyProfile = !!(employerProfile?.company_name && employerProfile?.industry);
+  const hasCultureCompleted = !!employerProfile?.culture_completed;
   const hasOffers = offers.length > 0;
 
   return (
