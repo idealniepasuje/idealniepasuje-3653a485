@@ -25,7 +25,7 @@ const Privacy = () => {
               <p className="text-muted-foreground mb-8">Ostatnia aktualizacja: 16 marca 2026</p>
 
               <h2 className="text-xl font-semibold mt-8 mb-3">1. Administrator danych</h2>
-              <p>Administratorem Twoich danych osobowych jest idealniepasuje. Kontakt w sprawie danych: <strong>kontakt@idealniepasuje.pl</strong>.</p>
+              <p>Administratorem Twoich danych osobowych jest idealniepasuje. Kontakt w sprawie danych: <strong>idealnyserwisrekrutacyjny@gmail.com</strong>.</p>
 
               <h2 className="text-xl font-semibold mt-8 mb-3">2. Jakie dane zbieramy</h2>
               <ul className="list-disc pl-6 space-y-1">
