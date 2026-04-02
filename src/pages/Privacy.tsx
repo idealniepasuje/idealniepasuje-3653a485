@@ -82,7 +82,7 @@ const Privacy = () => {
               <p>Używamy wyłącznie niezbędnych plików cookies do utrzymania sesji logowania. Nie stosujemy plików cookies marketingowych ani śledzących.</p>
 
               <h2 className="text-xl font-semibold mt-8 mb-3">10. Kontakt</h2>
-              <p>W sprawach związanych z ochroną danych osobowych skontaktuj się z nami: <strong>kontakt@idealniepasuje.pl</strong></p>
+              <p>W sprawach związanych z ochroną danych osobowych skontaktuj się z nami: <strong>idealnyserwisrekrutacyjny@gmail.com</strong></p>
             </>
           ) : (
             <>
