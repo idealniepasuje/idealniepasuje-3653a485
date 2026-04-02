@@ -162,6 +162,51 @@ const EmployerProfile = () => {
             </Button>
           </CardContent>
         </Card>
+
+        {/* CTA after save: go to culture form */}
+        {saved && !cultureCompleted && (
+          <Card className="mt-6 bg-gradient-to-r from-cta/10 to-accent/10 border-cta/20">
+            <CardContent className="pt-6">
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 rounded-full bg-cta/20 flex items-center justify-center shrink-0">
+                  <CheckCircle2 className="w-6 h-6 text-cta" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-lg font-bold mb-1">{t("employer.profile.savedSuccess")}</h3>
+                  <p className="text-muted-foreground mb-4">{t("employer.profile.nextStepCulture")}</p>
+                  <Link to="/employer/culture">
+                    <Button className="gap-2 bg-cta text-cta-foreground hover:bg-cta/90">
+                      {t("employer.profile.goToCulture")}
+                      <ArrowRight className="w-4 h-4" />
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {saved && cultureCompleted && (
+          <Card className="mt-6 bg-gradient-to-r from-success/10 to-accent/10 border-success/20">
+            <CardContent className="pt-6">
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 rounded-full bg-success/20 flex items-center justify-center shrink-0">
+                  <CheckCircle2 className="w-6 h-6 text-success" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-lg font-bold mb-1">{t("employer.profile.savedSuccess")}</h3>
+                  <p className="text-muted-foreground mb-4">{t("employer.profile.backToDashboard")}</p>
+                  <Link to="/employer/dashboard">
+                    <Button className="gap-2 bg-cta text-cta-foreground hover:bg-cta/90">
+                      {t("employer.dashboard.title")}
+                      <ArrowRight className="w-4 h-4" />
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </div>
     </DashboardLayout>
   );
