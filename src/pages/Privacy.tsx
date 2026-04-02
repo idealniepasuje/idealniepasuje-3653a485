@@ -25,7 +25,7 @@ const Privacy = () => {
               <p className="text-muted-foreground mb-8">Ostatnia aktualizacja: 16 marca 2026</p>
 
               <h2 className="text-xl font-semibold mt-8 mb-3">1. Administrator danych</h2>
-              <p>Administratorem Twoich danych osobowych jest idealniepasuje. Kontakt w sprawie danych: <strong>kontakt@idealniepasuje.pl</strong>.</p>
+              <p>Administratorem Twoich danych osobowych jest idealniepasuje. Kontakt w sprawie danych: <strong>idealnyserwisrekrutacyjny@gmail.com</strong>.</p>
 
               <h2 className="text-xl font-semibold mt-8 mb-3">2. Jakie dane zbieramy</h2>
               <ul className="list-disc pl-6 space-y-1">
@@ -82,7 +82,7 @@ const Privacy = () => {
               <p>Używamy wyłącznie niezbędnych plików cookies do utrzymania sesji logowania. Nie stosujemy plików cookies marketingowych ani śledzących.</p>
 
               <h2 className="text-xl font-semibold mt-8 mb-3">10. Kontakt</h2>
-              <p>W sprawach związanych z ochroną danych osobowych skontaktuj się z nami: <strong>kontakt@idealniepasuje.pl</strong></p>
+              <p>W sprawach związanych z ochroną danych osobowych skontaktuj się z nami: <strong>idealnyserwisrekrutacyjny@gmail.com</strong></p>
             </>
           ) : (
             <>
@@ -90,7 +90,7 @@ const Privacy = () => {
               <p className="text-muted-foreground mb-8">Last updated: March 16, 2026</p>
 
               <h2 className="text-xl font-semibold mt-8 mb-3">1. Data Controller</h2>
-              <p>The controller of your personal data is idealniepasuje. Contact for data matters: <strong>kontakt@idealniepasuje.pl</strong>.</p>
+              <p>The controller of your personal data is idealniepasuje. Contact for data matters: <strong>idealnyserwisrekrutacyjny@gmail.com</strong>.</p>
 
               <h2 className="text-xl font-semibold mt-8 mb-3">2. Data We Collect</h2>
               <ul className="list-disc pl-6 space-y-1">
@@ -147,7 +147,7 @@ const Privacy = () => {
               <p>We only use essential cookies for session management. We do not use marketing or tracking cookies.</p>
 
               <h2 className="text-xl font-semibold mt-8 mb-3">10. Contact</h2>
-              <p>For data protection inquiries, contact us at: <strong>kontakt@idealniepasuje.pl</strong></p>
+              <p>For data protection inquiries, contact us at: <strong>idealnyserwisrekrutacyjny@gmail.com</strong></p>
             </>
           )}
         </article>
