@@ -147,7 +147,7 @@ const Privacy = () => {
               <p>We only use essential cookies for session management. We do not use marketing or tracking cookies.</p>
 
               <h2 className="text-xl font-semibold mt-8 mb-3">10. Contact</h2>
-              <p>For data protection inquiries, contact us at: <strong>kontakt@idealniepasuje.pl</strong></p>
+              <p>For data protection inquiries, contact us at: <strong>idealnyserwisrekrutacyjny@gmail.com</strong></p>
             </>
           )}
         </article>
