@@ -179,7 +179,7 @@ const EmployerDashboard = () => {
       )}
 
       {/* Thank You Card - Show when profile is complete and has offers */}
-      {hasCompanyProfile && hasOffers && (
+      {hasCompanyProfile && hasCultureCompleted && hasOffers && (
         <Card className="mb-6 bg-gradient-to-r from-accent to-primary text-primary-foreground border-0">
           <CardContent className="pt-6">
             <div className="flex items-start gap-4">
