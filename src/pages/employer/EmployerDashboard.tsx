@@ -264,7 +264,7 @@ const EmployerDashboard = () => {
           </CardContent>
         </Card>
       )}
-      <FeedbackModal userType="employer" isComplete={hasCompanyProfile && hasOffers} />
+      <FeedbackModal userType="employer" isComplete={hasCompanyProfile && hasCultureCompleted && hasOffers} />
     </DashboardLayout>
   );
 };
