@@ -127,8 +127,33 @@ const EmployerDashboard = () => {
         </Card>
       )}
 
-      {/* Step 2: Create first job */}
-      {hasCompanyProfile && !hasOffers && (
+      {/* Step 2: Complete culture form */}
+      {hasCompanyProfile && !hasCultureCompleted && (
+        <Card className="mb-6 bg-gradient-to-r from-cta/10 to-accent/10 border-cta/20">
+          <CardContent className="pt-6">
+            <div className="flex items-start gap-4">
+              <div className="w-14 h-14 rounded-full bg-cta/20 flex items-center justify-center shrink-0">
+                <ClipboardList className="w-7 h-7 text-cta" />
+              </div>
+              <div className="flex-1">
+                <h2 className="text-xl font-bold mb-2">{t("employer.dashboard.completeCultureTitle")}</h2>
+                <p className="text-muted-foreground mb-4">
+                  {t("employer.dashboard.completeCultureDescription")}
+                </p>
+                <Link to="/employer/culture">
+                  <Button className="gap-2 bg-cta text-cta-foreground hover:bg-cta/90">
+                    {t("employer.dashboard.goToCulture")}
+                    <ArrowRight className="w-4 h-4" />
+                  </Button>
+                </Link>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Step 3: Create first job */}
+      {hasCompanyProfile && hasCultureCompleted && !hasOffers && (
         <Card className="mb-6 bg-gradient-to-r from-cta/10 to-accent/10 border-cta/20">
           <CardContent className="pt-6">
             <div className="flex items-start gap-4">
