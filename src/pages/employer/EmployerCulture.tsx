@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate, Link, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
@@ -25,6 +25,7 @@ const EmployerCulture = () => {
   
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, number>>({});
+  const answersRef = useRef<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [showResults, setShowResults] = useState(false);
@@ -32,6 +33,9 @@ const EmployerCulture = () => {
   const questions = employerCultureQuestions;
   const localizedDimensions = getLocalizedCultureDimensions(i18n.language);
   const localizedScale = getLocalizedData(agreementScale, i18n.language);
+
+  // Keep ref in sync
+  useEffect(() => { answersRef.current = answers; }, [answers]);
 
   useEffect(() => {
     if (!authLoading && !user) { navigate("/login"); return; }
@@ -41,7 +45,6 @@ const EmployerCulture = () => {
   const fetchData = async () => {
     if (!user) return;
     
-    // Try to load culture answers from the job offer first
     if (offerId) {
       const { data: offerData } = await supabase
         .from("job_offers")
@@ -51,15 +54,18 @@ const EmployerCulture = () => {
         .single();
       
       if (offerData?.culture_answers && Object.keys(offerData.culture_answers as object).length > 0) {
-        setAnswers(offerData.culture_answers as Record<string, number>);
-        if (offerData.culture_completed) calculateResults(offerData.culture_answers as Record<string, number>);
+        const savedAnswers = offerData.culture_answers as Record<string, number>;
+        setAnswers(savedAnswers);
+        answersRef.current = savedAnswers;
+        if (offerData.culture_completed) calculateResults(savedAnswers);
       }
     } else {
-      // Fallback: load from employer_profiles (legacy)
       const { data } = await supabase.from("employer_profiles").select("culture_answers, culture_completed").eq("user_id", user.id).single();
       if (data?.culture_answers && Object.keys(data.culture_answers as object).length > 0) {
-        setAnswers(data.culture_answers as Record<string, number>);
-        if (data.culture_completed) calculateResults(data.culture_answers as Record<string, number>);
+        const savedAnswers = data.culture_answers as Record<string, number>;
+        setAnswers(savedAnswers);
+        answersRef.current = savedAnswers;
+        if (data.culture_completed) calculateResults(savedAnswers);
       }
     }
     setLoading(false);
@@ -73,7 +79,8 @@ const EmployerCulture = () => {
       dimQuestions.forEach(q => { if (answerData[q.id]) { sum += answerData[q.id]; count++; } });
       scores[dim] = count > 0 ? sum / count : 0;
     });
-    setDimensionScores(scores); setShowResults(true);
+    setDimensionScores(scores);
+    setShowResults(true);
   };
 
   const generateMatches = async () => {
@@ -105,67 +112,72 @@ const EmployerCulture = () => {
     }
   };
 
-  const handleNext = useCallback(async () => {
-    if (currentQuestionIndex < questions.length - 1) { setCurrentQuestionIndex(i => i + 1); }
-    else {
-      setSaving(true);
-      const latestAnswers = { ...answers };
-      const scores: Record<string, number> = {};
-      Object.keys(localizedDimensions).forEach(dim => {
-        const dimQuestions = questions.filter(q => q.dimensionCode === dim);
-        let sum = 0, count = 0;
-        dimQuestions.forEach(q => { if (latestAnswers[q.id]) { sum += latestAnswers[q.id]; count++; } });
-        scores[dim] = count > 0 ? sum / count : 0;
-      });
+  const saveAndFinish = useCallback(async (finalAnswers: Record<string, number>) => {
+    setSaving(true);
+    const scores: Record<string, number> = {};
+    Object.keys(localizedDimensions).forEach(dim => {
+      const dimQuestions = questions.filter(q => q.dimensionCode === dim);
+      let sum = 0, count = 0;
+      dimQuestions.forEach(q => { if (finalAnswers[q.id]) { sum += finalAnswers[q.id]; count++; } });
+      scores[dim] = count > 0 ? sum / count : 0;
+    });
 
-      // Save culture data to job_offers if offerId is provided
-      if (offerId) {
-        const { error } = await supabase.from("job_offers").update({
-          culture_answers: latestAnswers,
-          culture_completed: true,
-          culture_relacja_wspolpraca: scores.relacja_wspolpraca,
-          culture_elastycznosc_innowacyjnosc: scores.elastycznosc_innowacyjnosc,
-          culture_wyniki_cele: scores.wyniki_cele,
-          culture_stabilnosc_struktura: scores.stabilnosc_struktura,
-          culture_autonomia_styl_pracy: scores.autonomia_styl_pracy,
-          culture_wlb_dobrostan: scores.wlb_dobrostan,
-        }).eq("id", offerId).eq("user_id", user!.id);
+    const cultureData = {
+      culture_answers: finalAnswers,
+      culture_completed: true,
+      culture_relacja_wspolpraca: scores.relacja_wspolpraca,
+      culture_elastycznosc_innowacyjnosc: scores.elastycznosc_innowacyjnosc,
+      culture_wyniki_cele: scores.wyniki_cele,
+      culture_stabilnosc_struktura: scores.stabilnosc_struktura,
+      culture_autonomia_styl_pracy: scores.autonomia_styl_pracy,
+      culture_wlb_dobrostan: scores.wlb_dobrostan,
+    };
 
-        if (error) {
-          console.error("Error saving culture to job:", error);
-          toast.error(t("errors.genericError"));
-          setSaving(false);
-          return;
-        }
+    if (offerId) {
+      const { error } = await supabase.from("job_offers").update(cultureData)
+        .eq("id", offerId).eq("user_id", user!.id);
+      if (error) {
+        console.error("Error saving culture to job:", error);
+        toast.error(t("errors.genericError"));
+        setSaving(false);
+        return;
       }
-
-      // Also save to employer_profiles for backward compatibility
-      await supabase.from("employer_profiles").update({
-        culture_answers: latestAnswers,
-        culture_completed: true,
-        profile_completed: true,
-        culture_relacja_wspolpraca: scores.relacja_wspolpraca,
-        culture_elastycznosc_innowacyjnosc: scores.elastycznosc_innowacyjnosc,
-        culture_wyniki_cele: scores.wyniki_cele,
-        culture_stabilnosc_struktura: scores.stabilnosc_struktura,
-        culture_autonomia_styl_pracy: scores.autonomia_styl_pracy,
-        culture_wlb_dobrostan: scores.wlb_dobrostan,
-      }).eq("user_id", user!.id);
-
-      await generateMatches();
-      await sendEmployerResultsEmail();
-      
-      setSaving(false); calculateResults(latestAnswers); toast.success(t("employer.culture.completedMessage"));
     }
-  }, [currentQuestionIndex, questions, answers, user, t, localizedDimensions, offerId]);
+
+    await supabase.from("employer_profiles").update({
+      ...cultureData,
+      profile_completed: true,
+    }).eq("user_id", user!.id);
+
+    await generateMatches();
+    await sendEmployerResultsEmail();
+    
+    setSaving(false);
+    calculateResults(finalAnswers);
+    toast.success(t("employer.culture.completedMessage"));
+  }, [user, t, localizedDimensions, questions, offerId]);
+
+  const handleNext = useCallback(() => {
+    if (currentQuestionIndex < questions.length - 1) {
+      setCurrentQuestionIndex(i => i + 1);
+    } else {
+      saveAndFinish(answersRef.current);
+    }
+  }, [currentQuestionIndex, questions.length, saveAndFinish]);
 
   const handleTimeUp = useCallback(() => {
     const currentQ = questions[currentQuestionIndex];
-    if (!answers[currentQ.id]) {
-      setAnswers(prev => ({ ...prev, [currentQ.id]: 3 }));
+    if (!answersRef.current[currentQ.id]) {
+      const updated = { ...answersRef.current, [currentQ.id]: 3 };
+      setAnswers(updated);
+      answersRef.current = updated;
     }
-    handleNext();
-  }, [currentQuestionIndex, questions, answers, handleNext]);
+    if (currentQuestionIndex < questions.length - 1) {
+      setCurrentQuestionIndex(i => i + 1);
+    } else {
+      saveAndFinish(answersRef.current);
+    }
+  }, [currentQuestionIndex, questions, saveAndFinish]);
 
   const { timeLeft, progress: timerProgress } = useQuestionTimer({
     duration: 25,
@@ -173,6 +185,13 @@ const EmployerCulture = () => {
     questionId: questions[currentQuestionIndex]?.id || "",
     enabled: !showResults && !loading && !authLoading,
   });
+
+  const handleAnswerChange = (value: string) => {
+    const numVal = parseInt(value);
+    const updated = { ...answers, [questions[currentQuestionIndex].id]: numVal };
+    setAnswers(updated);
+    answersRef.current = updated;
+  };
 
   const backPath = offerId ? `/employer/offer/${offerId}` : "/employer/dashboard";
 
@@ -203,7 +222,7 @@ const EmployerCulture = () => {
           <div className="mb-4"><QuestionTimer timeLeft={timeLeft} progress={timerProgress} /></div>
           <p className="text-xs text-muted-foreground mb-2">{t("employer.culture.rateStatement")}</p>
           <h3 className="text-lg font-semibold mb-4">{currentQuestion.text[i18n.language as 'pl' | 'en']}</h3>
-          <RadioGroup key={currentQuestion.id} value={answers[currentQuestion.id]?.toString() || ""} onValueChange={(v) => setAnswers(p => ({...p, [currentQuestion.id]: parseInt(v)}))} className="space-y-2">
+          <RadioGroup key={currentQuestion.id} value={answers[currentQuestion.id]?.toString() || ""} onValueChange={handleAnswerChange} className="space-y-2">
             {localizedScale.map(o => (
               <label
                 key={o.value}
