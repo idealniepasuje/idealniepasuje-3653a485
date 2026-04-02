@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Building2, Users, ChevronRight, Plus, Briefcase, Calendar, Sparkles, MessageSquare, CheckCircle, Settings } from "lucide-react";
+import { Building2, Users, ChevronRight, Plus, Briefcase, Calendar, Sparkles, MessageSquare, CheckCircle, Settings, ClipboardList, ArrowRight } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { logError } from "@/lib/errorLogger";
