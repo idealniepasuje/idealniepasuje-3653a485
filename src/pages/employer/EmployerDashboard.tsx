@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Building2, Users, ChevronRight, Plus, Briefcase, Calendar, Sparkles, MessageSquare, CheckCircle, Settings } from "lucide-react";
+import { Building2, Users, ChevronRight, Plus, Briefcase, Calendar, Sparkles, MessageSquare, CheckCircle, Settings, ClipboardList, ArrowRight } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { logError } from "@/lib/errorLogger";
@@ -84,6 +84,7 @@ const EmployerDashboard = () => {
   }
 
   const hasCompanyProfile = !!(employerProfile?.company_name && employerProfile?.industry);
+  const hasCultureCompleted = !!employerProfile?.culture_completed;
   const hasOffers = offers.length > 0;
 
   return (
@@ -126,8 +127,33 @@ const EmployerDashboard = () => {
         </Card>
       )}
 
-      {/* Step 2: Create first job */}
-      {hasCompanyProfile && !hasOffers && (
+      {/* Step 2: Complete culture form */}
+      {hasCompanyProfile && !hasCultureCompleted && (
+        <Card className="mb-6 bg-gradient-to-r from-cta/10 to-accent/10 border-cta/20">
+          <CardContent className="pt-6">
+            <div className="flex items-start gap-4">
+              <div className="w-14 h-14 rounded-full bg-cta/20 flex items-center justify-center shrink-0">
+                <ClipboardList className="w-7 h-7 text-cta" />
+              </div>
+              <div className="flex-1">
+                <h2 className="text-xl font-bold mb-2">{t("employer.dashboard.completeCultureTitle")}</h2>
+                <p className="text-muted-foreground mb-4">
+                  {t("employer.dashboard.completeCultureDescription")}
+                </p>
+                <Link to="/employer/culture">
+                  <Button className="gap-2 bg-cta text-cta-foreground hover:bg-cta/90">
+                    {t("employer.dashboard.goToCulture")}
+                    <ArrowRight className="w-4 h-4" />
+                  </Button>
+                </Link>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Step 3: Create first job */}
+      {hasCompanyProfile && hasCultureCompleted && !hasOffers && (
         <Card className="mb-6 bg-gradient-to-r from-cta/10 to-accent/10 border-cta/20">
           <CardContent className="pt-6">
             <div className="flex items-start gap-4">
@@ -153,7 +179,7 @@ const EmployerDashboard = () => {
       )}
 
       {/* Thank You Card - Show when profile is complete and has offers */}
-      {hasCompanyProfile && hasOffers && (
+      {hasCompanyProfile && hasCultureCompleted && hasOffers && (
         <Card className="mb-6 bg-gradient-to-r from-accent to-primary text-primary-foreground border-0">
           <CardContent className="pt-6">
             <div className="flex items-start gap-4">
@@ -238,7 +264,7 @@ const EmployerDashboard = () => {
           </CardContent>
         </Card>
       )}
-      <FeedbackModal userType="employer" isComplete={hasCompanyProfile && hasOffers} />
+      <FeedbackModal userType="employer" isComplete={hasCompanyProfile && hasCultureCompleted && hasOffers} />
     </DashboardLayout>
   );
 };

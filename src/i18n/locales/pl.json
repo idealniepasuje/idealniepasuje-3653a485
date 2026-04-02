@@ -361,7 +361,10 @@
       "completeProfileDescription": "Zanim dodasz pierwsze zlecenie, uzupełnij podstawowe informacje o firmie – nazwę i branżę.",
       "goToProfile": "Przejdź do profilu",
       "createFirstJobTitle": "Dodaj pierwsze zlecenie",
-      "createFirstJobDescription": "Profil firmy jest gotowy! Teraz możesz dodać swoje pierwsze zlecenie rekrutacyjne."
+      "createFirstJobDescription": "Profil firmy jest gotowy! Teraz możesz dodać swoje pierwsze zlecenie rekrutacyjne.",
+      "completeCultureTitle": "Wypełnij formularz kultury pracy",
+      "completeCultureDescription": "Określ kulturę organizacyjną Twojej firmy, aby lepiej dopasować kandydatów do Waszego środowiska pracy.",
+      "goToCulture": "Wypełnij formularz kultury"
     },
     "role": {
       "title": "Opis roli",
@@ -520,7 +523,11 @@
       "companyInfo": "Dane firmy",
       "companyInfoDescription": "Podstawowe informacje o Twojej organizacji",
       "industry": "Branża firmy",
-      "selectIndustry": "Wybierz branżę"
+      "selectIndustry": "Wybierz branżę",
+      "savedSuccess": "Profil firmy zapisany!",
+      "nextStepCulture": "Następny krok: wypełnij formularz kultury pracy, aby lepiej dopasować kandydatów do Twojej firmy.",
+      "goToCulture": "Wypełnij formularz kultury",
+      "backToDashboard": "Profil zaktualizowany. Wróć do panelu, aby zarządzać zleceniami."
     }
   },
   "errors": {

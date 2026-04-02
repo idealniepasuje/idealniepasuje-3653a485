@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,7 +12,7 @@ import { toast } from "sonner";
 import { DashboardLayout } from "@/components/layouts/DashboardLayout";
 import { EmployerSidebar } from "@/components/layouts/EmployerSidebar";
 import { logError } from "@/lib/errorLogger";
-import { Building2 } from "lucide-react";
+import { Building2, ArrowRight, CheckCircle2 } from "lucide-react";
 import { industries, getLocalizedData } from "@/data/additionalQuestions";
 
 const EmployerProfile = () => {
@@ -25,6 +25,8 @@ const EmployerProfile = () => {
   const [linkedinUrl, setLinkedinUrl] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [cultureCompleted, setCultureCompleted] = useState(false);
 
   const lang = i18n.language === 'en' ? 'en' : 'pl';
   const industryOptions = getLocalizedData(industries, lang).filter(ind => ind !== (lang === 'pl' ? "Nie mam doświadczenia" : "No experience"));
@@ -39,7 +41,7 @@ const EmployerProfile = () => {
     try {
       const { data, error } = await supabase
         .from("employer_profiles")
-        .select("company_name, industry, linkedin_url")
+        .select("company_name, industry, linkedin_url, culture_completed, profile_completed")
         .eq("user_id", user.id)
         .single();
       
@@ -50,6 +52,7 @@ const EmployerProfile = () => {
         setCompanyName(data.company_name || "");
         setIndustry(data.industry || "");
         setLinkedinUrl(data.linkedin_url || "");
+        setCultureCompleted(!!data.culture_completed);
       }
     } catch (error) {
       logError("EmployerProfile.fetchProfile", error);
@@ -80,6 +83,7 @@ const EmployerProfile = () => {
         .eq("user_id", user.id);
 
       toast.success(t("employer.role.saved"));
+      setSaved(true);
     } catch (error) {
       logError("EmployerProfile.handleSubmit", error);
       toast.error(t("errors.genericError"));
@@ -158,6 +162,51 @@ const EmployerProfile = () => {
             </Button>
           </CardContent>
         </Card>
+
+        {/* CTA after save: go to culture form */}
+        {saved && !cultureCompleted && (
+          <Card className="mt-6 bg-gradient-to-r from-cta/10 to-accent/10 border-cta/20">
+            <CardContent className="pt-6">
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 rounded-full bg-cta/20 flex items-center justify-center shrink-0">
+                  <CheckCircle2 className="w-6 h-6 text-cta" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-lg font-bold mb-1">{t("employer.profile.savedSuccess")}</h3>
+                  <p className="text-muted-foreground mb-4">{t("employer.profile.nextStepCulture")}</p>
+                  <Link to="/employer/culture">
+                    <Button className="gap-2 bg-cta text-cta-foreground hover:bg-cta/90">
+                      {t("employer.profile.goToCulture")}
+                      <ArrowRight className="w-4 h-4" />
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {saved && cultureCompleted && (
+          <Card className="mt-6 bg-gradient-to-r from-success/10 to-accent/10 border-success/20">
+            <CardContent className="pt-6">
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 rounded-full bg-success/20 flex items-center justify-center shrink-0">
+                  <CheckCircle2 className="w-6 h-6 text-success" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-lg font-bold mb-1">{t("employer.profile.savedSuccess")}</h3>
+                  <p className="text-muted-foreground mb-4">{t("employer.profile.backToDashboard")}</p>
+                  <Link to="/employer/dashboard">
+                    <Button className="gap-2 bg-cta text-cta-foreground hover:bg-cta/90">
+                      {t("employer.dashboard.title")}
+                      <ArrowRight className="w-4 h-4" />
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </div>
     </DashboardLayout>
   );

@@ -361,7 +361,10 @@
       "completeProfileDescription": "Before adding your first job, complete basic company information – name and industry.",
       "goToProfile": "Go to profile",
       "createFirstJobTitle": "Add your first job",
-      "createFirstJobDescription": "Your company profile is ready! Now you can add your first recruitment order."
+      "createFirstJobDescription": "Your company profile is ready! Now you can add your first recruitment order.",
+      "completeCultureTitle": "Complete work culture form",
+      "completeCultureDescription": "Define your company's organizational culture to better match candidates to your work environment.",
+      "goToCulture": "Complete culture form"
     },
     "role": {
       "title": "Role description",
@@ -520,7 +523,11 @@
       "companyInfo": "Company details",
       "companyInfoDescription": "Basic information about your organization",
       "industry": "Company industry",
-      "selectIndustry": "Select industry"
+      "selectIndustry": "Select industry",
+      "savedSuccess": "Company profile saved!",
+      "nextStepCulture": "Next step: complete the work culture form to better match candidates to your company.",
+      "goToCulture": "Complete culture form",
+      "backToDashboard": "Profile updated. Return to the dashboard to manage your job offers."
     }
   },
   "errors": {
