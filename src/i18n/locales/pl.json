@@ -520,7 +520,11 @@
       "companyInfo": "Dane firmy",
       "companyInfoDescription": "Podstawowe informacje o Twojej organizacji",
       "industry": "Branża firmy",
-      "selectIndustry": "Wybierz branżę"
+      "selectIndustry": "Wybierz branżę",
+      "savedSuccess": "Profil firmy zapisany!",
+      "nextStepCulture": "Następny krok: wypełnij formularz kultury pracy, aby lepiej dopasować kandydatów do Twojej firmy.",
+      "goToCulture": "Wypełnij formularz kultury",
+      "backToDashboard": "Profil zaktualizowany. Wróć do panelu, aby zarządzać zleceniami."
     }
   },
   "errors": {
