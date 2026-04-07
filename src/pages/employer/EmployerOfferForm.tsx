@@ -27,7 +27,7 @@ interface AcceptedIndustryRequirement {
   positionLevel: string;
 }
 
-type Step = "overview" | "role" | "requirements" | "culture" | "complete";
+type Step = "overview" | "role" | "requirements" | "complete";
 
 const EmployerOfferForm = () => {
   const { offerId } = useParams<{ offerId: string }>();
@@ -340,15 +340,6 @@ const EmployerOfferForm = () => {
       iconBg: "bg-cta/10",
       iconColor: "text-cta"
     },
-    {
-      id: "culture" as const,
-      title: t("employer.offerForm.cultureTitle"),
-      description: t("employer.offerForm.cultureDescription"),
-      icon: Heart,
-      completed: cultureCompleted,
-      iconBg: "bg-primary/10",
-      iconColor: "text-primary"
-    }
   ];
 
   // Overview with step cards
@@ -362,7 +353,7 @@ const EmployerOfferForm = () => {
             </Button>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-4">
+          <div className="grid md:grid-cols-2 gap-4">
             {steps.map((step) => {
               const IconComponent = step.icon;
               return (
@@ -373,8 +364,6 @@ const EmployerOfferForm = () => {
                     setCurrentStep(step.id);
                   } else if (!hasOffer) {
                     toast.error(t("employer.offerForm.saveRoleFirst"));
-                  } else if (step.id === "culture") {
-                    navigate(`/employer/culture?offerId=${realId}`);
                   } else {
                     setCurrentStep(step.id);
                   }
@@ -677,14 +666,7 @@ const EmployerOfferForm = () => {
     );
   }
 
-  // Culture step - redirects to employer culture page with offerId
-  if (currentStep === "culture") {
-    const realId = currentOfferId || offerId;
-    if (realId && realId !== "new") {
-      navigate(`/employer/culture?offerId=${realId}`);
-    }
-    return null;
-  }
+  // Culture step removed - culture is now on employer profile level
 
   // Complete step
   if (currentStep === "complete") {

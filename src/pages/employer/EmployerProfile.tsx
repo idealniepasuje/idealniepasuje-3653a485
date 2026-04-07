@@ -227,6 +227,71 @@ const EmployerProfile = () => {
             </CardContent>
           </Card>
         )}
+
+        {/* Culture test summary */}
+        {cultureCompleted && Object.keys(cultureScores).length > 0 && (
+          <Card className="mt-6">
+            <CardHeader>
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <ClipboardList className="w-6 h-6 text-primary" />
+                </div>
+                <div>
+                  <CardTitle>{t("employer.profile.cultureSummaryTitle")}</CardTitle>
+                  <CardDescription>{t("employer.profile.cultureSummaryDescription")}</CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {CULTURE_DIMENSION_KEYS.map((key) => {
+                const lang = i18n.language === 'en' ? 'en' : 'pl';
+                const dim = cultureDimensions[lang][key];
+                const score = cultureScores[key];
+                if (score == null) return null;
+                return (
+                  <CultureScoreWithFeedback
+                    key={key}
+                    dimensionCode={key}
+                    dimensionName={dim.name}
+                    score={score}
+                    audience="employer"
+                  />
+                );
+              })}
+              <div className="pt-3">
+                <Link to="/employer/culture">
+                  <Button variant="outline" className="w-full gap-2">
+                    {t("employer.profile.retakeCulture")}
+                    <ArrowRight className="w-4 h-4" />
+                  </Button>
+                </Link>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* CTA to take culture test if not yet completed */}
+        {!cultureCompleted && (
+          <Card className="mt-6 bg-gradient-to-r from-cta/10 to-accent/10 border-cta/20">
+            <CardContent className="pt-6">
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 rounded-full bg-cta/20 flex items-center justify-center shrink-0">
+                  <ClipboardList className="w-6 h-6 text-cta" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-lg font-bold mb-1">{t("employer.profile.cultureCTATitle")}</h3>
+                  <p className="text-muted-foreground mb-4">{t("employer.profile.cultureCTADescription")}</p>
+                  <Link to="/employer/culture">
+                    <Button className="gap-2 bg-cta text-cta-foreground hover:bg-cta/90">
+                      {t("employer.profile.goToCulture")}
+                      <ArrowRight className="w-4 h-4" />
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </div>
     </DashboardLayout>
   );
