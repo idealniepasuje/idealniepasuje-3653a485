@@ -527,7 +527,12 @@
       "savedSuccess": "Company profile saved!",
       "nextStepCulture": "Next step: complete the work culture form to better match candidates to your company.",
       "goToCulture": "Complete culture form",
-      "backToDashboard": "Profile updated. Return to the dashboard to manage your job offers."
+      "backToDashboard": "Profile updated. Return to the dashboard to manage your job offers.",
+      "cultureSummaryTitle": "Work Culture Test Results",
+      "cultureSummaryDescription": "Summary of your organizational culture profile",
+      "retakeCulture": "Retake culture test",
+      "cultureCTATitle": "Complete work culture test",
+      "cultureCTADescription": "Define your company's organizational culture to better match candidates to your work environment."
     }
   },
   "errors": {

@@ -527,7 +527,12 @@
       "savedSuccess": "Profil firmy zapisany!",
       "nextStepCulture": "Następny krok: wypełnij formularz kultury pracy, aby lepiej dopasować kandydatów do Twojej firmy.",
       "goToCulture": "Wypełnij formularz kultury",
-      "backToDashboard": "Profil zaktualizowany. Wróć do panelu, aby zarządzać zleceniami."
+      "backToDashboard": "Profil zaktualizowany. Wróć do panelu, aby zarządzać zleceniami.",
+      "cultureSummaryTitle": "Wyniki testu kultury pracy",
+      "cultureSummaryDescription": "Podsumowanie Twojego profilu kultury organizacyjnej",
+      "retakeCulture": "Wypełnij ponownie test kultury",
+      "cultureCTATitle": "Wypełnij test kultury pracy",
+      "cultureCTADescription": "Określ kulturę organizacyjną Twojej firmy, aby lepiej dopasować kandydatów do środowiska pracy."
     }
   },
   "errors": {

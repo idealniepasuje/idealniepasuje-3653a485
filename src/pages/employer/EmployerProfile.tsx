@@ -12,8 +12,19 @@ import { toast } from "sonner";
 import { DashboardLayout } from "@/components/layouts/DashboardLayout";
 import { EmployerSidebar } from "@/components/layouts/EmployerSidebar";
 import { logError } from "@/lib/errorLogger";
-import { Building2, ArrowRight, CheckCircle2 } from "lucide-react";
+import { Building2, ArrowRight, CheckCircle2, ClipboardList } from "lucide-react";
 import { industries, getLocalizedData } from "@/data/additionalQuestions";
+import { CultureScoreWithFeedback } from "@/components/CultureScoreWithFeedback";
+import { cultureDimensions } from "@/data/cultureQuestions";
+
+const CULTURE_DIMENSION_KEYS = [
+  "relacja_wspolpraca",
+  "elastycznosc_innowacyjnosc",
+  "wyniki_cele",
+  "stabilnosc_struktura",
+  "autonomia_styl_pracy",
+  "wlb_dobrostan",
+] as const;
 
 const EmployerProfile = () => {
   const { user, loading: authLoading } = useAuth();
@@ -27,6 +38,7 @@ const EmployerProfile = () => {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [cultureCompleted, setCultureCompleted] = useState(false);
+  const [cultureScores, setCultureScores] = useState<Record<string, number>>({});
 
   const lang = i18n.language === 'en' ? 'en' : 'pl';
   const industryOptions = getLocalizedData(industries, lang).filter(ind => ind !== (lang === 'pl' ? "Nie mam doświadczenia" : "No experience"));
@@ -41,7 +53,7 @@ const EmployerProfile = () => {
     try {
       const { data, error } = await supabase
         .from("employer_profiles")
-        .select("company_name, industry, linkedin_url, culture_completed, profile_completed")
+        .select("company_name, industry, linkedin_url, culture_completed, profile_completed, culture_relacja_wspolpraca, culture_elastycznosc_innowacyjnosc, culture_wyniki_cele, culture_stabilnosc_struktura, culture_autonomia_styl_pracy, culture_wlb_dobrostan")
         .eq("user_id", user.id)
         .single();
       
@@ -53,6 +65,14 @@ const EmployerProfile = () => {
         setIndustry(data.industry || "");
         setLinkedinUrl(data.linkedin_url || "");
         setCultureCompleted(!!data.culture_completed);
+        if (data.culture_completed) {
+          const scores: Record<string, number> = {};
+          for (const key of CULTURE_DIMENSION_KEYS) {
+            const dbKey = `culture_${key}` as keyof typeof data;
+            if (data[dbKey] != null) scores[key] = Number(data[dbKey]);
+          }
+          setCultureScores(scores);
+        }
       }
     } catch (error) {
       logError("EmployerProfile.fetchProfile", error);
@@ -199,6 +219,71 @@ const EmployerProfile = () => {
                   <Link to="/employer/dashboard">
                     <Button className="gap-2 bg-cta text-cta-foreground hover:bg-cta/90">
                       {t("employer.dashboard.title")}
+                      <ArrowRight className="w-4 h-4" />
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Culture test summary */}
+        {cultureCompleted && Object.keys(cultureScores).length > 0 && (
+          <Card className="mt-6">
+            <CardHeader>
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <ClipboardList className="w-6 h-6 text-primary" />
+                </div>
+                <div>
+                  <CardTitle>{t("employer.profile.cultureSummaryTitle")}</CardTitle>
+                  <CardDescription>{t("employer.profile.cultureSummaryDescription")}</CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {CULTURE_DIMENSION_KEYS.map((key) => {
+                const lang = i18n.language === 'en' ? 'en' : 'pl';
+                const dim = cultureDimensions[lang][key];
+                const score = cultureScores[key];
+                if (score == null) return null;
+                return (
+                  <CultureScoreWithFeedback
+                    key={key}
+                    dimensionCode={key}
+                    dimensionName={dim.name}
+                    score={score}
+                    audience="employer"
+                  />
+                );
+              })}
+              <div className="pt-3">
+                <Link to="/employer/culture">
+                  <Button variant="outline" className="w-full gap-2">
+                    {t("employer.profile.retakeCulture")}
+                    <ArrowRight className="w-4 h-4" />
+                  </Button>
+                </Link>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* CTA to take culture test if not yet completed */}
+        {!cultureCompleted && (
+          <Card className="mt-6 bg-gradient-to-r from-cta/10 to-accent/10 border-cta/20">
+            <CardContent className="pt-6">
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 rounded-full bg-cta/20 flex items-center justify-center shrink-0">
+                  <ClipboardList className="w-6 h-6 text-cta" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-lg font-bold mb-1">{t("employer.profile.cultureCTATitle")}</h3>
+                  <p className="text-muted-foreground mb-4">{t("employer.profile.cultureCTADescription")}</p>
+                  <Link to="/employer/culture">
+                    <Button className="gap-2 bg-cta text-cta-foreground hover:bg-cta/90">
+                      {t("employer.profile.goToCulture")}
                       <ArrowRight className="w-4 h-4" />
                     </Button>
                   </Link>
