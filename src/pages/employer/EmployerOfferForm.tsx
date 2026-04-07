@@ -261,16 +261,27 @@ const EmployerOfferForm = () => {
       return; 
     }
 
+    const realOfferId = currentOfferId && currentOfferId !== "new" ? currentOfferId : null;
+    if (!realOfferId) {
+      toast.error(t("employer.offerForm.saveRoleFirst"));
+      return;
+    }
+
     setSaving(true);
     try {
-      const realOfferId = await createOfferIfNeeded();
-      if (!realOfferId) throw new Error("Failed to create offer");
-
       const validAcceptedReqs = acceptFromOtherIndustries 
         ? acceptedIndustryRequirements.filter(r => r.industry && r.years && r.positionLevel)
         : [];
 
-      const { error } = await supabase
+      const roundedReqs = {
+        req_komunikacja: Math.round(competencyReqs.komunikacja * 10) / 10,
+        req_myslenie_analityczne: Math.round(competencyReqs.myslenie_analityczne * 10) / 10,
+        req_out_of_the_box: Math.round(competencyReqs.out_of_the_box * 10) / 10,
+        req_determinacja: Math.round(competencyReqs.determinacja * 10) / 10,
+        req_adaptacja: Math.round(competencyReqs.adaptacja * 10) / 10,
+      };
+
+      const { error, count } = await supabase
         .from("job_offers")
         .update({
           industry: formData.industry,
@@ -279,21 +290,20 @@ const EmployerOfferForm = () => {
           no_experience_required: formData.noExperienceRequired,
           accepted_industries: validAcceptedReqs.map(r => r.industry),
           accepted_industry_requirements: JSON.parse(JSON.stringify(validAcceptedReqs)) as Json,
-          req_komunikacja: competencyReqs.komunikacja,
-          req_myslenie_analityczne: competencyReqs.myslenie_analityczne,
-          req_out_of_the_box: competencyReqs.out_of_the_box,
-          req_determinacja: competencyReqs.determinacja,
-          req_adaptacja: competencyReqs.adaptacja
+          ...roundedReqs,
         })
         .eq("id", realOfferId)
         .eq("user_id", user.id);
+      
       if (error) throw error;
+      
       setRequirementsCompleted(true);
       setCurrentStep("overview");
       toast.success(t("common.saved"));
-    } catch (error) {
+    } catch (error: any) {
       logError("EmployerOfferForm.saveRequirements", error);
-      toast.error(t("errors.genericError"));
+      console.error("Save requirements error:", error);
+      toast.error(t("errors.genericError") + (error?.message ? `: ${error.message}` : ""));
     } finally {
       setSaving(false);
     }
