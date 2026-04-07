@@ -367,13 +367,14 @@ const EmployerOfferForm = () => {
               const IconComponent = step.icon;
               return (
                 <Card key={step.id} className="group transition-shadow hover:shadow-lg cursor-pointer" onClick={() => {
-                  if (step.id === "culture") {
-                    const realId = currentOfferId || offerId;
-                    if (realId && realId !== "new") {
-                      navigate(`/employer/culture?offerId=${realId}`);
-                    } else {
-                      toast.error(t("employer.offerForm.saveRoleFirst"));
-                    }
+                  const realId = currentOfferId || offerId;
+                  const hasOffer = realId && realId !== "new";
+                  if (step.id === "role") {
+                    setCurrentStep(step.id);
+                  } else if (!hasOffer) {
+                    toast.error(t("employer.offerForm.saveRoleFirst"));
+                  } else if (step.id === "culture") {
+                    navigate(`/employer/culture?offerId=${realId}`);
                   } else {
                     setCurrentStep(step.id);
                   }
