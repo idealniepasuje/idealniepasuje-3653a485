@@ -12,8 +12,19 @@ import { toast } from "sonner";
 import { DashboardLayout } from "@/components/layouts/DashboardLayout";
 import { EmployerSidebar } from "@/components/layouts/EmployerSidebar";
 import { logError } from "@/lib/errorLogger";
-import { Building2, ArrowRight, CheckCircle2 } from "lucide-react";
+import { Building2, ArrowRight, CheckCircle2, ClipboardList } from "lucide-react";
 import { industries, getLocalizedData } from "@/data/additionalQuestions";
+import { CultureScoreWithFeedback } from "@/components/CultureScoreWithFeedback";
+import { cultureDimensions } from "@/data/cultureQuestions";
+
+const CULTURE_DIMENSION_KEYS = [
+  "relacja_wspolpraca",
+  "elastycznosc_innowacyjnosc",
+  "wyniki_cele",
+  "stabilnosc_struktura",
+  "autonomia_styl_pracy",
+  "wlb_dobrostan",
+] as const;
 
 const EmployerProfile = () => {
   const { user, loading: authLoading } = useAuth();
@@ -27,6 +38,7 @@ const EmployerProfile = () => {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [cultureCompleted, setCultureCompleted] = useState(false);
+  const [cultureScores, setCultureScores] = useState<Record<string, number>>({});
 
   const lang = i18n.language === 'en' ? 'en' : 'pl';
   const industryOptions = getLocalizedData(industries, lang).filter(ind => ind !== (lang === 'pl' ? "Nie mam doświadczenia" : "No experience"));
@@ -41,7 +53,7 @@ const EmployerProfile = () => {
     try {
       const { data, error } = await supabase
         .from("employer_profiles")
-        .select("company_name, industry, linkedin_url, culture_completed, profile_completed")
+        .select("company_name, industry, linkedin_url, culture_completed, profile_completed, culture_relacja_wspolpraca, culture_elastycznosc_innowacyjnosc, culture_wyniki_cele, culture_stabilnosc_struktura, culture_autonomia_styl_pracy, culture_wlb_dobrostan")
         .eq("user_id", user.id)
         .single();
       
@@ -53,6 +65,14 @@ const EmployerProfile = () => {
         setIndustry(data.industry || "");
         setLinkedinUrl(data.linkedin_url || "");
         setCultureCompleted(!!data.culture_completed);
+        if (data.culture_completed) {
+          const scores: Record<string, number> = {};
+          for (const key of CULTURE_DIMENSION_KEYS) {
+            const dbKey = `culture_${key}` as keyof typeof data;
+            if (data[dbKey] != null) scores[key] = Number(data[dbKey]);
+          }
+          setCultureScores(scores);
+        }
       }
     } catch (error) {
       logError("EmployerProfile.fetchProfile", error);
