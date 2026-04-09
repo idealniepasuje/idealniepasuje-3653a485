@@ -679,36 +679,6 @@ const EmployerCandidateDetail = () => {
           </CardContent>
         </Card>
 
-        {/* LinkedIn section */}
-        <Card className="mt-6">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Linkedin className="w-5 h-5" />
-              LinkedIn
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {currentStatus === 'considering' ? (
-              candidateData?.linkedin_url ? (
-                <a href={candidateData.linkedin_url} target="_blank" rel="noopener noreferrer" className="text-accent hover:underline flex items-center gap-2">
-                  <Linkedin className="w-4 h-4" />
-                  {candidateData.linkedin_url}
-                </a>
-              ) : (
-                <p className="text-muted-foreground text-sm">{t("employer.candidateDetail.noLinkedin")}</p>
-              )
-            ) : (
-              <div className="flex items-center gap-3 p-4 rounded-lg bg-muted/50 border">
-                <Lock className="w-5 h-5 text-muted-foreground" />
-                <div>
-                  <p className="text-sm font-medium">{t("employer.candidateDetail.linkedinLocked")}</p>
-                  <p className="text-xs text-muted-foreground">{t("employer.candidateDetail.linkedinLockedHint")}</p>
-                </div>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
         <div className="mt-8 flex justify-center">
           <Link to="/employer/candidates">
             <Button variant="outline" size="lg">
