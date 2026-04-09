@@ -333,6 +333,7 @@ const EmployerCandidateDetail = () => {
               </div>
             )}
           </CardContent>
+        </Card>
 
         {/* Why is this a good match */}
         {matchDetails?.strengths && matchDetails.strengths.length > 0 && (
