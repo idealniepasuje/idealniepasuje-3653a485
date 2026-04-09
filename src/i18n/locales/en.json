@@ -515,7 +515,10 @@
       "titleLettersOnly": "Role name can only contain letters",
       "companyNameLabel": "Company name",
       "companyNamePlaceholder": "e.g. Acme Inc.",
-      "saveRoleFirst": "Save the role description first to proceed to the culture test"
+      "saveRoleFirst": "Save the role description first to proceed",
+      "allStepsCompleted": "Order is complete",
+      "viewOrderHint": "Role description and requirements have been filled in.",
+      "viewOrder": "View order"
     },
     "profile": {
       "title": "Company Profile",
