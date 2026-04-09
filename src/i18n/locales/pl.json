@@ -515,7 +515,10 @@
       "titleLettersOnly": "Nazwa roli może zawierać tylko litery",
       "companyNameLabel": "Nazwa firmy",
       "companyNamePlaceholder": "np. Acme Sp. z o.o.",
-      "saveRoleFirst": "Najpierw zapisz opis roli, aby przejść do testu kultury"
+      "saveRoleFirst": "Najpierw zapisz opis roli, aby przejść dalej",
+      "allStepsCompleted": "Zlecenie jest kompletne",
+      "viewOrderHint": "Opis roli i wymagania zostały uzupełnione.",
+      "viewOrder": "Zobacz zlecenie"
     },
     "profile": {
       "title": "Profil firmy",
