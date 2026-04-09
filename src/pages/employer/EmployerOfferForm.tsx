@@ -353,6 +353,26 @@ const EmployerOfferForm = () => {
             </Button>
           </div>
 
+          {roleCompleted && requirementsCompleted && currentOfferId && currentOfferId !== "new" && (
+            <Card className="mb-6 border-accent/30 bg-accent/5">
+              <CardContent className="pt-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <CheckCircle className="w-6 h-6 text-success" />
+                    <div>
+                      <p className="font-semibold">{t("employer.offerForm.allStepsCompleted")}</p>
+                      <p className="text-sm text-muted-foreground">{t("employer.offerForm.viewOrderHint")}</p>
+                    </div>
+                  </div>
+                  <Button onClick={() => navigate(`/employer/order/${currentOfferId}`)} className="gap-2">
+                    {t("employer.offerForm.viewOrder")}
+                    <ChevronRight className="w-4 h-4" />
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
           <div className="grid md:grid-cols-2 gap-4">
             {steps.map((step) => {
               const IconComponent = step.icon;

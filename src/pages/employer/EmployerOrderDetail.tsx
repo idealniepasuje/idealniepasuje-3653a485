@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Briefcase, Calendar, Users, ChevronRight, FileText, Settings, Heart, Edit } from "lucide-react";
+import { ArrowLeft, Briefcase, Calendar, Users, ChevronRight, FileText, Settings, Edit } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { logError } from "@/lib/errorLogger";
@@ -76,12 +76,6 @@ const EmployerOrderDetail = () => {
         : t("common.toDo"),
       completed: !!(offer.industry && offer.position_level),
       icon: Settings,
-    },
-    {
-      title: t("employer.offerForm.cultureTitle"),
-      description: t("employer.offerForm.cultureDescription"),
-      completed: !!offer.culture_completed,
-      icon: Heart,
     },
   ];
 
