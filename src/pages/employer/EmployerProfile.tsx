@@ -258,14 +258,6 @@ const EmployerProfile = () => {
                   />
                 );
               })}
-              <div className="pt-3">
-                <Link to="/employer/culture">
-                  <Button variant="outline" className="w-full gap-2">
-                    {t("employer.profile.retakeCulture")}
-                    <ArrowRight className="w-4 h-4" />
-                  </Button>
-                </Link>
-              </div>
             </CardContent>
           </Card>
         )}
