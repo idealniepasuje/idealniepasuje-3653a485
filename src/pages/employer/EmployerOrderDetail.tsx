@@ -4,12 +4,23 @@ import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Briefcase, Calendar, Users, ChevronRight, FileText, Settings, Edit } from "lucide-react";
+import { ArrowLeft, Briefcase, Calendar, Users, ChevronRight, FileText, Settings, Edit, Archive, RotateCcw } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { logError } from "@/lib/errorLogger";
 import { DashboardLayout } from "@/components/layouts/DashboardLayout";
 import { EmployerSidebar } from "@/components/layouts/EmployerSidebar";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { toast } from "sonner";
 
 const EmployerOrderDetail = () => {
   const { orderId } = useParams<{ orderId: string }>();
@@ -19,6 +30,7 @@ const EmployerOrderDetail = () => {
   const [offer, setOffer] = useState<any>(null);
   const [matchCount, setMatchCount] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [closeDialogOpen, setCloseDialogOpen] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !user) { navigate("/login"); return; }
@@ -41,6 +53,25 @@ const EmployerOrderDetail = () => {
       navigate("/employer/dashboard");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleToggleActive = async () => {
+    if (!offer) return;
+    const newStatus = !offer.is_active;
+    try {
+      const { error } = await supabase
+        .from("job_offers")
+        .update({ is_active: newStatus })
+        .eq("id", offer.id);
+      if (error) throw error;
+      setOffer({ ...offer, is_active: newStatus });
+      toast.success(newStatus ? t("employer.offers.reopened") : t("employer.offers.closed"));
+    } catch (error) {
+      logError("EmployerOrderDetail.handleToggleActive", error);
+      toast.error(t("errors.genericError"));
+    } finally {
+      setCloseDialogOpen(false);
     }
   };
 
@@ -97,16 +128,29 @@ const EmployerOrderDetail = () => {
                   {formatDate(offer.created_at)}
                 </span>
                 <Badge variant={offer.is_active ? "default" : "secondary"}>
-                  {offer.is_active ? t("employer.offers.active") : t("employer.offers.inactive")}
+                  {offer.is_active ? t("employer.offers.active") : t("employer.offers.archived")}
                 </Badge>
               </div>
             </div>
-            <Link to={`/employer/offer/${offer.id}`}>
-              <Button variant="outline" size="sm" className="gap-2">
-                <Edit className="w-4 h-4" />
-                {t("common.edit")}
-              </Button>
-            </Link>
+            <div className="flex items-center gap-2">
+              {offer.is_active ? (
+                <Button variant="outline" size="sm" className="gap-2" onClick={() => setCloseDialogOpen(true)}>
+                  <Archive className="w-4 h-4" />
+                  {t("employer.offers.close")}
+                </Button>
+              ) : (
+                <Button variant="outline" size="sm" className="gap-2" onClick={handleToggleActive}>
+                  <RotateCcw className="w-4 h-4" />
+                  {t("employer.offers.reopen")}
+                </Button>
+              )}
+              <Link to={`/employer/offer/${offer.id}`}>
+                <Button variant="outline" size="sm" className="gap-2">
+                  <Edit className="w-4 h-4" />
+                  {t("common.edit")}
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
 
@@ -173,6 +217,23 @@ const EmployerOrderDetail = () => {
           </Link>
         </Card>
       </div>
+
+      <AlertDialog open={closeDialogOpen} onOpenChange={setCloseDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t("employer.offers.closeConfirmTitle")}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {t("employer.offers.closeConfirmDescription")}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
+            <AlertDialogAction onClick={handleToggleActive}>
+              {t("employer.offers.close")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </DashboardLayout>
   );
 };

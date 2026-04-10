@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Briefcase, ChevronRight, Users, MoreVertical, Trash2, Edit } from "lucide-react";
+import { Plus, Briefcase, ChevronRight, Users, MoreVertical, Trash2, Edit, Archive, RotateCcw } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { logError } from "@/lib/errorLogger";
@@ -98,6 +98,24 @@ const EmployerOffers = () => {
     }
   };
 
+  const handleToggleActive = async (offerId: string, currentlyActive: boolean) => {
+    try {
+      const { error } = await supabase
+        .from("job_offers")
+        .update({ is_active: !currentlyActive })
+        .eq("id", offerId);
+      if (error) throw error;
+      setOffers(offers.map(o => o.id === offerId ? { ...o, is_active: !currentlyActive } : o));
+      toast.success(!currentlyActive ? t("employer.offers.reopened") : t("employer.offers.closed"));
+    } catch (error) {
+      logError("EmployerOffers.handleToggleActive", error);
+      toast.error(t("errors.genericError"));
+    }
+  };
+
+  const activeOffers = offers.filter(o => o.is_active !== false);
+  const archivedOffers = offers.filter(o => o.is_active === false);
+
   if (authLoading || loading) {
     return (
       <DashboardLayout sidebar={<EmployerSidebar />}>
@@ -107,6 +125,81 @@ const EmployerOffers = () => {
       </DashboardLayout>
     );
   }
+
+  const renderOfferCard = (offer: any) => (
+    <Card key={offer.id} className={`hover:shadow-lg transition-shadow ${!offer.is_active ? "opacity-70" : ""}`}>
+      <Link to={`/employer/order/${offer.id}`} className="block">
+        <CardHeader className="pb-3">
+          <div className="flex items-start justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center">
+                <Briefcase className="w-5 h-5 text-accent" />
+              </div>
+              <div>
+                <CardTitle className="text-lg">{offer.title}</CardTitle>
+                <CardDescription className="flex items-center gap-2 mt-1">
+                  {offer.industry && <span>{offer.industry}</span>}
+                  {offer.position_level && (
+                    <>
+                      <span>•</span>
+                      <span>{offer.position_level}</span>
+                    </>
+                  )}
+                </CardDescription>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <Badge variant={offer.is_active ? "default" : "secondary"}>
+                {offer.is_active ? t("employer.offers.active") : t("employer.offers.archived")}
+              </Badge>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild onClick={(e) => e.preventDefault()}>
+                  <Button variant="ghost" size="icon">
+                    <MoreVertical className="w-4 h-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={(e) => { e.preventDefault(); navigate(`/employer/offer/${offer.id}`); }}>
+                    <Edit className="w-4 h-4 mr-2" />
+                    {t("common.edit")}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={(e) => { e.preventDefault(); handleToggleActive(offer.id, !!offer.is_active); }}>
+                    {offer.is_active ? <Archive className="w-4 h-4 mr-2" /> : <RotateCcw className="w-4 h-4 mr-2" />}
+                    {offer.is_active ? t("employer.offers.close") : t("employer.offers.reopen")}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    className="text-destructive"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setOfferToDelete(offer.id);
+                      setDeleteDialogOpen(true);
+                    }}
+                  >
+                    <Trash2 className="w-4 h-4 mr-2" />
+                    {t("employer.offers.delete")}
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          </div>
+        </CardHeader>
+      </Link>
+      <CardContent>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Users className="w-4 h-4" />
+            <span>{matchCounts[offer.id] || 0} {t("common.matchedCandidates")}</span>
+          </div>
+          <Link to={`/employer/order/${offer.id}`}>
+            <Button variant="outline" size="sm" className="gap-2">
+              {t("employer.offers.viewDetails")}
+              <ChevronRight className="w-4 h-4" />
+            </Button>
+          </Link>
+        </div>
+      </CardContent>
+    </Card>
+  );
 
   return (
     <DashboardLayout sidebar={<EmployerSidebar />}>
@@ -140,77 +233,24 @@ const EmployerOffers = () => {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid gap-4">
-          {offers.map((offer) => (
-            <Card key={offer.id} className="hover:shadow-lg transition-shadow">
-              <Link to={`/employer/order/${offer.id}`} className="block">
-                <CardHeader className="pb-3">
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center">
-                        <Briefcase className="w-5 h-5 text-accent" />
-                      </div>
-                      <div>
-                        <CardTitle className="text-lg">{offer.title}</CardTitle>
-                        <CardDescription className="flex items-center gap-2 mt-1">
-                          {offer.industry && <span>{offer.industry}</span>}
-                          {offer.position_level && (
-                            <>
-                              <span>•</span>
-                              <span>{offer.position_level}</span>
-                            </>
-                          )}
-                        </CardDescription>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Badge variant={offer.is_active ? "default" : "secondary"}>
-                        {offer.is_active ? t("employer.offers.active") : t("employer.offers.inactive")}
-                      </Badge>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild onClick={(e) => e.preventDefault()}>
-                          <Button variant="ghost" size="icon">
-                            <MoreVertical className="w-4 h-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={(e) => { e.preventDefault(); navigate(`/employer/offer/${offer.id}`); }}>
-                            <Edit className="w-4 h-4 mr-2" />
-                            {t("common.edit")}
-                          </DropdownMenuItem>
-                          <DropdownMenuItem 
-                            className="text-destructive"
-                            onClick={(e) => {
-                              e.preventDefault();
-                              setOfferToDelete(offer.id);
-                              setDeleteDialogOpen(true);
-                            }}
-                          >
-                            <Trash2 className="w-4 h-4 mr-2" />
-                            {t("employer.offers.delete")}
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </div>
-                  </div>
-                </CardHeader>
-              </Link>
-              <CardContent>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Users className="w-4 h-4" />
-                    <span>{matchCounts[offer.id] || 0} {t("common.matchedCandidates")}</span>
-                  </div>
-                  <Link to={`/employer/order/${offer.id}`}>
-                    <Button variant="outline" size="sm" className="gap-2">
-                      {t("employer.offers.viewDetails")}
-                      <ChevronRight className="w-4 h-4" />
-                    </Button>
-                  </Link>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+        <div className="space-y-8">
+          {activeOffers.length > 0 && (
+            <div>
+              <h2 className="text-lg font-semibold mb-4">{t("employer.offers.activeOffers")}</h2>
+              <div className="grid gap-4">
+                {activeOffers.map((offer) => renderOfferCard(offer))}
+              </div>
+            </div>
+          )}
+
+          {archivedOffers.length > 0 && (
+            <div>
+              <h2 className="text-lg font-semibold mb-4 text-muted-foreground">{t("employer.offers.archivedOffers")}</h2>
+              <div className="grid gap-4">
+                {archivedOffers.map((offer) => renderOfferCard(offer))}
+              </div>
+            </div>
+          )}
         </div>
       )}
 
