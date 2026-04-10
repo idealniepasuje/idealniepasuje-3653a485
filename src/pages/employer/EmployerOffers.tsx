@@ -98,6 +98,24 @@ const EmployerOffers = () => {
     }
   };
 
+  const handleToggleActive = async (offerId: string, currentlyActive: boolean) => {
+    try {
+      const { error } = await supabase
+        .from("job_offers")
+        .update({ is_active: !currentlyActive })
+        .eq("id", offerId);
+      if (error) throw error;
+      setOffers(offers.map(o => o.id === offerId ? { ...o, is_active: !currentlyActive } : o));
+      toast.success(!currentlyActive ? t("employer.offers.reopened") : t("employer.offers.closed"));
+    } catch (error) {
+      logError("EmployerOffers.handleToggleActive", error);
+      toast.error(t("errors.genericError"));
+    }
+  };
+
+  const activeOffers = offers.filter(o => o.is_active !== false);
+  const archivedOffers = offers.filter(o => o.is_active === false);
+
   if (authLoading || loading) {
     return (
       <DashboardLayout sidebar={<EmployerSidebar />}>
