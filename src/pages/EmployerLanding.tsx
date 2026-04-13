@@ -72,7 +72,7 @@ const EmployerLanding = () => {
         <section className="relative pt-24 pb-0 overflow-hidden">
           <div className="hero-section">
             <div className="container mx-auto px-4 relative z-10">
-              <div className="grid md:grid-cols-2 gap-8 items-center py-12 md:py-20">
+              <div className="grid md:grid-cols-2 gap-8 items-center py-12 px-0 md:py-0 my-0 mx-[25px]">
                 <div className="max-w-lg">
                   <h1 className="text-3xl md:text-5xl font-bold text-primary-foreground mb-5 leading-tight">
                     {t("employerLanding.hero.title")}
