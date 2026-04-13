@@ -22,6 +22,7 @@ const CandidateDashboard = () => {
   const [testResults, setTestResults] = useState<any>(null);
   const [matches, setMatches] = useState<any[]>([]);
   const [employers, setEmployers] = useState<Record<string, any>>({});
+  const [hasFeedback, setHasFeedback] = useState(false);
   const [loading, setLoading] = useState(true);
 
   const competencyTests = getLocalizedCompetencyTests(i18n.language);
