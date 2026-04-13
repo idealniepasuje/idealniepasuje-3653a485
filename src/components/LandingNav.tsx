@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { InstagramLink } from "@/components/InstagramIcon";
 
 interface LandingNavProps {
   variant: "candidate" | "employer";
@@ -32,6 +33,7 @@ export const LandingNav = ({ variant }: LandingNavProps) => {
 
         {/* Desktop nav */}
         <div className="hidden md:flex items-center gap-4">
+          <InstagramLink className="w-5 h-5 text-foreground" />
           <LanguageSwitcher />
           <Link to={switchLink.to}>
             <Button variant="ghost" size="sm">{switchLink.label}</Button>
@@ -75,8 +77,9 @@ export const LandingNav = ({ variant }: LandingNavProps) => {
                 {t("common.register")}
               </Button>
             </Link>
-            <div className="pt-2 border-t border-border/50">
+            <div className="pt-2 border-t border-border/50 flex items-center justify-between">
               <LanguageSwitcher />
+              <InstagramLink className="w-5 h-5 text-foreground" />
             </div>
           </div>
         </div>
