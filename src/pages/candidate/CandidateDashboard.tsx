@@ -231,11 +231,11 @@ const CandidateDashboard = () => {
 
       <Card className="mb-8 border-accent/20 bg-accent/5">
         <CardContent className="pt-6">
-          <div className="flex items-center gap-4">
-            <div className="w-16 h-16 rounded-full bg-accent/20 flex items-center justify-center">
-              <Users className="w-8 h-8 text-accent" />
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-accent/20 flex items-center justify-center shrink-0">
+              <Users className="w-7 h-7 sm:w-8 sm:h-8 text-accent" />
             </div>
-            <div className="flex-1">
+            <div className="flex-1 w-full">
               <h2 className="text-lg font-semibold mb-1">{t("candidate.dashboard.profileTitle")}</h2>
               <p className="text-sm text-muted-foreground mb-2">
                 {!allCompetencyTestsCompleted && t("candidate.dashboard.doCompetencyTests")}

@@ -128,7 +128,7 @@ const Index = () => {
         </section>
 
         {/* How it works - with images */}
-        <section className="py-24">
+        <section className="py-12 md:py-24">
           <div className="container mx-auto px-4">
             <h2 className="text-3xl md:text-5xl font-bold text-center mb-16">{t("howItWorks.title")}</h2>
             <div className="max-w-5xl mx-auto space-y-16">
@@ -160,7 +160,7 @@ const Index = () => {
         </section>
 
         {/* CTA bottom */}
-        <section className="py-24 hero-section">
+        <section className="py-12 md:py-24 hero-section">
           <div className="container mx-auto px-4 text-center">
             <h2 className="text-3xl md:text-5xl font-bold text-primary-foreground mb-6">{t("gateway.ctaTitle")}</h2>
             <p className="text-primary-foreground/70 mb-10 text-lg max-w-2xl mx-auto">{t("gateway.ctaDesc")}</p>
