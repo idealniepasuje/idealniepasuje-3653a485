@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { ArrowRight, Users, Building2, Target, Heart, CheckCircle2, ClipboardList, Search, Handshake, Instagram, Gift, Sparkles, TrendingUp } from "lucide-react";
+import { ArrowRight, Users, Building2, Target, Heart, CheckCircle2, ClipboardList, Search, Handshake, Instagram, Gift, Sparkles, TrendingUp, ShieldCheck } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
@@ -56,7 +56,7 @@ const Index = () => {
       descriptionKey: "values.value1Description",
     },
     {
-      icon: Target,
+      icon: ShieldCheck,
       titleKey: "values.value2Title",
       descriptionKey: "values.value2Description",
     },
@@ -81,7 +81,7 @@ const Index = () => {
               <Button variant="ghost" size="sm">{t("common.login")}</Button>
             </Link>
             <Link to="/register?type=candidate">
-              <Button size="sm" className="cta-button text-base font-bold px-6 py-2">
+              <Button size="sm" className="text-base font-bold px-6 py-2">
                 {t("common.register")}
               </Button>
             </Link>
@@ -103,7 +103,7 @@ const Index = () => {
                 {t("hero.description")}
               </p>
               <Link to="/register?type=candidate">
-                <Button size="lg" className="cta-button gap-2 text-lg font-bold px-10 py-6 rounded-xl shadow-lg">
+                <Button size="lg" className="gap-2 text-lg font-bold px-10 py-6 rounded-xl shadow-lg">
                   <Users className="w-6 h-6" />
                   {t("hero.candidateButton")}
                   <ArrowRight className="w-5 h-5" />
@@ -124,9 +124,9 @@ const Index = () => {
         <section className="py-14 bg-primary">
           <div className="container mx-auto px-4">
             <div className="max-w-3xl mx-auto text-center">
-              <p className="text-xl md:text-2xl font-bold text-primary-foreground leading-relaxed">
+              <h2 className="text-xl md:text-2xl font-bold text-primary-foreground leading-relaxed">
                 {t("whatIsIt.line1")}
-              </p>
+              </h2>
               <p className="text-lg md:text-xl text-primary-foreground/80 mt-3">
                 {t("whatIsIt.line2")}
               </p>
@@ -213,6 +213,7 @@ const Index = () => {
         <section className="py-16 bg-secondary/30">
           <div className="container mx-auto px-4">
             <div className="max-w-3xl mx-auto text-center">
+              <h2 className="text-2xl md:text-3xl font-bold mb-8">{t("trust.title")}</h2>
               <div className="grid grid-cols-3 gap-8">
                 <div>
                   <p className="text-3xl md:text-4xl font-bold text-accent">100+</p>
@@ -255,7 +256,7 @@ const Index = () => {
                 </div>
               </div>
               <Link to="/register?type=candidate">
-                <Button size="lg" className="cta-button gap-2 text-lg font-bold px-10 py-6 rounded-xl shadow-lg">
+                <Button size="lg" className="gap-2 text-lg font-bold px-10 py-6 rounded-xl shadow-lg">
                   {t("earlyAdopter.cta")}
                   <ArrowRight className="w-5 h-5" />
                 </Button>
@@ -278,7 +279,7 @@ const Index = () => {
                 {t("employerSection.description")}
               </p>
               <Link to="/register?type=employer">
-                <Button size="lg" variant="outline" className="bg-primary-foreground/10 backdrop-blur-sm border-cta/50 text-primary-foreground hover:bg-cta/20 hover:border-cta gap-2 text-lg font-bold px-10 py-6 rounded-xl transition-all">
+                <Button size="lg" variant="secondary" className="gap-2 text-lg font-bold px-10 py-6 rounded-xl transition-all">
                   <Building2 className="w-5 h-5" />
                   {t("employerSection.cta")}
                   <ArrowRight className="w-5 h-5" />
@@ -299,7 +300,7 @@ const Index = () => {
                 {t("cta.description")}
               </p>
               <Link to="/register?type=candidate">
-                <Button size="lg" className="cta-button gap-2 text-lg font-bold px-10 py-6 rounded-xl shadow-lg">
+                <Button size="lg" className="gap-2 text-lg font-bold px-10 py-6 rounded-xl shadow-lg">
                   {t("common.startNow")}
                   <ArrowRight className="w-5 h-5" />
                 </Button>
