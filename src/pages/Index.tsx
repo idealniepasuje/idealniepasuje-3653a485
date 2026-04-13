@@ -94,7 +94,7 @@ const Index = () => {
                       <h2 className="text-2xl font-bold text-primary-foreground">{t("gateway.employerTitle")}</h2>
                     </div>
                     <p className="text-primary-foreground/80 text-sm mb-5 line-clamp-2">{t("gateway.employerDesc1")}</p>
-                    <Button size="lg" variant="secondary" className="gap-2 font-bold px-8 py-5 rounded-xl shadow-lg w-full">
+                    <Button size="lg" className="gap-2 font-bold px-8 py-5 rounded-xl shadow-lg w-full bg-accent text-accent-foreground hover:bg-accent/90">
                       {t("gateway.employerCTA")}
                       <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                     </Button>
