@@ -95,11 +95,6 @@ const EmployerLanding = () => {
               </div>
             </div>
           </div>
-          <div className="bg-background">
-            <svg viewBox="0 0 1440 80" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full -mt-1">
-              <path d="M0 0L60 8C120 16 240 32 360 40C480 48 600 48 720 44C840 40 960 32 1080 28C1200 24 1320 24 1380 24L1440 24V80H0Z" fill="hsl(var(--background))" />
-            </svg>
-          </div>
         </section>
 
         {/* Benefit Cards */}
