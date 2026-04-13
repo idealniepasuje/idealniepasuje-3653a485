@@ -87,52 +87,37 @@
     "noData": "Brak danych"
   },
   "hero": {
-    "title": "Znajdź idealne dopasowanie",
-    "titleHighlight": "w pracy",
-    "description": "System oparty na analizie kompetencji i kultury organizacji, który łączy kandydatów z pracodawcami na podstawie rzeczywistego dopasowania – nie tylko CV.",
-    "candidateButton": "Jestem kandydatem",
+    "title": "Znajdź pracę, która naprawdę",
+    "titleHighlight": "do Ciebie pasuje",
+    "description": "Wypełnij krótkie testy kompetencji i preferencji, a my dopasujemy Cię do firm, w których naprawdę będziesz się dobrze czuć – nie na podstawie CV, a na podstawie tego, kim jesteś.",
+    "candidateButton": "Znajdź swoją pracę",
     "employerButton": "Jestem pracodawcą"
   },
-  "howItWorks": {
-    "title": "Jak to działa?",
-    "subtitle": "Trzy proste kroki do znalezienia idealnego dopasowania",
-    "step1Title": "Wypełnij testy",
-    "step1Description": "Odpowiedz szczerze na pytania dotyczące Twoich kompetencji i preferencji kultury pracy. Nie ma złych odpowiedzi!",
-    "step2Title": "Analiza dopasowania",
-    "step2Description": "Nasz algorytm porównuje Twój profil z ofertami pracodawców, uwzględniając kompetencje, kulturę i dane kontekstowe.",
-    "step3Title": "Otrzymaj dopasowania",
-    "step3Description": "Zobacz firmy, które najlepiej do Ciebie pasują, wraz z szczegółową analizą zgodności."
+  "whatIsIt": {
+    "line1": "Wypełniasz testy kompetencji i kultury pracy. Nasz algorytm porównuje Twój profil z ofertami pracodawców i pokazuje Ci firmy, do których naprawdę pasujesz.",
+    "line2": "Żadnego przeglądania setek ogłoszeń. Ty odpowiadasz szczerze – my robimy resztę."
   },
-  "benefits": {
-    "forCandidate": "Dla kandydata",
-    "forEmployer": "Dla pracodawcy",
-    "candidate1": "Poznaj swoje mocne strony i preferencje zawodowe",
-    "candidate2": "Otrzymuj oferty dopasowane do Twojego profilu",
-    "candidate3": "Znajdź miejsce, gdzie naprawdę będziesz pasować",
-    "employer1": "Określ profil idealnego kandydata na podstawie kompetencji",
-    "employer2": "Otrzymuj kandydatów dopasowanych do kultury Twojej firmy",
-    "employer3": "Oszczędź czas dzięki wstępnej selekcji opartej na danych"
+  "trust": {
+    "registered": "zarejestrowanych użytkowników",
+    "tests": "testów kompetencji",
+    "satisfaction": "zadowolonych beta-testerów",
+    "quote": "Wreszcie narzędzie, które nie pyta mnie o CV, tylko o to, co naprawdę lubię w pracy."
   },
-  "values": {
-    "title": "Nasze wartości",
-    "subtitle": "Wierzymy, że szczerość to klucz do najlepszego dopasowania",
-    "value1Title": "Brak złych odpowiedzi",
-    "value1Description": "Każda odpowiedź jest wartościowa. Nie oceniamy – dopasowujemy.",
-    "value2Title": "Szczerość się opłaca",
-    "value2Description": "Im bardziej autentyczne odpowiedzi, tym lepsze dopasowanie.",
-    "value3Title": "Najlepsze dopasowanie",
-    "value3Description": "Szukamy miejsca, gdzie naprawdę będziesz mógł się rozwijać."
+  "earlyAdopter": {
+    "title": "Bądź wśród pierwszych",
+    "description": "Jesteś na samym początku czegoś nowego. Dołącz teraz i zyskaj coś, czego inni nie dostaną.",
+    "perk1": "Darmowy dostęp premium po premierze",
+    "perk2": "Pierwszeństwo w dopasowaniach",
+    "cta": "Dołącz za darmo"
   },
-  "prototype": {
-    "notice": "To narzędzie jest prototypem opartym na ankietach i niskobudżetowych rozwiązaniach. Testujemy założenia i sprawdzamy, czy rozwiązanie działa we właściwy sposób. Dziękujemy za udział – Twoje odpowiedzi realnie wpływają na rozwój projektu."
-  },
-  "expert": {
-    "badge": "Stworzone przez ekspertów",
-    "description": "Testy opracowane przez psychologów i specjalistów HR"
+  "employerSection": {
+    "title": "Szukasz pracowników?",
+    "description": "Zdefiniuj profil idealnego kandydata na podstawie kompetencji i kultury organizacyjnej. Otrzymaj dopasowanych kandydatów bez przeglądania setek CV.",
+    "cta": "Zarejestruj się jako pracodawca"
   },
   "cta": {
-    "title": "Gotowy na idealne dopasowanie?",
-    "description": "Dołącz do nas i znajdź miejsce pracy, które naprawdę do Ciebie pasuje."
+    "title": "Nie czekaj na idealne ogłoszenie",
+    "description": "Zarejestruj się, wypełnij testy i pozwól, żeby praca znalazła Ciebie."
   },
   "login": {
     "title": "Zaloguj się",
