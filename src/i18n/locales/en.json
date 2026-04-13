@@ -87,52 +87,37 @@
     "noData": "No data"
   },
   "hero": {
-    "title": "Find the perfect match",
-    "titleHighlight": "at work",
-    "description": "A system based on competency and organizational culture analysis that connects candidates with employers based on real compatibility – not just a CV.",
-    "candidateButton": "I'm a candidate",
+    "title": "Find a job that truly",
+    "titleHighlight": "fits you",
+    "description": "Take short competency and preference tests, and we'll match you with companies where you'll actually thrive – not based on your CV, but on who you really are.",
+    "candidateButton": "Find your job",
     "employerButton": "I'm an employer"
   },
-  "howItWorks": {
-    "title": "How does it work?",
-    "subtitle": "Three simple steps to finding the perfect match",
-    "step1Title": "Complete the tests",
-    "step1Description": "Answer honestly about your competencies and work culture preferences. There are no wrong answers!",
-    "step2Title": "Matching analysis",
-    "step2Description": "Our algorithm compares your profile with employer offerings, considering competencies, culture, and contextual data.",
-    "step3Title": "Get your matches",
-    "step3Description": "See the companies that best match you, along with a detailed compatibility analysis."
+  "whatIsIt": {
+    "line1": "You take competency and culture tests. Our algorithm compares your profile with employer offers and shows you companies that truly match you.",
+    "line2": "No browsing hundreds of listings. You answer honestly – we do the rest."
   },
-  "benefits": {
-    "forCandidate": "For candidates",
-    "forEmployer": "For employers",
-    "candidate1": "Discover your strengths and professional preferences",
-    "candidate2": "Receive offers tailored to your profile",
-    "candidate3": "Find a place where you'll truly fit in",
-    "employer1": "Define the ideal candidate profile based on competencies",
-    "employer2": "Receive candidates matched to your company culture",
-    "employer3": "Save time with data-driven pre-selection"
+  "trust": {
+    "registered": "registered users",
+    "tests": "competency tests",
+    "satisfaction": "satisfied beta testers",
+    "quote": "Finally a tool that doesn't ask for my CV, but about what I actually enjoy at work."
   },
-  "values": {
-    "title": "Our values",
-    "subtitle": "We believe honesty is the key to the best match",
-    "value1Title": "No wrong answers",
-    "value1Description": "Every answer is valuable. We don't judge – we match.",
-    "value2Title": "Honesty pays off",
-    "value2Description": "The more authentic your answers, the better the match.",
-    "value3Title": "Best match",
-    "value3Description": "We're looking for a place where you can truly grow."
+  "earlyAdopter": {
+    "title": "Be among the first",
+    "description": "You're at the very beginning of something new. Join now and get something others won't.",
+    "perk1": "Free premium access after launch",
+    "perk2": "Priority in matching",
+    "cta": "Join for free"
   },
-  "prototype": {
-    "notice": "This tool is a prototype based on surveys and low-budget solutions. We're testing assumptions and checking if the solution works correctly. Thank you for participating – your answers truly impact the project's development."
-  },
-  "expert": {
-    "badge": "Created by experts",
-    "description": "Tests developed by psychologists and HR specialists"
+  "employerSection": {
+    "title": "Looking for employees?",
+    "description": "Define your ideal candidate profile based on competencies and organizational culture. Get matched candidates without browsing hundreds of CVs.",
+    "cta": "Register as an employer"
   },
   "cta": {
-    "title": "Ready for the perfect match?",
-    "description": "Join us and find a workplace that truly fits you."
+    "title": "Don't wait for the perfect listing",
+    "description": "Sign up, take the tests, and let the job find you."
   },
   "login": {
     "title": "Log in",
