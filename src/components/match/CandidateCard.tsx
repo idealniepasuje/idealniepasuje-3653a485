@@ -49,7 +49,7 @@ export const CandidateCard = ({ match, candidateData, offerTitle }: CandidateCar
   return (
     <Card className={`hover:shadow-lg transition-all ${isRejected ? 'opacity-60' : ''} ${isBestMatch ? 'border-accent/50 bg-accent/5' : ''}`}>
       <CardContent className="p-4">
-        <div className="flex items-center justify-between gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           {/* Left side - all info */}
           <div className="min-w-0 flex-1">
             {/* Status badges row */}
@@ -78,7 +78,7 @@ export const CandidateCard = ({ match, candidateData, offerTitle }: CandidateCar
             )}
             
             {/* Candidate ID */}
-            <h3 className="font-semibold text-xl text-foreground">
+            <h3 className="font-semibold text-lg sm:text-xl text-foreground">
               {t("employer.candidates.candidateNumber")} #{match.candidate_user_id.slice(0, 8)}
             </h3>
             
@@ -114,13 +114,13 @@ export const CandidateCard = ({ match, candidateData, offerTitle }: CandidateCar
           </div>
 
           {/* Right side - match score and button */}
-          <div className="flex flex-col items-end gap-2 shrink-0">
-            <div className="text-right">
-              <span className="text-3xl font-bold text-accent">{match.overall_percent}%</span>
+          <div className="flex flex-row sm:flex-col items-center sm:items-end justify-between sm:justify-start gap-2 shrink-0">
+            <div className="text-left sm:text-right">
+              <span className="text-2xl sm:text-3xl font-bold text-accent">{match.overall_percent}%</span>
               <p className="text-xs text-muted-foreground">{t("common.match")}</p>
             </div>
             <Link to={`/employer/candidate/${match.candidate_user_id}`}>
-              <Button className="gap-2">
+              <Button className="gap-2" size="sm">
                 {t("common.viewProfile")}
                 <ChevronRight className="w-4 h-4" />
               </Button>
