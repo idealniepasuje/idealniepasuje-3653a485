@@ -37,6 +37,9 @@ const Index = () => {
             <span className="text-xl font-bold text-foreground">idealnie<span className="text-accent">pasuje</span></span>
           </Link>
           <div className="hidden md:flex items-center gap-4">
+            <a href="https://www.instagram.com/idealniepasuje.pl/" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="text-foreground hover:opacity-80 transition-opacity">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
+            </a>
             <LanguageSwitcher />
             <Link to="/login">
               <Button variant="ghost" size="sm">{t("common.login")}</Button>
@@ -58,7 +61,12 @@ const Index = () => {
               <Link to="/register" onClick={() => setMenuOpen(false)}>
                 <Button size="sm" className="w-full text-base font-bold py-2">{t("common.register")}</Button>
               </Link>
-              <div className="pt-2 border-t border-border/50"><LanguageSwitcher /></div>
+              <div className="pt-2 border-t border-border/50 flex items-center justify-between">
+                <LanguageSwitcher />
+                <a href="https://www.instagram.com/idealniepasuje.pl/" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="text-foreground hover:opacity-80 transition-opacity">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
+                </a>
+              </div>
             </div>
           </div>
         )}
