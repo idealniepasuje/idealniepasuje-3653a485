@@ -86,7 +86,16 @@
     "thankYou": "Thank you!",
     "noData": "No data"
   },
-  "gateway": {
+  "howItWorks": {
+    "title": "How does it work?",
+    "subtitle": "Three simple steps to finding the perfect match",
+    "step1Title": "Take the tests",
+    "step1Description": "Answer honestly about your competencies and work culture preferences. There are no wrong answers!",
+    "step2Title": "Match analysis",
+    "step2Description": "Our algorithm compares your profile with employer offers, considering competencies, culture, and contextual data.",
+    "step3Title": "Get your matches",
+    "step3Description": "See companies that best fit you, with detailed compatibility analysis."
+  },
     "title": "Find the perfect match",
     "titleHighlight": "at work",
     "description": "A system based on competency and organizational culture analysis that connects candidates with employers based on real compatibility – not just CVs.",
