@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, Users, CheckCircle2, ShieldCheck, Sparkles, TrendingUp, Gift, Building2, FileSearch, Brain, BarChart3, RefreshCw, ClipboardList, Handshake } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { LandingNav } from "@/components/LandingNav";
 import heroCandidateImg from "@/assets/hero-candidate.jpg";
 import benefitDiscoverImg from "@/assets/benefit-discover.jpg";
 import benefitMatchImg from "@/assets/benefit-match.jpg";
