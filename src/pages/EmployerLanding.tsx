@@ -54,7 +54,7 @@ const EmployerLanding = () => {
         <section className="relative pt-24 pb-0 overflow-hidden">
           <div className="hero-section">
             <div className="container mx-auto px-4 relative z-10">
-              <div className="grid md:grid-cols-2 gap-8 items-center py-12 px-0 md:py-0 my-0 mx-[25px]">
+              <div className="grid md:grid-cols-2 gap-8 items-center py-12 md:py-20 px-0">
                 <div className="max-w-lg">
                   <h1 className="text-3xl md:text-5xl font-bold text-primary-foreground mb-5 leading-tight">
                     {t("employerLanding.hero.title")}
@@ -80,7 +80,7 @@ const EmployerLanding = () => {
         </section>
 
         {/* Benefit Cards */}
-        <section className="py-24">
+        <section className="py-12 md:py-24">
           <div className="container mx-auto px-4">
             <h2 className="text-3xl md:text-5xl font-bold text-center mb-16">{t("employerLanding.benefitsTitle")}</h2>
             <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
@@ -106,7 +106,7 @@ const EmployerLanding = () => {
         </section>
 
         {/* Problems - image + compact list */}
-        <section className="py-24 bg-secondary/30">
+        <section className="py-12 md:py-24 bg-secondary/30">
           <div className="container mx-auto px-4">
             <h2 className="text-3xl md:text-5xl font-bold text-center mb-16">{t("employerLanding.problemsTitle")}</h2>
             <div className="grid md:grid-cols-2 gap-12 max-w-5xl mx-auto items-center">
@@ -132,7 +132,7 @@ const EmployerLanding = () => {
         </section>
 
         {/* How it works - alternating */}
-        <section className="py-24">
+        <section className="py-12 md:py-24">
           <div className="container mx-auto px-4">
             <h2 className="text-3xl md:text-5xl font-bold text-center mb-16">{t("employerLanding.howTitle")}</h2>
             <div className="max-w-5xl mx-auto space-y-16">
@@ -155,7 +155,7 @@ const EmployerLanding = () => {
         </section>
 
         {/* Early Adopter */}
-        <section className="py-24 bg-cta/10 border-y border-cta/30">
+        <section className="py-12 md:py-24 bg-cta/10 border-y border-cta/30">
           <div className="container mx-auto px-4">
             <div className="max-w-3xl mx-auto text-center">
               <div className="w-16 h-16 rounded-2xl bg-cta/20 flex items-center justify-center mx-auto mb-6">
@@ -184,7 +184,7 @@ const EmployerLanding = () => {
         </section>
 
         {/* Candidate redirect */}
-        <section className="py-24 hero-section">
+        <section className="py-12 md:py-24 hero-section">
           <div className="container mx-auto px-4 text-center">
             <h2 className="text-3xl md:text-5xl font-bold text-primary-foreground mb-4">{t("employerLanding.candidateCTA.title")}</h2>
             <p className="text-primary-foreground/70 mb-8 text-lg max-w-2xl mx-auto">{t("employerLanding.candidateCTA.desc")}</p>
@@ -199,7 +199,7 @@ const EmployerLanding = () => {
         </section>
 
         {/* Final CTA */}
-        <section className="py-24">
+        <section className="py-12 md:py-24">
           <div className="container mx-auto px-4 text-center">
             <h2 className="text-3xl md:text-5xl font-bold mb-6">{t("employerLanding.finalCTA.title")}</h2>
             <p className="text-muted-foreground mb-8 text-lg max-w-2xl mx-auto">{t("employerLanding.finalCTA.desc")}</p>
