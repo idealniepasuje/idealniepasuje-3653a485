@@ -119,10 +119,10 @@ const EmployerOrderDetail = () => {
             {t("common.back")}
           </Button>
           
-          <div className="flex items-start justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
             <div>
               <h1 className="text-2xl font-bold mb-1">{offer.title}</h1>
-              <div className="flex items-center gap-3 text-sm text-muted-foreground">
+              <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
                 <span className="flex items-center gap-1">
                   <Calendar className="w-4 h-4" />
                   {formatDate(offer.created_at)}
@@ -136,18 +136,18 @@ const EmployerOrderDetail = () => {
               {offer.is_active ? (
                 <Button variant="outline" size="sm" className="gap-2" onClick={() => setCloseDialogOpen(true)}>
                   <Archive className="w-4 h-4" />
-                  {t("employer.offers.close")}
+                  <span className="hidden sm:inline">{t("employer.offers.close")}</span>
                 </Button>
               ) : (
                 <Button variant="outline" size="sm" className="gap-2" onClick={handleToggleActive}>
                   <RotateCcw className="w-4 h-4" />
-                  {t("employer.offers.reopen")}
+                  <span className="hidden sm:inline">{t("employer.offers.reopen")}</span>
                 </Button>
               )}
               <Link to={`/employer/offer/${offer.id}`}>
                 <Button variant="outline" size="sm" className="gap-2">
                   <Edit className="w-4 h-4" />
-                  {t("common.edit")}
+                  <span className="hidden sm:inline">{t("common.edit")}</span>
                 </Button>
               </Link>
             </div>
