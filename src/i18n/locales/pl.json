@@ -129,19 +129,19 @@
     "problemsSubtitle": "Problemy, które rozwiązujemy za Ciebie",
     "problems": {
       "cv": {
-        "problem": "👉 CV nie pokazuje faktycznego potencjału – tracą kandydaci interdyscyplinarni lub przebranżawiający się.",
+        "problem": "CV nie pokazuje faktycznego potencjału",
         "solution": "System bada Twój styl pracy, wartości i kompetencje – kompleksowo i obiektywnie."
       },
       "soft": {
-        "problem": "👉 Brak narzędzi oceny kompetencji miękkich – CV jest zbyt różne, by zestawić kandydatów.",
+        "problem": "Brakuje narzędzi oceny kompetencji miękkich ",
         "solution": "Testy mierzą zarówno umiejętności twarde, jak i miękkie – dane tworzą pełny profil."
       },
       "career": {
-        "problem": "👉 Chcesz się przebranżowić, ale nie wiesz, w czym jesteś dobry?",
+        "problem": "Chcesz się przebranżowić, ale nie wiesz, w czym jesteś dobry?",
         "solution": "System pomoże Ci znaleźć Twoje mocne strony. Otrzymasz feedback i wskazówki rozwojowe."
       },
       "bias": {
-        "problem": "👉 Decyzje rekrutacyjne często zapadają na podstawie uprzedzeń, a nie realnych kompetencji.",
+        "problem": " Decyzje rekrutacyjne często zapadają na podstawie uprzedzeń, a nie realnych kompetencji.",
         "solution": "Algorytmy eliminują uprzedzenia – liczą się tylko dane i realne dopasowanie."
       }
     },
