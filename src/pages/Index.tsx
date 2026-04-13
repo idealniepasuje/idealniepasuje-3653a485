@@ -21,7 +21,6 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-card/90 backdrop-blur-sm border-b border-border">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <Link to="/" className="flex items-center">
@@ -33,9 +32,7 @@ const Index = () => {
               <Button variant="ghost" size="sm">{t("common.login")}</Button>
             </Link>
             <Link to="/register">
-              <Button size="sm" className="text-base font-bold px-6 py-2">
-                {t("common.register")}
-              </Button>
+              <Button size="sm" className="text-base font-bold px-6 py-2">{t("common.register")}</Button>
             </Link>
           </div>
         </div>
@@ -44,7 +41,6 @@ const Index = () => {
       <main>
         {/* Hero */}
         <section className="relative pt-32 pb-28 overflow-hidden hero-section">
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom,_var(--tw-gradient-stops))] from-cta/10 via-transparent to-transparent" />
           <div className="container mx-auto px-4 relative z-10">
             <div className="max-w-3xl mx-auto text-center mb-14">
               <h1 className="text-4xl md:text-6xl font-bold text-primary-foreground mb-6 leading-tight">
@@ -56,9 +52,7 @@ const Index = () => {
               </p>
             </div>
 
-            {/* Two paths with images */}
             <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
-              {/* Candidate */}
               <Link to="/dla-kandydatow" className="group block">
                 <div className="relative rounded-2xl overflow-hidden shadow-xl hover:-translate-y-2 transition-all duration-300">
                   <img src={heroCandidateImg} alt="" className="w-full h-64 object-cover" width={640} height={256} />
@@ -70,9 +64,7 @@ const Index = () => {
                       </div>
                       <h2 className="text-2xl font-bold text-primary-foreground">{t("gateway.candidateTitle")}</h2>
                     </div>
-                    <p className="text-primary-foreground/80 text-sm mb-5 line-clamp-2">
-                      {t("gateway.candidateDesc1")}
-                    </p>
+                    <p className="text-primary-foreground/80 text-sm mb-5 line-clamp-2">{t("gateway.candidateDesc1")}</p>
                     <Button size="lg" className="gap-2 font-bold px-8 py-5 rounded-xl shadow-lg w-full group-hover:shadow-xl transition-shadow">
                       {t("gateway.candidateCTA")}
                       <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
@@ -81,7 +73,6 @@ const Index = () => {
                 </div>
               </Link>
 
-              {/* Employer */}
               <Link to="/dla-pracodawcow" className="group block">
                 <div className="relative rounded-2xl overflow-hidden shadow-xl hover:-translate-y-2 transition-all duration-300">
                   <img src={heroEmployerImg} alt="" className="w-full h-64 object-cover" width={640} height={256} />
@@ -93,9 +84,7 @@ const Index = () => {
                       </div>
                       <h2 className="text-2xl font-bold text-primary-foreground">{t("gateway.employerTitle")}</h2>
                     </div>
-                    <p className="text-primary-foreground/80 text-sm mb-5 line-clamp-2">
-                      {t("gateway.employerDesc1")}
-                    </p>
+                    <p className="text-primary-foreground/80 text-sm mb-5 line-clamp-2">{t("gateway.employerDesc1")}</p>
                     <Button size="lg" variant="secondary" className="gap-2 font-bold px-8 py-5 rounded-xl shadow-lg w-full group-hover:shadow-xl transition-shadow">
                       {t("gateway.employerCTA")}
                       <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
@@ -113,40 +102,23 @@ const Index = () => {
           </div>
         </section>
 
-        {/* Value prop */}
-        <section className="py-16 bg-primary">
+        {/* How it works - compact */}
+        <section className="py-16">
           <div className="container mx-auto px-4">
-            <div className="max-w-3xl mx-auto text-center">
-              <h2 className="text-xl md:text-2xl font-bold text-primary-foreground leading-relaxed">
-                {t("gateway.valueProp")}
-              </h2>
-              <p className="text-lg text-primary-foreground/70 mt-4">
-                {t("gateway.valuePropSub")}
-              </p>
-            </div>
-          </div>
-        </section>
-
-        {/* How it works */}
-        <section className="py-20">
-          <div className="container mx-auto px-4">
-            <h2 className="text-3xl md:text-4xl font-bold text-center mb-4">{t("howItWorks.title")}</h2>
-            <p className="text-muted-foreground text-center mb-14 max-w-2xl mx-auto">{t("howItWorks.subtitle")}</p>
-            <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+            <h2 className="text-2xl md:text-3xl font-bold text-center mb-10">{t("howItWorks.title")}</h2>
+            <div className="flex flex-col md:flex-row gap-6 max-w-4xl mx-auto items-stretch">
               {[
                 { step: 1, emoji: "📋", titleKey: "howItWorks.step1Title", descKey: "howItWorks.step1Description" },
                 { step: 2, emoji: "🔍", titleKey: "howItWorks.step2Title", descKey: "howItWorks.step2Description" },
                 { step: 3, emoji: "🤝", titleKey: "howItWorks.step3Title", descKey: "howItWorks.step3Description" },
               ].map((item) => (
-                <div key={item.step} className="relative bg-card rounded-2xl p-8 text-center shadow-md border border-border/40 hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
-                  <span className="absolute -top-4 left-1/2 -translate-x-1/2 w-8 h-8 rounded-full bg-cta text-cta-foreground font-bold flex items-center justify-center text-sm shadow-md">
+                <div key={item.step} className="relative flex-1 bg-card rounded-2xl p-6 text-center shadow-sm border border-border/40">
+                  <span className="absolute -top-3 left-1/2 -translate-x-1/2 w-7 h-7 rounded-full bg-cta text-cta-foreground font-bold flex items-center justify-center text-xs shadow">
                     {item.step}
                   </span>
-                  <div className="w-16 h-16 rounded-2xl bg-accent/10 flex items-center justify-center mx-auto mb-5 text-3xl">
-                    {item.emoji}
-                  </div>
-                  <h3 className="text-lg font-bold mb-2">{t(item.titleKey)}</h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed">{t(item.descKey)}</p>
+                  <div className="text-2xl mb-3">{item.emoji}</div>
+                  <h3 className="text-sm font-bold mb-1">{t(item.titleKey)}</h3>
+                  <p className="text-xs text-muted-foreground leading-relaxed">{t(item.descKey)}</p>
                 </div>
               ))}
             </div>
@@ -154,19 +126,19 @@ const Index = () => {
         </section>
 
         {/* CTA bottom */}
-        <section className="py-20 bg-secondary/30">
+        <section className="py-16 bg-secondary/30">
           <div className="container mx-auto px-4 text-center">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">{t("gateway.ctaTitle")}</h2>
-            <p className="text-muted-foreground mb-10 text-lg max-w-2xl mx-auto">{t("gateway.ctaDesc")}</p>
+            <h2 className="text-2xl md:text-3xl font-bold mb-4">{t("gateway.ctaTitle")}</h2>
+            <p className="text-muted-foreground mb-8 max-w-xl mx-auto">{t("gateway.ctaDesc")}</p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link to="/dla-kandydatow">
-                <Button size="lg" className="gap-2 text-lg font-bold px-10 py-6 rounded-xl shadow-lg">
+                <Button size="lg" className="gap-2 text-lg font-bold px-10 py-5 rounded-xl shadow-lg">
                   <Users className="w-5 h-5" />
                   {t("gateway.candidateCTA")}
                 </Button>
               </Link>
               <Link to="/dla-pracodawcow">
-                <Button size="lg" variant="secondary" className="gap-2 text-lg font-bold px-10 py-6 rounded-xl shadow-lg">
+                <Button size="lg" variant="secondary" className="gap-2 text-lg font-bold px-10 py-5 rounded-xl shadow-lg">
                   <Building2 className="w-5 h-5" />
                   {t("gateway.employerCTA")}
                 </Button>
@@ -176,9 +148,9 @@ const Index = () => {
         </section>
       </main>
 
-      <footer className="py-8 bg-primary">
+      <footer className="py-6 bg-primary">
         <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-3">
             <span className="text-primary-foreground font-semibold">idealniepasuje</span>
             <p className="text-primary-foreground/60 text-sm">© 2026 idealniepasuje. {t("common.allRightsReserved")}</p>
           </div>
