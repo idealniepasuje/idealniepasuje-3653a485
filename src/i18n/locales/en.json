@@ -154,6 +154,20 @@
       "b4": "Career change opportunity with data-driven feedback",
       "b5": "Bias-free recruitment – only data, zero guesswork"
     },
+    "benefitCards": {
+      "discover": {
+        "title": "Discover your strengths",
+        "desc": "Competency tests show you what you're best at. Get a detailed profile of your skills and professional preferences."
+      },
+      "match": {
+        "title": "Matching without searching",
+        "desc": "Don't browse hundreds of listings. Our algorithm finds companies that truly match your profile and work style."
+      },
+      "culture": {
+        "title": "Culture that fits you",
+        "desc": "We assess not just competencies but cultural fit. Find a team where you'll actually feel at home."
+      }
+    },
     "valuesTitle": "Our values",
     "valuesSubtitle": "We believe honesty is the key to the best match",
     "values": {
@@ -214,6 +228,20 @@
       "b3": "Candidates with highest competency test scores",
       "b4": "Bias-free recruitment – only data, zero guesswork",
       "b5": "A new team-building standard based on data"
+    },
+    "benefitCards": {
+      "cost": {
+        "title": "Minimize recruitment costs",
+        "desc": "We shorten the recruitment process through intelligent matching based on competency and culture test results."
+      },
+      "data": {
+        "title": "Data-driven recruitment",
+        "desc": "No more impression-based decisions. You get candidates with full competency and cultural profiles."
+      },
+      "team": {
+        "title": "Build better teams",
+        "desc": "We analyze work styles and suggest candidates who don't just fit – they bring new quality to the team."
+      }
     },
     "howTitle": "How does it work?",
     "howSubtitle": "Three simple steps to find the ideal candidate",
