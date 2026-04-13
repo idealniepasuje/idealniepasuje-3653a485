@@ -154,6 +154,20 @@
       "b4": "Szansa na przebranżowienie z pomocą danych i feedbacku",
       "b5": "Rekrutacja bez uprzedzeń – tylko dane, zero domysłów"
     },
+    "benefitCards": {
+      "discover": {
+        "title": "Odkryj swoje mocne strony",
+        "desc": "Testy kompetencji pokażą Ci, w czym jesteś najlepszy. Otrzymasz szczegółowy profil swoich umiejętności i preferencji zawodowych."
+      },
+      "match": {
+        "title": "Dopasowanie bez szukania",
+        "desc": "Nie przeglądaj setek ogłoszeń. Nasz algorytm znajdzie firmy, które naprawdę pasują do Twojego profilu i stylu pracy."
+      },
+      "culture": {
+        "title": "Kultura, która do Ciebie pasuje",
+        "desc": "Badamy nie tylko kompetencje, ale też dopasowanie kulturowe. Znajdź zespół, w którym będziesz się dobrze czuć."
+      }
+    },
     "valuesTitle": "Nasze wartości",
     "valuesSubtitle": "Wierzymy, że szczerość to klucz do najlepszego dopasowania",
     "values": {
