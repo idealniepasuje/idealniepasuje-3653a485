@@ -300,9 +300,9 @@ const CandidateDashboard = () => {
         </h2>
         <Card className={!allCompetencyTestsCompleted ? "opacity-60" : ""}>
           <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-lg bg-cta/10 flex items-center justify-center">
+                <div className="w-12 h-12 rounded-lg bg-cta/10 flex items-center justify-center shrink-0">
                   <Users className="w-6 h-6 text-cta" />
                 </div>
                 <div>
@@ -310,12 +310,12 @@ const CandidateDashboard = () => {
                   <p className="text-sm text-muted-foreground">{t("candidate.dashboard.cultureTestDescription")}</p>
                 </div>
               </div>
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-3 ml-16 sm:ml-0">
                 <Badge variant={cultureTestCompleted ? "default" : "outline"} className={cultureTestCompleted ? "bg-success" : ""}>
                   {cultureTestCompleted ? t("common.completed") : t("common.toDo")}
                 </Badge>
                 <Link to="/candidate/test/culture">
-                  <Button disabled={!allCompetencyTestsCompleted} className="gap-2">
+                  <Button disabled={!allCompetencyTestsCompleted} className="gap-2" size="sm">
                     {cultureTestCompleted ? t("common.seeResults") : t("common.start")}
                     <ChevronRight className="w-4 h-4" />
                   </Button>
@@ -333,9 +333,9 @@ const CandidateDashboard = () => {
         </h2>
         <Card className={!cultureTestCompleted ? "opacity-60" : ""}>
           <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
+                <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
                   <Target className="w-6 h-6 text-primary" />
                 </div>
                 <div>
@@ -343,12 +343,12 @@ const CandidateDashboard = () => {
                   <p className="text-sm text-muted-foreground">{t("candidate.dashboard.contextualDataDescription")}</p>
                 </div>
               </div>
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-3 ml-16 sm:ml-0">
                 <Badge variant={additionalCompleted ? "default" : "outline"} className={additionalCompleted ? "bg-success" : ""}>
                   {additionalCompleted ? t("common.completed") : t("common.toDo")}
                 </Badge>
                 <Link to="/candidate/additional">
-                  <Button disabled={!cultureTestCompleted} className="gap-2">
+                  <Button disabled={!cultureTestCompleted} className="gap-2" size="sm">
                     {additionalCompleted ? t("common.edit") : t("common.fill")}
                     <ChevronRight className="w-4 h-4" />
                   </Button>
