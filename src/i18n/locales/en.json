@@ -231,16 +231,16 @@
     },
     "benefitCards": {
       "cost": {
-        "title": "Minimize recruitment costs",
-        "desc": "We shorten the recruitment process through intelligent matching based on competency and culture test results."
+        "title": "Save time and money",
+        "desc": "No more browsing hundreds of CVs. Our algorithm delivers candidates matched to your role – quickly and precisely."
       },
       "data": {
-        "title": "Data-driven recruitment",
-        "desc": "No more impression-based decisions. You get candidates with full competency and cultural profiles."
+        "title": "Decisions based on data",
+        "desc": "No more gut-feeling recruitment. Every candidate has a full competency and culture profile – objective and bias-free."
       },
       "team": {
-        "title": "Build better teams",
-        "desc": "We analyze work styles and suggest candidates who don't just fit – they bring new quality to the team."
+        "title": "A team that truly works",
+        "desc": "We assess not just skills, but cultural fit too. Find people who will strengthen your team."
       }
     },
     "howTitle": "How does it work?",
