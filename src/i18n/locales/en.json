@@ -86,6 +86,161 @@
     "thankYou": "Thank you!",
     "noData": "No data"
   },
+  "howItWorks": {
+    "title": "How does it work?",
+    "subtitle": "Three simple steps to finding the perfect match",
+    "step1Title": "Take the tests",
+    "step1Description": "Answer honestly about your competencies and work culture preferences. There are no wrong answers!",
+    "step2Title": "Match analysis",
+    "step2Description": "Our algorithm compares your profile with employer offers, considering competencies, culture, and contextual data.",
+    "step3Title": "Get your matches",
+    "step3Description": "See companies that best fit you, with detailed compatibility analysis."
+  },
+    "title": "Find the perfect match",
+    "titleHighlight": "at work",
+    "description": "A system based on competency and organizational culture analysis that connects candidates with employers based on real compatibility – not just CVs.",
+    "candidateTitle": "I'm a candidate",
+    "candidateDesc1": "Take competency tests, discover your strengths, and find offers matched to your potential.",
+    "candidateDesc2": "Opportunities for growth and mentorship connections.",
+    "candidateCTA": "I'm a candidate",
+    "employerTitle": "I'm an employer",
+    "employerDesc1": "Find ideal candidates matched to your company's needs.",
+    "employerDesc2": "Define competency and cultural profiles, and we'll deliver matches.",
+    "employerCTA": "I'm an employer",
+    "valueProp": "A system based on competency and organizational culture analysis that connects candidates with employers based on real compatibility.",
+    "valuePropSub": "No browsing hundreds of listings or CVs. You answer honestly – we do the rest.",
+    "ctaTitle": "Change your job, change your life – ready?",
+    "ctaDesc": "Join the platform and find your perfect match – as a candidate or employer."
+  },
+  "candidateLanding": {
+    "navEmployer": "For employers",
+    "hero": {
+      "title": "Discover the ideal job,",
+      "highlight": "develop your skills!",
+      "description": "Take competency tests, discover your strengths, and find offers matched to your potential. Not based on CV – based on who you really are.",
+      "cta": "Start for free"
+    },
+    "valueProp": {
+      "line1": "You take competency and culture tests. Our algorithm compares your profile with employer offers and shows you companies that truly match you.",
+      "line2": "No browsing hundreds of listings. You answer honestly – we do the rest."
+    },
+    "problemsTitle": "Why doesn't traditional recruitment work?",
+    "problemsSubtitle": "Problems we solve for you",
+    "problems": {
+      "cv": {
+        "problem": "👉 CVs don't show real potential – interdisciplinary and career-changing candidates lose out.",
+        "solution": "Our system examines your work style, values, and competencies – comprehensively and objectively."
+      },
+      "soft": {
+        "problem": "👉 No tools to assess soft skills – CVs are too varied to compare candidates.",
+        "solution": "Tests measure both hard and soft skills – data creates a complete profile."
+      },
+      "career": {
+        "problem": "👉 Want to change careers but don't know your strengths?",
+        "solution": "The system helps you find your strengths. You'll receive feedback and development tips."
+      },
+      "bias": {
+        "problem": "👉 Recruitment decisions are often based on biases, not real competencies.",
+        "solution": "Algorithms eliminate bias – only data and real compatibility matter."
+      }
+    },
+    "benefitsTitle": "What do you gain?",
+    "benefitsSubtitle": "Discover the benefits of joining our community",
+    "benefits": {
+      "b1": "Discover your strengths and professional preferences",
+      "b2": "Receive offers matched to your profile – don't search yourself",
+      "b3": "Find a place where you truly fit culturally",
+      "b4": "Career change opportunity with data-driven feedback",
+      "b5": "Bias-free recruitment – only data, zero guesswork"
+    },
+    "valuesTitle": "Our values",
+    "valuesSubtitle": "We believe honesty is the key to the best match",
+    "values": {
+      "v1Title": "No wrong answers",
+      "v1Desc": "Every answer is valuable. We don't judge – we match.",
+      "v2Title": "Honesty pays off",
+      "v2Desc": "The more authentic your answers, the better the match.",
+      "v3Title": "Best match",
+      "v3Desc": "We look for a place where you can truly grow."
+    },
+    "employerCTA": {
+      "title": "Looking for employees?",
+      "desc": "Check our offer for employers – match candidates based on competencies and organizational culture.",
+      "cta": "See employer offer"
+    },
+    "finalCTA": {
+      "title": "Don't wait for the perfect listing",
+      "desc": "Sign up, take the tests, and let the job find you."
+    }
+  },
+  "employerLanding": {
+    "navCandidate": "For candidates",
+    "hero": {
+      "title": "Find ideal candidates",
+      "highlight": "matched to your company",
+      "description": "Define real competency and cultural needs – our algorithm delivers candidates who truly fit your team.",
+      "cta": "Start for free"
+    },
+    "valueProp": {
+      "line1": "Describe the position and organizational culture. Our algorithm compares the profile with tested candidates and suggests the best matches.",
+      "line2": "No more browsing hundreds of CVs. You define needs – we deliver people."
+    },
+    "problemsTitle": "Why is recruitment hard?",
+    "problemsSubtitle": "Problems we solve for you",
+    "problems": {
+      "titles": {
+        "problem": "👉 Inadequate job titles – they often don't reflect real tasks and team needs.",
+        "solution": "IdealniePasuje helps companies define real competency needs."
+      },
+      "apps": {
+        "problem": "👉 Applications that don't match requirements – candidates embellish CVs, wasting your time.",
+        "solution": "We suggest candidates with the highest competency test scores – not based on CVs."
+      },
+      "bias": {
+        "problem": "👉 Selection based on wrong impressions – decisions are made on biases.",
+        "solution": "Algorithms eliminate bias – only data and real compatibility matter."
+      },
+      "team": {
+        "problem": "👉 Who best complements the team? Hard to assess without consistent data.",
+        "solution": "We analyze work styles and suggest candidates who don't just fit – they add value."
+      }
+    },
+    "benefitsTitle": "What do you gain?",
+    "benefitsSubtitle": "Benefits of partnering with IdealniePasuje",
+    "benefits": {
+      "b1": "Minimized recruitment costs",
+      "b2": "Shorter process through test-based matching",
+      "b3": "Candidates with highest competency test scores",
+      "b4": "Bias-free recruitment – only data, zero guesswork",
+      "b5": "A new team-building standard based on data"
+    },
+    "howTitle": "How does it work?",
+    "howSubtitle": "Three simple steps to find the ideal candidate",
+    "how": {
+      "s1Title": "Define needs",
+      "s1Desc": "Describe the position, required competencies, and your company's organizational culture.",
+      "s2Title": "Algorithm matches",
+      "s2Desc": "Our system compares the position profile with the database of tested candidates.",
+      "s3Title": "Receive candidates",
+      "s3Desc": "See people who best fit your team, with full compatibility analysis."
+    },
+    "early": {
+      "title": "Be among the first employers",
+      "desc": "Join now and get access to tested candidates before the competition.",
+      "perk1": "Free premium access after launch",
+      "perk2": "Priority in matching",
+      "cta": "Join for free"
+    },
+    "candidateCTA": {
+      "title": "Looking for a job?",
+      "desc": "Check our offer for candidates – discover your strengths and find a place that fits you.",
+      "cta": "See candidate offer"
+    },
+    "finalCTA": {
+      "title": "Ready for better recruitment?",
+      "desc": "Sign up, define your needs, and let the ideal candidate find you."
+    }
+  },
   "hero": {
     "title": "Find a job that truly",
     "titleHighlight": "fits you",

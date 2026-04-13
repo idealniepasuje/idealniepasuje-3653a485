@@ -86,6 +86,161 @@
     "thankYou": "Dziękujemy!",
     "noData": "Brak danych"
   },
+  "howItWorks": {
+    "title": "Jak to działa?",
+    "subtitle": "Trzy proste kroki do znalezienia idealnego dopasowania",
+    "step1Title": "Wypełnij testy",
+    "step1Description": "Odpowiedz szczerze na pytania dotyczące Twoich kompetencji i preferencji kultury pracy. Nie ma złych odpowiedzi!",
+    "step2Title": "Analiza dopasowania",
+    "step2Description": "Nasz algorytm porównuje Twój profil z ofertami pracodawców, uwzględniając kompetencje, kulturę i dane kontekstowe.",
+    "step3Title": "Otrzymaj dopasowania",
+    "step3Description": "Zobacz firmy, które najlepiej do Ciebie pasują, wraz ze szczegółową analizą zgodności."
+  },
+    "title": "Znajdź idealne dopasowanie",
+    "titleHighlight": "w pracy",
+    "description": "System oparty na analizie kompetencji i kultury organizacji, który łączy kandydatów z pracodawcami na podstawie rzeczywistego dopasowania – nie tylko CV.",
+    "candidateTitle": "Jestem kandydatem",
+    "candidateDesc1": "Skorzystaj z testów kompetencji, odkryj swoje mocne strony i znajdź ofertę dopasowaną do Twojego potencjału.",
+    "candidateDesc2": "Możliwość rozwoju i nawiązania relacji z mentorem.",
+    "candidateCTA": "Jestem kandydatem",
+    "employerTitle": "Jestem pracodawcą",
+    "employerDesc1": "Znajdź idealnych kandydatów dopasowanych do potrzeb Twojej firmy.",
+    "employerDesc2": "Zdefiniuj profil kompetencyjny i kulturowy, a my dostarczymy dopasowania.",
+    "employerCTA": "Jestem pracodawcą",
+    "valueProp": "System oparty na analizie kompetencji i kultury organizacji, który łączy kandydatów z pracodawcami na podstawie rzeczywistego dopasowania.",
+    "valuePropSub": "Żadnego przeglądania setek ogłoszeń ani CV. Odpowiadasz szczerze – my robimy resztę.",
+    "ctaTitle": "Zmień pracę, zmień życie – zaczynamy?",
+    "ctaDesc": "Dołącz do platformy i znajdź idealne dopasowanie – jako kandydat lub pracodawca."
+  },
+  "candidateLanding": {
+    "navEmployer": "Dla pracodawców",
+    "hero": {
+      "title": "Odkryj idealną pracę,",
+      "highlight": "rozwijaj swoje umiejętności!",
+      "description": "Skorzystaj z testów kompetencji, odkryj swoje mocne strony i znajdź ofertę dopasowaną do Twojego potencjału. Nie na podstawie CV – na podstawie tego, kim jesteś.",
+      "cta": "Rozpocznij za darmo"
+    },
+    "valueProp": {
+      "line1": "Wypełniasz testy kompetencji i kultury pracy. Nasz algorytm porównuje Twój profil z ofertami pracodawców i pokazuje Ci firmy, do których naprawdę pasujesz.",
+      "line2": "Żadnego przeglądania setek ogłoszeń. Ty odpowiadasz szczerze – my robimy resztę."
+    },
+    "problemsTitle": "Dlaczego tradycyjna rekrutacja nie działa?",
+    "problemsSubtitle": "Problemy, które rozwiązujemy za Ciebie",
+    "problems": {
+      "cv": {
+        "problem": "👉 CV nie pokazuje faktycznego potencjału – tracą kandydaci interdyscyplinarni lub przebranżawiający się.",
+        "solution": "System bada Twój styl pracy, wartości i kompetencje – kompleksowo i obiektywnie."
+      },
+      "soft": {
+        "problem": "👉 Brak narzędzi oceny kompetencji miękkich – CV jest zbyt różne, by zestawić kandydatów.",
+        "solution": "Testy mierzą zarówno umiejętności twarde, jak i miękkie – dane tworzą pełny profil."
+      },
+      "career": {
+        "problem": "👉 Chcesz się przebranżowić, ale nie wiesz, w czym jesteś dobry?",
+        "solution": "System pomoże Ci znaleźć Twoje mocne strony. Otrzymasz feedback i wskazówki rozwojowe."
+      },
+      "bias": {
+        "problem": "👉 Decyzje rekrutacyjne często zapadają na podstawie uprzedzeń, a nie realnych kompetencji.",
+        "solution": "Algorytmy eliminują uprzedzenia – liczą się tylko dane i realne dopasowanie."
+      }
+    },
+    "benefitsTitle": "Co zyskujesz?",
+    "benefitsSubtitle": "Odkryj korzyści dołączenia do naszej społeczności",
+    "benefits": {
+      "b1": "Poznaj swoje mocne strony i preferencje zawodowe",
+      "b2": "Otrzymuj oferty dopasowane do Twojego profilu – nie szukaj ich sam",
+      "b3": "Znajdź miejsce, gdzie naprawdę będziesz pasować kulturowo",
+      "b4": "Szansa na przebranżowienie z pomocą danych i feedbacku",
+      "b5": "Rekrutacja bez uprzedzeń – tylko dane, zero domysłów"
+    },
+    "valuesTitle": "Nasze wartości",
+    "valuesSubtitle": "Wierzymy, że szczerość to klucz do najlepszego dopasowania",
+    "values": {
+      "v1Title": "Brak złych odpowiedzi",
+      "v1Desc": "Każda odpowiedź jest wartościowa. Nie oceniamy – dopasowujemy.",
+      "v2Title": "Szczerość się opłaca",
+      "v2Desc": "Im bardziej autentyczne odpowiedzi, tym lepsze dopasowanie.",
+      "v3Title": "Najlepsze dopasowanie",
+      "v3Desc": "Szukamy miejsca, gdzie naprawdę będziesz mógł się rozwijać."
+    },
+    "employerCTA": {
+      "title": "Szukasz pracowników?",
+      "desc": "Sprawdź naszą ofertę dla pracodawców – dopasowuj kandydatów na podstawie kompetencji i kultury organizacyjnej.",
+      "cta": "Zobacz ofertę dla pracodawców"
+    },
+    "finalCTA": {
+      "title": "Nie czekaj na idealne ogłoszenie",
+      "desc": "Zarejestruj się, wypełnij testy i pozwól, żeby praca znalazła Ciebie."
+    }
+  },
+  "employerLanding": {
+    "navCandidate": "Dla kandydatów",
+    "hero": {
+      "title": "Znajdź idealnych kandydatów",
+      "highlight": "dopasowanych do Twojej firmy",
+      "description": "Zdefiniuj rzeczywiste potrzeby kompetencyjne i kulturowe – nasz algorytm dostarczy kandydatów, którzy naprawdę pasują do Twojego zespołu.",
+      "cta": "Rozpocznij za darmo"
+    },
+    "valueProp": {
+      "line1": "Opisujesz stanowisko i kulturę organizacji. Nasz algorytm porównuje profil z bazą kandydatów i proponuje najlepsze dopasowania.",
+      "line2": "Koniec z przeglądaniem setek CV. Ty definiujesz potrzeby – my dostarczamy ludzi."
+    },
+    "problemsTitle": "Dlaczego rekrutacja jest trudna?",
+    "problemsSubtitle": "Problemy, które rozwiązujemy za Ciebie",
+    "problems": {
+      "titles": {
+        "problem": "👉 Nieadekwatne nazwy stanowisk – często nie oddają realnych zadań i potrzeb zespołu.",
+        "solution": "IdealniePasuje pomaga firmom zdefiniować rzeczywiste potrzeby kompetencyjne."
+      },
+      "apps": {
+        "problem": "👉 Aplikacje nieodpowiadające wymaganiom – kandydaci upiększają CV, a Ty tracisz czas.",
+        "solution": "Proponujemy kandydatów z najwyższymi wynikami testów kompetencji – nie na podstawie CV."
+      },
+      "bias": {
+        "problem": "👉 Selekcja oparta na błędnych wrażeniach – decyzje zapadają na podstawie uprzedzeń.",
+        "solution": "Algorytmy eliminują uprzedzenia – liczą się tylko dane i realne dopasowanie."
+      },
+      "team": {
+        "problem": "👉 Kto najlepiej uzupełni zespół? Trudno ocenić, kto doda wartość, bez spójnych danych.",
+        "solution": "Analizujemy style pracy i proponujemy kandydatów, którzy nie tylko pasują – ale dodają wartości."
+      }
+    },
+    "benefitsTitle": "Co zyskujesz?",
+    "benefitsSubtitle": "Korzyści ze współpracy z IdealniePasuje",
+    "benefits": {
+      "b1": "Zminimalizowanie kosztów rekrutacji",
+      "b2": "Skrócenie procesu przez parowanie na podstawie wyników testów",
+      "b3": "Kandydaci z najwyższymi wynikami testów kompetencji",
+      "b4": "Rekrutacja bez uprzedzeń – tylko dane, zero domysłów",
+      "b5": "Nowy standard tworzenia zespołu oparty na danych"
+    },
+    "howTitle": "Jak to działa?",
+    "howSubtitle": "Trzy proste kroki do znalezienia idealnego kandydata",
+    "how": {
+      "s1Title": "Zdefiniuj potrzeby",
+      "s1Desc": "Opisz stanowisko, wymagane kompetencje i kulturę organizacyjną Twojej firmy.",
+      "s2Title": "Algorytm dopasowuje",
+      "s2Desc": "Nasz system porównuje profil stanowiska z bazą przetestowanych kandydatów.",
+      "s3Title": "Otrzymaj kandydatów",
+      "s3Desc": "Zobacz osoby, które najlepiej pasują do Twojego zespołu, z pełną analizą dopasowania."
+    },
+    "early": {
+      "title": "Bądź wśród pierwszych pracodawców",
+      "desc": "Dołącz teraz i zyskaj dostęp do bazy przetestowanych kandydatów przed konkurencją.",
+      "perk1": "Darmowy dostęp premium po premierze",
+      "perk2": "Pierwszeństwo w dopasowaniach",
+      "cta": "Dołącz za darmo"
+    },
+    "candidateCTA": {
+      "title": "Szukasz pracy?",
+      "desc": "Sprawdź naszą ofertę dla kandydatów – odkryj swoje mocne strony i znajdź miejsce, które do Ciebie pasuje.",
+      "cta": "Zobacz ofertę dla kandydatów"
+    },
+    "finalCTA": {
+      "title": "Gotowy na lepszą rekrutację?",
+      "desc": "Zarejestruj się, zdefiniuj potrzeby i pozwól, żeby idealny kandydat Cię znalazł."
+    }
+  },
   "hero": {
     "title": "Znajdź pracę, która naprawdę",
     "titleHighlight": "do Ciebie pasuje",
