@@ -41,6 +41,13 @@ const CandidateDashboard = () => {
   const fetchTestResults = async () => {
     if (!user) return;
     try {
+      const { data: feedbackData } = await supabase
+        .from("candidate_feedback")
+        .select("id")
+        .eq("user_id", user.id)
+        .limit(1);
+      setHasFeedback(!!(feedbackData && feedbackData.length > 0));
+
       const { data, error } = await supabase
         .from("candidate_test_results")
         .select("*")
@@ -204,16 +211,18 @@ const CandidateDashboard = () => {
                     {t("candidate.dashboard.profileCompleteMatch")}
                   </p>
                 </div>
-                <Link to="/candidate/feedback">
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    className="bg-primary-foreground/10 border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/20 backdrop-blur-sm"
-                  >
-                    <MessageSquare className="w-4 h-4 mr-2" />
-                    {t("candidate.dashboard.shareFeedback")}
-                  </Button>
-                </Link>
+                {!hasFeedback && (
+                  <Link to="/candidate/feedback">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      className="bg-primary-foreground/10 border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/20 backdrop-blur-sm"
+                    >
+                      <MessageSquare className="w-4 h-4 mr-2" />
+                      {t("candidate.dashboard.shareFeedback")}
+                    </Button>
+                  </Link>
+                )}
               </div>
             </div>
           </CardContent>
