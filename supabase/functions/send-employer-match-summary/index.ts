@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
 import { SMTPClient } from "https://deno.land/x/denomailer@1.6.0/mod.ts";
+import { isValidEmail, sanitizeHeader } from "../_shared/email-validation.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -350,6 +351,9 @@ const handler = async (req: Request): Promise<Response> => {
     if (!employer_user_id || !employer_email) {
       throw new Error("Missing required fields: employer_user_id and employer_email");
     }
+    if (!isValidEmail(employer_email)) {
+      throw new Error("Invalid email address format");
+    }
 
     const gmailAppPassword = Deno.env.get("GMAIL_APP_PASSWORD");
     if (!gmailAppPassword) {
@@ -367,7 +371,7 @@ const handler = async (req: Request): Promise<Response> => {
       .eq("user_id", employer_user_id)
       .single();
 
-    const companyName = employerProfile?.company_name || "Pracodawco";
+    const companyName = sanitizeHeader(employerProfile?.company_name || "Pracodawco");
 
     // Get all matches for this employer
     const { data: matches, error: matchesError } = await supabase
