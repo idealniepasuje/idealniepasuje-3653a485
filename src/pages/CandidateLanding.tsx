@@ -240,7 +240,12 @@ const CandidateLanding = () => {
       <footer className="py-8 bg-primary">
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <span className="text-primary-foreground font-semibold">idealniepasuje</span>
+            <div className="flex items-center gap-3">
+              <span className="text-primary-foreground font-semibold">idealniepasuje</span>
+              <a href="https://www.instagram.com/idealniepasuje.pl/" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="text-primary-foreground/60 hover:text-primary-foreground transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
+              </a>
+            </div>
             <p className="text-primary-foreground/60 text-sm">© 2026 idealniepasuje. {t("common.allRightsReserved")}</p>
           </div>
         </div>
