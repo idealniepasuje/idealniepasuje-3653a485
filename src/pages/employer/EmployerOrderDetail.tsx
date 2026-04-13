@@ -157,21 +157,23 @@ const EmployerOrderDetail = () => {
             <CardTitle className="text-base sm:text-lg">{t("employer.orderDetail.detailsTitle")}</CardTitle>
             <CardDescription className="text-xs sm:text-sm">{t("employer.orderDetail.detailsDescription")}</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-3 sm:space-y-4 px-4 sm:px-6">
+          <CardContent className="space-y-3 sm:space-y-4 px-3 sm:px-6">
             {sections.map((section) => {
               const IconComponent = section.icon;
               return (
-                <div key={section.title} className="flex items-start sm:items-center gap-2.5 sm:gap-3 p-2.5 sm:p-3 rounded-lg border">
+                <div key={section.title} className="flex items-start sm:items-center gap-2 sm:gap-3 p-2 sm:p-3 rounded-lg border overflow-hidden">
                   <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-accent/10 flex items-center justify-center shrink-0 mt-0.5 sm:mt-0">
                     <IconComponent className="w-4 h-4 sm:w-5 sm:h-5 text-accent" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-medium text-xs sm:text-sm">{section.title}</p>
-                    <p className="text-xs text-muted-foreground truncate">{section.description}</p>
+                    <div className="flex items-center justify-between gap-1.5">
+                      <p className="font-medium text-xs sm:text-sm truncate">{section.title}</p>
+                      <Badge variant={section.completed ? "default" : "outline"} className={`text-[10px] sm:text-xs shrink-0 ${section.completed ? "bg-success text-success-foreground" : ""}`}>
+                        {section.completed ? t("common.completed") : t("common.toDo")}
+                      </Badge>
+                    </div>
+                    <p className="text-[10px] sm:text-xs text-muted-foreground truncate">{section.description}</p>
                   </div>
-                  <Badge variant={section.completed ? "default" : "outline"} className={`text-xs shrink-0 ${section.completed ? "bg-success text-success-foreground" : ""}`}>
-                    {section.completed ? t("common.completed") : t("common.toDo")}
-                  </Badge>
                 </div>
               );
             })}
