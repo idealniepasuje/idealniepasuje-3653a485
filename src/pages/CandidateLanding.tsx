@@ -80,7 +80,7 @@ const CandidateLanding = () => {
         </section>
 
         {/* Benefit Cards */}
-        <section className="py-24">
+        <section className="py-12 md:py-24">
           <div className="container mx-auto px-4">
             <h2 className="text-3xl md:text-5xl font-bold text-center mb-16">{t("candidateLanding.benefitsTitle")}</h2>
             <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
@@ -101,7 +101,7 @@ const CandidateLanding = () => {
         </section>
 
         {/* Problems - image + compact list */}
-        <section className="py-24 bg-secondary/30">
+        <section className="py-12 md:py-24 bg-secondary/30">
           <div className="container mx-auto px-4">
             <h2 className="text-3xl md:text-5xl font-bold text-center mb-16">{t("candidateLanding.problemsTitle")}</h2>
             <div className="grid md:grid-cols-2 gap-12 max-w-5xl mx-auto items-center">
@@ -127,7 +127,7 @@ const CandidateLanding = () => {
         </section>
 
         {/* How it works - alternating image/text */}
-        <section className="py-24">
+        <section className="py-12 md:py-24">
           <div className="container mx-auto px-4">
             <h2 className="text-3xl md:text-5xl font-bold text-center mb-16">{t("howItWorks.title")}</h2>
             <div className="max-w-5xl mx-auto space-y-16">
@@ -150,7 +150,7 @@ const CandidateLanding = () => {
         </section>
 
         {/* Values - image + cards */}
-        <section className="py-24 bg-secondary/30">
+        <section className="py-12 md:py-24 bg-secondary/30">
           <div className="container mx-auto px-4">
             <div className="grid md:grid-cols-2 gap-12 max-w-5xl mx-auto items-center">
               <img src={valuesImg} alt="" className="rounded-2xl shadow-lg object-cover w-full h-80" loading="lazy" width={800} height={320} />
@@ -179,7 +179,7 @@ const CandidateLanding = () => {
         </section>
 
         {/* Early Adopter */}
-        <section className="py-24 bg-cta/10 border-y border-cta/30">
+        <section className="py-12 md:py-24 bg-cta/10 border-y border-cta/30">
           <div className="container mx-auto px-4">
             <div className="max-w-3xl mx-auto text-center">
               <div className="w-16 h-16 rounded-2xl bg-cta/20 flex items-center justify-center mx-auto mb-6">
@@ -208,7 +208,7 @@ const CandidateLanding = () => {
         </section>
 
         {/* Employer redirect */}
-        <section className="py-24 hero-section">
+        <section className="py-12 md:py-24 hero-section">
           <div className="container mx-auto px-4 text-center">
             <h2 className="text-3xl md:text-5xl font-bold text-primary-foreground mb-4">{t("candidateLanding.employerCTA.title")}</h2>
             <p className="text-primary-foreground/70 mb-8 text-lg max-w-2xl mx-auto">{t("candidateLanding.employerCTA.desc")}</p>
@@ -223,7 +223,7 @@ const CandidateLanding = () => {
         </section>
 
         {/* Final CTA */}
-        <section className="py-24">
+        <section className="py-12 md:py-24">
           <div className="container mx-auto px-4 text-center">
             <h2 className="text-3xl md:text-5xl font-bold mb-6">{t("candidateLanding.finalCTA.title")}</h2>
             <p className="text-muted-foreground mb-8 text-lg max-w-2xl mx-auto">{t("candidateLanding.finalCTA.desc")}</p>
