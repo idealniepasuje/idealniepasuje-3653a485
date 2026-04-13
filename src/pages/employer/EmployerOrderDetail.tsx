@@ -112,39 +112,39 @@ const EmployerOrderDetail = () => {
 
   return (
     <DashboardLayout sidebar={<EmployerSidebar />}>
-      <div className="max-w-3xl mx-auto px-0">
+      <div className="max-w-3xl mx-auto px-2 sm:px-0">
         <div className="mb-6">
-          <Button variant="ghost" size="sm" onClick={() => navigate("/employer/dashboard")} className="mb-4 gap-2">
+          <Button variant="ghost" size="sm" onClick={() => navigate("/employer/dashboard")} className="mb-3 gap-2">
             <ArrowLeft className="w-4 h-4" />
             {t("common.back")}
           </Button>
           
           <div className="space-y-3">
-            <h1 className="text-xl sm:text-2xl font-bold">{offer.title}</h1>
-            <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+            <h1 className="text-lg sm:text-2xl font-bold break-words">{offer.title}</h1>
+            <div className="flex flex-wrap items-center gap-2 text-xs sm:text-sm text-muted-foreground">
               <span className="flex items-center gap-1">
-                <Calendar className="w-4 h-4" />
+                <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 {formatDate(offer.created_at)}
               </span>
               <Badge variant={offer.is_active ? "default" : "secondary"} className="text-xs">
                 {offer.is_active ? t("employer.offers.active") : t("employer.offers.archived")}
               </Badge>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               {offer.is_active ? (
-                <Button variant="outline" size="sm" className="gap-2 text-xs sm:text-sm" onClick={() => setCloseDialogOpen(true)}>
-                  <Archive className="w-4 h-4" />
+                <Button variant="outline" size="sm" className="gap-1.5 text-xs" onClick={() => setCloseDialogOpen(true)}>
+                  <Archive className="w-3.5 h-3.5" />
                   {t("employer.offers.close")}
                 </Button>
               ) : (
-                <Button variant="outline" size="sm" className="gap-2 text-xs sm:text-sm" onClick={handleToggleActive}>
-                  <RotateCcw className="w-4 h-4" />
+                <Button variant="outline" size="sm" className="gap-1.5 text-xs" onClick={handleToggleActive}>
+                  <RotateCcw className="w-3.5 h-3.5" />
                   {t("employer.offers.reopen")}
                 </Button>
               )}
               <Link to={`/employer/offer/${offer.id}`}>
-                <Button variant="outline" size="sm" className="gap-2 text-xs sm:text-sm">
-                  <Edit className="w-4 h-4" />
+                <Button variant="outline" size="sm" className="gap-1.5 text-xs">
+                  <Edit className="w-3.5 h-3.5" />
                   {t("common.edit")}
                 </Button>
               </Link>
@@ -152,24 +152,24 @@ const EmployerOrderDetail = () => {
           </div>
         </div>
 
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle className="text-lg">{t("employer.orderDetail.detailsTitle")}</CardTitle>
-            <CardDescription>{t("employer.orderDetail.detailsDescription")}</CardDescription>
+        <Card className="mb-4 sm:mb-6">
+          <CardHeader className="px-4 sm:px-6 py-4 sm:py-6">
+            <CardTitle className="text-base sm:text-lg">{t("employer.orderDetail.detailsTitle")}</CardTitle>
+            <CardDescription className="text-xs sm:text-sm">{t("employer.orderDetail.detailsDescription")}</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-3 sm:space-y-4 px-4 sm:px-6">
             {sections.map((section) => {
               const IconComponent = section.icon;
               return (
-                <div key={section.title} className="flex items-center gap-3 p-3 rounded-lg border">
-                  <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center shrink-0">
-                    <IconComponent className="w-5 h-5 text-accent" />
+                <div key={section.title} className="flex items-start sm:items-center gap-2.5 sm:gap-3 p-2.5 sm:p-3 rounded-lg border">
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-accent/10 flex items-center justify-center shrink-0 mt-0.5 sm:mt-0">
+                    <IconComponent className="w-4 h-4 sm:w-5 sm:h-5 text-accent" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-medium text-sm">{section.title}</p>
+                    <p className="font-medium text-xs sm:text-sm">{section.title}</p>
                     <p className="text-xs text-muted-foreground truncate">{section.description}</p>
                   </div>
-                  <Badge variant={section.completed ? "default" : "outline"} className={section.completed ? "bg-success text-success-foreground" : ""}>
+                  <Badge variant={section.completed ? "default" : "outline"} className={`text-xs shrink-0 ${section.completed ? "bg-success text-success-foreground" : ""}`}>
                     {section.completed ? t("common.completed") : t("common.toDo")}
                   </Badge>
                 </div>
@@ -178,15 +178,15 @@ const EmployerOrderDetail = () => {
 
             {offer.role_description && (
               <div className="pt-2 border-t">
-                <p className="text-sm font-medium mb-1">{t("employer.offerForm.roleTitle")}</p>
-                <p className="text-sm text-muted-foreground">{offer.role_description}</p>
+                <p className="text-xs sm:text-sm font-medium mb-1">{t("employer.offerForm.roleTitle")}</p>
+                <p className="text-xs sm:text-sm text-muted-foreground break-words">{offer.role_description}</p>
               </div>
             )}
 
             {offer.role_responsibilities && (
               <div className="pt-2 border-t">
-                <p className="text-sm font-medium mb-1">{t("candidate.employerDetail.roleResponsibilities")}</p>
-                <p className="text-sm text-muted-foreground whitespace-pre-line">{offer.role_responsibilities}</p>
+                <p className="text-xs sm:text-sm font-medium mb-1">{t("candidate.employerDetail.roleResponsibilities")}</p>
+                <p className="text-xs sm:text-sm text-muted-foreground whitespace-pre-line break-words">{offer.role_responsibilities}</p>
               </div>
             )}
           </CardContent>
@@ -194,22 +194,22 @@ const EmployerOrderDetail = () => {
 
         <Card className="border-accent/20 hover:shadow-lg transition-shadow">
           <Link to={`/employer/candidates?offerId=${offer.id}`} className="block">
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className="w-14 h-14 rounded-full bg-accent/20 flex items-center justify-center">
-                    <Users className="w-7 h-7 text-accent" />
+            <CardContent className="pt-4 sm:pt-6 px-4 sm:px-6">
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+                  <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-full bg-accent/20 flex items-center justify-center shrink-0">
+                    <Users className="w-5 h-5 sm:w-7 sm:h-7 text-accent" />
                   </div>
-                  <div>
-                    <h3 className="text-lg font-semibold">{t("employer.orderDetail.candidatesTitle")}</h3>
-                    <p className="text-sm text-muted-foreground">
+                  <div className="min-w-0">
+                    <h3 className="text-sm sm:text-lg font-semibold">{t("employer.orderDetail.candidatesTitle")}</h3>
+                    <p className="text-xs sm:text-sm text-muted-foreground truncate">
                       {matchCount === 0 && t("employer.orderDetail.noCandidatesYet")}
                       {matchCount === 1 && `1 ${t("common.matchedCandidate")}`}
                       {matchCount > 1 && `${matchCount} ${t("common.matchedCandidates")}`}
                     </p>
                   </div>
                 </div>
-                <ChevronRight className="w-6 h-6 text-muted-foreground" />
+                <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6 text-muted-foreground shrink-0" />
               </div>
             </CardContent>
           </Link>
