@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
 import { SMTPClient } from "https://deno.land/x/denomailer@1.6.0/mod.ts";
+import { isValidEmail, sanitizeHeader } from "../_shared/email-validation.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -61,6 +62,9 @@ const handler = async (req: Request): Promise<Response> => {
     if (!candidate_user_id || !candidate_email) {
       throw new Error("Missing required fields: candidate_user_id and candidate_email");
     }
+    if (!isValidEmail(candidate_email)) {
+      throw new Error("Invalid email address format");
+    }
 
     const gmailAppPassword = Deno.env.get("GMAIL_APP_PASSWORD");
     if (!gmailAppPassword) {
@@ -102,7 +106,7 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     const candidateName = profile?.full_name || "Kandydacie";
-    const companyName = finalCompanyName || "Nowy pracodawca";
+    const companyName = sanitizeHeader(finalCompanyName || "Nowy pracodawca");
     const matchPercentFormatted = match_percent || 0;
     const dashboardLink = dashboard_url || "https://idealniepasuje.lovable.app/candidate/dashboard";
 
