@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, Users, CheckCircle2, ShieldCheck, Sparkles, TrendingUp, Gift, Building2, FileSearch, Brain, BarChart3, RefreshCw, ClipboardList, Handshake } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { LandingNav } from "@/components/LandingNav";
 import heroCandidateImg from "@/assets/hero-candidate.jpg";
 import benefitDiscoverImg from "@/assets/benefit-discover.jpg";
 import benefitMatchImg from "@/assets/benefit-match.jpg";
@@ -47,25 +47,7 @@ const CandidateLanding = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="fixed top-0 left-0 right-0 z-50 bg-card/90 backdrop-blur-sm border-b border-border">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <Link to="/" className="flex items-center">
-            <span className="text-xl font-bold text-foreground">idealnie<span className="text-accent">pasuje</span></span>
-          </Link>
-          <div className="flex items-center gap-4">
-            <LanguageSwitcher />
-            <Link to="/dla-pracodawcow">
-              <Button variant="ghost" size="sm">{t("candidateLanding.navEmployer")}</Button>
-            </Link>
-            <Link to="/login">
-              <Button variant="ghost" size="sm">{t("common.login")}</Button>
-            </Link>
-            <Link to="/register?type=candidate">
-              <Button size="sm" className="text-base font-bold px-6 py-2">{t("common.register")}</Button>
-            </Link>
-          </div>
-        </div>
-      </header>
+      <LandingNav variant="candidate" />
 
       <main>
         {/* Hero */}
