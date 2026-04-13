@@ -217,16 +217,16 @@
     },
     "benefitCards": {
       "cost": {
-        "title": "Zminimalizuj koszty rekrutacji",
-        "desc": "Skracamy proces rekrutacji przez inteligentne parowanie na podstawie wyników testów kompetencji i kultury organizacyjnej."
+        "title": "Oszczędź czas i pieniądze",
+        "desc": "Żadnego przeglądania setek CV. Nasz algorytm dostarcza Ci kandydatów dopasowanych do stanowiska – szybko i precyzyjnie."
       },
       "data": {
-        "title": "Rekrutacja oparta na danych",
-        "desc": "Koniec z decyzjami na podstawie wrażeń. Otrzymujesz kandydatów z pełnym profilem kompetencyjnym i kulturowym."
+        "title": "Decyzje oparte na danych",
+        "desc": "Koniec z rekrutacją na wyczucie. Każdy kandydat ma pełny profil kompetencji i kultury pracy – obiektywnie i bez domysłów."
       },
       "team": {
-        "title": "Buduj lepsze zespoły",
-        "desc": "Analizujemy style pracy i proponujemy kandydatów, którzy nie tylko pasują – ale wnoszą nową jakość do zespołu."
+        "title": "Zespół, który naprawdę działa",
+        "desc": "Badamy nie tylko umiejętności, ale też dopasowanie kulturowe. Znajdź osoby, które wzmocnią Twój zespół."
       }
     },
       "team": {
