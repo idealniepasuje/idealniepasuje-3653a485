@@ -1,7 +1,7 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Users, Building2, ClipboardList, BarChart3, Handshake } from "lucide-react";
+import { ArrowRight, Users, Building2, ClipboardList, BarChart3, Handshake, Menu, X } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
@@ -15,6 +15,7 @@ const Index = () => {
   const { user, userType, loading } = useAuth();
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     if (!loading && user && userType) {
@@ -31,11 +32,11 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       <header className="fixed top-0 left-0 right-0 z-50 bg-card/90 backdrop-blur-sm border-b border-border">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+        <div className="container mx-auto px-4 py-3 flex items-center justify-between">
           <Link to="/" className="flex items-center">
             <span className="text-xl font-bold text-foreground">idealnie<span className="text-accent">pasuje</span></span>
           </Link>
-          <div className="flex items-center gap-4">
+          <div className="hidden md:flex items-center gap-4">
             <LanguageSwitcher />
             <Link to="/login">
               <Button variant="ghost" size="sm">{t("common.login")}</Button>
@@ -44,12 +45,28 @@ const Index = () => {
               <Button size="sm" className="text-base font-bold px-6 py-2">{t("common.register")}</Button>
             </Link>
           </div>
+          <button className="md:hidden p-2 rounded-lg hover:bg-secondary/50 transition-colors" onClick={() => setMenuOpen(!menuOpen)} aria-label="Menu">
+            {menuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          </button>
         </div>
+        {menuOpen && (
+          <div className="md:hidden border-t border-border bg-card/95 backdrop-blur-sm animate-fade-in">
+            <div className="container mx-auto px-4 py-4 flex flex-col gap-3">
+              <Link to="/login" onClick={() => setMenuOpen(false)}>
+                <Button variant="ghost" size="sm" className="w-full justify-start">{t("common.login")}</Button>
+              </Link>
+              <Link to="/register" onClick={() => setMenuOpen(false)}>
+                <Button size="sm" className="w-full text-base font-bold py-2">{t("common.register")}</Button>
+              </Link>
+              <div className="pt-2 border-t border-border/50"><LanguageSwitcher /></div>
+            </div>
+          </div>
+        )}
       </header>
 
       <main>
         {/* Hero */}
-        <section className="relative pt-32 pb-28 overflow-hidden hero-section">
+        <section className="relative pt-28 md:pt-32 pb-16 md:pb-28 overflow-hidden hero-section">
           <div className="container mx-auto px-4 relative z-10">
             <div className="max-w-3xl mx-auto text-center mb-14">
               <h1 className="text-4xl md:text-6xl font-bold text-primary-foreground mb-6 leading-tight">
