@@ -214,7 +214,21 @@
       "bias": {
         "problem": "👉 Selekcja oparta na błędnych wrażeniach – decyzje zapadają na podstawie uprzedzeń.",
         "solution": "Algorytmy eliminują uprzedzenia – liczą się tylko dane i realne dopasowanie."
+    },
+    "benefitCards": {
+      "cost": {
+        "title": "Zminimalizuj koszty rekrutacji",
+        "desc": "Skracamy proces rekrutacji przez inteligentne parowanie na podstawie wyników testów kompetencji i kultury organizacyjnej."
       },
+      "data": {
+        "title": "Rekrutacja oparta na danych",
+        "desc": "Koniec z decyzjami na podstawie wrażeń. Otrzymujesz kandydatów z pełnym profilem kompetencyjnym i kulturowym."
+      },
+      "team": {
+        "title": "Buduj lepsze zespoły",
+        "desc": "Analizujemy style pracy i proponujemy kandydatów, którzy nie tylko pasują – ale wnoszą nową jakość do zespołu."
+      }
+    },
       "team": {
         "problem": "👉 Kto najlepiej uzupełni zespół? Trudno ocenić, kto doda wartość, bez spójnych danych.",
         "solution": "Analizujemy style pracy i proponujemy kandydatów, którzy nie tylko pasują – ale dodają wartości."
