@@ -130,31 +130,31 @@ const EmployerOffers = () => {
     <Card key={offer.id} className={`hover:shadow-lg transition-shadow ${!offer.is_active ? "opacity-70" : ""}`}>
       <Link to={`/employer/order/${offer.id}`} className="block">
         <CardHeader className="pb-3">
-          <div className="flex items-start justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center">
+          <div className="flex items-start justify-between gap-2">
+            <div className="flex items-start gap-3 min-w-0 flex-1">
+              <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center shrink-0">
                 <Briefcase className="w-5 h-5 text-accent" />
               </div>
-              <div>
-                <CardTitle className="text-lg">{offer.title}</CardTitle>
-                <CardDescription className="flex items-center gap-2 mt-1">
-                  {offer.industry && <span>{offer.industry}</span>}
+              <div className="min-w-0">
+                <CardTitle className="text-base sm:text-lg truncate">{offer.title}</CardTitle>
+                <CardDescription className="flex items-center gap-2 mt-1 text-xs sm:text-sm">
+                  {offer.industry && <span className="truncate">{offer.industry}</span>}
                   {offer.position_level && (
                     <>
                       <span>•</span>
-                      <span>{offer.position_level}</span>
+                      <span className="truncate">{offer.position_level}</span>
                     </>
                   )}
                 </CardDescription>
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              <Badge variant={offer.is_active ? "default" : "secondary"}>
+            <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+              <Badge variant={offer.is_active ? "default" : "secondary"} className="text-xs whitespace-nowrap">
                 {offer.is_active ? t("employer.offers.active") : t("employer.offers.archived")}
               </Badge>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild onClick={(e) => e.preventDefault()}>
-                  <Button variant="ghost" size="icon">
+                  <Button variant="ghost" size="icon" className="h-8 w-8">
                     <MoreVertical className="w-4 h-4" />
                   </Button>
                 </DropdownMenuTrigger>
@@ -185,14 +185,15 @@ const EmployerOffers = () => {
         </CardHeader>
       </Link>
       <CardContent>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Users className="w-4 h-4" />
-            <span>{matchCounts[offer.id] || 0} {t("common.matchedCandidates")}</span>
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 text-xs sm:text-sm text-muted-foreground min-w-0">
+            <Users className="w-4 h-4 shrink-0" />
+            <span className="truncate">{matchCounts[offer.id] || 0} {t("common.matchedCandidates")}</span>
           </div>
-          <Link to={`/employer/order/${offer.id}`}>
-            <Button variant="outline" size="sm" className="gap-2">
-              {t("employer.offers.viewDetails")}
+          <Link to={`/employer/order/${offer.id}`} className="shrink-0">
+            <Button variant="outline" size="sm" className="gap-1 sm:gap-2 text-xs sm:text-sm">
+              <span className="hidden sm:inline">{t("employer.offers.viewDetails")}</span>
+              <span className="sm:hidden">{t("common.details")}</span>
               <ChevronRight className="w-4 h-4" />
             </Button>
           </Link>
@@ -203,13 +204,13 @@ const EmployerOffers = () => {
 
   return (
     <DashboardLayout sidebar={<EmployerSidebar />}>
-      <div className="mb-6 flex items-center justify-between">
+      <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold mb-1">{t("employer.offers.title")}</h1>
-          <p className="text-muted-foreground">{t("employer.offers.subtitle")}</p>
+          <h1 className="text-xl sm:text-2xl font-bold mb-1">{t("employer.offers.title")}</h1>
+          <p className="text-sm text-muted-foreground">{t("employer.offers.subtitle")}</p>
         </div>
-        <Link to="/employer/offer/new">
-          <Button className="gap-2">
+        <Link to="/employer/offer/new" className="shrink-0">
+          <Button className="gap-2 w-full sm:w-auto">
             <Plus className="w-4 h-4" />
             {t("employer.offers.addNew")}
           </Button>

@@ -265,8 +265,8 @@ const EmployerCandidateDetail = () => {
                     </h1>
                     {candidateData?.position_level && (
                       <p className="text-sm text-muted-foreground">
-                        {t(`candidate.additional.positionLevels.${candidateData.position_level}`)}
-                        {candidateData?.industry && ` • ${t(`candidate.additional.industries.${candidateData.industry}`)}`}
+                        {candidateData.position_level}
+                        {candidateData?.industry && ` • ${candidateData.industry}`}
                       </p>
                     )}
                   </div>

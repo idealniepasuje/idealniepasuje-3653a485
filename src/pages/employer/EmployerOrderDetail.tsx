@@ -112,42 +112,40 @@ const EmployerOrderDetail = () => {
 
   return (
     <DashboardLayout sidebar={<EmployerSidebar />}>
-      <div className="max-w-3xl mx-auto">
+      <div className="max-w-3xl mx-auto px-0">
         <div className="mb-6">
           <Button variant="ghost" size="sm" onClick={() => navigate("/employer/dashboard")} className="mb-4 gap-2">
             <ArrowLeft className="w-4 h-4" />
             {t("common.back")}
           </Button>
           
-          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
-            <div>
-              <h1 className="text-2xl font-bold mb-1">{offer.title}</h1>
-              <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
-                <span className="flex items-center gap-1">
-                  <Calendar className="w-4 h-4" />
-                  {formatDate(offer.created_at)}
-                </span>
-                <Badge variant={offer.is_active ? "default" : "secondary"}>
-                  {offer.is_active ? t("employer.offers.active") : t("employer.offers.archived")}
-                </Badge>
-              </div>
+          <div className="space-y-3">
+            <h1 className="text-xl sm:text-2xl font-bold">{offer.title}</h1>
+            <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+              <span className="flex items-center gap-1">
+                <Calendar className="w-4 h-4" />
+                {formatDate(offer.created_at)}
+              </span>
+              <Badge variant={offer.is_active ? "default" : "secondary"} className="text-xs">
+                {offer.is_active ? t("employer.offers.active") : t("employer.offers.archived")}
+              </Badge>
             </div>
             <div className="flex items-center gap-2">
               {offer.is_active ? (
-                <Button variant="outline" size="sm" className="gap-2" onClick={() => setCloseDialogOpen(true)}>
+                <Button variant="outline" size="sm" className="gap-2 text-xs sm:text-sm" onClick={() => setCloseDialogOpen(true)}>
                   <Archive className="w-4 h-4" />
-                  <span className="hidden sm:inline">{t("employer.offers.close")}</span>
+                  {t("employer.offers.close")}
                 </Button>
               ) : (
-                <Button variant="outline" size="sm" className="gap-2" onClick={handleToggleActive}>
+                <Button variant="outline" size="sm" className="gap-2 text-xs sm:text-sm" onClick={handleToggleActive}>
                   <RotateCcw className="w-4 h-4" />
-                  <span className="hidden sm:inline">{t("employer.offers.reopen")}</span>
+                  {t("employer.offers.reopen")}
                 </Button>
               )}
               <Link to={`/employer/offer/${offer.id}`}>
-                <Button variant="outline" size="sm" className="gap-2">
+                <Button variant="outline" size="sm" className="gap-2 text-xs sm:text-sm">
                   <Edit className="w-4 h-4" />
-                  <span className="hidden sm:inline">{t("common.edit")}</span>
+                  {t("common.edit")}
                 </Button>
               </Link>
             </div>
