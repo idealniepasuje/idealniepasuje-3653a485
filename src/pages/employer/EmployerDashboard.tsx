@@ -19,6 +19,7 @@ const EmployerDashboard = () => {
   const [employerProfile, setEmployerProfile] = useState<any>(null);
   const [offers, setOffers] = useState<any[]>([]);
   const [offerMatchCounts, setOfferMatchCounts] = useState<Record<string, { count: number; avgMatch: number }>>({});
+  const [hasFeedback, setHasFeedback] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -29,6 +30,13 @@ const EmployerDashboard = () => {
   const fetchData = async () => {
     if (!user) return;
     try {
+      const { data: feedbackData } = await supabase
+        .from("employer_feedback")
+        .select("id")
+        .eq("user_id", user.id)
+        .limit(1);
+      setHasFeedback(!!(feedbackData && feedbackData.length > 0));
+
       const { data: profile, error: profileError } = await supabase
         .from("employer_profiles")
         .select("*")
@@ -195,12 +203,14 @@ const EmployerDashboard = () => {
                   <CheckCircle className="w-4 h-4" />
                   <span>{t("employer.dashboard.profileCompleteMatch")}</span>
                 </div>
-                <Link to="/employer/feedback">
-                  <Button variant="secondary" size="sm" className="gap-2">
-                    <MessageSquare className="w-4 h-4" />
-                    {t("employer.dashboard.shareFeedback")}
-                  </Button>
-                </Link>
+                {!hasFeedback && (
+                  <Link to="/employer/feedback">
+                    <Button variant="secondary" size="sm" className="gap-2">
+                      <MessageSquare className="w-4 h-4" />
+                      {t("employer.dashboard.shareFeedback")}
+                    </Button>
+                  </Link>
+                )}
               </div>
             </div>
           </CardContent>
