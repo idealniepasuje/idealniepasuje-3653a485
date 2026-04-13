@@ -214,6 +214,11 @@
       "bias": {
         "problem": "Selekcja oparta na błędnych wrażeniach",
         "solution": "Algorytmy eliminują uprzedzenia – liczą się tylko dane i realne dopasowanie."
+      },
+      "team": {
+        "problem": "Trudno ocenić, kto najlepiej uzupełni zespół?",
+        "solution": "Analizujemy style pracy i proponujemy kandydatów, którzy nie tylko pasują – ale dodają wartości."
+      }
     },
     "benefitCards": {
       "cost": {
@@ -227,11 +232,6 @@
       "team": {
         "title": "Zespół, który naprawdę działa",
         "desc": "Badamy nie tylko umiejętności, ale też dopasowanie kulturowe. Znajdź osoby, które wzmocnią Twój zespół."
-      }
-    },
-      "team": {
-        "problem": "Trudno ocenić, kto najlepiej uzupełni zespół? \n",
-        "solution": "Analizujemy style pracy i proponujemy kandydatów, którzy nie tylko pasują – ale dodają wartości."
       }
     },
     "benefitsTitle": "Co zyskujesz?",
