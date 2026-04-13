@@ -55,9 +55,9 @@ export const EmployerCard = ({ match, employer, offerTitle }: EmployerCardProps)
   return (
     <Card className={`hover:shadow-lg transition-all ${isRejected ? 'opacity-60' : ''} ${isBestMatch ? 'border-accent/50 bg-accent/5' : ''}`}>
       <CardContent className="p-4">
-        <div className="flex items-center justify-between gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           {/* Left side - all info */}
-          <div className="flex items-center gap-4 min-w-0 flex-1">
+          <div className="flex items-start sm:items-center gap-4 min-w-0 flex-1">
             {/* Avatar */}
             <div className={`w-12 h-12 rounded-full ${getAvatarColor(match.employer_user_id)} flex items-center justify-center shrink-0`}>
               <Building2 className="w-6 h-6 text-accent" />
@@ -83,7 +83,7 @@ export const EmployerCard = ({ match, employer, offerTitle }: EmployerCardProps)
               )}
               
               {/* Company name */}
-              <h3 className="font-semibold text-xl text-foreground">
+              <h3 className="font-semibold text-lg sm:text-xl text-foreground">
                 {employer?.company_name || t("candidate.matches.company")}
               </h3>
               
@@ -94,7 +94,7 @@ export const EmployerCard = ({ match, employer, offerTitle }: EmployerCardProps)
               
               {/* Industry */}
               {employer?.industry && (
-                <p className="text-muted-foreground mb-2">
+                <p className="text-muted-foreground text-sm mb-2">
                   {employer.industry}
                 </p>
               )}
@@ -107,7 +107,7 @@ export const EmployerCard = ({ match, employer, offerTitle }: EmployerCardProps)
               )}
 
               {/* Competence, culture & additional badges */}
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-1.5">
                 <Badge variant="outline" className="text-xs gap-1">
                   <Brain className="w-3 h-3" />
                   {t("common.competencies")}: {match.competence_percent || 0}%
@@ -125,13 +125,13 @@ export const EmployerCard = ({ match, employer, offerTitle }: EmployerCardProps)
           </div>
 
           {/* Right side - match score and button */}
-          <div className="flex flex-col items-end gap-2 shrink-0">
-            <div className="text-right">
-              <span className="text-3xl font-bold text-accent">{match.overall_percent}%</span>
+          <div className="flex flex-row sm:flex-col items-center sm:items-end justify-between sm:justify-start gap-2 shrink-0 ml-16 sm:ml-0">
+            <div className="text-left sm:text-right">
+              <span className="text-2xl sm:text-3xl font-bold text-accent">{match.overall_percent}%</span>
               <p className="text-xs text-muted-foreground">{t("common.match")}</p>
             </div>
             <Link to={`/candidate/match/${match.id}`}>
-              <Button className="gap-2">
+              <Button className="gap-2" size="sm">
                 {t("common.viewProfile")}
                 <ChevronRight className="w-4 h-4" />
               </Button>

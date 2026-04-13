@@ -227,15 +227,15 @@ const EmployerCandidateDetail = () => {
   return (
     <div className="min-h-screen bg-background">
       <header className="bg-primary text-primary-foreground">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+        <div className="container mx-auto px-4 py-3 flex items-center justify-between">
           <Link to="/" className="flex items-center">
             <span className="text-xl font-bold">idealnie<span className="text-accent">pasuje</span></span>
           </Link>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 md:gap-4">
             <LanguageSwitcher />
-            <span className="text-sm text-primary-foreground/80">{user?.email}</span>
+            <span className="hidden md:inline text-sm text-primary-foreground/80">{user?.email}</span>
             <Button variant="ghost" size="sm" onClick={handleSignOut} className="text-primary-foreground hover:bg-primary-foreground/10">
-              <LogOut className="w-4 h-4 mr-2" />{t("common.logout")}
+              <LogOut className="w-4 h-4 md:mr-2" /><span className="hidden md:inline">{t("common.logout")}</span>
             </Button>
           </div>
         </div>
