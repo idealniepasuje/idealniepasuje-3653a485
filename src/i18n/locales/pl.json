@@ -86,7 +86,16 @@
     "thankYou": "Dziękujemy!",
     "noData": "Brak danych"
   },
-  "gateway": {
+  "howItWorks": {
+    "title": "Jak to działa?",
+    "subtitle": "Trzy proste kroki do znalezienia idealnego dopasowania",
+    "step1Title": "Wypełnij testy",
+    "step1Description": "Odpowiedz szczerze na pytania dotyczące Twoich kompetencji i preferencji kultury pracy. Nie ma złych odpowiedzi!",
+    "step2Title": "Analiza dopasowania",
+    "step2Description": "Nasz algorytm porównuje Twój profil z ofertami pracodawców, uwzględniając kompetencje, kulturę i dane kontekstowe.",
+    "step3Title": "Otrzymaj dopasowania",
+    "step3Description": "Zobacz firmy, które najlepiej do Ciebie pasują, wraz ze szczegółową analizą zgodności."
+  },
     "title": "Znajdź idealne dopasowanie",
     "titleHighlight": "w pracy",
     "description": "System oparty na analizie kompetencji i kultury organizacji, który łączy kandydatów z pracodawcami na podstawie rzeczywistego dopasowania – nie tylko CV.",
