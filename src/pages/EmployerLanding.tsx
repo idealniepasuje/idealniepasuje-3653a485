@@ -136,7 +136,7 @@ const EmployerLanding = () => {
                       <item.icon className="w-5 h-5 text-destructive" />
                     </div>
                     <div>
-                      <p className="font-semibold text-foreground mb-1">{t(item.problemKey)}</p>
+                      <p className="font-semibold text-foreground mb-1 text-xl">{t(item.problemKey)}</p>
                       <div className="flex items-start gap-2">
                         <CheckCircle2 className="w-4 h-4 text-success shrink-0 mt-0.5" />
                         <p className="text-sm text-muted-foreground">{t(item.solutionKey)}</p>

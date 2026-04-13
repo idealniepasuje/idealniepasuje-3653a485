@@ -204,15 +204,15 @@
     "problemsSubtitle": "Problemy, które rozwiązujemy za Ciebie",
     "problems": {
       "titles": {
-        "problem": "👉 Nieadekwatne nazwy stanowisk – często nie oddają realnych zadań i potrzeb zespołu.",
+        "problem": "Nieadekwatne nazwy stanowisk ",
         "solution": "IdealniePasuje pomaga firmom zdefiniować rzeczywiste potrzeby kompetencyjne."
       },
       "apps": {
-        "problem": "👉 Aplikacje nieodpowiadające wymaganiom – kandydaci upiększają CV, a Ty tracisz czas.",
+        "problem": "Aplikacje nieodpowiadające wymaganiom",
         "solution": "Proponujemy kandydatów z najwyższymi wynikami testów kompetencji – nie na podstawie CV."
       },
       "bias": {
-        "problem": "👉 Selekcja oparta na błędnych wrażeniach – decyzje zapadają na podstawie uprzedzeń.",
+        "problem": "Selekcja oparta na błędnych wrażeniach",
         "solution": "Algorytmy eliminują uprzedzenia – liczą się tylko dane i realne dopasowanie."
     },
     "benefitCards": {
@@ -230,7 +230,7 @@
       }
     },
       "team": {
-        "problem": "👉 Kto najlepiej uzupełni zespół? Trudno ocenić, kto doda wartość, bez spójnych danych.",
+        "problem": "Trudno ocenić, kto najlepiej uzupełni zespół? \n",
         "solution": "Analizujemy style pracy i proponujemy kandydatów, którzy nie tylko pasują – ale dodają wartości."
       }
     },
