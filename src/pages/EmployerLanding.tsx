@@ -183,34 +183,6 @@ const EmployerLanding = () => {
           </div>
         </section>
 
-        {/* Candidate redirect */}
-        <section className="py-12 md:py-24 hero-section">
-          <div className="container mx-auto px-4 text-center">
-            <h2 className="text-3xl md:text-5xl font-bold text-primary-foreground mb-4">{t("employerLanding.candidateCTA.title")}</h2>
-            <p className="text-primary-foreground/70 mb-8 text-lg max-w-2xl mx-auto">{t("employerLanding.candidateCTA.desc")}</p>
-            <Link to="/dla-kandydatow">
-              <Button size="lg" className="gap-2 text-lg font-bold px-10 py-6 rounded-xl">
-                <Users className="w-5 h-5" />
-                {t("employerLanding.candidateCTA.cta")}
-                <ArrowRight className="w-5 h-5" />
-              </Button>
-            </Link>
-          </div>
-        </section>
-
-        {/* Final CTA */}
-        <section className="py-12 md:py-24">
-          <div className="container mx-auto px-4 text-center">
-            <h2 className="text-3xl md:text-5xl font-bold mb-6">{t("employerLanding.finalCTA.title")}</h2>
-            <p className="text-muted-foreground mb-8 text-lg max-w-2xl mx-auto">{t("employerLanding.finalCTA.desc")}</p>
-            <Link to="/register?type=employer">
-              <Button size="lg" className="gap-2 text-lg font-bold px-10 py-6 rounded-xl shadow-lg bg-accent text-accent-foreground hover:bg-accent/90">
-                {t("common.startNow")}
-                <ArrowRight className="w-5 h-5" />
-              </Button>
-            </Link>
-          </div>
-        </section>
       </main>
 
       <footer className="py-8 bg-primary">
