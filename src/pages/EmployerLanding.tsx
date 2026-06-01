@@ -184,7 +184,6 @@ const EmployerLanding = () => {
         </section>
 
       </main>
-      </main>
 
       <footer className="py-8 bg-primary">
         <div className="container mx-auto px-4">
