@@ -500,6 +500,17 @@
       "ourTurnDescription": "We'll be looking for your ideal employer. When a matched offer appears, you'll receive a notification.",
       "thankYouMessage": "Thank you for completing all the tests!",
       "matchesGenerated": "Found {{count}} matched employers!"
+    },
+    "inbox": {
+      "title": "Messages from employers",
+      "new": "New",
+      "linkedinRequest": "LinkedIn link request",
+      "profileCompletion": "Profile completion request",
+      "interviewInvite": "Interview invitation",
+      "markAsRead": "Mark as read",
+      "openProfile": "Complete profile",
+      "addLinkedin": "Add LinkedIn",
+      "openCalendar": "Open calendar"
     }
   },
   "employer": {

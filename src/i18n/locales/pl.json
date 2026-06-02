@@ -500,6 +500,17 @@
       "ourTurnDescription": "Będziemy szukać dla Ciebie idealnego pracodawcy. Gdy pojawi się dopasowana oferta, otrzymasz powiadomienie.",
       "thankYouMessage": "Dziękujemy za wypełnienie wszystkich testów!",
       "matchesGenerated": "Znaleziono {{count}} dopasowanych pracodawców!"
+    },
+    "inbox": {
+      "title": "Wiadomości od pracodawców",
+      "new": "Nowa",
+      "linkedinRequest": "Prośba o link do LinkedIn",
+      "profileCompletion": "Prośba o uzupełnienie profilu",
+      "interviewInvite": "Zaproszenie na rozmowę",
+      "markAsRead": "Oznacz jako przeczytane",
+      "openProfile": "Uzupełnij profil",
+      "addLinkedin": "Dodaj LinkedIn",
+      "openCalendar": "Otwórz kalendarz"
     }
   },
   "employer": {
