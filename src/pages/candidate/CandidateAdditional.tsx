@@ -474,6 +474,46 @@ const CandidateAdditional = () => {
               )}
             </div>
 
+            {/* Krótki opis pracy */}
+            <div className="space-y-2">
+              <Label>{t("candidate.additional.workDescriptionLabel")}</Label>
+              <Textarea
+                rows={3}
+                maxLength={2000}
+                placeholder={t("candidate.additional.workDescriptionPlaceholder")}
+                value={workDescription}
+                onChange={(e) => setWorkDescription(e.target.value)}
+              />
+              <p className="text-xs text-muted-foreground">{t("candidate.additional.workDescriptionHint")}</p>
+            </div>
+
+            {/* Daj się poznać */}
+            <div className="space-y-4 p-4 rounded-lg border border-accent/20 bg-accent/5">
+              <div className="flex items-start gap-2">
+                <Sparkles className="w-5 h-5 text-accent mt-0.5 shrink-0" />
+                <div>
+                  <Label className="text-base font-semibold">{t("candidate.additional.gettingToKnow.sectionTitle")}</Label>
+                  <p className="text-xs text-muted-foreground mt-1">{t("candidate.additional.gettingToKnow.sectionDescription")}</p>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="gtk-tasks">{t("candidate.additional.gettingToKnow.q1Label")}</Label>
+                <Textarea id="gtk-tasks" rows={2} maxLength={1000} placeholder={t("candidate.additional.gettingToKnow.placeholder")} value={gtkTasks} onChange={(e) => setGtkTasks(e.target.value)} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="gtk-problems">{t("candidate.additional.gettingToKnow.q2Label")}</Label>
+                <Textarea id="gtk-problems" rows={2} maxLength={1000} placeholder={t("candidate.additional.gettingToKnow.placeholder")} value={gtkProblems} onChange={(e) => setGtkProblems(e.target.value)} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="gtk-motivation">{t("candidate.additional.gettingToKnow.q3Label")}</Label>
+                <Textarea id="gtk-motivation" rows={2} maxLength={1000} placeholder={t("candidate.additional.gettingToKnow.placeholder")} value={gtkMotivation} onChange={(e) => setGtkMotivation(e.target.value)} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="gtk-proud">{t("candidate.additional.gettingToKnow.q4Label")}</Label>
+                <Textarea id="gtk-proud" rows={2} maxLength={1000} placeholder={t("candidate.additional.gettingToKnow.placeholder")} value={gtkProudOf} onChange={(e) => setGtkProudOf(e.target.value)} />
+              </div>
+            </div>
+
             {/* LinkedIn */}
             <div className="space-y-2">
               <Label className="flex items-center gap-2">
