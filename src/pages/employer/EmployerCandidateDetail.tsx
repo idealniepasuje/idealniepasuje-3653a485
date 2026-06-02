@@ -752,6 +752,20 @@ const EmployerCandidateDetail = () => {
           </Link>
         </div>
       </main>
+
+      {match && candidateId && user && (
+        <ContactCandidateModal
+          open={contactOpen}
+          onOpenChange={setContactOpen}
+          match={match}
+          candidateUserId={candidateId}
+          employerUserId={user.id}
+          companyName={employerCompanyName}
+          candidateHasLinkedin={!!candidateData?.linkedin_url}
+          candidateProfileReady={!!candidateData?.profile_ready}
+          onUpdated={fetchMatchData}
+        />
+      )}
     </div>
   );
 };
