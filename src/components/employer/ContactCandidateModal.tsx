@@ -1,0 +1,250 @@
+import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { CalendarClock, Linkedin, Unlock, AlertCircle, CheckCircle2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+import { logError } from "@/lib/errorLogger";
+import {
+  getInterviewInviteTemplate,
+  getLinkedinRequestTemplate,
+  getProfileCompletionTemplate,
+  InterviewType,
+} from "@/data/messageTemplates";
+
+interface Props {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  match: any;
+  candidateUserId: string;
+  employerUserId: string;
+  companyName?: string;
+  candidateHasLinkedin: boolean;
+  candidateProfileReady: boolean;
+  onUpdated: () => void;
+}
+
+export const ContactCandidateModal = ({
+  open,
+  onOpenChange,
+  match,
+  candidateUserId,
+  employerUserId,
+  companyName,
+  candidateHasLinkedin,
+  candidateProfileReady,
+  onUpdated,
+}: Props) => {
+  const { t, i18n } = useTranslation();
+  const lang = i18n.language;
+
+  const [interviewType, setInterviewType] = useState<InterviewType>("online");
+  const [calendarLink, setCalendarLink] = useState("");
+  const [interviewMsg, setInterviewMsg] = useState("");
+  const [linkedinMsg, setLinkedinMsg] = useState("");
+  const [completionMsg, setCompletionMsg] = useState("");
+  const [sending, setSending] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (open) {
+      setInterviewMsg(getInterviewInviteTemplate(lang, interviewType, companyName, calendarLink));
+      setLinkedinMsg(getLinkedinRequestTemplate(lang, companyName));
+      setCompletionMsg(getProfileCompletionTemplate(lang, companyName));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
+
+  useEffect(() => {
+    setInterviewMsg(getInterviewInviteTemplate(lang, interviewType, companyName, calendarLink));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [interviewType, calendarLink]);
+
+  const insertMessage = async (type: 'linkedin_request' | 'profile_completion' | 'interview_invite', content: string, metadata: Record<string, any> = {}) => {
+    const { error } = await supabase.from('candidate_messages').insert({
+      match_result_id: match?.id,
+      candidate_user_id: candidateUserId,
+      employer_user_id: employerUserId,
+      type,
+      content,
+      metadata,
+    });
+    if (error) throw error;
+  };
+
+  const handleSendInterview = async () => {
+    if (!interviewMsg.trim()) { toast.error(t("errors.genericError")); return; }
+    setSending('interview');
+    try {
+      await insertMessage('interview_invite', interviewMsg, { interview_type: interviewType, calendar_link: calendarLink });
+      await supabase.from('match_results').update({
+        interview_invited_at: new Date().toISOString(),
+        interview_type: interviewType,
+        interview_calendar_link: calendarLink || null,
+        interview_message: interviewMsg,
+      }).eq('id', match.id);
+      toast.success(t("employer.candidateDetail.contact.inviteSent"));
+      onUpdated();
+      onOpenChange(false);
+    } catch (e) {
+      logError('ContactCandidateModal.interview', e);
+      toast.error(t("errors.genericError"));
+    } finally {
+      setSending(null);
+    }
+  };
+
+  const handleSendLinkedin = async () => {
+    if (!linkedinMsg.trim()) return;
+    setSending('linkedin');
+    try {
+      await insertMessage('linkedin_request', linkedinMsg);
+      await supabase.from('match_results').update({ linkedin_requested_at: new Date().toISOString() }).eq('id', match.id);
+      toast.success(t("employer.candidateDetail.contact.linkedinRequestSent"));
+      onUpdated();
+      onOpenChange(false);
+    } catch (e) {
+      logError('ContactCandidateModal.linkedin', e);
+      toast.error(t("errors.genericError"));
+    } finally {
+      setSending(null);
+    }
+  };
+
+  const handleRequestCompletion = async () => {
+    setSending('completion');
+    try {
+      await insertMessage('profile_completion', completionMsg);
+      await supabase.from('match_results').update({ profile_completion_requested_at: new Date().toISOString() }).eq('id', match.id);
+      toast.success(t("employer.candidateDetail.contact.completionRequested"));
+      onUpdated();
+      onOpenChange(false);
+    } catch (e) {
+      logError('ContactCandidateModal.completion', e);
+      toast.error(t("errors.genericError"));
+    } finally {
+      setSending(null);
+    }
+  };
+
+  const handleUnlock = async () => {
+    setSending('unlock');
+    try {
+      await supabase.from('match_results').update({ unlocked_at: new Date().toISOString() }).eq('id', match.id);
+      toast.success(t("employer.candidateDetail.contact.profileUnlocked"));
+      onUpdated();
+      onOpenChange(false);
+    } catch (e) {
+      logError('ContactCandidateModal.unlock', e);
+      toast.error(t("errors.genericError"));
+    } finally {
+      setSending(null);
+    }
+  };
+
+  const alreadyUnlocked = !!match?.unlocked_at;
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>{t("employer.candidateDetail.contact.modalTitle")}</DialogTitle>
+          <DialogDescription>{t("employer.candidateDetail.contact.modalDescription")}</DialogDescription>
+        </DialogHeader>
+
+        <Tabs defaultValue="invite" className="mt-2">
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="invite" className="gap-2"><CalendarClock className="w-4 h-4" />{t("employer.candidateDetail.contact.inviteTab")}</TabsTrigger>
+            <TabsTrigger value="linkedin" className="gap-2"><Linkedin className="w-4 h-4" />{t("employer.candidateDetail.contact.linkedinTab")}</TabsTrigger>
+            <TabsTrigger value="unlock" className="gap-2"><Unlock className="w-4 h-4" />{t("employer.candidateDetail.contact.unlockTab")}</TabsTrigger>
+          </TabsList>
+
+          {/* Interview invite */}
+          <TabsContent value="invite" className="space-y-4 mt-4">
+            <div className="space-y-2">
+              <Label>{t("employer.candidateDetail.contact.interviewTypeLabel")}</Label>
+              <RadioGroup value={interviewType} onValueChange={(v) => setInterviewType(v as InterviewType)} className="flex gap-4">
+                <div className="flex items-center space-x-2"><RadioGroupItem value="online" id="t-online" /><Label htmlFor="t-online" className="cursor-pointer">{t("employer.candidateDetail.contact.interviewTypeOnline")}</Label></div>
+                <div className="flex items-center space-x-2"><RadioGroupItem value="phone" id="t-phone" /><Label htmlFor="t-phone" className="cursor-pointer">{t("employer.candidateDetail.contact.interviewTypePhone")}</Label></div>
+                <div className="flex items-center space-x-2"><RadioGroupItem value="onsite" id="t-onsite" /><Label htmlFor="t-onsite" className="cursor-pointer">{t("employer.candidateDetail.contact.interviewTypeOnsite")}</Label></div>
+              </RadioGroup>
+            </div>
+            <div className="space-y-2">
+              <Label>{t("employer.candidateDetail.contact.calendarLinkLabel")}</Label>
+              <Input type="url" placeholder={t("employer.candidateDetail.contact.calendarLinkPlaceholder")} value={calendarLink} onChange={(e) => setCalendarLink(e.target.value)} />
+            </div>
+            <div className="space-y-2">
+              <Label>{t("employer.candidateDetail.contact.messageLabel")}</Label>
+              <Textarea rows={8} value={interviewMsg} onChange={(e) => setInterviewMsg(e.target.value)} />
+            </div>
+            <Button onClick={handleSendInterview} disabled={sending !== null} className="w-full bg-cta text-cta-foreground hover:bg-cta/90">
+              {sending === 'interview' ? t("common.saving") : t("employer.candidateDetail.contact.sendInvite")}
+            </Button>
+          </TabsContent>
+
+          {/* LinkedIn request */}
+          <TabsContent value="linkedin" className="space-y-4 mt-4">
+            {candidateHasLinkedin ? (
+              <div className="p-4 rounded-lg bg-success/10 border border-success/30 flex items-start gap-3">
+                <CheckCircle2 className="w-5 h-5 text-success mt-0.5 shrink-0" />
+                <p className="text-sm">{t("employer.candidateDetail.contact.linkedinAlreadyProvided")}</p>
+              </div>
+            ) : (
+              <>
+                <div className="space-y-2">
+                  <Label>{t("employer.candidateDetail.contact.messageLabel")}</Label>
+                  <Textarea rows={8} value={linkedinMsg} onChange={(e) => setLinkedinMsg(e.target.value)} />
+                </div>
+                <Button onClick={handleSendLinkedin} disabled={sending !== null} className="w-full bg-cta text-cta-foreground hover:bg-cta/90">
+                  {sending === 'linkedin' ? t("common.saving") : t("employer.candidateDetail.contact.sendLinkedinRequest")}
+                </Button>
+              </>
+            )}
+          </TabsContent>
+
+          {/* Unlock profile */}
+          <TabsContent value="unlock" className="space-y-4 mt-4">
+            {alreadyUnlocked ? (
+              <div className="p-4 rounded-lg bg-success/10 border border-success/30 flex items-start gap-3">
+                <CheckCircle2 className="w-5 h-5 text-success mt-0.5 shrink-0" />
+                <p className="text-sm">{t("employer.candidateDetail.contact.alreadyUnlocked")}</p>
+              </div>
+            ) : candidateProfileReady ? (
+              <>
+                <div className="p-4 rounded-lg bg-accent/5 border border-accent/20">
+                  <p className="font-medium mb-1">{t("employer.candidateDetail.contact.unlockReady")}</p>
+                  <p className="text-sm text-muted-foreground">{t("employer.candidateDetail.contact.unlockReadyDesc")}</p>
+                </div>
+                <Button onClick={handleUnlock} disabled={sending !== null} className="w-full bg-cta text-cta-foreground hover:bg-cta/90">
+                  {sending === 'unlock' ? t("common.saving") : t("employer.candidateDetail.contact.unlockButton")}
+                </Button>
+              </>
+            ) : (
+              <>
+                <div className="p-4 rounded-lg bg-warning/5 border border-warning/30 flex items-start gap-3">
+                  <AlertCircle className="w-5 h-5 text-warning mt-0.5 shrink-0" />
+                  <div>
+                    <p className="font-medium mb-1">{t("employer.candidateDetail.contact.profileNotReady")}</p>
+                    <p className="text-sm text-muted-foreground">{t("employer.candidateDetail.contact.profileNotReadyDesc")}</p>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label>{t("employer.candidateDetail.contact.messageLabel")}</Label>
+                  <Textarea rows={6} value={completionMsg} onChange={(e) => setCompletionMsg(e.target.value)} />
+                </div>
+                <Button onClick={handleRequestCompletion} disabled={sending !== null} className="w-full bg-cta text-cta-foreground hover:bg-cta/90">
+                  {sending === 'completion' ? t("common.saving") : t("employer.candidateDetail.contact.requestCompletion")}
+                </Button>
+              </>
+            )}
+          </TabsContent>
+        </Tabs>
+      </DialogContent>
+    </Dialog>
+  );
+};
