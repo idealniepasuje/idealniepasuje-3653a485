@@ -323,21 +323,68 @@ const EmployerCandidateDetail = () => {
         </Card>
 
 
-        {/* LinkedIn section - visible immediately when interested */}
+        {/* LinkedIn + "Get to know" - visible only after unlocking */}
         <Card className="mb-6">
-          <CardContent className="pt-6">
-            {currentStatus === 'considering' ? (
-              candidateData?.linkedin_url ? (
-                <a href={candidateData.linkedin_url} target="_blank" rel="noopener noreferrer" className="text-accent hover:underline flex items-center gap-2 text-lg">
-                  <Linkedin className="w-5 h-5" />
-                  {candidateData.linkedin_url}
-                </a>
-              ) : (
-                <div className="flex items-center gap-2 text-muted-foreground text-sm">
-                  <Linkedin className="w-5 h-5" />
-                  {t("employer.candidateDetail.noLinkedin")}
+          <CardContent className="pt-6 space-y-4">
+            {match?.unlocked_at ? (
+              <>
+                {candidateData?.linkedin_url ? (
+                  <a href={candidateData.linkedin_url} target="_blank" rel="noopener noreferrer" className="text-accent hover:underline flex items-center gap-2 text-lg">
+                    <Linkedin className="w-5 h-5" />
+                    {candidateData.linkedin_url}
+                  </a>
+                ) : (
+                  <div className="flex items-center gap-2 text-muted-foreground text-sm">
+                    <Linkedin className="w-5 h-5" />
+                    {t("employer.candidateDetail.noLinkedin")}
+                  </div>
+                )}
+
+                {/* Get to know section */}
+                {(() => {
+                  const gtk = (candidateData?.getting_to_know || {}) as Record<string, string>;
+                  const hasAny = gtk.tasks || gtk.problems || gtk.motivation || gtk.proud_of;
+                  if (!hasAny && !candidateData?.work_description) return null;
+                  return (
+                    <div className="space-y-3 pt-4 border-t">
+                      <h3 className="font-semibold flex items-center gap-2">
+                        <Sparkles className="w-4 h-4 text-accent" />
+                        {t("employer.candidateDetail.gettingToKnowTitle")}
+                      </h3>
+                      {candidateData?.work_description && (
+                        <div className="text-sm">
+                          <p className="text-xs font-medium text-muted-foreground mb-1">{t("employer.candidateDetail.workDescriptionLabel")}</p>
+                          <p className="whitespace-pre-wrap">{candidateData.work_description}</p>
+                        </div>
+                      )}
+                      {gtk.tasks && (
+                        <div className="text-sm"><p className="text-xs font-medium text-muted-foreground mb-1">{t("candidate.additional.gettingToKnow.q1Label")}</p><p className="whitespace-pre-wrap">{gtk.tasks}</p></div>
+                      )}
+                      {gtk.problems && (
+                        <div className="text-sm"><p className="text-xs font-medium text-muted-foreground mb-1">{t("candidate.additional.gettingToKnow.q2Label")}</p><p className="whitespace-pre-wrap">{gtk.problems}</p></div>
+                      )}
+                      {gtk.motivation && (
+                        <div className="text-sm"><p className="text-xs font-medium text-muted-foreground mb-1">{t("candidate.additional.gettingToKnow.q3Label")}</p><p className="whitespace-pre-wrap">{gtk.motivation}</p></div>
+                      )}
+                      {gtk.proud_of && (
+                        <div className="text-sm"><p className="text-xs font-medium text-muted-foreground mb-1">{t("candidate.additional.gettingToKnow.q4Label")}</p><p className="whitespace-pre-wrap">{gtk.proud_of}</p></div>
+                      )}
+                    </div>
+                  );
+                })()}
+              </>
+            ) : currentStatus === 'considering' ? (
+              <div className="flex items-center gap-3 p-3 rounded-lg bg-accent/5 border border-accent/20">
+                <Lock className="w-5 h-5 text-accent" />
+                <div className="flex-1">
+                  <p className="text-sm font-medium">{t("employer.candidateDetail.profileLocked")}</p>
+                  <p className="text-xs text-muted-foreground">{t("employer.candidateDetail.profileLockedHint")}</p>
                 </div>
-              )
+                <Button size="sm" variant="outline" onClick={() => setContactOpen(true)} className="border-accent text-accent hover:bg-accent/10">
+                  <Mail className="w-4 h-4 mr-2" />
+                  {t("employer.candidateDetail.contact.button")}
+                </Button>
+              </div>
             ) : (
               <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50 border">
                 <Lock className="w-5 h-5 text-muted-foreground" />
@@ -348,6 +395,8 @@ const EmployerCandidateDetail = () => {
               </div>
             )}
           </CardContent>
+        </Card>
+
         </Card>
 
         {/* Why is this a good match */}
