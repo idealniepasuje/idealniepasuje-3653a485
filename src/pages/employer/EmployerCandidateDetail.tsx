@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { LogOut, ArrowLeft, Target, Heart, Briefcase, CheckCircle2, AlertCircle, TrendingUp, TrendingDown, User, ThumbsUp, ThumbsDown, Sparkles, ShieldCheck, Linkedin, Lock } from "lucide-react";
+import { LogOut, ArrowLeft, Target, Heart, Briefcase, CheckCircle2, AlertCircle, TrendingUp, TrendingDown, User, ThumbsUp, ThumbsDown, Sparkles, ShieldCheck, Linkedin, Lock, Mail } from "lucide-react";
+import { ContactCandidateModal } from "@/components/employer/ContactCandidateModal";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { logError } from "@/lib/errorLogger";
@@ -67,6 +68,8 @@ const EmployerCandidateDetail = () => {
   const [employerData, setEmployerData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [currentStatus, setCurrentStatus] = useState<string>('pending');
+  const [contactOpen, setContactOpen] = useState(false);
+  const [employerCompanyName, setEmployerCompanyName] = useState<string>('');
 
   useEffect(() => {
     if (!authLoading && !user) { navigate("/login"); return; }
@@ -105,7 +108,7 @@ const EmployerCandidateDetail = () => {
       // Fetch candidate test results for additional info
       const { data: testData } = await supabase
         .from("candidate_test_results")
-        .select("industry, experience, position_level, work_description, target_industries, has_no_experience, industry_experiences, competency_answers, linkedin_url, work_mode, city")
+        .select("industry, experience, position_level, work_description, target_industries, has_no_experience, industry_experiences, competency_answers, linkedin_url, work_mode, city, getting_to_know, profile_ready")
         .eq("user_id", candidateId)
         .single();
 
@@ -116,12 +119,13 @@ const EmployerCandidateDetail = () => {
       // Fetch employer profile for comparison
       const { data: empData } = await supabase
         .from("employer_profiles")
-        .select("industry, required_experience, position_level, accepted_industries, no_experience_required, accepted_industry_requirements")
+        .select("industry, required_experience, position_level, accepted_industries, no_experience_required, accepted_industry_requirements, company_name")
         .eq("user_id", user.id)
         .single();
 
       if (empData) {
         setEmployerData(empData);
+        setEmployerCompanyName((empData as any).company_name || '');
       }
     } catch (error) {
       logError("EmployerCandidateDetail.fetchMatchData", error);
