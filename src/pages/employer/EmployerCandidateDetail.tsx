@@ -397,7 +397,7 @@ const EmployerCandidateDetail = () => {
           </CardContent>
         </Card>
 
-        </Card>
+
 
         {/* Why is this a good match */}
         {matchDetails?.strengths && matchDetails.strengths.length > 0 && (
