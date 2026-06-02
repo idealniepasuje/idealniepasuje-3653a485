@@ -8,7 +8,8 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, CheckCircle2, Linkedin, Plus, X } from "lucide-react";
+import { ArrowLeft, CheckCircle2, Linkedin, Plus, X, Sparkles } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -44,6 +45,11 @@ const CandidateAdditional = () => {
   const [linkedinUrl, setLinkedinUrl] = useState("");
   const [workMode, setWorkMode] = useState("");
   const [city, setCity] = useState("");
+  const [workDescription, setWorkDescription] = useState("");
+  const [gtkTasks, setGtkTasks] = useState("");
+  const [gtkProblems, setGtkProblems] = useState("");
+  const [gtkMotivation, setGtkMotivation] = useState("");
+  const [gtkProudOf, setGtkProudOf] = useState("");
   
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -59,7 +65,7 @@ const CandidateAdditional = () => {
     try {
       const { data, error } = await supabase
         .from("candidate_test_results")
-        .select("industry_experiences, has_no_experience, target_industries, linkedin_url, additional_completed, work_mode, city")
+        .select("industry_experiences, has_no_experience, target_industries, linkedin_url, additional_completed, work_mode, city, work_description, getting_to_know")
         .eq("user_id", user.id)
         .single();
       if (error && error.code !== "PGRST116") logError("CandidateAdditional.fetchExistingData", error);
@@ -73,6 +79,12 @@ const CandidateAdditional = () => {
         setLinkedinUrl((data as any).linkedin_url || "");
         setWorkMode((data as any).work_mode || "");
         setCity((data as any).city || "");
+        setWorkDescription((data as any).work_description || "");
+        const gtk = ((data as any).getting_to_know || {}) as Record<string, string>;
+        setGtkTasks(gtk.tasks || "");
+        setGtkProblems(gtk.problems || "");
+        setGtkMotivation(gtk.motivation || "");
+        setGtkProudOf(gtk.proud_of || "");
       }
     } catch (error) {
       logError("CandidateAdditional.fetchExistingData", error);
@@ -230,6 +242,13 @@ const CandidateAdditional = () => {
         industry: validExperiences[0]?.industry || null,
         experience: validExperiences[0]?.years || null,
         position_level: validExperiences[0]?.positionLevel || null,
+        work_description: workDescription || null,
+        getting_to_know: {
+          tasks: gtkTasks,
+          problems: gtkProblems,
+          motivation: gtkMotivation,
+          proud_of: gtkProudOf,
+        } as unknown as Json,
         additional_completed: true,
         all_tests_completed: true,
       }).eq("user_id", user.id);
@@ -453,6 +472,46 @@ const CandidateAdditional = () => {
                   </SelectContent>
                 </Select>
               )}
+            </div>
+
+            {/* Krótki opis pracy */}
+            <div className="space-y-2">
+              <Label>{t("candidate.additional.workDescriptionLabel")}</Label>
+              <Textarea
+                rows={3}
+                maxLength={2000}
+                placeholder={t("candidate.additional.workDescriptionPlaceholder")}
+                value={workDescription}
+                onChange={(e) => setWorkDescription(e.target.value)}
+              />
+              <p className="text-xs text-muted-foreground">{t("candidate.additional.workDescriptionHint")}</p>
+            </div>
+
+            {/* Daj się poznać */}
+            <div className="space-y-4 p-4 rounded-lg border border-accent/20 bg-accent/5">
+              <div className="flex items-start gap-2">
+                <Sparkles className="w-5 h-5 text-accent mt-0.5 shrink-0" />
+                <div>
+                  <Label className="text-base font-semibold">{t("candidate.additional.gettingToKnow.sectionTitle")}</Label>
+                  <p className="text-xs text-muted-foreground mt-1">{t("candidate.additional.gettingToKnow.sectionDescription")}</p>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="gtk-tasks">{t("candidate.additional.gettingToKnow.q1Label")}</Label>
+                <Textarea id="gtk-tasks" rows={2} maxLength={1000} placeholder={t("candidate.additional.gettingToKnow.placeholder")} value={gtkTasks} onChange={(e) => setGtkTasks(e.target.value)} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="gtk-problems">{t("candidate.additional.gettingToKnow.q2Label")}</Label>
+                <Textarea id="gtk-problems" rows={2} maxLength={1000} placeholder={t("candidate.additional.gettingToKnow.placeholder")} value={gtkProblems} onChange={(e) => setGtkProblems(e.target.value)} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="gtk-motivation">{t("candidate.additional.gettingToKnow.q3Label")}</Label>
+                <Textarea id="gtk-motivation" rows={2} maxLength={1000} placeholder={t("candidate.additional.gettingToKnow.placeholder")} value={gtkMotivation} onChange={(e) => setGtkMotivation(e.target.value)} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="gtk-proud">{t("candidate.additional.gettingToKnow.q4Label")}</Label>
+                <Textarea id="gtk-proud" rows={2} maxLength={1000} placeholder={t("candidate.additional.gettingToKnow.placeholder")} value={gtkProudOf} onChange={(e) => setGtkProudOf(e.target.value)} />
+              </div>
             </div>
 
             {/* LinkedIn */}

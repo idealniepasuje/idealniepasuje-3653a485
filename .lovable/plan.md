@@ -1,73 +1,55 @@
+# Plan: Flow kontaktu pracodawca → kandydat
 
-# Plan naprawy dopasowywania kandydata do pracodawcy
+## 1. Baza danych (migracja)
 
-## Zdiagnozowane problemy
+**Tabela `candidate_test_results` — dodać kolumny:**
+- `getting_to_know` jsonb default `'{}'` — odpowiedzi na 4 pytania „Daj się poznać"
+- `profile_ready` boolean default false — czy profil gotowy do odblokowania (komplet pól)
 
-1. **Edge function `generate-candidate-matches` nie jest wdrożona** - zwraca błąd 404, co oznacza że wywołanie po stronie kandydata nie działa
+**Tabela `match_results` — dodać kolumny:**
+- `unlocked_at` timestamptz — kiedy pracodawca odblokował pełny profil
+- `linkedin_requested_at` timestamptz
+- `profile_completion_requested_at` timestamptz
+- `interview_invited_at` timestamptz
+- `interview_type` text — 'online'|'phone'|'onsite'
+- `interview_calendar_link` text
+- `interview_message` text
 
-2. **Niezgodność schematu danych** - funkcja `generate-candidate-matches` używa starego modelu dopasowania (kandydat → profil pracodawcy), podczas gdy baza danych wymaga dopasowania per-zlecenie (`job_offer_id`):
-   - Constraint unikalności: `(employer_user_id, candidate_user_id, job_offer_id)`
-   - Funkcja używa: `onConflict: 'employer_user_id,candidate_user_id'` (bez job_offer_id)
+**Tabela `candidate_messages` (nowa)** — wiadomości od pracodawcy do kandydata:
+- id, match_result_id, candidate_user_id, employer_user_id, type ('linkedin_request'|'profile_completion'|'interview_invite'), content text, metadata jsonb, read_at, created_at
+- RLS: kandydat widzi swoje, pracodawca widzi swoje wysłane; insert tylko pracodawca.
 
-3. **Brak job_offer_id w upsert** - funkcja nie przekazuje `job_offer_id` przy zapisie, co powoduje błędy zapisu
+**RLS na `candidate_test_results`:**
+- Zaktualizować politykę „Employers can view matched candidates" tak by `getting_to_know`, `linkedin_url`, `work_description` itp. były dostępne dopiero gdy `match_results.unlocked_at IS NOT NULL` LUB `status='interested'`. Najprościej: dodać widok / funkcję `get_candidate_unlocked(...)` SECURITY DEFINER zwracającą pełne dane tylko po odblokowaniu, a politykę SELECT zawęzić do podstawowych kolumn (już mamy basic match data). Alternatywnie utrzymać obecną politykę i filtrować w UI — ale to nie jest bezpieczne. Wybieram: RPC SECURITY DEFINER `get_candidate_full_profile(match_id)` która sprawdza odblokowanie i zwraca pełne dane.
 
-## Stan bazy danych
+## 2. Frontend — kandydat
 
-| Tabela | Liczba rekordów |
-|--------|-----------------|
-| Kandydaci (all_tests_completed=true) | 3 |
-| Pracodawcy (profile_completed=true) | 2 |
-| Aktywne oferty pracy | 2 |
-| Dopasowania (match_results) | 0 |
+**`CandidateAdditional.tsx`** — dodać sekcję „Daj się poznać" z 4 textareami:
+- Jakie zadania lubisz robić w pracy?
+- Jakie problemy lubisz rozwiązywać?
+- Co motywuje Cię poza wynagrodzeniem?
+- Z czego jesteś najbardziej dumny/dumna?
 
-## Plan naprawy
+Zapisywać do `getting_to_know`. Po zapisie ustawiać `profile_ready=true` jeśli wszystkie pola wypełnione + `work_description` + `experience`.
 
-### 1. Aktualizacja funkcji `generate-candidate-matches`
+**Inbox kandydata** — strona/sekcja wyświetlająca `candidate_messages` (prośba o LinkedIn, prośba o uzupełnienie profilu, zaproszenie na rozmowę).
 
-Przekształcenie logiki z dopasowania do profilu pracodawcy na dopasowanie do każdej aktywnej oferty pracy:
+## 3. Frontend — pracodawca
 
-- Pobranie wszystkich aktywnych ofert (`job_offers` z `is_active = true`)
-- Dla każdej oferty pobranie profilu kultury pracodawcy z `employer_profiles`
-- Obliczenie dopasowania: kompetencje z oferty, kultura z profilu pracodawcy
-- Zapis z poprawnym `job_offer_id` i zgodnym `onConflict`
+**`EmployerCandidateDetail.tsx`:**
+- Gdy `status='interested'` → pokaż ikonę koperty „Kontakt"
+- Modal kontaktu z 3 przyciskami:
+  1. **Zaproś na rozmowę** — wybór typu (online/telefon/stacjonarna), input link do kalendarza, textarea z gotowym szablonem → zapisz w `match_results` i wyślij `candidate_messages` typu `interview_invite`
+  2. **Poproś o LinkedIn** — widoczne tylko gdy kandydat nie podał `linkedin_url`. Gotowa edytowalna wiadomość → insert do `candidate_messages`
+  3. **Odblokuj profil** — jeśli `profile_ready=false` → przycisk „Poproś o uzupełnienie profilu" (wysyła wiadomość). Jeśli `profile_ready=true` → przycisk „Odblokuj" ustawia `unlocked_at=now()`.
+- Po odblokowaniu wywołać RPC `get_candidate_full_profile` i pokazać: LinkedIn, work_description, getting_to_know (4 odpowiedzi).
 
-### 2. Wdrożenie funkcji
+## 4. i18n
+Dodać klucze PL/EN dla wszystkich nowych etykiet, szablonów wiadomości.
 
-Po aktualizacji kodu - automatyczne wdrożenie edge function
+## Techniczne szczegóły
 
-### 3. Zmiany w kodzie
-
-**Plik: `supabase/functions/generate-candidate-matches/index.ts`**
-
-Główne zmiany:
-- Dodanie interfejsu `JobOfferData` z polami wymagań kompetencji
-- Zmiana zapytania z `employer_profiles` na `job_offers` + `employer_profiles`
-- Aktualizacja `calculateCompetenceMatch` aby używała wymagań z oferty
-- Dodanie `job_offer_id` do upsert
-- Zmiana `onConflict` na `'employer_user_id,candidate_user_id,job_offer_id'`
-
-## Szczegóły techniczne
-
-```text
-Aktualny przepływ (błędny):
-┌─────────────┐     ┌──────────────────┐     ┌───────────────┐
-│  Kandydat   │ ──▶ │ employer_profiles │ ──▶ │ match_results │
-│ (user_id)   │     │  (bez job_offer)  │     │ (brak oferty) │
-└─────────────┘     └──────────────────┘     └───────────────┘
-
-Poprawny przepływ:
-┌─────────────┐     ┌─────────────┐     ┌──────────────────┐     ┌───────────────┐
-│  Kandydat   │ ──▶ │ job_offers  │ ──▶ │ employer_profiles │ ──▶ │ match_results │
-│ (user_id)   │     │ (is_active) │     │ (kultura firmy)  │     │(z job_offer_id)│
-└─────────────┘     └─────────────┘     └──────────────────┘     └───────────────┘
-```
-
-## Podsumowanie zmian
-
-| Co | Zmiana |
-|----|--------|
-| Zapytanie główne | Z `employer_profiles` na `job_offers` z joinem do `employer_profiles` |
-| Obliczanie kompetencji | Z `employer.req_*` na `offer.req_*` |
-| Upsert | Dodanie `job_offer_id: offer.id` |
-| onConflict | Z `employer_user_id,candidate_user_id` na `employer_user_id,candidate_user_id,job_offer_id` |
-| Deployment | Automatyczny po zapisaniu zmian |
+- Szablony wiadomości jako stałe w `src/data/messageTemplates.ts` (PL/EN).
+- Modal: shadcn `Dialog` + `Tabs` lub 3 sekcje.
+- Stan `profile_ready` aktualizowany triggerem po update `candidate_test_results` (sprawdza komplet pól) — lub w aplikacji przy zapisie.
+- Zachować obecną zasadę anonimowości: imię i nazwisko + LinkedIn + getting_to_know widoczne dopiero po `unlocked_at`.

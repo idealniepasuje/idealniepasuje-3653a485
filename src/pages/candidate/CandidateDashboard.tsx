@@ -14,6 +14,7 @@ import { DashboardLayout } from "@/components/layouts/DashboardLayout";
 import { CandidateSidebar } from "@/components/layouts/CandidateSidebar";
 import { EmployerCard } from "@/components/match/EmployerCard";
 import { FeedbackModal } from "@/components/FeedbackModal";
+import { CandidateMessagesInbox } from "@/components/CandidateMessagesInbox";
 
 const CandidateDashboard = () => {
   const { user, loading: authLoading } = useAuth();
@@ -156,6 +157,8 @@ const CandidateDashboard = () => {
           <span>{t("expert.badge")} – {t("expert.description").toLowerCase()}</span>
         </div>
       </div>
+
+      <CandidateMessagesInbox />
 
       {/* Show intro card only when tests are NOT completed */}
       {!testResults?.all_tests_completed && (

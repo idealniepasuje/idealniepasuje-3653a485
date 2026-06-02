@@ -77,6 +77,42 @@ export type Database = {
         }
         Relationships: []
       }
+      candidate_messages: {
+        Row: {
+          candidate_user_id: string
+          content: string
+          created_at: string
+          employer_user_id: string
+          id: string
+          match_result_id: string | null
+          metadata: Json
+          read_at: string | null
+          type: string
+        }
+        Insert: {
+          candidate_user_id: string
+          content: string
+          created_at?: string
+          employer_user_id: string
+          id?: string
+          match_result_id?: string | null
+          metadata?: Json
+          read_at?: string | null
+          type: string
+        }
+        Update: {
+          candidate_user_id?: string
+          content?: string
+          created_at?: string
+          employer_user_id?: string
+          id?: string
+          match_result_id?: string | null
+          metadata?: Json
+          read_at?: string | null
+          type?: string
+        }
+        Relationships: []
+      }
       candidate_test_results: {
         Row: {
           adaptacja_score: number | null
@@ -96,6 +132,7 @@ export type Database = {
           culture_wyniki_cele: number | null
           determinacja_score: number | null
           experience: string | null
+          getting_to_know: Json
           has_no_experience: boolean | null
           id: string
           industry: string | null
@@ -105,6 +142,7 @@ export type Database = {
           myslenie_analityczne_score: number | null
           out_of_the_box_score: number | null
           position_level: string | null
+          profile_ready: boolean
           target_industries: string[] | null
           updated_at: string
           user_id: string
@@ -130,6 +168,7 @@ export type Database = {
           culture_wyniki_cele?: number | null
           determinacja_score?: number | null
           experience?: string | null
+          getting_to_know?: Json
           has_no_experience?: boolean | null
           id?: string
           industry?: string | null
@@ -139,6 +178,7 @@ export type Database = {
           myslenie_analityczne_score?: number | null
           out_of_the_box_score?: number | null
           position_level?: string | null
+          profile_ready?: boolean
           target_industries?: string[] | null
           updated_at?: string
           user_id: string
@@ -164,6 +204,7 @@ export type Database = {
           culture_wyniki_cele?: number | null
           determinacja_score?: number | null
           experience?: string | null
+          getting_to_know?: Json
           has_no_experience?: boolean | null
           id?: string
           industry?: string | null
@@ -173,6 +214,7 @@ export type Database = {
           myslenie_analityczne_score?: number | null
           out_of_the_box_score?: number | null
           position_level?: string | null
+          profile_ready?: boolean
           target_industries?: string[] | null
           updated_at?: string
           user_id?: string
@@ -419,10 +461,17 @@ export type Database = {
           employer_user_id: string
           extra_percent: number | null
           id: string
+          interview_calendar_link: string | null
+          interview_invited_at: string | null
+          interview_message: string | null
+          interview_type: string | null
           job_offer_id: string | null
+          linkedin_requested_at: string | null
           match_details: Json | null
           overall_percent: number | null
+          profile_completion_requested_at: string | null
           status: string | null
+          unlocked_at: string | null
           updated_at: string
           viewed_at: string | null
         }
@@ -434,10 +483,17 @@ export type Database = {
           employer_user_id: string
           extra_percent?: number | null
           id?: string
+          interview_calendar_link?: string | null
+          interview_invited_at?: string | null
+          interview_message?: string | null
+          interview_type?: string | null
           job_offer_id?: string | null
+          linkedin_requested_at?: string | null
           match_details?: Json | null
           overall_percent?: number | null
+          profile_completion_requested_at?: string | null
           status?: string | null
+          unlocked_at?: string | null
           updated_at?: string
           viewed_at?: string | null
         }
@@ -449,10 +505,17 @@ export type Database = {
           employer_user_id?: string
           extra_percent?: number | null
           id?: string
+          interview_calendar_link?: string | null
+          interview_invited_at?: string | null
+          interview_message?: string | null
+          interview_type?: string | null
           job_offer_id?: string | null
+          linkedin_requested_at?: string | null
           match_details?: Json | null
           overall_percent?: number | null
+          profile_completion_requested_at?: string | null
           status?: string | null
+          unlocked_at?: string | null
           updated_at?: string
           viewed_at?: string | null
         }

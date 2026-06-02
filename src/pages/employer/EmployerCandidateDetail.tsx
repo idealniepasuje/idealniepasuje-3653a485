@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { LogOut, ArrowLeft, Target, Heart, Briefcase, CheckCircle2, AlertCircle, TrendingUp, TrendingDown, User, ThumbsUp, ThumbsDown, Sparkles, ShieldCheck, Linkedin, Lock } from "lucide-react";
+import { LogOut, ArrowLeft, Target, Heart, Briefcase, CheckCircle2, AlertCircle, TrendingUp, TrendingDown, User, ThumbsUp, ThumbsDown, Sparkles, ShieldCheck, Linkedin, Lock, Mail } from "lucide-react";
+import { ContactCandidateModal } from "@/components/employer/ContactCandidateModal";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { logError } from "@/lib/errorLogger";
@@ -67,6 +68,8 @@ const EmployerCandidateDetail = () => {
   const [employerData, setEmployerData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [currentStatus, setCurrentStatus] = useState<string>('pending');
+  const [contactOpen, setContactOpen] = useState(false);
+  const [employerCompanyName, setEmployerCompanyName] = useState<string>('');
 
   useEffect(() => {
     if (!authLoading && !user) { navigate("/login"); return; }
@@ -105,7 +108,7 @@ const EmployerCandidateDetail = () => {
       // Fetch candidate test results for additional info
       const { data: testData } = await supabase
         .from("candidate_test_results")
-        .select("industry, experience, position_level, work_description, target_industries, has_no_experience, industry_experiences, competency_answers, linkedin_url, work_mode, city")
+        .select("industry, experience, position_level, work_description, target_industries, has_no_experience, industry_experiences, competency_answers, linkedin_url, work_mode, city, getting_to_know, profile_ready")
         .eq("user_id", candidateId)
         .single();
 
@@ -116,12 +119,13 @@ const EmployerCandidateDetail = () => {
       // Fetch employer profile for comparison
       const { data: empData } = await supabase
         .from("employer_profiles")
-        .select("industry, required_experience, position_level, accepted_industries, no_experience_required, accepted_industry_requirements")
+        .select("industry, required_experience, position_level, accepted_industries, no_experience_required, accepted_industry_requirements, company_name")
         .eq("user_id", user.id)
         .single();
 
       if (empData) {
         setEmployerData(empData);
+        setEmployerCompanyName((empData as any).company_name || '');
       }
     } catch (error) {
       logError("EmployerCandidateDetail.fetchMatchData", error);
@@ -286,7 +290,7 @@ const EmployerCandidateDetail = () => {
               <div className="text-center md:text-right">
                 <div className="text-5xl font-bold text-accent">{match.overall_percent}%</div>
                 <div className="text-sm text-muted-foreground mb-3">{t("common.totalMatch")}</div>
-                <div className="flex gap-2 justify-center md:justify-end">
+                <div className="flex gap-2 justify-center md:justify-end flex-wrap">
                   <Button 
                     onClick={() => handleStatusChange('considering')}
                     variant={currentStatus === 'considering' ? "default" : "outline"}
@@ -302,27 +306,85 @@ const EmployerCandidateDetail = () => {
                     <ThumbsDown className="w-4 h-4 mr-2" />
                     {t("employer.candidateDetail.markRejected")}
                   </Button>
+                  {currentStatus === 'considering' && (
+                    <Button
+                      onClick={() => setContactOpen(true)}
+                      variant="outline"
+                      className="border-accent text-accent hover:bg-accent/10"
+                    >
+                      <Mail className="w-4 h-4 mr-2" />
+                      {t("employer.candidateDetail.contact.button")}
+                    </Button>
+                  )}
                 </div>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        {/* LinkedIn section - visible immediately when interested */}
+
+        {/* LinkedIn + "Get to know" - visible only after unlocking */}
         <Card className="mb-6">
-          <CardContent className="pt-6">
-            {currentStatus === 'considering' ? (
-              candidateData?.linkedin_url ? (
-                <a href={candidateData.linkedin_url} target="_blank" rel="noopener noreferrer" className="text-accent hover:underline flex items-center gap-2 text-lg">
-                  <Linkedin className="w-5 h-5" />
-                  {candidateData.linkedin_url}
-                </a>
-              ) : (
-                <div className="flex items-center gap-2 text-muted-foreground text-sm">
-                  <Linkedin className="w-5 h-5" />
-                  {t("employer.candidateDetail.noLinkedin")}
+          <CardContent className="pt-6 space-y-4">
+            {match?.unlocked_at ? (
+              <>
+                {candidateData?.linkedin_url ? (
+                  <a href={candidateData.linkedin_url} target="_blank" rel="noopener noreferrer" className="text-accent hover:underline flex items-center gap-2 text-lg">
+                    <Linkedin className="w-5 h-5" />
+                    {candidateData.linkedin_url}
+                  </a>
+                ) : (
+                  <div className="flex items-center gap-2 text-muted-foreground text-sm">
+                    <Linkedin className="w-5 h-5" />
+                    {t("employer.candidateDetail.noLinkedin")}
+                  </div>
+                )}
+
+                {/* Get to know section */}
+                {(() => {
+                  const gtk = (candidateData?.getting_to_know || {}) as Record<string, string>;
+                  const hasAny = gtk.tasks || gtk.problems || gtk.motivation || gtk.proud_of;
+                  if (!hasAny && !candidateData?.work_description) return null;
+                  return (
+                    <div className="space-y-3 pt-4 border-t">
+                      <h3 className="font-semibold flex items-center gap-2">
+                        <Sparkles className="w-4 h-4 text-accent" />
+                        {t("employer.candidateDetail.gettingToKnowTitle")}
+                      </h3>
+                      {candidateData?.work_description && (
+                        <div className="text-sm">
+                          <p className="text-xs font-medium text-muted-foreground mb-1">{t("employer.candidateDetail.workDescriptionLabel")}</p>
+                          <p className="whitespace-pre-wrap">{candidateData.work_description}</p>
+                        </div>
+                      )}
+                      {gtk.tasks && (
+                        <div className="text-sm"><p className="text-xs font-medium text-muted-foreground mb-1">{t("candidate.additional.gettingToKnow.q1Label")}</p><p className="whitespace-pre-wrap">{gtk.tasks}</p></div>
+                      )}
+                      {gtk.problems && (
+                        <div className="text-sm"><p className="text-xs font-medium text-muted-foreground mb-1">{t("candidate.additional.gettingToKnow.q2Label")}</p><p className="whitespace-pre-wrap">{gtk.problems}</p></div>
+                      )}
+                      {gtk.motivation && (
+                        <div className="text-sm"><p className="text-xs font-medium text-muted-foreground mb-1">{t("candidate.additional.gettingToKnow.q3Label")}</p><p className="whitespace-pre-wrap">{gtk.motivation}</p></div>
+                      )}
+                      {gtk.proud_of && (
+                        <div className="text-sm"><p className="text-xs font-medium text-muted-foreground mb-1">{t("candidate.additional.gettingToKnow.q4Label")}</p><p className="whitespace-pre-wrap">{gtk.proud_of}</p></div>
+                      )}
+                    </div>
+                  );
+                })()}
+              </>
+            ) : currentStatus === 'considering' ? (
+              <div className="flex items-center gap-3 p-3 rounded-lg bg-accent/5 border border-accent/20">
+                <Lock className="w-5 h-5 text-accent" />
+                <div className="flex-1">
+                  <p className="text-sm font-medium">{t("employer.candidateDetail.profileLocked")}</p>
+                  <p className="text-xs text-muted-foreground">{t("employer.candidateDetail.profileLockedHint")}</p>
                 </div>
-              )
+                <Button size="sm" variant="outline" onClick={() => setContactOpen(true)} className="border-accent text-accent hover:bg-accent/10">
+                  <Mail className="w-4 h-4 mr-2" />
+                  {t("employer.candidateDetail.contact.button")}
+                </Button>
+              </div>
             ) : (
               <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50 border">
                 <Lock className="w-5 h-5 text-muted-foreground" />
@@ -334,6 +396,8 @@ const EmployerCandidateDetail = () => {
             )}
           </CardContent>
         </Card>
+
+
 
         {/* Why is this a good match */}
         {matchDetails?.strengths && matchDetails.strengths.length > 0 && (
@@ -688,6 +752,20 @@ const EmployerCandidateDetail = () => {
           </Link>
         </div>
       </main>
+
+      {match && candidateId && user && (
+        <ContactCandidateModal
+          open={contactOpen}
+          onOpenChange={setContactOpen}
+          match={match}
+          candidateUserId={candidateId}
+          employerUserId={user.id}
+          companyName={employerCompanyName}
+          candidateHasLinkedin={!!candidateData?.linkedin_url}
+          candidateProfileReady={!!candidateData?.profile_ready}
+          onUpdated={fetchMatchData}
+        />
+      )}
     </div>
   );
 };
