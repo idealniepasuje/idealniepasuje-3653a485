@@ -8,7 +8,8 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, CheckCircle2, Linkedin, Plus, X } from "lucide-react";
+import { ArrowLeft, CheckCircle2, Linkedin, Plus, X, Sparkles } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -44,6 +45,11 @@ const CandidateAdditional = () => {
   const [linkedinUrl, setLinkedinUrl] = useState("");
   const [workMode, setWorkMode] = useState("");
   const [city, setCity] = useState("");
+  const [workDescription, setWorkDescription] = useState("");
+  const [gtkTasks, setGtkTasks] = useState("");
+  const [gtkProblems, setGtkProblems] = useState("");
+  const [gtkMotivation, setGtkMotivation] = useState("");
+  const [gtkProudOf, setGtkProudOf] = useState("");
   
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -59,7 +65,7 @@ const CandidateAdditional = () => {
     try {
       const { data, error } = await supabase
         .from("candidate_test_results")
-        .select("industry_experiences, has_no_experience, target_industries, linkedin_url, additional_completed, work_mode, city")
+        .select("industry_experiences, has_no_experience, target_industries, linkedin_url, additional_completed, work_mode, city, work_description, getting_to_know")
         .eq("user_id", user.id)
         .single();
       if (error && error.code !== "PGRST116") logError("CandidateAdditional.fetchExistingData", error);
@@ -73,6 +79,12 @@ const CandidateAdditional = () => {
         setLinkedinUrl((data as any).linkedin_url || "");
         setWorkMode((data as any).work_mode || "");
         setCity((data as any).city || "");
+        setWorkDescription((data as any).work_description || "");
+        const gtk = ((data as any).getting_to_know || {}) as Record<string, string>;
+        setGtkTasks(gtk.tasks || "");
+        setGtkProblems(gtk.problems || "");
+        setGtkMotivation(gtk.motivation || "");
+        setGtkProudOf(gtk.proud_of || "");
       }
     } catch (error) {
       logError("CandidateAdditional.fetchExistingData", error);
