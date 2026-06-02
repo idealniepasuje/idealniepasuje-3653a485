@@ -242,6 +242,13 @@ const CandidateAdditional = () => {
         industry: validExperiences[0]?.industry || null,
         experience: validExperiences[0]?.years || null,
         position_level: validExperiences[0]?.positionLevel || null,
+        work_description: workDescription || null,
+        getting_to_know: {
+          tasks: gtkTasks,
+          problems: gtkProblems,
+          motivation: gtkMotivation,
+          proud_of: gtkProudOf,
+        } as unknown as Json,
         additional_completed: true,
         all_tests_completed: true,
       }).eq("user_id", user.id);
