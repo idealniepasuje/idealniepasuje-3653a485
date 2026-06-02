@@ -290,7 +290,7 @@ const EmployerCandidateDetail = () => {
               <div className="text-center md:text-right">
                 <div className="text-5xl font-bold text-accent">{match.overall_percent}%</div>
                 <div className="text-sm text-muted-foreground mb-3">{t("common.totalMatch")}</div>
-                <div className="flex gap-2 justify-center md:justify-end">
+                <div className="flex gap-2 justify-center md:justify-end flex-wrap">
                   <Button 
                     onClick={() => handleStatusChange('considering')}
                     variant={currentStatus === 'considering' ? "default" : "outline"}
@@ -306,11 +306,22 @@ const EmployerCandidateDetail = () => {
                     <ThumbsDown className="w-4 h-4 mr-2" />
                     {t("employer.candidateDetail.markRejected")}
                   </Button>
+                  {currentStatus === 'considering' && (
+                    <Button
+                      onClick={() => setContactOpen(true)}
+                      variant="outline"
+                      className="border-accent text-accent hover:bg-accent/10"
+                    >
+                      <Mail className="w-4 h-4 mr-2" />
+                      {t("employer.candidateDetail.contact.button")}
+                    </Button>
+                  )}
                 </div>
               </div>
             </div>
           </CardContent>
         </Card>
+
 
         {/* LinkedIn section - visible immediately when interested */}
         <Card className="mb-6">
