@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -60,12 +60,15 @@ const cultureNames: Record<string, { pl: string; en: string }> = {
 
 const EmployerCandidateDetail = () => {
   const { candidateId } = useParams<{ candidateId: string }>();
+  const [searchParams] = useSearchParams();
+  const matchId = searchParams.get("matchId");
   const { user, signOut, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
   const [match, setMatch] = useState<any>(null);
   const [candidateData, setCandidateData] = useState<any>(null);
   const [employerData, setEmployerData] = useState<any>(null);
+  const [jobOfferData, setJobOfferData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [currentStatus, setCurrentStatus] = useState<string>('pending');
   const [contactOpen, setContactOpen] = useState(false);
@@ -74,18 +77,26 @@ const EmployerCandidateDetail = () => {
   useEffect(() => {
     if (!authLoading && !user) { navigate("/login"); return; }
     if (user && candidateId) fetchMatchData();
-  }, [user, authLoading, navigate, candidateId]);
+  }, [user, authLoading, navigate, candidateId, matchId]);
 
   const fetchMatchData = async () => {
     if (!user || !candidateId) return;
     try {
-      // Fetch match data
-      const { data: matchData, error: matchError } = await supabase
+      // Fetch exact match when opened from a specific job offer, otherwise use the latest candidate match.
+      let matchQuery = supabase
         .from("match_results")
         .select("*")
         .eq("employer_user_id", user.id)
-        .eq("candidate_user_id", candidateId)
-        .single();
+        .eq("candidate_user_id", candidateId);
+
+      if (matchId) {
+        matchQuery = matchQuery.eq("id", matchId);
+      } else {
+        matchQuery = matchQuery.order("created_at", { ascending: false }).limit(1);
+      }
+
+      const { data: matchRows, error: matchError } = await matchQuery;
+      const matchData = Array.isArray(matchRows) ? matchRows[0] : matchRows;
       
       if (matchError) {
         logError("EmployerCandidateDetail.fetchMatchData", matchError);
@@ -126,6 +137,17 @@ const EmployerCandidateDetail = () => {
       if (empData) {
         setEmployerData(empData);
         setEmployerCompanyName((empData as any).company_name || '');
+      }
+
+      if (matchData?.job_offer_id) {
+        const { data: offerData } = await supabase
+          .from("job_offers")
+          .select("industry, required_experience, position_level, accepted_industries, no_experience_required, accepted_industry_requirements")
+          .eq("id", matchData.job_offer_id)
+          .eq("user_id", user.id)
+          .single();
+
+        if (offerData) setJobOfferData(offerData);
       }
     } catch (error) {
       logError("EmployerCandidateDetail.fetchMatchData", error);
@@ -636,6 +658,7 @@ const EmployerCandidateDetail = () => {
             <div className="space-y-4">
               {/* Build criteria from live data */}
               {(() => {
+                const requirementData = jobOfferData || employerData;
                 const getDisplayValue = (value: string | null | undefined, field: string, isExperience = false) => {
                   if (value === null || value === undefined || value === '') return '';
                   if (field === 'industry') {
@@ -653,19 +676,19 @@ const EmployerCandidateDetail = () => {
 
                 // Industry match
                 const industryMatch = 
-                  candidateData?.industry === employerData?.industry ||
-                  (employerData?.accepted_industries?.includes(candidateData?.industry) ?? false);
+                  candidateData?.industry === requirementData?.industry ||
+                  (requirementData?.accepted_industries?.includes(candidateData?.industry) ?? false);
                 
                 // Experience match
                 const candidateExp = parseInt(candidateData?.experience || '0') || 0;
-                const requiredExp = parseInt(employerData?.required_experience || '0') || 0;
-                const experienceMatch = employerData?.no_experience_required || candidateExp >= requiredExp;
+                const requiredExp = parseInt(requirementData?.required_experience || '0') || 0;
+                const experienceMatch = requirementData?.no_experience_required || candidateExp >= requiredExp;
                 
                 // Position level match
                 const positionLevelOrder = ['junior', 'mid', 'senior', 'lead', 'manager', 'director'];
                 const candidateLevelIndex = positionLevelOrder.indexOf(candidateData?.position_level || '');
-                const employerLevelIndex = positionLevelOrder.indexOf(employerData?.position_level || '');
-                const positionMatch = candidateData?.position_level === employerData?.position_level || 
+                const employerLevelIndex = positionLevelOrder.indexOf(requirementData?.position_level || '');
+                const positionMatch = candidateData?.position_level === requirementData?.position_level || 
                   (candidateLevelIndex >= employerLevelIndex && employerLevelIndex !== -1);
 
                 const criteria = [
@@ -673,22 +696,22 @@ const EmployerCandidateDetail = () => {
                     field: t("employer.candidateDetail.criteriaIndustry"),
                     matched: industryMatch,
                     candidateValue: candidateData?.industry,
-                    employerValue: employerData?.industry,
-                    acceptedValues: employerData?.accepted_industries || [],
+                    employerValue: requirementData?.industry,
+                    acceptedValues: requirementData?.accepted_industries || [],
                     fieldType: 'industry'
                   },
                   {
                     field: t("employer.candidateDetail.criteriaExperience"),
                     matched: experienceMatch,
                     candidateValue: candidateData?.experience,
-                    employerValue: employerData?.no_experience_required ? '0' : employerData?.required_experience,
+                    employerValue: requirementData?.no_experience_required ? '0' : requirementData?.required_experience,
                     fieldType: 'experience'
                   },
                   {
                     field: t("employer.candidateDetail.criteriaPositionLevel"),
                     matched: positionMatch,
                     candidateValue: candidateData?.position_level,
-                    employerValue: employerData?.position_level,
+                    employerValue: requirementData?.position_level,
                     fieldType: 'position_level'
                   },
                 ];
