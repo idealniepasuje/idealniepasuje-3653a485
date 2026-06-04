@@ -637,7 +637,7 @@ const EmployerCandidateDetail = () => {
               {/* Build criteria from live data */}
               {(() => {
                 const getDisplayValue = (value: string | null | undefined, field: string, isExperience = false) => {
-                  if (value === null || value === undefined || value === '') return '-';
+                  if (value === null || value === undefined || value === '') return '';
                   if (field === 'industry') {
                     return t(`candidate.additional.industries.${value}`, value);
                   }
