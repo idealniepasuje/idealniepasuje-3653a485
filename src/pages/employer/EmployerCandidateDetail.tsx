@@ -719,13 +719,13 @@ const EmployerCandidateDetail = () => {
                           <div className="flex items-center gap-2">
                             <span className="text-muted-foreground">{t("employer.candidateDetail.candidateScore")}:</span>
                             <span className="font-medium">
-                              {getDisplayValue(crit.candidateValue, crit.fieldType, crit.fieldType === 'experience')}
+                              {getDisplayValue(crit.candidateValue, crit.fieldType, crit.fieldType === 'experience') || '-'}
                             </span>
                           </div>
                           <div className="flex items-center gap-2">
                             <span className="text-muted-foreground">{t("employer.candidateDetail.yourRequirement")}:</span>
                             <span className="font-medium">
-                              {getDisplayValue(crit.employerValue, crit.fieldType, crit.fieldType === 'experience')}
+                              {getDisplayValue(crit.employerValue, crit.fieldType, crit.fieldType === 'experience') || t("employer.candidateDetail.noExpectations")}
                             </span>
                           </div>
                         </div>
