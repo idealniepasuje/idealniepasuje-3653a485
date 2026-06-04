@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -60,12 +60,15 @@ const cultureNames: Record<string, { pl: string; en: string }> = {
 
 const EmployerCandidateDetail = () => {
   const { candidateId } = useParams<{ candidateId: string }>();
+  const [searchParams] = useSearchParams();
+  const matchId = searchParams.get("matchId");
   const { user, signOut, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
   const [match, setMatch] = useState<any>(null);
   const [candidateData, setCandidateData] = useState<any>(null);
   const [employerData, setEmployerData] = useState<any>(null);
+  const [jobOfferData, setJobOfferData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [currentStatus, setCurrentStatus] = useState<string>('pending');
   const [contactOpen, setContactOpen] = useState(false);
@@ -74,18 +77,26 @@ const EmployerCandidateDetail = () => {
   useEffect(() => {
     if (!authLoading && !user) { navigate("/login"); return; }
     if (user && candidateId) fetchMatchData();
-  }, [user, authLoading, navigate, candidateId]);
+  }, [user, authLoading, navigate, candidateId, matchId]);
 
   const fetchMatchData = async () => {
     if (!user || !candidateId) return;
     try {
-      // Fetch match data
-      const { data: matchData, error: matchError } = await supabase
+      // Fetch exact match when opened from a specific job offer, otherwise use the latest candidate match.
+      let matchQuery = supabase
         .from("match_results")
         .select("*")
         .eq("employer_user_id", user.id)
-        .eq("candidate_user_id", candidateId)
-        .single();
+        .eq("candidate_user_id", candidateId);
+
+      if (matchId) {
+        matchQuery = matchQuery.eq("id", matchId);
+      } else {
+        matchQuery = matchQuery.order("created_at", { ascending: false }).limit(1);
+      }
+
+      const { data: matchRows, error: matchError } = await matchQuery;
+      const matchData = Array.isArray(matchRows) ? matchRows[0] : matchRows;
       
       if (matchError) {
         logError("EmployerCandidateDetail.fetchMatchData", matchError);
@@ -126,6 +137,17 @@ const EmployerCandidateDetail = () => {
       if (empData) {
         setEmployerData(empData);
         setEmployerCompanyName((empData as any).company_name || '');
+      }
+
+      if (matchData?.job_offer_id) {
+        const { data: offerData } = await supabase
+          .from("job_offers")
+          .select("industry, required_experience, position_level, accepted_industries, no_experience_required, accepted_industry_requirements")
+          .eq("id", matchData.job_offer_id)
+          .eq("user_id", user.id)
+          .single();
+
+        if (offerData) setJobOfferData(offerData);
       }
     } catch (error) {
       logError("EmployerCandidateDetail.fetchMatchData", error);
