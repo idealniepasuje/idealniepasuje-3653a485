@@ -658,6 +658,7 @@ const EmployerCandidateDetail = () => {
             <div className="space-y-4">
               {/* Build criteria from live data */}
               {(() => {
+                const requirementData = jobOfferData || employerData;
                 const getDisplayValue = (value: string | null | undefined, field: string, isExperience = false) => {
                   if (value === null || value === undefined || value === '') return '';
                   if (field === 'industry') {
@@ -675,19 +676,19 @@ const EmployerCandidateDetail = () => {
 
                 // Industry match
                 const industryMatch = 
-                  candidateData?.industry === employerData?.industry ||
-                  (employerData?.accepted_industries?.includes(candidateData?.industry) ?? false);
+                  candidateData?.industry === requirementData?.industry ||
+                  (requirementData?.accepted_industries?.includes(candidateData?.industry) ?? false);
                 
                 // Experience match
                 const candidateExp = parseInt(candidateData?.experience || '0') || 0;
-                const requiredExp = parseInt(employerData?.required_experience || '0') || 0;
-                const experienceMatch = employerData?.no_experience_required || candidateExp >= requiredExp;
+                const requiredExp = parseInt(requirementData?.required_experience || '0') || 0;
+                const experienceMatch = requirementData?.no_experience_required || candidateExp >= requiredExp;
                 
                 // Position level match
                 const positionLevelOrder = ['junior', 'mid', 'senior', 'lead', 'manager', 'director'];
                 const candidateLevelIndex = positionLevelOrder.indexOf(candidateData?.position_level || '');
-                const employerLevelIndex = positionLevelOrder.indexOf(employerData?.position_level || '');
-                const positionMatch = candidateData?.position_level === employerData?.position_level || 
+                const employerLevelIndex = positionLevelOrder.indexOf(requirementData?.position_level || '');
+                const positionMatch = candidateData?.position_level === requirementData?.position_level || 
                   (candidateLevelIndex >= employerLevelIndex && employerLevelIndex !== -1);
 
                 const criteria = [
@@ -695,22 +696,22 @@ const EmployerCandidateDetail = () => {
                     field: t("employer.candidateDetail.criteriaIndustry"),
                     matched: industryMatch,
                     candidateValue: candidateData?.industry,
-                    employerValue: employerData?.industry,
-                    acceptedValues: employerData?.accepted_industries || [],
+                    employerValue: requirementData?.industry,
+                    acceptedValues: requirementData?.accepted_industries || [],
                     fieldType: 'industry'
                   },
                   {
                     field: t("employer.candidateDetail.criteriaExperience"),
                     matched: experienceMatch,
                     candidateValue: candidateData?.experience,
-                    employerValue: employerData?.no_experience_required ? '0' : employerData?.required_experience,
+                    employerValue: requirementData?.no_experience_required ? '0' : requirementData?.required_experience,
                     fieldType: 'experience'
                   },
                   {
                     field: t("employer.candidateDetail.criteriaPositionLevel"),
                     matched: positionMatch,
                     candidateValue: candidateData?.position_level,
-                    employerValue: employerData?.position_level,
+                    employerValue: requirementData?.position_level,
                     fieldType: 'position_level'
                   },
                 ];
