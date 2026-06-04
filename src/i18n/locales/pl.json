@@ -650,6 +650,7 @@
       "rejectionMarked": "Oznaczono jako odrzucony",
       "rejectionRemoved": "Usunięto odrzucenie kandydata",
       "noMatch": "Niezgodne",
+      "noExpectations": "Brak określonych oczekiwań",
       "acceptedIndustries": "Akceptowane branże",
       "criteriaIndustry": "Branża",
       "criteriaExperience": "Doświadczenie",

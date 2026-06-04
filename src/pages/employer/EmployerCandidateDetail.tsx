@@ -637,7 +637,7 @@ const EmployerCandidateDetail = () => {
               {/* Build criteria from live data */}
               {(() => {
                 const getDisplayValue = (value: string | null | undefined, field: string, isExperience = false) => {
-                  if (value === null || value === undefined || value === '') return '-';
+                  if (value === null || value === undefined || value === '') return '';
                   if (field === 'industry') {
                     return t(`candidate.additional.industries.${value}`, value);
                   }
@@ -719,13 +719,13 @@ const EmployerCandidateDetail = () => {
                           <div className="flex items-center gap-2">
                             <span className="text-muted-foreground">{t("employer.candidateDetail.candidateScore")}:</span>
                             <span className="font-medium">
-                              {getDisplayValue(crit.candidateValue, crit.fieldType, crit.fieldType === 'experience')}
+                              {getDisplayValue(crit.candidateValue, crit.fieldType, crit.fieldType === 'experience') || '-'}
                             </span>
                           </div>
                           <div className="flex items-center gap-2">
                             <span className="text-muted-foreground">{t("employer.candidateDetail.yourRequirement")}:</span>
                             <span className="font-medium">
-                              {getDisplayValue(crit.employerValue, crit.fieldType, crit.fieldType === 'experience')}
+                              {getDisplayValue(crit.employerValue, crit.fieldType, crit.fieldType === 'experience') || t("employer.candidateDetail.noExpectations")}
                             </span>
                           </div>
                         </div>
