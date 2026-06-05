@@ -84,17 +84,16 @@ const EmployerProfile = () => {
         .from("employer_profiles")
         .update({
           company_name: companyName,
-          industry: industry,
           linkedin_url: linkedinUrl
         })
         .eq("user_id", user.id);
       
       if (error) throw error;
 
-      // Sync company_name and industry to all job_offers
+      // Sync company_name to all job_offers
       await supabase
         .from("job_offers")
-        .update({ company_name: companyName, industry: industry })
+        .update({ company_name: companyName })
         .eq("user_id", user.id);
 
       toast.success(t("employer.role.saved"));
