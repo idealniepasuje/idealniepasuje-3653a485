@@ -155,7 +155,7 @@ const EmployerProfile = () => {
               />
             </div>
 
-            <Button onClick={handleSubmit} disabled={saving || !companyName || !industry} className="w-full">
+            <Button onClick={handleSubmit} disabled={saving || !companyName} className="w-full">
               {saving ? t("common.saving") : t("common.save")}
             </Button>
           </CardContent>
