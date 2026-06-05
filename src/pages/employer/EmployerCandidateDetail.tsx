@@ -660,7 +660,21 @@ const EmployerCandidateDetail = () => {
             <div className="space-y-4">
               {/* Build criteria from live data */}
               {(() => {
-                const requirementData = jobOfferData || employerData;
+                // Prefer per-field value from the job offer (the actual offer this match belongs to),
+                // and fall back to the employer profile only when the offer field is empty.
+                const pick = <T,>(a: T, b: T): T => {
+                  if (a === null || a === undefined || a === '' as any) return b;
+                  if (Array.isArray(a) && a.length === 0) return b;
+                  return a;
+                };
+                const requirementData = {
+                  industry: pick(jobOfferData?.industry, employerData?.industry),
+                  required_experience: pick(jobOfferData?.required_experience, employerData?.required_experience),
+                  position_level: pick(jobOfferData?.position_level, employerData?.position_level),
+                  no_experience_required: pick(jobOfferData?.no_experience_required, employerData?.no_experience_required),
+                  accepted_industries: pick(jobOfferData?.accepted_industries, employerData?.accepted_industries) || [],
+                  accepted_industry_requirements: pick(jobOfferData?.accepted_industry_requirements, employerData?.accepted_industry_requirements),
+                };
                 const getDisplayValue = (value: string | null | undefined, field: string, isExperience = false) => {
                   if (value === null || value === undefined || value === '') return '';
                   if (field === 'industry') {
