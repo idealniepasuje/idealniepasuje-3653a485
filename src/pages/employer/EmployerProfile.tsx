@@ -32,16 +32,12 @@ const EmployerProfile = () => {
   const { t, i18n } = useTranslation();
   
   const [companyName, setCompanyName] = useState("");
-  const [industry, setIndustry] = useState("");
   const [linkedinUrl, setLinkedinUrl] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [cultureCompleted, setCultureCompleted] = useState(false);
   const [cultureScores, setCultureScores] = useState<Record<string, number>>({});
-
-  const lang = i18n.language === 'en' ? 'en' : 'pl';
-  const industryOptions = getLocalizedData(industries, lang).filter(ind => ind !== (lang === 'pl' ? "Nie mam doświadczenia" : "No experience"));
 
   useEffect(() => {
     if (!authLoading && !user) { navigate("/login"); return; }
