@@ -13,7 +13,7 @@ import { DashboardLayout } from "@/components/layouts/DashboardLayout";
 import { EmployerSidebar } from "@/components/layouts/EmployerSidebar";
 import { logError } from "@/lib/errorLogger";
 import { Building2, ArrowRight, CheckCircle2, ClipboardList } from "lucide-react";
-import { industries, getLocalizedData } from "@/data/additionalQuestions";
+
 import { CultureScoreWithFeedback } from "@/components/CultureScoreWithFeedback";
 import { cultureDimensions } from "@/data/cultureQuestions";
 
@@ -32,16 +32,12 @@ const EmployerProfile = () => {
   const { t, i18n } = useTranslation();
   
   const [companyName, setCompanyName] = useState("");
-  const [industry, setIndustry] = useState("");
   const [linkedinUrl, setLinkedinUrl] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [cultureCompleted, setCultureCompleted] = useState(false);
   const [cultureScores, setCultureScores] = useState<Record<string, number>>({});
-
-  const lang = i18n.language === 'en' ? 'en' : 'pl';
-  const industryOptions = getLocalizedData(industries, lang).filter(ind => ind !== (lang === 'pl' ? "Nie mam doświadczenia" : "No experience"));
 
   useEffect(() => {
     if (!authLoading && !user) { navigate("/login"); return; }
@@ -62,7 +58,6 @@ const EmployerProfile = () => {
       }
       if (data) {
         setCompanyName(data.company_name || "");
-        setIndustry(data.industry || "");
         setLinkedinUrl(data.linkedin_url || "");
         setCultureCompleted(!!data.culture_completed);
         if (data.culture_completed) {
@@ -89,17 +84,16 @@ const EmployerProfile = () => {
         .from("employer_profiles")
         .update({
           company_name: companyName,
-          industry: industry,
           linkedin_url: linkedinUrl
         })
         .eq("user_id", user.id);
       
       if (error) throw error;
 
-      // Sync company_name and industry to all job_offers
+      // Sync company_name to all job_offers
       await supabase
         .from("job_offers")
-        .update({ company_name: companyName, industry: industry })
+        .update({ company_name: companyName })
         .eq("user_id", user.id);
 
       toast.success(t("employer.role.saved"));
@@ -153,22 +147,6 @@ const EmployerProfile = () => {
             </div>
 
             <div className="space-y-2">
-              <Label>{t("employer.profile.industry")} <span className="text-destructive">*</span></Label>
-              <Select value={industry} onValueChange={setIndustry}>
-                <SelectTrigger>
-                  <SelectValue placeholder={t("employer.profile.selectIndustry")} />
-                </SelectTrigger>
-                <SelectContent>
-                  {industryOptions.map((ind) => (
-                    <SelectItem key={ind} value={ind}>
-                      {ind}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
               <Label>{t("employer.role.linkedinLabel")}</Label>
               <Input
                 value={linkedinUrl}
@@ -177,7 +155,7 @@ const EmployerProfile = () => {
               />
             </div>
 
-            <Button onClick={handleSubmit} disabled={saving || !companyName || !industry} className="w-full">
+            <Button onClick={handleSubmit} disabled={saving || !companyName} className="w-full">
               {saving ? t("common.saving") : t("common.save")}
             </Button>
           </CardContent>
