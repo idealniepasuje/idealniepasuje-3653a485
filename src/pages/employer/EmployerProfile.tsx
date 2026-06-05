@@ -58,7 +58,6 @@ const EmployerProfile = () => {
       }
       if (data) {
         setCompanyName(data.company_name || "");
-        setIndustry(data.industry || "");
         setLinkedinUrl(data.linkedin_url || "");
         setCultureCompleted(!!data.culture_completed);
         if (data.culture_completed) {
