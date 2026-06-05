@@ -140,13 +140,15 @@ const EmployerCandidateDetail = () => {
       }
 
       if (matchData?.job_offer_id) {
-        const { data: offerData } = await supabase
+        const { data: offerData, error: offerError } = await supabase
           .from("job_offers")
           .select("industry, required_experience, position_level, accepted_industries, no_experience_required, accepted_industry_requirements")
           .eq("id", matchData.job_offer_id)
-          .eq("user_id", user.id)
-          .single();
+          .maybeSingle();
 
+        if (offerError) {
+          logError("EmployerCandidateDetail.fetchJobOffer", offerError);
+        }
         if (offerData) setJobOfferData(offerData);
       }
     } catch (error) {
