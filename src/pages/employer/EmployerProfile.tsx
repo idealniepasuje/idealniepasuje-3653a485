@@ -147,22 +147,6 @@ const EmployerProfile = () => {
             </div>
 
             <div className="space-y-2">
-              <Label>{t("employer.profile.industry")} <span className="text-destructive">*</span></Label>
-              <Select value={industry} onValueChange={setIndustry}>
-                <SelectTrigger>
-                  <SelectValue placeholder={t("employer.profile.selectIndustry")} />
-                </SelectTrigger>
-                <SelectContent>
-                  {industryOptions.map((ind) => (
-                    <SelectItem key={ind} value={ind}>
-                      {ind}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
               <Label>{t("employer.role.linkedinLabel")}</Label>
               <Input
                 value={linkedinUrl}
