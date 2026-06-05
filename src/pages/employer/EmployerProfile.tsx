@@ -13,7 +13,7 @@ import { DashboardLayout } from "@/components/layouts/DashboardLayout";
 import { EmployerSidebar } from "@/components/layouts/EmployerSidebar";
 import { logError } from "@/lib/errorLogger";
 import { Building2, ArrowRight, CheckCircle2, ClipboardList } from "lucide-react";
-import { getLocalizedData } from "@/data/additionalQuestions";
+
 import { CultureScoreWithFeedback } from "@/components/CultureScoreWithFeedback";
 import { cultureDimensions } from "@/data/cultureQuestions";
 
