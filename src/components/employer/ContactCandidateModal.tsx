@@ -121,6 +121,17 @@ export const ContactCandidateModal = ({
     try {
       await insertMessage('profile_completion', completionMsg);
       await supabase.from('match_results').update({ profile_completion_requested_at: new Date().toISOString() }).eq('id', match.id);
+      try {
+        await supabase.functions.invoke('send-profile-completion-request', {
+          body: {
+            candidate_user_id: candidateUserId,
+            employer_company_name: companyName,
+            message: completionMsg,
+          },
+        });
+      } catch (mailErr) {
+        logError('ContactCandidateModal.completion.email', mailErr);
+      }
       toast.success(t("employer.candidateDetail.contact.completionRequested"));
       onUpdated();
       onOpenChange(false);

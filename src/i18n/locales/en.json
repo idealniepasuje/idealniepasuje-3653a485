@@ -649,7 +649,7 @@
       "interestRemoved": "Removed interest in candidate",
       "rejectionMarked": "Marked as rejected",
       "rejectionRemoved": "Removed rejection",
-      "noMatch": "Not matching",
+      "noMatch": "not matching",
       "noExpectations": "No expectations set",
       "acceptedIndustries": "Accepted industries",
       "criteriaIndustry": "Industry",
