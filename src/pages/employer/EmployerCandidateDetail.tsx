@@ -795,8 +795,8 @@ const EmployerCandidateDetail = () => {
           candidateUserId={candidateId}
           employerUserId={user.id}
           companyName={employerCompanyName}
-          candidateHasLinkedin={!!candidateData?.linkedin_url}
-          candidateProfileReady={!!candidateData?.profile_ready}
+          candidateLinkedinUrl={candidateData?.linkedin_url}
+          candidateGettingToKnow={(candidateData?.getting_to_know || {}) as Record<string, string>}
           onUpdated={fetchMatchData}
         />
       )}
