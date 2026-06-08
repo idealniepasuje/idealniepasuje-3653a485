@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { CalendarClock, Linkedin, Unlock, AlertCircle, CheckCircle2 } from "lucide-react";
+import { CalendarClock, Linkedin, Sparkles, ExternalLink } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { logError } from "@/lib/errorLogger";
@@ -25,8 +25,8 @@ interface Props {
   candidateUserId: string;
   employerUserId: string;
   companyName?: string;
-  candidateHasLinkedin: boolean;
-  candidateProfileReady: boolean;
+  candidateLinkedinUrl?: string | null;
+  candidateGettingToKnow?: Record<string, string> | null;
   onUpdated: () => void;
 }
 
@@ -37,8 +37,8 @@ export const ContactCandidateModal = ({
   candidateUserId,
   employerUserId,
   companyName,
-  candidateHasLinkedin,
-  candidateProfileReady,
+  candidateLinkedinUrl,
+  candidateGettingToKnow,
   onUpdated,
 }: Props) => {
   const { t, i18n } = useTranslation();
@@ -50,6 +50,10 @@ export const ContactCandidateModal = ({
   const [linkedinMsg, setLinkedinMsg] = useState("");
   const [completionMsg, setCompletionMsg] = useState("");
   const [sending, setSending] = useState<string | null>(null);
+
+  const gtk = candidateGettingToKnow || {};
+  const gettingToKnowReady = !!(gtk.tasks && gtk.problems && gtk.motivation && gtk.proud_of);
+  const hasLinkedin = !!(candidateLinkedinUrl && candidateLinkedinUrl.trim());
 
   useEffect(() => {
     if (open) {
@@ -143,23 +147,6 @@ export const ContactCandidateModal = ({
     }
   };
 
-  const handleUnlock = async () => {
-    setSending('unlock');
-    try {
-      await supabase.from('match_results').update({ unlocked_at: new Date().toISOString() }).eq('id', match.id);
-      toast.success(t("employer.candidateDetail.contact.profileUnlocked"));
-      onUpdated();
-      onOpenChange(false);
-    } catch (e) {
-      logError('ContactCandidateModal.unlock', e);
-      toast.error(t("errors.genericError"));
-    } finally {
-      setSending(null);
-    }
-  };
-
-  const alreadyUnlocked = !!match?.unlocked_at;
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
@@ -172,7 +159,7 @@ export const ContactCandidateModal = ({
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="invite" className="gap-2"><CalendarClock className="w-4 h-4" />{t("employer.candidateDetail.contact.inviteTab")}</TabsTrigger>
             <TabsTrigger value="linkedin" className="gap-2"><Linkedin className="w-4 h-4" />{t("employer.candidateDetail.contact.linkedinTab")}</TabsTrigger>
-            <TabsTrigger value="unlock" className="gap-2"><Unlock className="w-4 h-4" />{t("employer.candidateDetail.contact.unlockTab")}</TabsTrigger>
+            <TabsTrigger value="gtk" className="gap-2"><Sparkles className="w-4 h-4" />{t("employer.candidateDetail.contact.gettingToKnowTab")}</TabsTrigger>
           </TabsList>
 
           {/* Interview invite */}
@@ -198,12 +185,28 @@ export const ContactCandidateModal = ({
             </Button>
           </TabsContent>
 
-          {/* LinkedIn request */}
+          {/* LinkedIn — show value or request */}
           <TabsContent value="linkedin" className="space-y-4 mt-4">
-            {candidateHasLinkedin ? (
-              <div className="p-4 rounded-lg bg-success/10 border border-success/30 flex items-start gap-3">
-                <CheckCircle2 className="w-5 h-5 text-success mt-0.5 shrink-0" />
-                <p className="text-sm">{t("employer.candidateDetail.contact.linkedinAlreadyProvided")}</p>
+            {hasLinkedin ? (
+              <div className="p-4 rounded-lg bg-accent/5 border border-accent/20 space-y-3">
+                <div className="flex items-center gap-2 font-medium">
+                  <Linkedin className="w-5 h-5 text-accent" />
+                  {t("employer.candidateDetail.contact.linkedinProvidedTitle")}
+                </div>
+                <a
+                  href={candidateLinkedinUrl!}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-accent hover:underline break-all text-sm flex items-center gap-2"
+                >
+                  {candidateLinkedinUrl}
+                  <ExternalLink className="w-4 h-4 shrink-0" />
+                </a>
+                <Button asChild variant="outline" className="w-full">
+                  <a href={candidateLinkedinUrl!} target="_blank" rel="noopener noreferrer">
+                    {t("employer.candidateDetail.contact.linkedinOpen")}
+                  </a>
+                </Button>
               </div>
             ) : (
               <>
@@ -218,31 +221,38 @@ export const ContactCandidateModal = ({
             )}
           </TabsContent>
 
-          {/* Unlock profile */}
-          <TabsContent value="unlock" className="space-y-4 mt-4">
-            {alreadyUnlocked ? (
-              <div className="p-4 rounded-lg bg-success/10 border border-success/30 flex items-start gap-3">
-                <CheckCircle2 className="w-5 h-5 text-success mt-0.5 shrink-0" />
-                <p className="text-sm">{t("employer.candidateDetail.contact.alreadyUnlocked")}</p>
-              </div>
-            ) : candidateProfileReady ? (
-              <>
-                <div className="p-4 rounded-lg bg-accent/5 border border-accent/20">
-                  <p className="font-medium mb-1">{t("employer.candidateDetail.contact.unlockReady")}</p>
-                  <p className="text-sm text-muted-foreground">{t("employer.candidateDetail.contact.unlockReadyDesc")}</p>
+          {/* Getting to know — show answers or request */}
+          <TabsContent value="gtk" className="space-y-4 mt-4">
+            {gettingToKnowReady ? (
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 font-medium">
+                  <Sparkles className="w-5 h-5 text-accent" />
+                  {t("employer.candidateDetail.contact.gettingToKnowReadyTitle")}
                 </div>
-                <Button onClick={handleUnlock} disabled={sending !== null} className="w-full bg-cta text-cta-foreground hover:bg-cta/90">
-                  {sending === 'unlock' ? t("common.saving") : t("employer.candidateDetail.contact.unlockButton")}
-                </Button>
-              </>
+                <div className="space-y-3">
+                  <div className="text-sm">
+                    <p className="text-xs font-medium text-muted-foreground mb-1">{t("candidate.additional.gettingToKnow.q1Label")}</p>
+                    <p className="whitespace-pre-wrap">{gtk.tasks}</p>
+                  </div>
+                  <div className="text-sm">
+                    <p className="text-xs font-medium text-muted-foreground mb-1">{t("candidate.additional.gettingToKnow.q2Label")}</p>
+                    <p className="whitespace-pre-wrap">{gtk.problems}</p>
+                  </div>
+                  <div className="text-sm">
+                    <p className="text-xs font-medium text-muted-foreground mb-1">{t("candidate.additional.gettingToKnow.q3Label")}</p>
+                    <p className="whitespace-pre-wrap">{gtk.motivation}</p>
+                  </div>
+                  <div className="text-sm">
+                    <p className="text-xs font-medium text-muted-foreground mb-1">{t("candidate.additional.gettingToKnow.q4Label")}</p>
+                    <p className="whitespace-pre-wrap">{gtk.proud_of}</p>
+                  </div>
+                </div>
+              </div>
             ) : (
               <>
-                <div className="p-4 rounded-lg bg-warning/5 border border-warning/30 flex items-start gap-3">
-                  <AlertCircle className="w-5 h-5 text-warning mt-0.5 shrink-0" />
-                  <div>
-                    <p className="font-medium mb-1">{t("employer.candidateDetail.contact.profileNotReady")}</p>
-                    <p className="text-sm text-muted-foreground">{t("employer.candidateDetail.contact.profileNotReadyDesc")}</p>
-                  </div>
+                <div className="p-4 rounded-lg bg-warning/5 border border-warning/30">
+                  <p className="font-medium mb-1">{t("employer.candidateDetail.contact.gettingToKnowMissingTitle")}</p>
+                  <p className="text-sm text-muted-foreground">{t("employer.candidateDetail.contact.gettingToKnowMissingDesc")}</p>
                 </div>
                 <div className="space-y-2">
                   <Label>{t("employer.candidateDetail.contact.messageLabel")}</Label>
