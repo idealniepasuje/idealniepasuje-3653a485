@@ -353,19 +353,31 @@ Deno.serve(async (req) => {
           risks,
         };
 
+        // Check if a match already exists; preserve employer-set status (interested/considering/rejected/viewed)
+        const { data: existingMatch } = await supabase
+          .from('match_results')
+          .select('id, status')
+          .eq('employer_user_id', offer.user_id)
+          .eq('candidate_user_id', candidate.user_id)
+          .eq('job_offer_id', offer.id)
+          .maybeSingle();
+
+        const payload = {
+          employer_user_id: offer.user_id,
+          candidate_user_id: candidate.user_id,
+          job_offer_id: offer.id,
+          overall_percent: Math.round(overallPercent),
+          competence_percent: Math.round(competence.percent),
+          culture_percent: Math.round(culture.percent),
+          extra_percent: Math.round(extra.percent),
+          match_details: matchDetails,
+          // Only set status='pending' for brand-new matches; never overwrite an existing status
+          ...(existingMatch ? { status: existingMatch.status } : { status: 'pending' }),
+        };
+
         const { error: upsertError } = await supabase
           .from('match_results')
-          .upsert({
-            employer_user_id: offer.user_id,
-            candidate_user_id: candidate.user_id,
-            job_offer_id: offer.id,
-            overall_percent: Math.round(overallPercent),
-            competence_percent: Math.round(competence.percent),
-            culture_percent: Math.round(culture.percent),
-            extra_percent: Math.round(extra.percent),
-            match_details: matchDetails,
-            status: 'pending',
-          }, {
+          .upsert(payload, {
             onConflict: 'employer_user_id,candidate_user_id,job_offer_id',
           });
 
