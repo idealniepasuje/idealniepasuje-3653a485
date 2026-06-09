@@ -136,9 +136,12 @@ const calculateCultureMatch = (candidate: CandidateData, employer: EmployerProfi
 const calculateExtraMatch = (candidate: CandidateData, offer: JobOfferData) => {
   const details: { field: string; matched: boolean }[] = [];
   
-  const industryMatch = 
-    candidate.industry === offer.industry ||
-    (offer.accepted_industries?.includes(candidate.industry || '') ?? false);
+  // Empty/null accepted_industries means "no industry filter"
+  const hasIndustryFilter = Array.isArray(offer.accepted_industries) && offer.accepted_industries.length > 0;
+  const industryMatch = !hasIndustryFilter
+    ? true
+    : (candidate.industry === offer.industry ||
+       (offer.accepted_industries?.includes(candidate.industry || '') ?? false));
   details.push({ field: 'Branża', matched: industryMatch });
   
   const candidateExp = parseInt(candidate.experience || '0') || 0;

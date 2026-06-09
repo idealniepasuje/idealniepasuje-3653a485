@@ -20,6 +20,7 @@ const EmployerCandidates = () => {
   const { t } = useTranslation();
   const [matches, setMatches] = useState<any[]>([]);
   const [offerTitle, setOfferTitle] = useState<string>("");
+  const [offerDiagnostics, setOfferDiagnostics] = useState<{ emptyIndustries: boolean } | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
@@ -54,14 +55,19 @@ const EmployerCandidates = () => {
   const fetchMatches = async () => {
     if (!user) return;
     try {
-      // Fetch offer title if filtering by offer
+      // Fetch offer info if filtering by offer
       if (offerId) {
         const { data: offerData } = await supabase
           .from("job_offers")
-          .select("title")
+          .select("title, accepted_industries")
           .eq("id", offerId)
           .single();
-        if (offerData) setOfferTitle(offerData.title);
+        if (offerData) {
+          setOfferTitle(offerData.title);
+          setOfferDiagnostics({
+            emptyIndustries: !offerData.accepted_industries || (offerData.accepted_industries as any[]).length === 0,
+          });
+        }
       }
 
       // Build query
@@ -153,7 +159,9 @@ const EmployerCandidates = () => {
             <div className="w-16 h-16 rounded-full bg-accent/20 mx-auto mb-6 flex items-center justify-center opacity-50"><Users className="w-8 h-8 text-accent" /></div>
             <h3 className="text-xl font-semibold mb-3">Brak dopasowanych kandydatów</h3>
             <p className="text-muted-foreground max-w-md mx-auto mb-6">
-              Nie ma jeszcze kandydatów z ukończonymi testami pasujących do tego zlecenia. Kliknij „Odśwież dopasowania”, aby przeliczyć.
+              {offerId && offerDiagnostics?.emptyIndustries
+                ? "Nie wybrano branż — dopasowania będą liczone bez filtra branży. Kliknij „Odśwież dopasowania”, aby przeliczyć."
+                : "Brak kandydatów spełniających aktualne kryteria. Rozszerz wymagania, aby zobaczyć więcej dopasowań."}
             </p>
             <div className="flex gap-2 justify-center">
               <Button onClick={handleRefreshMatches} disabled={refreshing} className="gap-2">

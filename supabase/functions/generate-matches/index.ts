@@ -143,10 +143,12 @@ const calculateExtraMatch = (candidate: CandidateData, offer: JobOfferData) => {
     acceptedValues?: string[];
   }[] = [];
   
-  // Industry match
-  const industryMatch = 
-    candidate.industry === offer.industry ||
-    (offer.accepted_industries?.includes(candidate.industry || '') ?? false);
+  // Industry match — empty/null accepted_industries means "no industry filter"
+  const hasIndustryFilter = Array.isArray(offer.accepted_industries) && offer.accepted_industries.length > 0;
+  const industryMatch = !hasIndustryFilter
+    ? true
+    : (candidate.industry === offer.industry ||
+       (offer.accepted_industries?.includes(candidate.industry || '') ?? false));
   details.push({ 
     field: 'Branża', 
     matched: industryMatch,
