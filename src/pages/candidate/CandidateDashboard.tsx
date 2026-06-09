@@ -134,7 +134,9 @@ const CandidateDashboard = () => {
 
   const allCompetencyTestsCompleted = Object.keys(competencyTests).every(code => getTestStatus(code) === "completed");
   const cultureTestCompleted = testResults?.culture_test_completed || false;
-  const additionalCompleted = testResults?.additional_completed || false;
+  const gtk = (testResults?.getting_to_know || {}) as Record<string, string>;
+  const gettingToKnowCompleted = !!(gtk.tasks?.trim() && gtk.problems?.trim() && gtk.motivation?.trim() && gtk.proud_of?.trim());
+  const additionalCompleted = (testResults?.additional_completed || false) && gettingToKnowCompleted;
 
   if (authLoading || loading) {
     return (
