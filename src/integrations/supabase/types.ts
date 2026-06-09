@@ -600,6 +600,15 @@ export type Database = {
         }[]
       }
       get_user_type: { Args: { user_uuid: string }; Returns: string }
+      log_audit_event: {
+        Args: {
+          _action: string
+          _details?: Json
+          _record_id?: string
+          _table_name: string
+        }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never
