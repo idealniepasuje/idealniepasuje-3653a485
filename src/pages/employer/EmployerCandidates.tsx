@@ -87,18 +87,24 @@ const EmployerCandidates = () => {
 
   return (
     <DashboardLayout sidebar={<EmployerSidebar />}>
-      <div className="mb-6">
-        <Button variant="ghost" size="sm" onClick={() => navigate(-1)} className="mb-4 gap-2">
-          <ArrowLeft className="w-4 h-4" />
-          {t("common.back")}
+      <div className="mb-6 flex items-start justify-between gap-4 flex-wrap">
+        <div>
+          <Button variant="ghost" size="sm" onClick={() => navigate(-1)} className="mb-4 gap-2">
+            <ArrowLeft className="w-4 h-4" />
+            {t("common.back")}
+          </Button>
+          <h1 className="text-3xl font-bold mb-2">{t("employer.candidates.title")}</h1>
+          <p className="text-muted-foreground">
+            {offerTitle 
+              ? `${t("employer.candidates.forOrder")}: ${offerTitle}`
+              : t("employer.candidates.subtitle")
+            }
+          </p>
+        </div>
+        <Button onClick={handleRefreshMatches} disabled={refreshing} variant="outline" className="gap-2">
+          <RefreshCw className={`w-4 h-4 ${refreshing ? "animate-spin" : ""}`} />
+          {refreshing ? "Odświeżanie..." : "Odśwież dopasowania"}
         </Button>
-        <h1 className="text-3xl font-bold mb-2">{t("employer.candidates.title")}</h1>
-        <p className="text-muted-foreground">
-          {offerTitle 
-            ? `${t("employer.candidates.forOrder")}: ${offerTitle}`
-            : t("employer.candidates.subtitle")
-          }
-        </p>
       </div>
 
       <Card className="mb-8 border-accent/20 bg-accent/5">
@@ -121,9 +127,17 @@ const EmployerCandidates = () => {
         <Card className="border-muted">
           <CardContent className="pt-6 text-center py-16">
             <div className="w-16 h-16 rounded-full bg-accent/20 mx-auto mb-6 flex items-center justify-center opacity-50"><Users className="w-8 h-8 text-accent" /></div>
-            <h3 className="text-xl font-semibold mb-3">{t("employer.candidates.searchingTitle")}</h3>
-            <p className="text-muted-foreground max-w-md mx-auto mb-6">{t("employer.candidates.searchingDescription")}</p>
-            <Link to="/employer/dashboard"><Button variant="outline">{t("common.backToPanel")}</Button></Link>
+            <h3 className="text-xl font-semibold mb-3">Brak kandydatów z pełnym profilem</h3>
+            <p className="text-muted-foreground max-w-md mx-auto mb-6">
+              Nie ma jeszcze kandydatów z pełnym profilem pasujących do tego zlecenia.
+            </p>
+            <div className="flex gap-2 justify-center">
+              <Button onClick={handleRefreshMatches} disabled={refreshing} className="gap-2">
+                <RefreshCw className={`w-4 h-4 ${refreshing ? "animate-spin" : ""}`} />
+                Odśwież dopasowania
+              </Button>
+              <Link to="/employer/dashboard"><Button variant="outline">{t("common.backToPanel")}</Button></Link>
+            </div>
           </CardContent>
         </Card>
       ) : (
