@@ -75,6 +75,11 @@ export const CandidateCard = ({ match, candidateData, offerTitle }: CandidateCar
                 {isConsidering && (
                   <Bookmark className="w-4 h-4 fill-accent text-accent" />
                 )}
+                {match.match_details?.profile_ready === false && (
+                  <Badge variant="outline" className="text-xs border-amber-400 text-amber-600">
+                    Profil niepełny
+                  </Badge>
+                )}
               </div>
             )}
             
