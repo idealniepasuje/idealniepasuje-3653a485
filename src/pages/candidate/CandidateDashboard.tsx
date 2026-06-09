@@ -152,10 +152,6 @@ const CandidateDashboard = () => {
       <div className="mb-6">
         <h1 className="text-3xl font-bold mb-1">Cześć 👋</h1>
         <p className="text-muted-foreground">{t("candidate.dashboard.introSubtitle")}</p>
-        <div className="flex items-center gap-2 mt-3 text-sm text-muted-foreground">
-          <Award className="w-4 h-4 text-accent" />
-          <span>{t("expert.badge")} – {t("expert.description").toLowerCase()}</span>
-        </div>
       </div>
 
       <CandidateMessagesInbox />
