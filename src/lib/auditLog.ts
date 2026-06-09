@@ -3,6 +3,7 @@ import { logError } from './errorLogger';
 
 /**
  * Log an audit event for the current user.
+ * Routes through a SECURITY DEFINER RPC so users cannot forge entries.
  * Non-blocking — errors are logged but not thrown.
  */
 export const logAuditEvent = async (
@@ -15,12 +16,11 @@ export const logAuditEvent = async (
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
-    await supabase.from('audit_log' as any).insert({
-      user_id: user.id,
-      action,
-      table_name: tableName,
-      record_id: recordId ?? null,
-      details: details ?? {},
+    await (supabase.rpc as any)('log_audit_event', {
+      _action: action,
+      _table_name: tableName,
+      _record_id: recordId ?? null,
+      _details: details ?? {},
     });
   } catch (error) {
     logError('auditLog', error);
