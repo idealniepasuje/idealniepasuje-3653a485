@@ -38,6 +38,7 @@ export const CandidateMessagesInbox = () => {
           .from('candidate_messages')
           .select('*')
           .eq('candidate_user_id', user.id)
+          .is('read_at', null)
           .order('created_at', { ascending: false });
         if (error) throw error;
         setMessages((data || []) as Message[]);
