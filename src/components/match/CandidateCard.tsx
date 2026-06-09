@@ -18,6 +18,7 @@ interface CandidateCardProps {
     status: string;
     created_at: string;
     job_offer_id?: string;
+    match_details?: any;
   };
   candidateData?: {
     industry?: string;
