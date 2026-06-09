@@ -253,7 +253,25 @@ const CandidateAdditional = () => {
         all_tests_completed: true,
       }).eq("user_id", user.id);
       if (error) throw error;
-      
+
+      // Auto-mark related employer messages as read once candidate provided the requested info
+      try {
+        const typesToClear: string[] = [];
+        if (linkedinUrl) typesToClear.push('linkedin_request');
+        const gtkComplete = gtkTasks.trim() && gtkProblems.trim() && gtkMotivation.trim() && gtkProudOf.trim();
+        if (gtkComplete) typesToClear.push('profile_completion');
+        if (typesToClear.length > 0) {
+          await supabase
+            .from('candidate_messages')
+            .update({ read_at: new Date().toISOString() })
+            .eq('candidate_user_id', user.id)
+            .is('read_at', null)
+            .in('type', typesToClear);
+        }
+      } catch (e) {
+        logError('CandidateAdditional.clearMessages', e);
+      }
+
       await Promise.all([generateMatches(), sendResultsEmail()]);
       
       setShowSuccess(true);
