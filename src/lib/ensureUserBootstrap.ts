@@ -47,18 +47,9 @@ export const ensureUserBootstrap = async (user: User): Promise<AppUserType | nul
       if (insertError && (insertError as any).code !== "23505") {
         logError("ensureUserBootstrap.profiles.insert", insertError);
       }
-    } else if (profile.user_type !== metaType) {
-      // Keep in sync with registration metadata (best-effort)
-      const { error: updateError } = await supabase
-        .from("profiles")
-        .update({ user_type: metaType, full_name: fullName ?? undefined })
-        .eq("user_id", user.id);
-
-      if (updateError) {
-        // Not critical for the app to work, so just log.
-        logError("ensureUserBootstrap.profiles.update", updateError);
-      }
     }
+    // Note: do NOT sync user_type from client-controlled user_metadata after the profile
+    // exists. user_metadata is user-writable and would enable role escalation.
   } catch (e) {
     logError("ensureUserBootstrap.profiles", e);
   }
