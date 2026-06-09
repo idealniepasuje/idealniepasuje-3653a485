@@ -53,8 +53,10 @@ const CandidateDashboard = () => {
         .from("candidate_test_results")
         .select("*")
         .eq("user_id", user.id)
-        .single();
-      if (error && error.code !== "PGRST116") logError("CandidateDashboard.fetchTestResults", error);
+        .order("updated_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (error) logError("CandidateDashboard.fetchTestResults", error);
       setTestResults(data);
     } catch (error) {
       logError("CandidateDashboard.fetchTestResults", error);
