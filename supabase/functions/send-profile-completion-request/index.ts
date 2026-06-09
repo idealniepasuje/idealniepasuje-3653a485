@@ -53,6 +53,27 @@ const handler = async (req: Request): Promise<Response> => {
     if (!gmailAppPassword) throw new Error("GMAIL_APP_PASSWORD not configured");
 
     const admin = createClient(supabaseUrl, serviceKey);
+
+    // Verify caller is an employer
+    const { data: callerProfile } = await admin
+      .from("profiles").select("user_type").eq("user_id", userData.user.id).maybeSingle();
+    if (!callerProfile || callerProfile.user_type !== "employer") {
+      return new Response(JSON.stringify({ error: "Forbidden" }), {
+        status: 403, headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
+    }
+
+    // Verify employer actually has a match with this candidate (prevents spam to arbitrary candidates)
+    const { data: matchExists } = await admin
+      .from("match_results").select("id")
+      .eq("employer_user_id", userData.user.id)
+      .eq("candidate_user_id", candidate_user_id)
+      .limit(1).maybeSingle();
+    if (!matchExists) {
+      return new Response(JSON.stringify({ error: "No match with this candidate" }), {
+        status: 403, headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
+    }
     const { data: candidateUser, error: cErr } = await admin.auth.admin.getUserById(candidate_user_id);
     if (cErr || !candidateUser?.user?.email) throw new Error("Could not fetch candidate email");
 
