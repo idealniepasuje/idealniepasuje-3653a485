@@ -21,6 +21,30 @@ const EmployerCandidates = () => {
   const [matches, setMatches] = useState<any[]>([]);
   const [offerTitle, setOfferTitle] = useState<string>("");
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const handleRefreshMatches = async () => {
+    if (!user) return;
+    setRefreshing(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("generate-matches", {
+        body: { employer_user_id: user.id, ...(offerId ? { job_offer_id: offerId } : {}) },
+      });
+      if (error) throw error;
+      const s = (data as any)?.stats;
+      if (s) {
+        toast.success(`Przeliczono: ${s.insertedMatches} dopasowań (kandydaci z pełnym profilem: ${s.profileReadyCandidates}/${s.completedTestsCandidates})`);
+      } else {
+        toast.success("Dopasowania odświeżone");
+      }
+      await fetchMatches();
+    } catch (err) {
+      logError("EmployerCandidates.refresh", err);
+      toast.error("Nie udało się odświeżyć dopasowań");
+    } finally {
+      setRefreshing(false);
+    }
+  };
 
   useEffect(() => {
     if (!authLoading && !user) { navigate("/login"); return; }
