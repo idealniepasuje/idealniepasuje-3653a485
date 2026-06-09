@@ -693,6 +693,7 @@
         "sendLinkedinRequest": "Send LinkedIn request",
         "linkedinRequestSent": "LinkedIn request sent",
         "gettingToKnowReadyTitle": "Candidate's answers",
+        "gettingToKnowReadyHint": "The candidate's answers will help you run a better interview and ask more relevant questions tailored to their experience.",
         "gettingToKnowMissingTitle": "Candidate hasn't completed the \"Get to know\" section",
         "gettingToKnowMissingDesc": "Send a request to fill in the answers so you can get to know the candidate better.",
         "requestCompletion": "Ask to complete \"Get to know\"",

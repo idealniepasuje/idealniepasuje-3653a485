@@ -229,6 +229,9 @@ export const ContactCandidateModal = ({
                   <Sparkles className="w-5 h-5 text-accent" />
                   {t("employer.candidateDetail.contact.gettingToKnowReadyTitle")}
                 </div>
+                <div className="p-3 rounded-lg bg-accent/5 border border-accent/20 text-sm text-muted-foreground">
+                  {t("employer.candidateDetail.contact.gettingToKnowReadyHint")}
+                </div>
                 <div className="space-y-3">
                   <div className="text-sm">
                     <p className="text-xs font-medium text-muted-foreground mb-1">{t("candidate.additional.gettingToKnow.q1Label")}</p>
