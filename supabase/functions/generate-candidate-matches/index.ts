@@ -343,6 +343,18 @@ Deno.serve(async (req) => {
       });
     }
 
+    // Only generate matches for candidates with full profile (tests + getting_to_know)
+    if (!candidate.all_tests_completed || !candidate.profile_ready) {
+      return new Response(JSON.stringify({
+        success: true,
+        matches_count: 0,
+        matches: [],
+        message: 'Candidate profile is not complete (tests + getting_to_know required)',
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
     // Get all active job offers with employer profiles (culture data)
     const { data: jobOffers, error: offersError } = await supabase
       .from('job_offers')
@@ -400,13 +412,16 @@ Deno.serve(async (req) => {
       }
 
       const competence = calculateCompetenceMatch(candidate as CandidateData, offer as JobOfferData);
-      const culture = calculateCultureMatch(candidate as CandidateData, employerProfile as EmployerProfileData);
+      const employerCultureCompleted = (employerProfile as any).culture_completed === true;
+      const culture = employerCultureCompleted
+        ? calculateCultureMatch(candidate as CandidateData, employerProfile as EmployerProfileData)
+        : { percent: 0, details: [] as any[] };
       const extra = calculateExtraMatch(candidate as CandidateData, offer as JobOfferData);
-      
-      const overallPercent = 
-        WEIGHTS.competence * competence.percent +
-        WEIGHTS.culture * culture.percent +
-        WEIGHTS.extra * extra.percent;
+
+      const overallPercent = employerCultureCompleted
+        ? (WEIGHTS.competence * competence.percent + WEIGHTS.culture * culture.percent + WEIGHTS.extra * extra.percent)
+        : ((WEIGHTS.competence / (WEIGHTS.competence + WEIGHTS.extra)) * competence.percent +
+           (WEIGHTS.extra / (WEIGHTS.competence + WEIGHTS.extra)) * extra.percent);
 
       const strengths = generateStrengths(competence.details, culture.details, extra.details);
       const risks = generateRisks(competence.details, culture.details);

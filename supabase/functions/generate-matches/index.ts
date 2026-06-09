@@ -594,7 +594,14 @@ Deno.serve(async (req) => {
     return new Response(JSON.stringify({ 
       success: true, 
       matches_count: allMatches.length,
-      matches: allMatches 
+      matches: allMatches,
+      stats: {
+        totalCandidates: totalCandidates || 0,
+        completedTestsCandidates: completedTestsCandidates || 0,
+        profileReadyCandidates: profileReadyCandidates || 0,
+        eligibleCandidates,
+        insertedMatches: allMatches.length,
+      },
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
