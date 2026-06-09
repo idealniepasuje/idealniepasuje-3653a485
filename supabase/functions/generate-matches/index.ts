@@ -383,11 +383,25 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Get all candidates with completed tests
+    // Stats counters
+    const { count: totalCandidates } = await supabase
+      .from('candidate_test_results')
+      .select('*', { count: 'exact', head: true });
+    const { count: completedTestsCandidates } = await supabase
+      .from('candidate_test_results')
+      .select('*', { count: 'exact', head: true })
+      .eq('all_tests_completed', true);
+    const { count: profileReadyCandidates } = await supabase
+      .from('candidate_test_results')
+      .select('*', { count: 'exact', head: true })
+      .eq('profile_ready', true);
+
+    // Get eligible candidates: completed tests AND profile_ready
     const { data: candidates, error: candidatesError } = await supabase
       .from('candidate_test_results')
       .select('*')
-      .eq('all_tests_completed', true);
+      .eq('all_tests_completed', true)
+      .eq('profile_ready', true);
 
     if (candidatesError) {
       return new Response(JSON.stringify({ error: 'Failed to fetch candidates' }), {
@@ -396,6 +410,24 @@ Deno.serve(async (req) => {
       });
     }
 
+    const eligibleCandidates = candidates?.length || 0;
+    let insertedMatches = 0;
+
+    // Remove stale matches for candidates that are no longer eligible (for these offers)
+    const eligibleIds = (candidates || []).map(c => c.user_id);
+    for (const offer of jobOffers) {
+      let delQuery = supabase
+        .from('match_results')
+        .delete()
+        .eq('employer_user_id', employer_user_id)
+        .eq('job_offer_id', offer.id);
+      if (eligibleIds.length > 0) {
+        delQuery = delQuery.not('candidate_user_id', 'in', `(${eligibleIds.join(',')})`);
+      }
+      await delQuery;
+    }
+
+    const employerCultureCompleted = (employer as any).culture_completed === true;
     const allMatches: any[] = [];
     const newMatchCandidates: { user_id: string; overall_percent: number; job_offer_id: string; offer_title: string }[] = [];
 
@@ -415,13 +447,16 @@ Deno.serve(async (req) => {
 
         // Calculate matches using offer requirements + employer culture
         const competence = calculateCompetenceMatch(candidate as CandidateData, offer as JobOfferData);
-        const culture = calculateCultureMatch(candidate as CandidateData, employer as EmployerProfileData);
+        const culture = employerCultureCompleted
+          ? calculateCultureMatch(candidate as CandidateData, employer as EmployerProfileData)
+          : { percent: 0, details: [] as any[] };
         const extra = calculateExtraMatch(candidate as CandidateData, offer as JobOfferData);
-        
-        const overallPercent = 
-          WEIGHTS.competence * competence.percent +
-          WEIGHTS.culture * culture.percent +
-          WEIGHTS.extra * extra.percent;
+
+        // Re-weight if culture not completed
+        const overallPercent = employerCultureCompleted
+          ? (WEIGHTS.competence * competence.percent + WEIGHTS.culture * culture.percent + WEIGHTS.extra * extra.percent)
+          : ((WEIGHTS.competence / (WEIGHTS.competence + WEIGHTS.extra)) * competence.percent +
+             (WEIGHTS.extra / (WEIGHTS.competence + WEIGHTS.extra)) * extra.percent);
 
         const strengths = generateStrengths(competence.details, culture.details, extra.details);
         const risks = generateRisks(competence.details, culture.details);
@@ -559,7 +594,14 @@ Deno.serve(async (req) => {
     return new Response(JSON.stringify({ 
       success: true, 
       matches_count: allMatches.length,
-      matches: allMatches 
+      matches: allMatches,
+      stats: {
+        totalCandidates: totalCandidates || 0,
+        completedTestsCandidates: completedTestsCandidates || 0,
+        profileReadyCandidates: profileReadyCandidates || 0,
+        eligibleCandidates,
+        insertedMatches: allMatches.length,
+      },
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
