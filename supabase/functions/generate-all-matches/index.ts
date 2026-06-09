@@ -253,34 +253,16 @@ Deno.serve(async (req) => {
       );
     }
 
+    // Service-role only: this function recomputes ALL employer-candidate matches
+    // system-wide and must never be callable by ordinary employer JWTs.
     const token = authHeader.replace('Bearer ', '');
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
-    const isServiceRole = token === supabaseServiceKey;
-
-    if (!isServiceRole) {
-      const supabaseAuth = createClient(supabaseUrl, supabaseAnonKey, {
-        global: { headers: { Authorization: authHeader } },
-      });
-      const { data: claimsData, error: claimsError } = await supabaseAuth.auth.getClaims(token);
-      if (claimsError || !claimsData?.claims?.sub) {
-        return new Response(
-          JSON.stringify({ error: 'Unauthorized - invalid token' }),
-          { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-      }
-      const callerId = claimsData.claims.sub as string;
-      const { data: callerProfile } = await supabase
-        .from('profiles')
-        .select('user_type')
-        .eq('user_id', callerId)
-        .maybeSingle();
-      if (!callerProfile || callerProfile.user_type !== 'employer') {
-        return new Response(
-          JSON.stringify({ error: 'Forbidden' }),
-          { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-      }
+    if (token !== supabaseServiceKey) {
+      return new Response(
+        JSON.stringify({ error: 'Forbidden - service role required' }),
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     // Get all candidates with completed tests
     const { data: candidates, error: candidatesError } = await supabase
