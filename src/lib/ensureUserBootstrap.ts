@@ -70,47 +70,30 @@ export const ensureUserBootstrap = async (user: User): Promise<AppUserType | nul
     // ignore
   }
 
-  // 3) Ensure base row exists for that type
+  // 3) Ensure base row exists for that type — idempotent thanks to UNIQUE(user_id)
+  // We use ignoreDuplicates upsert so concurrent calls / multiple tabs never create
+  // extra empty rows that would overwrite real test results.
   try {
     if (userType === "employer") {
-      const { data: emp, error: empError } = await supabase
+      const meta = user.user_metadata as any;
+      const { error: upsertError } = await supabase
         .from("employer_profiles")
-        .select("id")
-        .eq("user_id", user.id)
-        .maybeSingle();
-
-      if (empError && (empError as any).code !== "PGRST116") {
-        logError("ensureUserBootstrap.employer_profiles.select", empError);
-      }
-
-      if (!emp) {
-        const meta = user.user_metadata as any;
-        const { error: insertError } = await supabase.from("employer_profiles").insert({
-          user_id: user.id,
-          company_name: meta?.company_name ?? null,
-        });
-        if (insertError && (insertError as any).code !== "23505") {
-          logError("ensureUserBootstrap.employer_profiles.insert", insertError);
-        }
+        .upsert(
+          { user_id: user.id, company_name: meta?.company_name ?? null },
+          { onConflict: "user_id", ignoreDuplicates: true }
+        );
+      if (upsertError && (upsertError as any).code !== "23505") {
+        logError("ensureUserBootstrap.employer_profiles.upsert", upsertError);
       }
     } else {
-      const { data: cand, error: candError } = await supabase
+      const { error: upsertError } = await supabase
         .from("candidate_test_results")
-        .select("id")
-        .eq("user_id", user.id)
-        .maybeSingle();
-
-      if (candError && (candError as any).code !== "PGRST116") {
-        logError("ensureUserBootstrap.candidate_test_results.select", candError);
-      }
-
-      if (!cand) {
-        const { error: insertError } = await supabase.from("candidate_test_results").insert({
-          user_id: user.id,
-        });
-        if (insertError && (insertError as any).code !== "23505") {
-          logError("ensureUserBootstrap.candidate_test_results.insert", insertError);
-        }
+        .upsert(
+          { user_id: user.id },
+          { onConflict: "user_id", ignoreDuplicates: true }
+        );
+      if (upsertError && (upsertError as any).code !== "23505") {
+        logError("ensureUserBootstrap.candidate_test_results.upsert", upsertError);
       }
     }
   } catch (e) {
