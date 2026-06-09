@@ -20,6 +20,7 @@ const EmployerCandidates = () => {
   const { t } = useTranslation();
   const [matches, setMatches] = useState<any[]>([]);
   const [offerTitle, setOfferTitle] = useState<string>("");
+  const [offerDiagnostics, setOfferDiagnostics] = useState<{ emptyIndustries: boolean } | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
