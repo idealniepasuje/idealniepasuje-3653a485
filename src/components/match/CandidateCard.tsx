@@ -54,7 +54,7 @@ export const CandidateCard = ({ match, candidateData, offerTitle }: CandidateCar
           {/* Left side - all info */}
           <div className="min-w-0 flex-1">
             {/* Status badges row */}
-            {(isBestMatch || isNewTalent || match.status === 'viewed' || isConsidering || isIncompleteProfile) && (
+            {(isBestMatch || isNewTalent || match.status === 'viewed' || isConsidering) && (
               <div className="flex items-center gap-2 flex-wrap mb-1">
                 {isBestMatch && (
                   <Badge className="bg-accent text-accent-foreground text-xs">
