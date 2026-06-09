@@ -33,7 +33,7 @@ const EmployerCandidates = () => {
       if (error) throw error;
       const s = (data as any)?.stats;
       if (s) {
-        toast.success(`Przeliczono: ${s.insertedMatches} dopasowań (kandydaci z pełnym profilem: ${s.profileReadyCandidates}/${s.completedTestsCandidates})`);
+        toast.success(`Przeliczono: ${s.insertedMatches} dopasowań (testy ukończone: ${s.completedTestsCandidates}, pełny profil: ${s.profileReadyCandidates})`);
       } else {
         toast.success("Dopasowania odświeżone");
       }
@@ -151,9 +151,9 @@ const EmployerCandidates = () => {
         <Card className="border-muted">
           <CardContent className="pt-6 text-center py-16">
             <div className="w-16 h-16 rounded-full bg-accent/20 mx-auto mb-6 flex items-center justify-center opacity-50"><Users className="w-8 h-8 text-accent" /></div>
-            <h3 className="text-xl font-semibold mb-3">Brak kandydatów z pełnym profilem</h3>
+            <h3 className="text-xl font-semibold mb-3">Brak dopasowanych kandydatów</h3>
             <p className="text-muted-foreground max-w-md mx-auto mb-6">
-              Nie ma jeszcze kandydatów z pełnym profilem pasujących do tego zlecenia.
+              Nie ma jeszcze kandydatów z ukończonymi testami pasujących do tego zlecenia. Kliknij „Odśwież dopasowania”, aby przeliczyć.
             </p>
             <div className="flex gap-2 justify-center">
               <Button onClick={handleRefreshMatches} disabled={refreshing} className="gap-2">

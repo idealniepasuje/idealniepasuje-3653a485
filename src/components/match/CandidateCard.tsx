@@ -18,6 +18,7 @@ interface CandidateCardProps {
     status: string;
     created_at: string;
     job_offer_id?: string;
+    match_details?: any;
   };
   candidateData?: {
     industry?: string;
@@ -34,6 +35,7 @@ export const CandidateCard = ({ match, candidateData, offerTitle }: CandidateCar
   const isBestMatch = match.overall_percent >= 80;
   const isNewTalent = match.status === 'pending';
   const isConsidering = match.status === 'considering';
+  const isIncompleteProfile = match.match_details?.profile_ready === false || match.match_details?.candidate_profile_status === 'incomplete';
 
   const formatTimeAgo = (dateString: string) => {
     const date = new Date(dateString);
@@ -53,7 +55,7 @@ export const CandidateCard = ({ match, candidateData, offerTitle }: CandidateCar
           {/* Left side - all info */}
           <div className="min-w-0 flex-1">
             {/* Status badges row */}
-            {(isBestMatch || isNewTalent || match.status === 'viewed' || isConsidering) && (
+            {(isBestMatch || isNewTalent || match.status === 'viewed' || isConsidering || isIncompleteProfile) && (
               <div className="flex items-center gap-2 flex-wrap mb-1">
                 {isBestMatch && (
                   <Badge className="bg-accent text-accent-foreground text-xs">
@@ -73,6 +75,11 @@ export const CandidateCard = ({ match, candidateData, offerTitle }: CandidateCar
                 )}
                 {isConsidering && (
                   <Bookmark className="w-4 h-4 fill-accent text-accent" />
+                )}
+                {isIncompleteProfile && (
+                  <Badge variant="outline" className="text-xs border-amber-500/50 text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/30">
+                    Profil niepełny
+                  </Badge>
                 )}
               </div>
             )}

@@ -343,13 +343,13 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Only generate matches for candidates with full profile (tests + getting_to_know)
-    if (!candidate.all_tests_completed || !candidate.profile_ready) {
+    // Require tests completed; profile_ready is NOT a hard filter (used for UI status only)
+    if (!candidate.all_tests_completed) {
       return new Response(JSON.stringify({
         success: true,
         matches_count: 0,
         matches: [],
-        message: 'Candidate profile is not complete (tests + getting_to_know required)',
+        message: 'Candidate has not completed all tests yet',
       }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
@@ -432,6 +432,8 @@ Deno.serve(async (req) => {
         extraDetails: extra.details,
         strengths,
         risks,
+        profile_ready: (candidate as any).profile_ready === true,
+        candidate_profile_status: (candidate as any).profile_ready === true ? 'complete' : 'incomplete',
       };
 
       const { error: upsertError } = await supabase
