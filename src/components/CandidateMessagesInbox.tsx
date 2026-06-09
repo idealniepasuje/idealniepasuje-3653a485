@@ -38,6 +38,7 @@ export const CandidateMessagesInbox = () => {
           .from('candidate_messages')
           .select('*')
           .eq('candidate_user_id', user.id)
+          .is('read_at', null)
           .order('created_at', { ascending: false });
         if (error) throw error;
         setMessages((data || []) as Message[]);
@@ -51,7 +52,7 @@ export const CandidateMessagesInbox = () => {
 
   const markRead = async (id: string) => {
     await supabase.from('candidate_messages').update({ read_at: new Date().toISOString() }).eq('id', id);
-    setMessages((prev) => prev.map((m) => (m.id === id ? { ...m, read_at: new Date().toISOString() } : m)));
+    setMessages((prev) => prev.filter((m) => m.id !== id));
   };
 
   if (loading || messages.length === 0) return null;
