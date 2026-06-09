@@ -35,6 +35,7 @@ export const CandidateCard = ({ match, candidateData, offerTitle }: CandidateCar
   const isBestMatch = match.overall_percent >= 80;
   const isNewTalent = match.status === 'pending';
   const isConsidering = match.status === 'considering';
+  const isIncompleteProfile = match.match_details?.profile_ready === false || match.match_details?.candidate_profile_status === 'incomplete';
 
   const formatTimeAgo = (dateString: string) => {
     const date = new Date(dateString);
