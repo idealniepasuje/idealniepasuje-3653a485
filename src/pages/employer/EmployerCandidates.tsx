@@ -159,7 +159,9 @@ const EmployerCandidates = () => {
             <div className="w-16 h-16 rounded-full bg-accent/20 mx-auto mb-6 flex items-center justify-center opacity-50"><Users className="w-8 h-8 text-accent" /></div>
             <h3 className="text-xl font-semibold mb-3">Brak dopasowanych kandydatów</h3>
             <p className="text-muted-foreground max-w-md mx-auto mb-6">
-              Nie ma jeszcze kandydatów z ukończonymi testami pasujących do tego zlecenia. Kliknij „Odśwież dopasowania”, aby przeliczyć.
+              {offerId && offerDiagnostics?.emptyIndustries
+                ? "Nie wybrano branż — dopasowania będą liczone bez filtra branży. Kliknij „Odśwież dopasowania”, aby przeliczyć."
+                : "Brak kandydatów spełniających aktualne kryteria. Rozszerz wymagania, aby zobaczyć więcej dopasowań."}
             </p>
             <div className="flex gap-2 justify-center">
               <Button onClick={handleRefreshMatches} disabled={refreshing} className="gap-2">
