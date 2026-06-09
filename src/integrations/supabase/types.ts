@@ -14,6 +14,30 @@ export type Database = {
   }
   public: {
     Tables: {
+      _audit_repair_log: {
+        Row: {
+          action: string
+          id: string
+          payload: Json | null
+          run_at: string
+          user_id: string | null
+        }
+        Insert: {
+          action: string
+          id?: string
+          payload?: Json | null
+          run_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          id?: string
+          payload?: Json | null
+          run_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       audit_log: {
         Row: {
           action: string
