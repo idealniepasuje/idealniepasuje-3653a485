@@ -249,8 +249,8 @@ const CandidateAdditional = () => {
           motivation: gtkMotivation,
           proud_of: gtkProudOf,
         } as unknown as Json,
-        additional_completed: true,
-        all_tests_completed: true,
+        additional_completed: !!(gtkTasks.trim() && gtkProblems.trim() && gtkMotivation.trim() && gtkProudOf.trim()),
+        all_tests_completed: !!(gtkTasks.trim() && gtkProblems.trim() && gtkMotivation.trim() && gtkProudOf.trim()),
       }).eq("user_id", user.id);
       if (error) throw error;
 
