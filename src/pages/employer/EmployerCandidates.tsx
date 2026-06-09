@@ -55,14 +55,19 @@ const EmployerCandidates = () => {
   const fetchMatches = async () => {
     if (!user) return;
     try {
-      // Fetch offer title if filtering by offer
+      // Fetch offer info if filtering by offer
       if (offerId) {
         const { data: offerData } = await supabase
           .from("job_offers")
-          .select("title")
+          .select("title, accepted_industries")
           .eq("id", offerId)
           .single();
-        if (offerData) setOfferTitle(offerData.title);
+        if (offerData) {
+          setOfferTitle(offerData.title);
+          setOfferDiagnostics({
+            emptyIndustries: !offerData.accepted_industries || (offerData.accepted_industries as any[]).length === 0,
+          });
+        }
       }
 
       // Build query
