@@ -253,34 +253,16 @@ Deno.serve(async (req) => {
       );
     }
 
+    // Service-role only: this function recomputes ALL employer-candidate matches
+    // system-wide and must never be callable by ordinary employer JWTs.
     const token = authHeader.replace('Bearer ', '');
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
-    const isServiceRole = token === supabaseServiceKey;
-
-    if (!isServiceRole) {
-      const supabaseAuth = createClient(supabaseUrl, supabaseAnonKey, {
-        global: { headers: { Authorization: authHeader } },
-      });
-      const { data: claimsData, error: claimsError } = await supabaseAuth.auth.getClaims(token);
-      if (claimsError || !claimsData?.claims?.sub) {
-        return new Response(
-          JSON.stringify({ error: 'Unauthorized - invalid token' }),
-          { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-      }
-      const callerId = claimsData.claims.sub as string;
-      const { data: callerProfile } = await supabase
-        .from('profiles')
-        .select('user_type')
-        .eq('user_id', callerId)
-        .maybeSingle();
-      if (!callerProfile || callerProfile.user_type !== 'employer') {
-        return new Response(
-          JSON.stringify({ error: 'Forbidden' }),
-          { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-      }
+    if (token !== supabaseServiceKey) {
+      return new Response(
+        JSON.stringify({ error: 'Forbidden - service role required' }),
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     // Get all candidates with completed tests
     const { data: candidates, error: candidatesError } = await supabase
@@ -371,19 +353,31 @@ Deno.serve(async (req) => {
           risks,
         };
 
+        // Check if a match already exists; preserve employer-set status (interested/considering/rejected/viewed)
+        const { data: existingMatch } = await supabase
+          .from('match_results')
+          .select('id, status')
+          .eq('employer_user_id', offer.user_id)
+          .eq('candidate_user_id', candidate.user_id)
+          .eq('job_offer_id', offer.id)
+          .maybeSingle();
+
+        const payload = {
+          employer_user_id: offer.user_id,
+          candidate_user_id: candidate.user_id,
+          job_offer_id: offer.id,
+          overall_percent: Math.round(overallPercent),
+          competence_percent: Math.round(competence.percent),
+          culture_percent: Math.round(culture.percent),
+          extra_percent: Math.round(extra.percent),
+          match_details: matchDetails,
+          // Only set status='pending' for brand-new matches; never overwrite an existing status
+          ...(existingMatch ? { status: existingMatch.status } : { status: 'pending' }),
+        };
+
         const { error: upsertError } = await supabase
           .from('match_results')
-          .upsert({
-            employer_user_id: offer.user_id,
-            candidate_user_id: candidate.user_id,
-            job_offer_id: offer.id,
-            overall_percent: Math.round(overallPercent),
-            competence_percent: Math.round(competence.percent),
-            culture_percent: Math.round(culture.percent),
-            extra_percent: Math.round(extra.percent),
-            match_details: matchDetails,
-            status: 'pending',
-          }, {
+          .upsert(payload, {
             onConflict: 'employer_user_id,candidate_user_id,job_offer_id',
           });
 
