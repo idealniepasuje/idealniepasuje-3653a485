@@ -693,6 +693,7 @@
         "sendLinkedinRequest": "Wyślij prośbę o LinkedIn",
         "linkedinRequestSent": "Prośba o LinkedIn została wysłana",
         "gettingToKnowReadyTitle": "Odpowiedzi kandydata",
+        "gettingToKnowReadyHint": "Odpowiedzi kandydata pomogą Ci lepiej poprowadzić rozmowę kwalifikacyjną i zadać trafniejsze pytania dopasowane do jego doświadczenia.",
         "gettingToKnowMissingTitle": "Kandydat nie uzupełnił sekcji „Daj się poznać\"",
         "gettingToKnowMissingDesc": "Wyślij prośbę o uzupełnienie odpowiedzi, aby lepiej poznać kandydata.",
         "requestCompletion": "Poproś o uzupełnienie „Daj się poznać\"",
