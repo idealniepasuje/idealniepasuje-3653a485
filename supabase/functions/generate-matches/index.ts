@@ -466,6 +466,8 @@ Deno.serve(async (req) => {
           extraDetails: extra.details,
           strengths,
           risks,
+          profile_ready: (candidate as any).profile_ready === true,
+          candidate_profile_status: (candidate as any).profile_ready === true ? 'complete' : 'incomplete',
         };
 
         // Upsert match result with job_offer_id
