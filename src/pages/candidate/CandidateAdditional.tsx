@@ -13,7 +13,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { industries, experienceLevels, positionLevels, getLocalizedData } from "@/data/additionalQuestions";
+import { industries, experienceLevels, positionLevels, getLocalizedData, LANGUAGE_LEVELS, languageLevelLabels, languageNames } from "@/data/additionalQuestions";
 import { logError } from "@/lib/errorLogger";
 import { WorkModeSelector } from "@/components/WorkModeSelector";
 import type { Json } from "@/integrations/supabase/types";
@@ -50,6 +50,10 @@ const CandidateAdditional = () => {
   const [gtkProblems, setGtkProblems] = useState("");
   const [gtkMotivation, setGtkMotivation] = useState("");
   const [gtkProudOf, setGtkProudOf] = useState("");
+  const [langEnglish, setLangEnglish] = useState("");
+  const [langSpanish, setLangSpanish] = useState("");
+  const [langGerman, setLangGerman] = useState("");
+  const [langPolish, setLangPolish] = useState("");
   
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -65,7 +69,7 @@ const CandidateAdditional = () => {
     try {
       const { data, error } = await supabase
         .from("candidate_test_results")
-        .select("industry_experiences, has_no_experience, target_industries, linkedin_url, additional_completed, work_mode, city, work_description, getting_to_know")
+        .select("industry_experiences, has_no_experience, target_industries, linkedin_url, additional_completed, work_mode, city, work_description, getting_to_know, lang_english, lang_spanish, lang_german, lang_polish")
         .eq("user_id", user.id)
         .single();
       if (error && error.code !== "PGRST116") logError("CandidateAdditional.fetchExistingData", error);
@@ -85,6 +89,10 @@ const CandidateAdditional = () => {
         setGtkProblems(gtk.problems || "");
         setGtkMotivation(gtk.motivation || "");
         setGtkProudOf(gtk.proud_of || "");
+        setLangEnglish((data as any).lang_english || "");
+        setLangSpanish((data as any).lang_spanish || "");
+        setLangGerman((data as any).lang_german || "");
+        setLangPolish((data as any).lang_polish || "");
       }
     } catch (error) {
       logError("CandidateAdditional.fetchExistingData", error);
@@ -243,6 +251,10 @@ const CandidateAdditional = () => {
         experience: validExperiences[0]?.years || null,
         position_level: validExperiences[0]?.positionLevel || null,
         work_description: workDescription || null,
+        lang_english: langEnglish || null,
+        lang_spanish: langSpanish || null,
+        lang_german: langGerman || null,
+        lang_polish: langPolish || null,
         getting_to_know: {
           tasks: gtkTasks,
           problems: gtkProblems,
@@ -531,6 +543,46 @@ const CandidateAdditional = () => {
                 <Textarea id="gtk-proud" rows={2} maxLength={1000} placeholder={t("candidate.additional.gettingToKnow.placeholder")} value={gtkProudOf} onChange={(e) => setGtkProudOf(e.target.value)} />
               </div>
             </div>
+
+            {/* Poziom języków */}
+            {(() => {
+              const lang = i18n.language === 'en' ? 'en' : 'pl';
+              const names = languageNames[lang];
+              const labels = languageLevelLabels[lang];
+              const fields: Array<{ key: keyof typeof names; value: string; setter: (v: string) => void }> = [
+                { key: 'english', value: langEnglish, setter: setLangEnglish },
+                { key: 'spanish', value: langSpanish, setter: setLangSpanish },
+                { key: 'german', value: langGerman, setter: setLangGerman },
+                { key: 'polish', value: langPolish, setter: setLangPolish },
+              ];
+              return (
+                <div className="space-y-3">
+                  <Label className="text-base font-semibold">
+                    {lang === 'pl' ? 'Poziom znajomości języków' : 'Language proficiency'}
+                  </Label>
+                  <p className="text-xs text-muted-foreground">
+                    {lang === 'pl' ? 'Wybierz poziom (CEFR) lub pozostaw puste.' : 'Pick a CEFR level or leave empty.'}
+                  </p>
+                  <div className="grid sm:grid-cols-2 gap-3">
+                    {fields.map(({ key, value, setter }) => (
+                      <div key={key} className="space-y-1">
+                        <Label className="text-sm">{names[key]}</Label>
+                        <Select value={value} onValueChange={setter}>
+                          <SelectTrigger>
+                            <SelectValue placeholder={lang === 'pl' ? 'Wybierz poziom' : 'Select level'} />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {LANGUAGE_LEVELS.map(lv => (
+                              <SelectItem key={lv} value={lv}>{labels[lv]}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })()}
 
             {/* LinkedIn */}
             <div className="space-y-2">

@@ -162,6 +162,10 @@ export type Database = {
           industry: string | null
           industry_experiences: Json | null
           komunikacja_score: number | null
+          lang_english: string | null
+          lang_german: string | null
+          lang_polish: string | null
+          lang_spanish: string | null
           linkedin_url: string | null
           myslenie_analityczne_score: number | null
           out_of_the_box_score: number | null
@@ -198,6 +202,10 @@ export type Database = {
           industry?: string | null
           industry_experiences?: Json | null
           komunikacja_score?: number | null
+          lang_english?: string | null
+          lang_german?: string | null
+          lang_polish?: string | null
+          lang_spanish?: string | null
           linkedin_url?: string | null
           myslenie_analityczne_score?: number | null
           out_of_the_box_score?: number | null
@@ -234,6 +242,10 @@ export type Database = {
           industry?: string | null
           industry_experiences?: Json | null
           komunikacja_score?: number | null
+          lang_english?: string | null
+          lang_german?: string | null
+          lang_polish?: string | null
+          lang_spanish?: string | null
           linkedin_url?: string | null
           myslenie_analityczne_score?: number | null
           out_of_the_box_score?: number | null
@@ -395,6 +407,7 @@ export type Database = {
           id: string
           industry: string | null
           is_active: boolean | null
+          lang_english: string | null
           no_experience_required: boolean | null
           position_level: string | null
           req_adaptacja: number | null
@@ -427,6 +440,7 @@ export type Database = {
           id?: string
           industry?: string | null
           is_active?: boolean | null
+          lang_english?: string | null
           no_experience_required?: boolean | null
           position_level?: string | null
           req_adaptacja?: number | null
@@ -459,6 +473,7 @@ export type Database = {
           id?: string
           industry?: string | null
           is_active?: boolean | null
+          lang_english?: string | null
           no_experience_required?: boolean | null
           position_level?: string | null
           req_adaptacja?: number | null
