@@ -494,28 +494,42 @@ const EmployerOfferForm = () => {
                 onCityChange={(v) => setFormData(p => ({ ...p, city: v }))}
               />
 
-              {/* English level */}
+              {/* Wymagane języki */}
               {(() => {
                 const lang = i18n.language === 'en' ? 'en' : 'pl';
+                const names = languageNames[lang];
                 const labels = languageLevelLabels[lang];
+                const fields: Array<{ key: keyof typeof names; value: string; setter: (v: string) => void }> = [
+                  { key: 'english', value: formData.langEnglish, setter: (v) => setFormData(p => ({ ...p, langEnglish: v })) },
+                  { key: 'spanish', value: formData.langSpanish, setter: (v) => setFormData(p => ({ ...p, langSpanish: v })) },
+                  { key: 'german', value: formData.langGerman, setter: (v) => setFormData(p => ({ ...p, langGerman: v })) },
+                  { key: 'polish', value: formData.langPolish, setter: (v) => setFormData(p => ({ ...p, langPolish: v })) },
+                ];
                 return (
-                  <div className="space-y-2">
+                  <div className="space-y-3">
                     <Label className="text-base font-semibold">
-                      {lang === 'pl' ? 'Wymagany poziom języka angielskiego' : 'Required English level'}
+                      {lang === 'pl' ? 'Wymagany poziom języków' : 'Required language levels'}
                     </Label>
-                    <Select value={formData.langEnglish} onValueChange={(v) => setFormData(p => ({ ...p, langEnglish: v }))}>
-                      <SelectTrigger>
-                        <SelectValue placeholder={lang === 'pl' ? 'Wybierz poziom' : 'Select level'} />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {LANGUAGE_LEVELS.map(lv => (
-                          <SelectItem key={lv} value={lv}>{labels[lv]}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
                     <p className="text-xs text-muted-foreground">
                       {lang === 'pl' ? 'Opcjonalne. Pozostaw puste, jeśli język nie jest wymagany.' : 'Optional. Leave empty if not required.'}
                     </p>
+                    <div className="grid sm:grid-cols-2 gap-3">
+                      {fields.map(({ key, value, setter }) => (
+                        <div key={key} className="space-y-1">
+                          <Label className="text-sm">{names[key]}</Label>
+                          <Select value={value} onValueChange={setter}>
+                            <SelectTrigger>
+                              <SelectValue placeholder={lang === 'pl' ? 'Wybierz poziom' : 'Select level'} />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {LANGUAGE_LEVELS.map(lv => (
+                                <SelectItem key={lv} value={lv}>{labels[lv]}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 );
               })()}
