@@ -120,6 +120,38 @@ export const industryChangeOptions = {
   en: ["Yes", "No", "I'm open to it"],
 };
 
+export const LANGUAGE_LEVELS = ["none", "A1", "A2", "B1", "B2", "C1", "C2", "native"] as const;
+export type LanguageLevel = typeof LANGUAGE_LEVELS[number];
+
+export const languageLevelLabels = {
+  pl: {
+    none: "Brak",
+    A1: "A1 – Początkujący",
+    A2: "A2 – Podstawowy",
+    B1: "B1 – Średnio zaawansowany",
+    B2: "B2 – Wyższy średnio zaawansowany",
+    C1: "C1 – Zaawansowany",
+    C2: "C2 – Biegły",
+    native: "Ojczysty",
+  },
+  en: {
+    none: "None",
+    A1: "A1 – Beginner",
+    A2: "A2 – Elementary",
+    B1: "B1 – Intermediate",
+    B2: "B2 – Upper-intermediate",
+    C1: "C1 – Advanced",
+    C2: "C2 – Proficient",
+    native: "Native",
+  },
+};
+
+export const languageNames = {
+  pl: { english: "Angielski", spanish: "Hiszpański", german: "Niemiecki", polish: "Polski" },
+  en: { english: "English", spanish: "Spanish", german: "German", polish: "Polish" },
+};
+
+
 export interface CandidateAdditionalData {
   industry: string;
   experience: string;
