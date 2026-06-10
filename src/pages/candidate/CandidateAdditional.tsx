@@ -13,7 +13,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { industries, experienceLevels, positionLevels, getLocalizedData } from "@/data/additionalQuestions";
+import { industries, experienceLevels, positionLevels, getLocalizedData, LANGUAGE_LEVELS, languageLevelLabels, languageNames } from "@/data/additionalQuestions";
 import { logError } from "@/lib/errorLogger";
 import { WorkModeSelector } from "@/components/WorkModeSelector";
 import type { Json } from "@/integrations/supabase/types";
@@ -50,6 +50,10 @@ const CandidateAdditional = () => {
   const [gtkProblems, setGtkProblems] = useState("");
   const [gtkMotivation, setGtkMotivation] = useState("");
   const [gtkProudOf, setGtkProudOf] = useState("");
+  const [langEnglish, setLangEnglish] = useState("");
+  const [langSpanish, setLangSpanish] = useState("");
+  const [langGerman, setLangGerman] = useState("");
+  const [langPolish, setLangPolish] = useState("");
   
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -65,7 +69,7 @@ const CandidateAdditional = () => {
     try {
       const { data, error } = await supabase
         .from("candidate_test_results")
-        .select("industry_experiences, has_no_experience, target_industries, linkedin_url, additional_completed, work_mode, city, work_description, getting_to_know")
+        .select("industry_experiences, has_no_experience, target_industries, linkedin_url, additional_completed, work_mode, city, work_description, getting_to_know, lang_english, lang_spanish, lang_german, lang_polish")
         .eq("user_id", user.id)
         .single();
       if (error && error.code !== "PGRST116") logError("CandidateAdditional.fetchExistingData", error);
@@ -85,6 +89,10 @@ const CandidateAdditional = () => {
         setGtkProblems(gtk.problems || "");
         setGtkMotivation(gtk.motivation || "");
         setGtkProudOf(gtk.proud_of || "");
+        setLangEnglish((data as any).lang_english || "");
+        setLangSpanish((data as any).lang_spanish || "");
+        setLangGerman((data as any).lang_german || "");
+        setLangPolish((data as any).lang_polish || "");
       }
     } catch (error) {
       logError("CandidateAdditional.fetchExistingData", error);
@@ -243,6 +251,10 @@ const CandidateAdditional = () => {
         experience: validExperiences[0]?.years || null,
         position_level: validExperiences[0]?.positionLevel || null,
         work_description: workDescription || null,
+        lang_english: langEnglish || null,
+        lang_spanish: langSpanish || null,
+        lang_german: langGerman || null,
+        lang_polish: langPolish || null,
         getting_to_know: {
           tasks: gtkTasks,
           problems: gtkProblems,
