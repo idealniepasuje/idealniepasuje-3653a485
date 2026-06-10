@@ -13,7 +13,7 @@ import { ArrowLeft, Plus, X, FileText, Settings, ChevronRight, CheckCircle2, Che
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { industries, experienceLevels, positionLevels, competencyLabels, getLocalizedData, LANGUAGE_LEVELS, languageLevelLabels } from "@/data/additionalQuestions";
+import { industries, experienceLevels, positionLevels, competencyLabels, getLocalizedData, LANGUAGE_LEVELS, languageLevelLabels, languageNames } from "@/data/additionalQuestions";
 import { CompetencySliderWithFeedback } from "@/components/CompetencySliderWithFeedback";
 import { DashboardLayout } from "@/components/layouts/DashboardLayout";
 import { EmployerSidebar } from "@/components/layouts/EmployerSidebar";
@@ -50,6 +50,9 @@ const EmployerOfferForm = () => {
     workMode: "",
     city: "",
     langEnglish: "",
+    langSpanish: "",
+    langGerman: "",
+    langPolish: "",
   });
 
   const validateTitle = (value: string): string => {
@@ -122,6 +125,9 @@ const EmployerOfferForm = () => {
           workMode: data.work_mode || "",
           city: data.city || "",
           langEnglish: (data as any).lang_english || "",
+          langSpanish: (data as any).lang_spanish || "",
+          langGerman: (data as any).lang_german || "",
+          langPolish: (data as any).lang_polish || "",
         });
         
         const acceptedReqs = data.accepted_industry_requirements as unknown as AcceptedIndustryRequirement[] | null;
@@ -237,6 +243,9 @@ const EmployerOfferForm = () => {
           work_mode: formData.workMode || null,
           city: (formData.workMode === 'hybrid' || formData.workMode === 'onsite') ? formData.city : null,
           lang_english: formData.langEnglish || null,
+          lang_spanish: formData.langSpanish || null,
+          lang_german: formData.langGerman || null,
+          lang_polish: formData.langPolish || null,
         })
         .eq("id", realOfferId)
         .eq("user_id", user.id);
@@ -485,28 +494,42 @@ const EmployerOfferForm = () => {
                 onCityChange={(v) => setFormData(p => ({ ...p, city: v }))}
               />
 
-              {/* English level */}
+              {/* Wymagane języki */}
               {(() => {
                 const lang = i18n.language === 'en' ? 'en' : 'pl';
+                const names = languageNames[lang];
                 const labels = languageLevelLabels[lang];
+                const fields: Array<{ key: keyof typeof names; value: string; setter: (v: string) => void }> = [
+                  { key: 'english', value: formData.langEnglish, setter: (v) => setFormData(p => ({ ...p, langEnglish: v })) },
+                  { key: 'spanish', value: formData.langSpanish, setter: (v) => setFormData(p => ({ ...p, langSpanish: v })) },
+                  { key: 'german', value: formData.langGerman, setter: (v) => setFormData(p => ({ ...p, langGerman: v })) },
+                  { key: 'polish', value: formData.langPolish, setter: (v) => setFormData(p => ({ ...p, langPolish: v })) },
+                ];
                 return (
-                  <div className="space-y-2">
+                  <div className="space-y-3">
                     <Label className="text-base font-semibold">
-                      {lang === 'pl' ? 'Wymagany poziom języka angielskiego' : 'Required English level'}
+                      {lang === 'pl' ? 'Wymagany poziom języków' : 'Required language levels'}
                     </Label>
-                    <Select value={formData.langEnglish} onValueChange={(v) => setFormData(p => ({ ...p, langEnglish: v }))}>
-                      <SelectTrigger>
-                        <SelectValue placeholder={lang === 'pl' ? 'Wybierz poziom' : 'Select level'} />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {LANGUAGE_LEVELS.map(lv => (
-                          <SelectItem key={lv} value={lv}>{labels[lv]}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
                     <p className="text-xs text-muted-foreground">
                       {lang === 'pl' ? 'Opcjonalne. Pozostaw puste, jeśli język nie jest wymagany.' : 'Optional. Leave empty if not required.'}
                     </p>
+                    <div className="grid sm:grid-cols-2 gap-3">
+                      {fields.map(({ key, value, setter }) => (
+                        <div key={key} className="space-y-1">
+                          <Label className="text-sm">{names[key]}</Label>
+                          <Select value={value} onValueChange={setter}>
+                            <SelectTrigger>
+                              <SelectValue placeholder={lang === 'pl' ? 'Wybierz poziom' : 'Select level'} />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {LANGUAGE_LEVELS.map(lv => (
+                                <SelectItem key={lv} value={lv}>{labels[lv]}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 );
               })()}
