@@ -13,7 +13,7 @@ import { ArrowLeft, Plus, X, FileText, Settings, ChevronRight, CheckCircle2, Che
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { industries, experienceLevels, positionLevels, competencyLabels, getLocalizedData, LANGUAGE_LEVELS, languageLevelLabels } from "@/data/additionalQuestions";
+import { industries, experienceLevels, positionLevels, competencyLabels, getLocalizedData, LANGUAGE_LEVELS, languageLevelLabels, languageNames } from "@/data/additionalQuestions";
 import { CompetencySliderWithFeedback } from "@/components/CompetencySliderWithFeedback";
 import { DashboardLayout } from "@/components/layouts/DashboardLayout";
 import { EmployerSidebar } from "@/components/layouts/EmployerSidebar";
@@ -50,6 +50,9 @@ const EmployerOfferForm = () => {
     workMode: "",
     city: "",
     langEnglish: "",
+    langSpanish: "",
+    langGerman: "",
+    langPolish: "",
   });
 
   const validateTitle = (value: string): string => {
@@ -122,6 +125,9 @@ const EmployerOfferForm = () => {
           workMode: data.work_mode || "",
           city: data.city || "",
           langEnglish: (data as any).lang_english || "",
+          langSpanish: (data as any).lang_spanish || "",
+          langGerman: (data as any).lang_german || "",
+          langPolish: (data as any).lang_polish || "",
         });
         
         const acceptedReqs = data.accepted_industry_requirements as unknown as AcceptedIndustryRequirement[] | null;
@@ -237,6 +243,9 @@ const EmployerOfferForm = () => {
           work_mode: formData.workMode || null,
           city: (formData.workMode === 'hybrid' || formData.workMode === 'onsite') ? formData.city : null,
           lang_english: formData.langEnglish || null,
+          lang_spanish: formData.langSpanish || null,
+          lang_german: formData.langGerman || null,
+          lang_polish: formData.langPolish || null,
         })
         .eq("id", realOfferId)
         .eq("user_id", user.id);
