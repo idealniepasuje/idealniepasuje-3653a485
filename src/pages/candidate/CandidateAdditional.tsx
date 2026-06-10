@@ -544,6 +544,46 @@ const CandidateAdditional = () => {
               </div>
             </div>
 
+            {/* Poziom języków */}
+            {(() => {
+              const lang = i18n.language === 'en' ? 'en' : 'pl';
+              const names = languageNames[lang];
+              const labels = languageLevelLabels[lang];
+              const fields: Array<{ key: keyof typeof names; value: string; setter: (v: string) => void }> = [
+                { key: 'english', value: langEnglish, setter: setLangEnglish },
+                { key: 'spanish', value: langSpanish, setter: setLangSpanish },
+                { key: 'german', value: langGerman, setter: setLangGerman },
+                { key: 'polish', value: langPolish, setter: setLangPolish },
+              ];
+              return (
+                <div className="space-y-3">
+                  <Label className="text-base font-semibold">
+                    {lang === 'pl' ? 'Poziom znajomości języków' : 'Language proficiency'}
+                  </Label>
+                  <p className="text-xs text-muted-foreground">
+                    {lang === 'pl' ? 'Wybierz poziom (CEFR) lub pozostaw puste.' : 'Pick a CEFR level or leave empty.'}
+                  </p>
+                  <div className="grid sm:grid-cols-2 gap-3">
+                    {fields.map(({ key, value, setter }) => (
+                      <div key={key} className="space-y-1">
+                        <Label className="text-sm">{names[key]}</Label>
+                        <Select value={value} onValueChange={setter}>
+                          <SelectTrigger>
+                            <SelectValue placeholder={lang === 'pl' ? 'Wybierz poziom' : 'Select level'} />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {LANGUAGE_LEVELS.map(lv => (
+                              <SelectItem key={lv} value={lv}>{labels[lv]}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })()}
+
             {/* LinkedIn */}
             <div className="space-y-2">
               <Label className="flex items-center gap-2">
