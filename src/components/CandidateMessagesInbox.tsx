@@ -110,6 +110,14 @@ export const CandidateMessagesInbox = () => {
                         <Button size="sm" variant="outline">{t("candidate.inbox.addLinkedin")}</Button>
                       </Link>
                     )}
+                    {msg.type === 'tools_completion_request' && (
+                      <Link to="/candidate/additional#tools">
+                        <Button size="sm" variant="outline" className="gap-1">
+                          <Wrench className="w-3 h-3" />
+                          {t("candidate.inbox.openTools", "Uzupełnij narzędzia")}
+                        </Button>
+                      </Link>
+                    )}
                     {!msg.read_at && (
                       <Button size="sm" variant="ghost" onClick={() => markRead(msg.id)}>
                         {t("candidate.inbox.markAsRead")}
