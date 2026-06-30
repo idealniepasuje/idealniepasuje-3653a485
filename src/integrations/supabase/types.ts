@@ -172,6 +172,7 @@ export type Database = {
           position_level: string | null
           profile_ready: boolean
           target_industries: string[] | null
+          tools: Json
           updated_at: string
           user_id: string
           wants_to_change_industry: string | null
@@ -212,6 +213,7 @@ export type Database = {
           position_level?: string | null
           profile_ready?: boolean
           target_industries?: string[] | null
+          tools?: Json
           updated_at?: string
           user_id: string
           wants_to_change_industry?: string | null
@@ -252,6 +254,7 @@ export type Database = {
           position_level?: string | null
           profile_ready?: boolean
           target_industries?: string[] | null
+          tools?: Json
           updated_at?: string
           user_id?: string
           wants_to_change_industry?: string | null
@@ -419,6 +422,7 @@ export type Database = {
           req_myslenie_analityczne: number | null
           req_out_of_the_box: number | null
           required_experience: string | null
+          required_tools: Json
           role_description: string | null
           role_responsibilities: string | null
           title: string
@@ -455,6 +459,7 @@ export type Database = {
           req_myslenie_analityczne?: number | null
           req_out_of_the_box?: number | null
           required_experience?: string | null
+          required_tools?: Json
           role_description?: string | null
           role_responsibilities?: string | null
           title: string
@@ -491,6 +496,7 @@ export type Database = {
           req_myslenie_analityczne?: number | null
           req_out_of_the_box?: number | null
           required_experience?: string | null
+          required_tools?: Json
           role_description?: string | null
           role_responsibilities?: string | null
           title?: string
@@ -519,6 +525,7 @@ export type Database = {
           overall_percent: number | null
           profile_completion_requested_at: string | null
           status: string | null
+          tools_request_status: string
           unlocked_at: string | null
           updated_at: string
           viewed_at: string | null
@@ -541,6 +548,7 @@ export type Database = {
           overall_percent?: number | null
           profile_completion_requested_at?: string | null
           status?: string | null
+          tools_request_status?: string
           unlocked_at?: string | null
           updated_at?: string
           viewed_at?: string | null
@@ -563,6 +571,7 @@ export type Database = {
           overall_percent?: number | null
           profile_completion_requested_at?: string | null
           status?: string | null
+          tools_request_status?: string
           unlocked_at?: string | null
           updated_at?: string
           viewed_at?: string | null

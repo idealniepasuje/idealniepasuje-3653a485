@@ -19,6 +19,8 @@ import { DashboardLayout } from "@/components/layouts/DashboardLayout";
 import { EmployerSidebar } from "@/components/layouts/EmployerSidebar";
 import { logError } from "@/lib/errorLogger";
 import { WorkModeSelector } from "@/components/WorkModeSelector";
+import { ToolsSelector } from "@/components/tools/ToolsSelector";
+import { normalizeTools, ToolEntry } from "@/data/tools";
 import type { Json } from "@/integrations/supabase/types";
 
 interface AcceptedIndustryRequirement {
@@ -69,6 +71,7 @@ const EmployerOfferForm = () => {
   const [competencyReqs, setCompetencyReqs] = useState({ 
     komunikacja: 3, myslenie_analityczne: 3, out_of_the_box: 3, determinacja: 3, adaptacja: 3 
   });
+  const [requiredTools, setRequiredTools] = useState<ToolEntry[]>([]);
   const [loading, setLoading] = useState(!isNew);
   const [saving, setSaving] = useState(false);
 
@@ -143,6 +146,8 @@ const EmployerOfferForm = () => {
           determinacja: data.req_determinacja || 3,
           adaptacja: data.req_adaptacja || 3
         });
+
+        setRequiredTools(normalizeTools((data as any).required_tools));
 
         setRoleCompleted(!!(data.role_description || data.role_responsibilities));
         setRequirementsCompleted(!!(data.industry && data.position_level && (data.no_experience_required || data.required_experience)));
@@ -303,6 +308,7 @@ const EmployerOfferForm = () => {
           accepted_industries: validAcceptedReqs.map(r => r.industry),
           accepted_industry_requirements: JSON.parse(JSON.stringify(validAcceptedReqs)) as Json,
           ...roundedReqs,
+          required_tools: (requiredTools as unknown) as Json,
         })
         .eq("id", realOfferId)
         .eq("user_id", user.id);
@@ -726,6 +732,11 @@ const EmployerOfferForm = () => {
                     audience="employer"
                   />
                 ))}
+              </div>
+
+              {/* Required tools */}
+              <div className="border-t pt-6">
+                <ToolsSelector value={requiredTools} onChange={setRequiredTools} variant="employer" />
               </div>
 
               <Button onClick={saveRequirements} disabled={saving} className="w-full bg-cta hover:bg-cta/90 text-cta-foreground">

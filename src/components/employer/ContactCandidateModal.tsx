@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { CalendarClock, Linkedin, Sparkles, ExternalLink } from "lucide-react";
+import { CalendarClock, Linkedin, Sparkles, ExternalLink, Wrench } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { logError } from "@/lib/errorLogger";
@@ -15,8 +15,11 @@ import {
   getInterviewInviteTemplate,
   getLinkedinRequestTemplate,
   getProfileCompletionTemplate,
+  getToolsRequestTemplate,
   InterviewType,
 } from "@/data/messageTemplates";
+import { CandidateToolsDisplay } from "@/components/tools/CandidateToolsDisplay";
+import { normalizeTools, ToolEntry } from "@/data/tools";
 
 interface Props {
   open: boolean;
@@ -27,6 +30,8 @@ interface Props {
   companyName?: string;
   candidateLinkedinUrl?: string | null;
   candidateGettingToKnow?: Record<string, string> | null;
+  candidateTools?: ToolEntry[] | null;
+  requiredTools?: ToolEntry[] | null;
   onUpdated: () => void;
 }
 
@@ -39,6 +44,8 @@ export const ContactCandidateModal = ({
   companyName,
   candidateLinkedinUrl,
   candidateGettingToKnow,
+  candidateTools,
+  requiredTools,
   onUpdated,
 }: Props) => {
   const { t, i18n } = useTranslation();
@@ -49,17 +56,22 @@ export const ContactCandidateModal = ({
   const [interviewMsg, setInterviewMsg] = useState("");
   const [linkedinMsg, setLinkedinMsg] = useState("");
   const [completionMsg, setCompletionMsg] = useState("");
+  const [toolsMsg, setToolsMsg] = useState("");
   const [sending, setSending] = useState<string | null>(null);
 
   const gtk = candidateGettingToKnow || {};
   const gettingToKnowReady = !!(gtk.tasks && gtk.problems && gtk.motivation && gtk.proud_of);
   const hasLinkedin = !!(candidateLinkedinUrl && candidateLinkedinUrl.trim());
+  const safeCandidateTools = normalizeTools(candidateTools || []);
+  const safeRequiredTools = normalizeTools(requiredTools || []);
+  const hasTools = safeCandidateTools.length > 0;
 
   useEffect(() => {
     if (open) {
       setInterviewMsg(getInterviewInviteTemplate(lang, interviewType, companyName, calendarLink));
       setLinkedinMsg(getLinkedinRequestTemplate(lang, companyName));
       setCompletionMsg(getProfileCompletionTemplate(lang, companyName));
+      setToolsMsg(getToolsRequestTemplate(lang, companyName));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
@@ -147,6 +159,29 @@ export const ContactCandidateModal = ({
     }
   };
 
+  const handleRequestTools = async () => {
+    setSending('tools');
+    try {
+      await supabase.functions.invoke('send-tools-completion-request', {
+        body: {
+          candidate_user_id: candidateUserId,
+          match_id: match?.id,
+          employer_company_name: companyName,
+          message: toolsMsg,
+          trigger: 'manual',
+        },
+      });
+      toast.success(t("employer.candidateDetail.contact.toolsRequested", "Prośba o uzupełnienie narzędzi została wysłana"));
+      onUpdated();
+      onOpenChange(false);
+    } catch (e) {
+      logError('ContactCandidateModal.tools', e);
+      toast.error(t("errors.genericError"));
+    } finally {
+      setSending(null);
+    }
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
@@ -156,10 +191,11 @@ export const ContactCandidateModal = ({
         </DialogHeader>
 
         <Tabs defaultValue="invite" className="mt-2">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="invite" className="gap-2"><CalendarClock className="w-4 h-4" />{t("employer.candidateDetail.contact.inviteTab")}</TabsTrigger>
             <TabsTrigger value="linkedin" className="gap-2"><Linkedin className="w-4 h-4" />{t("employer.candidateDetail.contact.linkedinTab")}</TabsTrigger>
             <TabsTrigger value="gtk" className="gap-2"><Sparkles className="w-4 h-4" />{t("employer.candidateDetail.contact.gettingToKnowTab")}</TabsTrigger>
+            <TabsTrigger value="tools" className="gap-2"><Wrench className="w-4 h-4" />{t("employer.candidateDetail.contact.toolsTab", "Narzędzia")}</TabsTrigger>
           </TabsList>
 
           {/* Interview invite */}
@@ -263,6 +299,33 @@ export const ContactCandidateModal = ({
                 </div>
                 <Button onClick={handleRequestCompletion} disabled={sending !== null} className="w-full bg-cta text-cta-foreground hover:bg-cta/90">
                   {sending === 'completion' ? t("common.saving") : t("employer.candidateDetail.contact.requestCompletion")}
+                </Button>
+              </>
+            )}
+          </TabsContent>
+
+          {/* Tools — show candidate's tools or send a request */}
+          <TabsContent value="tools" className="space-y-4 mt-4">
+            {hasTools ? (
+              <div className="space-y-3">
+                <div className="flex items-center gap-2 font-medium">
+                  <Wrench className="w-5 h-5 text-accent" />
+                  {t("employer.candidateDetail.contact.toolsProvidedTitle", "Znajomość narzędzi kandydata")}
+                </div>
+                <CandidateToolsDisplay candidateTools={safeCandidateTools} requiredTools={safeRequiredTools} />
+              </div>
+            ) : (
+              <>
+                <div className="p-4 rounded-lg bg-warning/5 border border-warning/30">
+                  <p className="font-medium mb-1">{t("employer.candidateDetail.contact.toolsMissingTitle", "Kandydat nie uzupełnił sekcji „Znajomość narzędzi\"")}</p>
+                  <p className="text-sm text-muted-foreground">{t("employer.candidateDetail.contact.toolsMissingDesc", "Wyślij prośbę o uzupełnienie, aby ocenić dopasowanie do stanowiska.")}</p>
+                </div>
+                <div className="space-y-2">
+                  <Label>{t("employer.candidateDetail.contact.messageLabel")}</Label>
+                  <Textarea rows={6} value={toolsMsg} onChange={(e) => setToolsMsg(e.target.value)} />
+                </div>
+                <Button onClick={handleRequestTools} disabled={sending !== null} className="w-full bg-cta text-cta-foreground hover:bg-cta/90">
+                  {sending === 'tools' ? t("common.saving") : t("employer.candidateDetail.contact.requestTools", "Poproś o uzupełnienie narzędzi")}
                 </Button>
               </>
             )}

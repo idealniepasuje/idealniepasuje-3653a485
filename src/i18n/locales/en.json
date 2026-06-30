@@ -510,7 +510,9 @@
       "markAsRead": "Mark as read",
       "openProfile": "Complete profile",
       "addLinkedin": "Add LinkedIn",
-      "openCalendar": "Open calendar"
+      "openCalendar": "Open calendar",
+      "toolsRequest": "Tools completion request",
+      "openTools": "Add tools"
     }
   },
   "employer": {
@@ -671,6 +673,16 @@
       "profileLocked": "Full profile is locked",
       "profileLockedHint": "Click Contact to unlock the full profile or ask the candidate to complete it.",
       "gettingToKnowTitle": "Get to know the candidate",
+      "toolsTitle": "Tool proficiency",
+      "toolsMissing": "Candidate's profile is incomplete – no tool proficiency information.",
+      "toolsRequestStatus": "Request status",
+      "toolsStatus": {
+        "not_sent": "Not sent",
+        "sent_auto": "Sent automatically",
+        "awaiting": "Awaiting completion",
+        "completed": "Completed",
+        "no_response": "No response"
+      },
       "workDescriptionLabel": "What they do at work",
       "contact": {
         "button": "Contact",
@@ -697,7 +709,13 @@
         "gettingToKnowMissingTitle": "Candidate hasn't completed the \"Get to know\" section",
         "gettingToKnowMissingDesc": "Send a request to fill in the answers so you can get to know the candidate better.",
         "requestCompletion": "Ask to complete \"Get to know\"",
-        "completionRequested": "Completion request sent"
+        "completionRequested": "Completion request sent",
+        "toolsTab": "Tools",
+        "toolsProvidedTitle": "Candidate's tool proficiency",
+        "toolsMissingTitle": "Candidate hasn't completed the \"Tool proficiency\" section",
+        "toolsMissingDesc": "Send a request so you can assess the fit for the role.",
+        "requestTools": "Ask to add tools",
+        "toolsRequested": "Tools completion request sent"
       }
     },
     "offers": {

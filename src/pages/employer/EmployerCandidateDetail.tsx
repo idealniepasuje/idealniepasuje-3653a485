@@ -7,6 +7,8 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { LogOut, ArrowLeft, Target, Heart, Briefcase, CheckCircle2, AlertCircle, TrendingUp, TrendingDown, User, ThumbsUp, ThumbsDown, Sparkles, ShieldCheck, Linkedin, Lock, Mail } from "lucide-react";
 import { ContactCandidateModal } from "@/components/employer/ContactCandidateModal";
+import { CandidateToolsDisplay } from "@/components/tools/CandidateToolsDisplay";
+import { Wrench } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { logError } from "@/lib/errorLogger";
@@ -119,7 +121,7 @@ const EmployerCandidateDetail = () => {
       // Fetch candidate test results for additional info
       const { data: testData } = await supabase
         .from("candidate_test_results")
-        .select("industry, experience, position_level, work_description, target_industries, has_no_experience, industry_experiences, competency_answers, linkedin_url, work_mode, city, getting_to_know, profile_ready")
+        .select("industry, experience, position_level, work_description, target_industries, has_no_experience, industry_experiences, competency_answers, linkedin_url, work_mode, city, getting_to_know, profile_ready, tools")
         .eq("user_id", candidateId)
         .single();
 
@@ -142,7 +144,7 @@ const EmployerCandidateDetail = () => {
       if (matchData?.job_offer_id) {
         const { data: offerData, error: offerError } = await supabase
           .from("job_offers")
-          .select("industry, required_experience, position_level, accepted_industries, no_experience_required, accepted_industry_requirements")
+          .select("industry, required_experience, position_level, accepted_industries, no_experience_required, accepted_industry_requirements, required_tools")
           .eq("id", matchData.job_offer_id)
           .maybeSingle();
 
@@ -194,6 +196,24 @@ const EmployerCandidateDetail = () => {
               extra_percent: match.extra_percent,
             }
           });
+
+          // Auto-send tools request if candidate hasn't filled tools yet and we haven't already asked.
+          try {
+            const candidateHasTools = Array.isArray((candidateData as any)?.tools) && (candidateData as any).tools.length > 0;
+            const alreadyAsked = match.tools_request_status && match.tools_request_status !== 'not_sent';
+            if (!candidateHasTools && !alreadyAsked) {
+              await supabase.functions.invoke('send-tools-completion-request', {
+                body: {
+                  candidate_user_id: candidateId,
+                  match_id: match.id,
+                  employer_company_name: employerProfile?.company_name || 'Pracodawca',
+                  trigger: 'auto',
+                },
+              });
+            }
+          } catch (toolsErr) {
+            logError("EmployerCandidateDetail.autoToolsRequest", toolsErr);
+          }
         } catch (notifError) {
           logError("EmployerCandidateDetail.sendNotification", notifError);
         }
@@ -450,6 +470,44 @@ const EmployerCandidateDetail = () => {
             </CardContent>
           </Card>
         )}
+
+        {/* Tool proficiency */}
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Wrench className="w-5 h-5 text-accent" />
+              {t("employer.candidateDetail.toolsTitle", "Znajomość narzędzi")}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {(() => {
+              const candTools = Array.isArray((candidateData as any)?.tools) ? (candidateData as any).tools : [];
+              const reqTools = Array.isArray((jobOfferData as any)?.required_tools) ? (jobOfferData as any).required_tools : [];
+              if (candTools.length === 0) {
+                const status = match?.tools_request_status as string | undefined;
+                const statusKey = `employer.candidateDetail.toolsStatus.${status || 'not_sent'}`;
+                return (
+                  <div className="space-y-3">
+                    <div className="p-4 rounded-lg bg-warning/5 border border-warning/30">
+                      <p className="font-medium mb-1">
+                        {t("employer.candidateDetail.toolsMissing", "Profil kandydata jest niekompletny – brak informacji o znajomości narzędzi.")}
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        {t("employer.candidateDetail.toolsRequestStatus", "Status prośby")}:{" "}
+                        <strong>{t(statusKey, status || 'Nie wysłano')}</strong>
+                      </p>
+                    </div>
+                    <Button variant="outline" onClick={() => setContactOpen(true)}>
+                      <Wrench className="w-4 h-4 mr-2" />
+                      {t("employer.candidateDetail.contact.requestTools", "Poproś o uzupełnienie narzędzi")}
+                    </Button>
+                  </div>
+                );
+              }
+              return <CandidateToolsDisplay candidateTools={candTools} requiredTools={reqTools} />;
+            })()}
+          </CardContent>
+        </Card>
 
         <div className="grid md:grid-cols-2 gap-6">
           {/* Strengths */}
@@ -797,6 +855,8 @@ const EmployerCandidateDetail = () => {
           companyName={employerCompanyName}
           candidateLinkedinUrl={candidateData?.linkedin_url}
           candidateGettingToKnow={(candidateData?.getting_to_know || {}) as Record<string, string>}
+          candidateTools={(candidateData as any)?.tools || []}
+          requiredTools={(jobOfferData as any)?.required_tools || []}
           onUpdated={fetchMatchData}
         />
       )}

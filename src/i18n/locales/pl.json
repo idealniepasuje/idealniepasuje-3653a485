@@ -510,7 +510,9 @@
       "markAsRead": "Oznacz jako przeczytane",
       "openProfile": "Uzupełnij profil",
       "addLinkedin": "Dodaj LinkedIn",
-      "openCalendar": "Otwórz kalendarz"
+      "openCalendar": "Otwórz kalendarz",
+      "toolsRequest": "Prośba o uzupełnienie narzędzi",
+      "openTools": "Uzupełnij narzędzia"
     }
   },
   "employer": {
@@ -671,6 +673,16 @@
       "profileLocked": "Pełny profil zablokowany",
       "profileLockedHint": "Kliknij Kontakt, aby odblokować pełny profil lub poprosić kandydata o jego uzupełnienie.",
       "gettingToKnowTitle": "Daj się poznać",
+      "toolsTitle": "Znajomość narzędzi",
+      "toolsMissing": "Profil kandydata jest niekompletny – brak informacji o znajomości narzędzi.",
+      "toolsRequestStatus": "Status prośby",
+      "toolsStatus": {
+        "not_sent": "Nie wysłano",
+        "sent_auto": "Wysłano automatycznie",
+        "awaiting": "Oczekuje na uzupełnienie",
+        "completed": "Uzupełniono",
+        "no_response": "Brak odpowiedzi"
+      },
       "workDescriptionLabel": "Czym zajmuje się w pracy",
       "contact": {
         "button": "Kontakt",
@@ -697,7 +709,13 @@
         "gettingToKnowMissingTitle": "Kandydat nie uzupełnił sekcji „Daj się poznać\"",
         "gettingToKnowMissingDesc": "Wyślij prośbę o uzupełnienie odpowiedzi, aby lepiej poznać kandydata.",
         "requestCompletion": "Poproś o uzupełnienie „Daj się poznać\"",
-        "completionRequested": "Prośba o uzupełnienie została wysłana"
+        "completionRequested": "Prośba o uzupełnienie została wysłana",
+        "toolsTab": "Narzędzia",
+        "toolsProvidedTitle": "Znajomość narzędzi kandydata",
+        "toolsMissingTitle": "Kandydat nie uzupełnił sekcji „Znajomość narzędzi\"",
+        "toolsMissingDesc": "Wyślij prośbę o uzupełnienie, aby ocenić dopasowanie do stanowiska.",
+        "requestTools": "Poproś o uzupełnienie narzędzi",
+        "toolsRequested": "Prośba o uzupełnienie narzędzi została wysłana"
       }
     },
     "offers": {
