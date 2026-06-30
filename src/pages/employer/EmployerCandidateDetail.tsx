@@ -471,6 +471,44 @@ const EmployerCandidateDetail = () => {
           </Card>
         )}
 
+        {/* Tool proficiency */}
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Wrench className="w-5 h-5 text-accent" />
+              {t("employer.candidateDetail.toolsTitle", "Znajomość narzędzi")}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {(() => {
+              const candTools = Array.isArray((candidateData as any)?.tools) ? (candidateData as any).tools : [];
+              const reqTools = Array.isArray((jobOfferData as any)?.required_tools) ? (jobOfferData as any).required_tools : [];
+              if (candTools.length === 0) {
+                const status = match?.tools_request_status as string | undefined;
+                const statusKey = `employer.candidateDetail.toolsStatus.${status || 'not_sent'}`;
+                return (
+                  <div className="space-y-3">
+                    <div className="p-4 rounded-lg bg-warning/5 border border-warning/30">
+                      <p className="font-medium mb-1">
+                        {t("employer.candidateDetail.toolsMissing", "Profil kandydata jest niekompletny – brak informacji o znajomości narzędzi.")}
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        {t("employer.candidateDetail.toolsRequestStatus", "Status prośby")}:{" "}
+                        <strong>{t(statusKey, status || 'Nie wysłano')}</strong>
+                      </p>
+                    </div>
+                    <Button variant="outline" onClick={() => setContactOpen(true)}>
+                      <Wrench className="w-4 h-4 mr-2" />
+                      {t("employer.candidateDetail.contact.requestTools", "Poproś o uzupełnienie narzędzi")}
+                    </Button>
+                  </div>
+                );
+              }
+              return <CandidateToolsDisplay candidateTools={candTools} requiredTools={reqTools} />;
+            })()}
+          </CardContent>
+        </Card>
+
         <div className="grid md:grid-cols-2 gap-6">
           {/* Strengths */}
           {matchDetails?.strengths && matchDetails.strengths.length > 0 && (
