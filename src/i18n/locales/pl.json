@@ -673,6 +673,16 @@
       "profileLocked": "Pełny profil zablokowany",
       "profileLockedHint": "Kliknij Kontakt, aby odblokować pełny profil lub poprosić kandydata o jego uzupełnienie.",
       "gettingToKnowTitle": "Daj się poznać",
+      "toolsTitle": "Znajomość narzędzi",
+      "toolsMissing": "Profil kandydata jest niekompletny – brak informacji o znajomości narzędzi.",
+      "toolsRequestStatus": "Status prośby",
+      "toolsStatus": {
+        "not_sent": "Nie wysłano",
+        "sent_auto": "Wysłano automatycznie",
+        "awaiting": "Oczekuje na uzupełnienie",
+        "completed": "Uzupełniono",
+        "no_response": "Brak odpowiedzi"
+      },
       "workDescriptionLabel": "Czym zajmuje się w pracy",
       "contact": {
         "button": "Kontakt",
