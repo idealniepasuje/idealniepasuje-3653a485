@@ -7,6 +7,8 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { LogOut, ArrowLeft, Target, Heart, Briefcase, CheckCircle2, AlertCircle, TrendingUp, TrendingDown, User, ThumbsUp, ThumbsDown, Sparkles, ShieldCheck, Linkedin, Lock, Mail } from "lucide-react";
 import { ContactCandidateModal } from "@/components/employer/ContactCandidateModal";
+import { CandidateToolsDisplay } from "@/components/tools/CandidateToolsDisplay";
+import { Wrench } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { logError } from "@/lib/errorLogger";
