@@ -697,7 +697,13 @@
         "gettingToKnowMissingTitle": "Kandydat nie uzupełnił sekcji „Daj się poznać\"",
         "gettingToKnowMissingDesc": "Wyślij prośbę o uzupełnienie odpowiedzi, aby lepiej poznać kandydata.",
         "requestCompletion": "Poproś o uzupełnienie „Daj się poznać\"",
-        "completionRequested": "Prośba o uzupełnienie została wysłana"
+        "completionRequested": "Prośba o uzupełnienie została wysłana",
+        "toolsTab": "Narzędzia",
+        "toolsProvidedTitle": "Znajomość narzędzi kandydata",
+        "toolsMissingTitle": "Kandydat nie uzupełnił sekcji „Znajomość narzędzi\"",
+        "toolsMissingDesc": "Wyślij prośbę o uzupełnienie, aby ocenić dopasowanie do stanowiska.",
+        "requestTools": "Poproś o uzupełnienie narzędzi",
+        "toolsRequested": "Prośba o uzupełnienie narzędzi została wysłana"
       }
     },
     "offers": {
