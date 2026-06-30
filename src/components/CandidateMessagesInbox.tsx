@@ -75,6 +75,7 @@ export const CandidateMessagesInbox = () => {
           const typeLabel =
             msg.type === 'interview_invite' ? t("candidate.inbox.interviewInvite") :
             msg.type === 'linkedin_request' ? t("candidate.inbox.linkedinRequest") :
+            msg.type === 'tools_completion_request' ? t("candidate.inbox.toolsRequest", "Prośba o uzupełnienie narzędzi") :
             t("candidate.inbox.profileCompletion");
           const calendarLink = msg.metadata?.calendar_link as string | undefined;
           return (
