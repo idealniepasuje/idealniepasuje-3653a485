@@ -4,14 +4,14 @@ import { useTranslation } from "react-i18next";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Mail, Linkedin, CalendarClock, FileEdit, ExternalLink } from "lucide-react";
+import { Mail, Linkedin, CalendarClock, FileEdit, ExternalLink, Wrench } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { logError } from "@/lib/errorLogger";
 
 interface Message {
   id: string;
-  type: 'linkedin_request' | 'profile_completion' | 'interview_invite';
+  type: 'linkedin_request' | 'profile_completion' | 'interview_invite' | 'tools_completion_request';
   content: string;
   metadata: any;
   read_at: string | null;
@@ -21,6 +21,7 @@ interface Message {
 const iconForType = (type: string) => {
   if (type === 'interview_invite') return CalendarClock;
   if (type === 'linkedin_request') return Linkedin;
+  if (type === 'tools_completion_request') return Wrench;
   return FileEdit;
 };
 
