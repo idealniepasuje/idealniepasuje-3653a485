@@ -697,7 +697,13 @@
         "gettingToKnowMissingTitle": "Candidate hasn't completed the \"Get to know\" section",
         "gettingToKnowMissingDesc": "Send a request to fill in the answers so you can get to know the candidate better.",
         "requestCompletion": "Ask to complete \"Get to know\"",
-        "completionRequested": "Completion request sent"
+        "completionRequested": "Completion request sent",
+        "toolsTab": "Tools",
+        "toolsProvidedTitle": "Candidate's tool proficiency",
+        "toolsMissingTitle": "Candidate hasn't completed the \"Tool proficiency\" section",
+        "toolsMissingDesc": "Send a request so you can assess the fit for the role.",
+        "requestTools": "Ask to add tools",
+        "toolsRequested": "Tools completion request sent"
       }
     },
     "offers": {
