@@ -119,7 +119,7 @@ const EmployerCandidateDetail = () => {
       // Fetch candidate test results for additional info
       const { data: testData } = await supabase
         .from("candidate_test_results")
-        .select("industry, experience, position_level, work_description, target_industries, has_no_experience, industry_experiences, competency_answers, linkedin_url, work_mode, city, getting_to_know, profile_ready")
+        .select("industry, experience, position_level, work_description, target_industries, has_no_experience, industry_experiences, competency_answers, linkedin_url, work_mode, city, getting_to_know, profile_ready, tools")
         .eq("user_id", candidateId)
         .single();
 
@@ -142,7 +142,7 @@ const EmployerCandidateDetail = () => {
       if (matchData?.job_offer_id) {
         const { data: offerData, error: offerError } = await supabase
           .from("job_offers")
-          .select("industry, required_experience, position_level, accepted_industries, no_experience_required, accepted_industry_requirements")
+          .select("industry, required_experience, position_level, accepted_industries, no_experience_required, accepted_industry_requirements, required_tools")
           .eq("id", matchData.job_offer_id)
           .maybeSingle();
 
@@ -194,6 +194,24 @@ const EmployerCandidateDetail = () => {
               extra_percent: match.extra_percent,
             }
           });
+
+          // Auto-send tools request if candidate hasn't filled tools yet and we haven't already asked.
+          try {
+            const candidateHasTools = Array.isArray((candidateData as any)?.tools) && (candidateData as any).tools.length > 0;
+            const alreadyAsked = match.tools_request_status && match.tools_request_status !== 'not_sent';
+            if (!candidateHasTools && !alreadyAsked) {
+              await supabase.functions.invoke('send-tools-completion-request', {
+                body: {
+                  candidate_user_id: candidateId,
+                  match_id: match.id,
+                  employer_company_name: employerProfile?.company_name || 'Pracodawca',
+                  trigger: 'auto',
+                },
+              });
+            }
+          } catch (toolsErr) {
+            logError("EmployerCandidateDetail.autoToolsRequest", toolsErr);
+          }
         } catch (notifError) {
           logError("EmployerCandidateDetail.sendNotification", notifError);
         }

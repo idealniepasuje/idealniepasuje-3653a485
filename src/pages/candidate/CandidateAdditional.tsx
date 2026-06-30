@@ -16,6 +16,8 @@ import { toast } from "sonner";
 import { industries, experienceLevels, positionLevels, getLocalizedData, LANGUAGE_LEVELS, languageLevelLabels, languageNames } from "@/data/additionalQuestions";
 import { logError } from "@/lib/errorLogger";
 import { WorkModeSelector } from "@/components/WorkModeSelector";
+import { ToolsSelector } from "@/components/tools/ToolsSelector";
+import { normalizeTools, ToolEntry } from "@/data/tools";
 import type { Json } from "@/integrations/supabase/types";
 
 interface IndustryExperience {
@@ -55,6 +57,8 @@ const CandidateAdditional = () => {
   const [langGerman, setLangGerman] = useState("");
   const [langPolish, setLangPolish] = useState("");
   
+  const [tools, setTools] = useState<ToolEntry[]>([]);
+
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
@@ -64,12 +68,21 @@ const CandidateAdditional = () => {
     if (user) fetchExistingData();
   }, [user, authLoading, navigate]);
 
+  // Deep-link scroll: /candidate/additional#tools focuses tools section after data loaded.
+  useEffect(() => {
+    if (!loading && typeof window !== 'undefined' && window.location.hash === '#tools') {
+      setTimeout(() => {
+        document.getElementById('tools-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 150);
+    }
+  }, [loading]);
+
   const fetchExistingData = async () => {
     if (!user) return;
     try {
       const { data, error } = await supabase
         .from("candidate_test_results")
-        .select("industry_experiences, has_no_experience, target_industries, linkedin_url, additional_completed, work_mode, city, work_description, getting_to_know, lang_english, lang_spanish, lang_german, lang_polish")
+        .select("industry_experiences, has_no_experience, target_industries, linkedin_url, additional_completed, work_mode, city, work_description, getting_to_know, lang_english, lang_spanish, lang_german, lang_polish, tools")
         .eq("user_id", user.id)
         .single();
       if (error && error.code !== "PGRST116") logError("CandidateAdditional.fetchExistingData", error);
@@ -93,6 +106,7 @@ const CandidateAdditional = () => {
         setLangSpanish((data as any).lang_spanish || "");
         setLangGerman((data as any).lang_german || "");
         setLangPolish((data as any).lang_polish || "");
+        setTools(normalizeTools((data as any).tools));
       }
     } catch (error) {
       logError("CandidateAdditional.fetchExistingData", error);
@@ -255,6 +269,7 @@ const CandidateAdditional = () => {
         lang_spanish: langSpanish || null,
         lang_german: langGerman || null,
         lang_polish: langPolish || null,
+        tools: (tools as unknown) as Json,
         getting_to_know: {
           tasks: gtkTasks,
           problems: gtkProblems,
@@ -272,6 +287,7 @@ const CandidateAdditional = () => {
         if (linkedinUrl) typesToClear.push('linkedin_request');
         const gtkComplete = gtkTasks.trim() && gtkProblems.trim() && gtkMotivation.trim() && gtkProudOf.trim();
         if (gtkComplete) typesToClear.push('profile_completion');
+        if (tools.length > 0) typesToClear.push('tools_completion_request');
         if (typesToClear.length > 0) {
           await supabase
             .from('candidate_messages')
@@ -583,6 +599,11 @@ const CandidateAdditional = () => {
                 </div>
               );
             })()}
+
+            {/* Znajomość narzędzi */}
+            <div id="tools-section" className="space-y-2 p-4 rounded-lg border border-accent/20 bg-accent/5 scroll-mt-24">
+              <ToolsSelector value={tools} onChange={setTools} variant="candidate" />
+            </div>
 
             {/* LinkedIn */}
             <div className="space-y-2">

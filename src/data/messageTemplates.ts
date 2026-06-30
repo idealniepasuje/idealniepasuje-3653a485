@@ -1,6 +1,14 @@
 // Editable message templates sent from employer to candidate.
 
-export type MessageType = 'linkedin_request' | 'profile_completion' | 'interview_invite';
+export type MessageType = 'linkedin_request' | 'profile_completion' | 'interview_invite' | 'tools_completion_request';
+
+export const getToolsRequestTemplate = (lang: string, companyName?: string): string => {
+  const company = companyName?.trim() || (lang === 'en' ? 'our company' : 'naszej firmy');
+  if (lang === 'en') {
+    return `Hi! ${company} is interested in your profile. Please complete the "Tool proficiency" section in your profile so we can better evaluate your fit for the role. Thank you!`;
+  }
+  return `Cześć! ${company} jest zainteresowana Twoim profilem. Prosimy o uzupełnienie sekcji „Znajomość narzędzi" w Twoim profilu, aby umożliwić dalszą ocenę dopasowania do stanowiska. Dziękujemy!`;
+};
 export type InterviewType = 'online' | 'phone' | 'onsite';
 
 export const getLinkedinRequestTemplate = (lang: string, companyName?: string): string => {
