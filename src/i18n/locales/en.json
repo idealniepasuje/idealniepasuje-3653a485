@@ -510,7 +510,9 @@
       "markAsRead": "Mark as read",
       "openProfile": "Complete profile",
       "addLinkedin": "Add LinkedIn",
-      "openCalendar": "Open calendar"
+      "openCalendar": "Open calendar",
+      "toolsRequest": "Tools completion request",
+      "openTools": "Add tools"
     }
   },
   "employer": {
