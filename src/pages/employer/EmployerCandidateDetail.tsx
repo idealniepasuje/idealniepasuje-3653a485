@@ -605,6 +605,57 @@ const EmployerCandidateDetail = () => {
           </Card>
         )}
 
+        {/* Languages */}
+        {(() => {
+          const langUi = i18n.language === 'en' ? 'en' : 'pl';
+          const names = languageNames[langUi];
+          const labels = languageLevelLabels[langUi];
+          const items: Array<{ key: keyof typeof names; value: string }> = [
+            { key: 'english', value: (candidateData as any)?.lang_english || '' },
+            { key: 'spanish', value: (candidateData as any)?.lang_spanish || '' },
+            { key: 'german', value: (candidateData as any)?.lang_german || '' },
+            { key: 'polish', value: (candidateData as any)?.lang_polish || '' },
+          ];
+          const hasAny = items.some(it => it.value && it.value !== 'none');
+          const allMissing = items.every(it => !it.value);
+          return (
+            <Card className="mb-6">
+              <CardHeader>
+                <div className="flex items-start justify-between gap-3">
+                  <CardTitle className="flex items-center gap-2">
+                    <Sparkles className="w-5 h-5 text-accent" />
+                    {langUi === 'pl' ? 'Poziom znajomości języków' : 'Language proficiency'}
+                  </CardTitle>
+                  {(!hasAny || allMissing) && (
+                    <Button size="sm" variant="outline" onClick={requestLanguages} disabled={requestingLanguages} className="border-accent text-accent hover:bg-accent/10 shrink-0">
+                      <Mail className="w-4 h-4 mr-2" />
+                      {t("employer.candidateDetail.requestFill", "Poproś o uzupełnienie")}
+                    </Button>
+                  )}
+                </div>
+              </CardHeader>
+              <CardContent>
+                {hasAny ? (
+                  <div className="grid sm:grid-cols-2 gap-3">
+                    {items.map(it => (
+                      <div key={it.key as string} className="flex items-center justify-between p-3 rounded-lg border bg-muted/30">
+                        <span className="text-sm font-medium">{names[it.key]}</span>
+                        {it.value ? (
+                          <Badge variant="outline">{labels[it.value as keyof typeof labels] || it.value}</Badge>
+                        ) : (
+                          <span className="text-xs italic text-muted-foreground">{t("employer.candidateDetail.notProvided", "Nie uzupełnione")}</span>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm italic text-muted-foreground">{t("employer.candidateDetail.notProvided", "Nie uzupełnione")}</p>
+                )}
+              </CardContent>
+            </Card>
+          );
+        })()}
+
         {/* Tool proficiency */}
         <Card className="mb-6">
           <CardHeader>
