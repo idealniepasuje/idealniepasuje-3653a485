@@ -16,7 +16,8 @@ import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { toast } from "sonner";
 import { getLevel, getFeedback, getLocalizedLevelLabels } from "@/data/feedbackData";
 import { getAprobataQuestions } from "@/data/competencyQuestions";
-import { getLinkedinRequestTemplate, getProfileCompletionTemplate, getToolsRequestTemplate } from "@/data/messageTemplates";
+import { getLinkedinRequestTemplate, getProfileCompletionTemplate, getToolsRequestTemplate, getLanguagesRequestTemplate } from "@/data/messageTemplates";
+import { LANGUAGE_LEVELS, languageLevelLabels, languageNames } from "@/data/additionalQuestions";
 
 interface MatchDetails {
   competenceDetails: {
