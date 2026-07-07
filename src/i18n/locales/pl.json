@@ -3,7 +3,7 @@
     "start": "Start",
     "tests": "Testy",
     "matches": "Dopasowania",
-    "jobOffers": "Zlecenia",
+    "jobOffers": "Ogłoszenia",
     "profile": "Profil firmy"
   },
   "common": {
@@ -550,8 +550,8 @@
       "andMoreCandidates": "...i jeszcze {{count}} kandydatów",
       "searchingCandidates": "Szukamy idealnych kandydatów",
       "searchingCandidatesDescription": "Pracujemy teraz nad znalezieniem idealnego kandydata. Gdy go znajdziemy, otrzymasz powiadomienie.",
-      "yourOrders": "Twoje zlecenia",
-      "newOffer": "Nowe zlecenie",
+      "yourOrders": "Twoje ogłoszenia",
+      "newOffer": "Nowe ogłoszenie",
       "viewMore": "Zobacz wszystkie",
       "completeProfileTitle": "Uzupełnij profil firmy",
       "completeProfileDescription": "Zanim dodasz pierwsze zlecenie, uzupełnij podstawowe informacje o firmie – nazwę i branżę.",
@@ -721,7 +721,7 @@
     "offers": {
       "title": "Oferty pracy",
       "subtitle": "Zarządzaj swoimi ofertami pracy",
-      "addNew": "Nowe zlecenie",
+      "addNew": "Nowe ogłoszenie",
       "noOffers": "Brak ofert pracy",
       "noOffersDescription": "Nie masz jeszcze żadnych ofert pracy. Utwórz pierwszą ofertę, aby rozpocząć dopasowywanie kandydatów.",
       "createFirst": "Utwórz pierwszą ofertę",
