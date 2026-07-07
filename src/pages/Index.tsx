@@ -279,8 +279,8 @@ const Index = () => {
             <div className="grid md:grid-cols-3 gap-5 mt-12 max-w-5xl mx-auto">
               {[
                 { icon: TrendingUp, title: "Śledź postęp", desc: "Widzisz, jak rośnie Twoje dopasowanie z każdą odpowiedzią." },
-                { icon: Sparkles, title: "AI matching", desc: "Algorytm dopasowuje Cię do ról zgodnych z Twoją osobowością." },
-                { icon: Star, title: "Ulubione oferty", desc: "Zapisuj pracodawców, którzy najbardziej Ci pasują." },
+                { icon: Sparkles, title: "AI matching", desc: "Algorytm dopasowuje Cię do ról zgodnych z Twoimi predyspozycjami zawodowymi." },
+                { icon: Star, title: "Gotowe dopasowania", desc: "Otrzymujesz propozycje dopasowane do profilu — bez samodzielnego szukania pracy." },
               ].map((f, i) => (
                 <Reveal key={f.title} delay={i * 100}>
                   <div className="rounded-[20px] bg-[#F8FAFC] border border-[#E2E8F0] p-6 h-full">
