@@ -10,7 +10,7 @@ import { CalendarClock, Mail, Phone } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { logError } from "@/lib/errorLogger";
-import { getInterviewInviteTemplate, InterviewType } from "@/data/messageTemplates";
+import { getInterviewInviteTemplate, InterviewType, getContactRequestTemplate } from "@/data/messageTemplates";
 
 interface Props {
   open: boolean;
