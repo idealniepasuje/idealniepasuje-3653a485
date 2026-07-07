@@ -864,11 +864,6 @@ const EmployerCandidateDetail = () => {
           candidateUserId={candidateId}
           employerUserId={user.id}
           companyName={employerCompanyName}
-          candidateLinkedinUrl={candidateData?.linkedin_url}
-          candidateGettingToKnow={(candidateData?.getting_to_know || {}) as Record<string, string>}
-          candidateTools={(candidateData as any)?.tools || []}
-          requiredTools={(jobOfferData as any)?.required_tools || []}
-          initialTab={contactInitialTab}
           onUpdated={fetchMatchData}
         />
       )}
