@@ -74,7 +74,13 @@ const EmployerCandidateDetail = () => {
   const [loading, setLoading] = useState(true);
   const [currentStatus, setCurrentStatus] = useState<string>('pending');
   const [contactOpen, setContactOpen] = useState(false);
+  const [contactInitialTab, setContactInitialTab] = useState<'invite' | 'linkedin' | 'gtk' | 'tools'>('invite');
   const [employerCompanyName, setEmployerCompanyName] = useState<string>('');
+
+  const openContactAt = (tab: 'invite' | 'linkedin' | 'gtk' | 'tools') => {
+    setContactInitialTab(tab);
+    setContactOpen(true);
+  };
 
   useEffect(() => {
     if (!authLoading && !user) { navigate("/login"); return; }
