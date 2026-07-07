@@ -137,8 +137,22 @@ export const ContactCandidateModal = ({
 
         {/* Direct contact info */}
         <div className="mt-2 rounded-lg border bg-accent/5 border-accent/20 p-4 space-y-3">
-          <div className="text-sm font-semibold">
-            {t("employer.candidateDetail.contact.directContactTitle", "Dane kontaktowe kandydata")}
+          <div className="flex items-start justify-between gap-3">
+            <div className="text-sm font-semibold">
+              {t("employer.candidateDetail.contact.directContactTitle", "Dane kontaktowe kandydata")}
+            </div>
+            {!loadingContact && (!contact?.email || !contact?.phone) && (
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={handleRequestContact}
+                disabled={requestingContact}
+                className="border-accent text-accent hover:bg-accent/10 shrink-0"
+              >
+                <Mail className="w-4 h-4 mr-2" />
+                {t("employer.candidateDetail.requestFill", "Poproś o uzupełnienie")}
+              </Button>
+            )}
           </div>
           {loadingContact ? (
             <div className="text-sm text-muted-foreground">{t("common.loading")}</div>
