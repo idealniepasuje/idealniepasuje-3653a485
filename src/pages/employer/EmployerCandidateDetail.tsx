@@ -94,6 +94,13 @@ const EmployerCandidateDetail = () => {
         metadata: {},
       });
       await supabase.from('match_results').update({ linkedin_requested_at: new Date().toISOString() }).eq('id', match.id);
+      try {
+        await supabase.functions.invoke('send-profile-completion-request', {
+          body: { candidate_user_id: candidateId, employer_company_name: employerCompanyName, message: msg },
+        });
+      } catch (mailErr) {
+        logError('EmployerCandidateDetail.requestLinkedin.email', mailErr);
+      }
       toast.success(t("employer.candidateDetail.contact.linkedinRequestSent"));
     } catch (e) {
       logError('EmployerCandidateDetail.requestLinkedin', e);
