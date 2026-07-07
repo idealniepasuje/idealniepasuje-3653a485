@@ -218,6 +218,16 @@ const EmployerOffers = () => {
         </Link>
       </div>
 
+      {archivedOffers.length > 0 && (
+        <Alert className="mb-6 border-cta/30 bg-cta/10 text-foreground">
+          <AlertTriangle className="h-4 w-4 text-cta" />
+          <AlertTitle>{t("employer.offers.inactiveWarningTitle")}</AlertTitle>
+          <AlertDescription>
+            {t("employer.offers.inactiveWarningDescription", { count: archivedOffers.length })}
+          </AlertDescription>
+        </Alert>
+      )}
+
       {offers.length === 0 ? (
         <Card className="border-dashed">
           <CardContent className="pt-6 text-center py-16">
