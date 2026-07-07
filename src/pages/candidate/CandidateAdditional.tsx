@@ -108,6 +108,7 @@ const CandidateAdditional = () => {
         setLangGerman((data as any).lang_german || "");
         setLangPolish((data as any).lang_polish || "");
         setTools(normalizeTools((data as any).tools));
+        setPhone((data as any).phone || "");
       }
     } catch (error) {
       logError("CandidateAdditional.fetchExistingData", error);
