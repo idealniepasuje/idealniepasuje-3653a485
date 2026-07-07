@@ -47,6 +47,7 @@ export const ContactCandidateModal = ({
   candidateGettingToKnow,
   candidateTools,
   requiredTools,
+  initialTab = 'invite',
   onUpdated,
 }: Props) => {
   const { t, i18n } = useTranslation();
