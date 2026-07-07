@@ -721,7 +721,7 @@
     "offers": {
       "title": "Job Offers",
       "subtitle": "Manage your job listings",
-      "addNew": "New order",
+      "addNew": "New offer",
       "noOffers": "No job offers",
       "noOffersDescription": "You don't have any job offers yet. Create your first offer to start matching candidates.",
       "createFirst": "Create first offer",
