@@ -95,6 +95,9 @@ const EmployerDashboard = () => {
   const hasCompanyProfile = !!(employerProfile?.company_name && employerProfile?.industry);
   const hasCultureCompleted = !!employerProfile?.culture_completed;
   const hasOffers = offers.length > 0;
+  const activeDashboardOffers = offers.filter(o => o.is_active !== false);
+  const archivedDashboardOffers = offers.filter(o => o.is_active === false);
+  const displayedOffers = [...activeDashboardOffers, ...archivedDashboardOffers];
 
   return (
     <DashboardLayout sidebar={<EmployerSidebar />}>
