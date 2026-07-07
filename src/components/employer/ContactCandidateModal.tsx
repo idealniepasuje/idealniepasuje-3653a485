@@ -10,7 +10,7 @@ import { CalendarClock, Mail, Phone } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { logError } from "@/lib/errorLogger";
-import { getInterviewInviteTemplate, InterviewType } from "@/data/messageTemplates";
+import { getInterviewInviteTemplate, InterviewType, getContactRequestTemplate } from "@/data/messageTemplates";
 
 interface Props {
   open: boolean;
@@ -38,6 +38,7 @@ export const ContactCandidateModal = ({
   const [calendarLink, setCalendarLink] = useState("");
   const [interviewMsg, setInterviewMsg] = useState("");
   const [sending, setSending] = useState(false);
+  const [requestingContact, setRequestingContact] = useState(false);
 
   const [contact, setContact] = useState<{ email: string | null; phone: string | null } | null>(null);
   const [loadingContact, setLoadingContact] = useState(false);
@@ -98,6 +99,34 @@ export const ContactCandidateModal = ({
     }
   };
 
+  const handleRequestContact = async () => {
+    setRequestingContact(true);
+    try {
+      const msg = getContactRequestTemplate(lang, companyName);
+      await supabase.from('candidate_messages').insert({
+        match_result_id: match?.id,
+        candidate_user_id: candidateUserId,
+        employer_user_id: employerUserId,
+        type: 'profile_completion',
+        content: msg,
+        metadata: { request: 'contact' },
+      });
+      try {
+        await supabase.functions.invoke('send-profile-completion-request', {
+          body: { candidate_user_id: candidateUserId, employer_company_name: companyName, message: msg },
+        });
+      } catch (mailErr) {
+        logError('ContactCandidateModal.requestContact.email', mailErr);
+      }
+      toast.success(t("employer.candidateDetail.contact.contactRequestSent", "Prośba o dane kontaktowe została wysłana"));
+    } catch (e) {
+      logError('ContactCandidateModal.requestContact', e);
+      toast.error(t("errors.genericError"));
+    } finally {
+      setRequestingContact(false);
+    }
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
@@ -108,8 +137,22 @@ export const ContactCandidateModal = ({
 
         {/* Direct contact info */}
         <div className="mt-2 rounded-lg border bg-accent/5 border-accent/20 p-4 space-y-3">
-          <div className="text-sm font-semibold">
-            {t("employer.candidateDetail.contact.directContactTitle", "Dane kontaktowe kandydata")}
+          <div className="flex items-start justify-between gap-3">
+            <div className="text-sm font-semibold">
+              {t("employer.candidateDetail.contact.directContactTitle", "Dane kontaktowe kandydata")}
+            </div>
+            {!loadingContact && (!contact?.email || !contact?.phone) && (
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={handleRequestContact}
+                disabled={requestingContact}
+                className="border-accent text-accent hover:bg-accent/10 shrink-0"
+              >
+                <Mail className="w-4 h-4 mr-2" />
+                {t("employer.candidateDetail.requestFill", "Poproś o uzupełnienie")}
+              </Button>
+            )}
           </div>
           {loadingContact ? (
             <div className="text-sm text-muted-foreground">{t("common.loading")}</div>
