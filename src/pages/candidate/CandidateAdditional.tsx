@@ -31,6 +31,14 @@ const validateLinkedinUrl = (url: string): boolean => {
   return /^https?:\/\/(www\.)?linkedin\.com\/in\/.+/.test(url);
 };
 
+const AttractHint = ({ text }: { text: string }) => (
+  <div className="flex items-start gap-2 rounded-md border border-cta/40 bg-cta/10 p-2.5 text-xs text-foreground/80">
+    <Lightbulb className="w-4 h-4 text-cta shrink-0 mt-0.5" />
+    <span>{text}</span>
+  </div>
+);
+
+
 const CandidateAdditional = () => {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
