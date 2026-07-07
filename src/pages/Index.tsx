@@ -195,10 +195,13 @@ const Index = () => {
                     </Button>
                   </a>
                 </div>
-                <div className="mt-10 flex flex-wrap gap-6 text-sm text-slate-600">
-                  <div className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-[#2DD4BF]" /> Oparte na psychologii</div>
-                  <div className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-[#2DD4BF]" /> Spersonalizowane wyniki</div>
-                  <div className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-[#2DD4BF]" /> Setki ścieżek kariery</div>
+                <div className="mt-10 inline-flex items-center gap-3 px-5 py-3 rounded-2xl bg-gradient-to-r from-[#6366F1]/10 to-[#2DD4BF]/15 border border-[#6366F1]/20">
+                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#6366F1] to-[#2DD4BF] flex items-center justify-center shadow-[0_6px_16px_-6px_rgba(99,102,241,0.6)]">
+                    <CheckCircle2 className="w-4 h-4 text-white" />
+                  </div>
+                  <span className="text-sm md:text-base font-semibold bg-gradient-to-r from-[#6366F1] to-[#2DD4BF] bg-clip-text text-transparent">
+                    Ścieżki kariery dopasowane do Ciebie
+                  </span>
                 </div>
               </Reveal>
 
