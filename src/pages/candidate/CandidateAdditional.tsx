@@ -56,6 +56,7 @@ const CandidateAdditional = () => {
   const [langSpanish, setLangSpanish] = useState("");
   const [langGerman, setLangGerman] = useState("");
   const [langPolish, setLangPolish] = useState("");
+  const [phone, setPhone] = useState("");
   
   const [tools, setTools] = useState<ToolEntry[]>([]);
 
