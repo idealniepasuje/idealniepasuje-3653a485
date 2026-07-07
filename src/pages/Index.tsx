@@ -107,8 +107,42 @@ const DashboardMockup = () => (
               </div>
             ))}
           </div>
+        <div className="grid grid-cols-2 gap-3">
+          <div className="rounded-2xl bg-[#F8FAFC] p-3 md:p-4">
+            <div className="flex items-center gap-2 mb-3">
+              <div className="w-7 h-7 rounded-lg bg-[#6366F1]/10 flex items-center justify-center">
+                <Zap className="w-4 h-4 text-[#6366F1]" />
+              </div>
+              <p className="text-[10px] md:text-xs text-slate-500 font-medium">Moje mocne strony</p>
+            </div>
+            <div className="space-y-1.5">
+              {["Myślenie analityczne", "Kreatywność"].map((s) => (
+                <div key={s} className="flex items-center gap-1.5 text-xs text-[#0F172A]">
+                  <div className="w-1.5 h-1.5 rounded-full bg-[#2DD4BF]" />
+                  {s}
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="rounded-2xl bg-[#F8FAFC] p-3 md:p-4">
+            <div className="flex items-center gap-2 mb-3">
+              <div className="w-7 h-7 rounded-lg bg-[#2DD4BF]/10 flex items-center justify-center">
+                <Target className="w-4 h-4 text-[#2DD4BF]" />
+              </div>
+              <p className="text-[10px] md:text-xs text-slate-500 font-medium">Obszary do rozwoju</p>
+            </div>
+            <div className="space-y-1.5">
+              {["Negocjacje", "Zarządzanie czasem"].map((s) => (
+                <div key={s} className="flex items-center gap-1.5 text-xs text-[#0F172A]">
+                  <div className="w-1.5 h-1.5 rounded-full bg-[#6366F1]" />
+                  {s}
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
+    </div>
     </div>
   </div>
 );
