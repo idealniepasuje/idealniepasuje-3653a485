@@ -358,7 +358,7 @@ const EmployerCandidateDetail = () => {
                   </Button>
                   {currentStatus === 'considering' && (
                     <Button
-                      onClick={() => setContactOpen(true)}
+                      onClick={() => openContactAt('invite')}
                       variant="outline"
                       className="border-accent text-accent hover:bg-accent/10"
                     >
