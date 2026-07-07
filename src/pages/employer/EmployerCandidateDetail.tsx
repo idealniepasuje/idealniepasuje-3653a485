@@ -241,7 +241,7 @@ const EmployerCandidateDetail = () => {
       // Fetch candidate test results for additional info
       const { data: testData } = await supabase
         .from("candidate_test_results")
-        .select("industry, experience, position_level, work_description, target_industries, has_no_experience, industry_experiences, competency_answers, linkedin_url, work_mode, city, getting_to_know, profile_ready, tools")
+        .select("industry, experience, position_level, work_description, target_industries, has_no_experience, industry_experiences, competency_answers, linkedin_url, work_mode, city, getting_to_know, profile_ready, tools, lang_english, lang_spanish, lang_german, lang_polish")
         .eq("user_id", candidateId)
         .single();
 
