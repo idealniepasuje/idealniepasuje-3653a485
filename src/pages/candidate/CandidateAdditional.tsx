@@ -272,6 +272,7 @@ const CandidateAdditional = () => {
         lang_german: langGerman || null,
         lang_polish: langPolish || null,
         tools: (tools as unknown) as Json,
+        phone: phone.trim() || null,
         getting_to_know: {
           tasks: gtkTasks,
           problems: gtkProblems,
