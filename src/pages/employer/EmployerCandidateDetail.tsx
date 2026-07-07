@@ -75,13 +75,88 @@ const EmployerCandidateDetail = () => {
   const [loading, setLoading] = useState(true);
   const [currentStatus, setCurrentStatus] = useState<string>('pending');
   const [contactOpen, setContactOpen] = useState(false);
-  const [contactInitialTab, setContactInitialTab] = useState<'invite' | 'linkedin' | 'gtk' | 'tools'>('invite');
   const [employerCompanyName, setEmployerCompanyName] = useState<string>('');
+  const [requestingLinkedin, setRequestingLinkedin] = useState(false);
+  const [requestingGtk, setRequestingGtk] = useState(false);
+  const [requestingTools, setRequestingTools] = useState(false);
 
-  const openContactAt = (tab: 'invite' | 'linkedin' | 'gtk' | 'tools') => {
-    setContactInitialTab(tab);
-    setContactOpen(true);
+  const requestLinkedin = async () => {
+    if (!match || !user || !candidateId) return;
+    setRequestingLinkedin(true);
+    try {
+      const msg = getLinkedinRequestTemplate(i18n.language, employerCompanyName);
+      await supabase.from('candidate_messages').insert({
+        match_result_id: match.id,
+        candidate_user_id: candidateId,
+        employer_user_id: user.id,
+        type: 'linkedin_request',
+        content: msg,
+        metadata: {},
+      });
+      await supabase.from('match_results').update({ linkedin_requested_at: new Date().toISOString() }).eq('id', match.id);
+      toast.success(t("employer.candidateDetail.contact.linkedinRequestSent"));
+    } catch (e) {
+      logError('EmployerCandidateDetail.requestLinkedin', e);
+      toast.error(t("errors.genericError"));
+    } finally {
+      setRequestingLinkedin(false);
+    }
   };
+
+  const requestGtk = async () => {
+    if (!match || !user || !candidateId) return;
+    setRequestingGtk(true);
+    try {
+      const msg = getProfileCompletionTemplate(i18n.language, employerCompanyName);
+      await supabase.from('candidate_messages').insert({
+        match_result_id: match.id,
+        candidate_user_id: candidateId,
+        employer_user_id: user.id,
+        type: 'profile_completion',
+        content: msg,
+        metadata: {},
+      });
+      await supabase.from('match_results').update({ profile_completion_requested_at: new Date().toISOString() }).eq('id', match.id);
+      try {
+        await supabase.functions.invoke('send-profile-completion-request', {
+          body: { candidate_user_id: candidateId, employer_company_name: employerCompanyName, message: msg },
+        });
+      } catch (mailErr) {
+        logError('EmployerCandidateDetail.requestGtk.email', mailErr);
+      }
+      toast.success(t("employer.candidateDetail.contact.completionRequested"));
+    } catch (e) {
+      logError('EmployerCandidateDetail.requestGtk', e);
+      toast.error(t("errors.genericError"));
+    } finally {
+      setRequestingGtk(false);
+    }
+  };
+
+  const requestTools = async () => {
+    if (!match || !user || !candidateId) return;
+    setRequestingTools(true);
+    try {
+      const msg = getToolsRequestTemplate(i18n.language, employerCompanyName);
+      await supabase.functions.invoke('send-tools-completion-request', {
+        body: {
+          candidate_user_id: candidateId,
+          match_id: match.id,
+          employer_company_name: employerCompanyName,
+          message: msg,
+          trigger: 'manual',
+        },
+      });
+      toast.success(t("employer.candidateDetail.contact.toolsRequested", "Prośba o uzupełnienie narzędzi została wysłana"));
+      fetchMatchData();
+    } catch (e) {
+      logError('EmployerCandidateDetail.requestTools', e);
+      toast.error(t("errors.genericError"));
+    } finally {
+      setRequestingTools(false);
+    }
+  };
+
 
   useEffect(() => {
     if (!authLoading && !user) { navigate("/login"); return; }
