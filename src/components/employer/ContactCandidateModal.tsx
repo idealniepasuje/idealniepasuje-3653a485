@@ -32,6 +32,7 @@ interface Props {
   candidateGettingToKnow?: Record<string, string> | null;
   candidateTools?: ToolEntry[] | null;
   requiredTools?: ToolEntry[] | null;
+  initialTab?: 'invite' | 'linkedin' | 'gtk' | 'tools';
   onUpdated: () => void;
 }
 
