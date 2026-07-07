@@ -289,12 +289,7 @@ const Index = () => {
                 <div aria-hidden className="absolute top-0 right-0 w-96 h-96 rounded-full opacity-30 blur-3xl bg-gradient-to-br from-[#6366F1] to-[#2DD4BF]" />
                 <div className="relative">
                   <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">Gotów znaleźć swoje miejsce?</h2>
-                  <p className="text-slate-300 mb-6 max-w-xl mx-auto">Rozpocznij bezpłatny test i odkryj ścieżki kariery, które naprawdę do Ciebie pasują.</p>
-                  <div className="mb-8 flex flex-wrap justify-center gap-4 md:gap-8 text-sm text-slate-300">
-                    <div className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-[#2DD4BF]" /> Testy stworzone przez psychologów</div>
-                    <div className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-[#2DD4BF]" /> Spersonalizowane wyniki i rekomendacje</div>
-                    <div className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-[#2DD4BF]" /> Ścieżki kariery dopasowane do Ciebie</div>
-                  </div>
+                  <p className="text-slate-300 mb-8 max-w-xl mx-auto">Rozpocznij bezpłatny test i odkryj ścieżki kariery, które naprawdę do Ciebie pasują.</p>
                   <Link to="/register">
                     <Button size="lg" className="bg-white hover:bg-slate-100 text-[#0F172A] rounded-2xl px-8 py-6 text-base font-semibold">
                       Rozpocznij teraz
