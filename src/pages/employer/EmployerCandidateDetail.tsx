@@ -455,23 +455,27 @@ const EmployerCandidateDetail = () => {
             {(currentStatus === 'considering' || match?.unlocked_at) ? (
               <>
                 {/* LinkedIn row */}
-                {candidateData?.linkedin_url ? (
-                  <a href={candidateData.linkedin_url} target="_blank" rel="noopener noreferrer" className="text-accent hover:underline flex items-center gap-2 text-lg">
-                    <Linkedin className="w-5 h-5" />
-                    {candidateData.linkedin_url}
-                  </a>
-                ) : (
-                  <div className="flex items-center justify-between gap-3 p-3 rounded-lg bg-muted/30 border">
-                    <div className="flex items-center gap-2 text-muted-foreground text-sm">
-                      <Linkedin className="w-5 h-5" />
-                      {t("employer.candidateDetail.noLinkedin")}
-                    </div>
-                    <Button size="sm" variant="outline" onClick={requestLinkedin} disabled={requestingLinkedin} className="border-accent text-accent hover:bg-accent/10 shrink-0">
-                      <Mail className="w-4 h-4 mr-2" />
-                      {t("employer.candidateDetail.requestFill", "Poproś o uzupełnienie")}
-                    </Button>
+                <div className="space-y-2">
+                  <div className="flex items-start justify-between gap-3">
+                    <h3 className="font-semibold flex items-center gap-2">
+                      <Linkedin className="w-4 h-4 text-accent" />
+                      LinkedIn
+                    </h3>
+                    {!candidateData?.linkedin_url && (
+                      <Button size="sm" variant="outline" onClick={requestLinkedin} disabled={requestingLinkedin} className="border-accent text-accent hover:bg-accent/10 shrink-0">
+                        <Mail className="w-4 h-4 mr-2" />
+                        {t("employer.candidateDetail.requestFill", "Poproś o uzupełnienie")}
+                      </Button>
+                    )}
                   </div>
-                )}
+                  {candidateData?.linkedin_url ? (
+                    <a href={candidateData.linkedin_url} target="_blank" rel="noopener noreferrer" className="text-accent hover:underline flex items-center gap-2 break-all">
+                      {candidateData.linkedin_url}
+                    </a>
+                  ) : (
+                    <p className="text-sm italic text-muted-foreground">{t("employer.candidateDetail.notProvided", "Nie uzupełnione")}</p>
+                  )}
+                </div>
 
                 {/* Get to know section */}
                 {(() => {
@@ -486,14 +490,22 @@ const EmployerCandidateDetail = () => {
                   const anyMissing = items.some((it) => !(it.value && it.value.trim()));
                   return (
                     <div className="space-y-3 pt-4 border-t">
-                      <div>
-                        <h3 className="font-semibold flex items-center gap-2">
-                          <Sparkles className="w-4 h-4 text-accent" />
-                          {t("employer.candidateDetail.gettingToKnowTitle")}
-                        </h3>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          {t("employer.candidateDetail.gettingToKnowUseHint", "Te odpowiedzi wykorzystaj w rozmowie z kandydatem.")}
-                        </p>
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <h3 className="font-semibold flex items-center gap-2">
+                            <Sparkles className="w-4 h-4 text-accent" />
+                            {t("employer.candidateDetail.gettingToKnowTitle")}
+                          </h3>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            {t("employer.candidateDetail.gettingToKnowUseHint", "Te odpowiedzi wykorzystaj w rozmowie z kandydatem.")}
+                          </p>
+                        </div>
+                        {anyMissing && (
+                          <Button size="sm" variant="outline" onClick={requestGtk} disabled={requestingGtk} className="border-accent text-accent hover:bg-accent/10 shrink-0">
+                            <Mail className="w-4 h-4 mr-2" />
+                            {t("employer.candidateDetail.requestFill", "Poproś o uzupełnienie")}
+                          </Button>
+                        )}
                       </div>
                       {items.map((it) => {
                         const filled = !!(it.value && it.value.trim());
@@ -508,12 +520,6 @@ const EmployerCandidateDetail = () => {
                           </div>
                         );
                       })}
-                      {anyMissing && (
-                        <Button size="sm" variant="outline" onClick={requestGtk} disabled={requestingGtk} className="border-accent text-accent hover:bg-accent/10">
-                          <Mail className="w-4 h-4 mr-2" />
-                          {t("employer.candidateDetail.requestFillGtk", "Poproś o uzupełnienie brakujących odpowiedzi")}
-                        </Button>
-                      )}
                     </div>
                   );
                 })()}
