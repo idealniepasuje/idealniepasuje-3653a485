@@ -192,7 +192,7 @@ export const ContactCandidateModal = ({
           <DialogDescription>{t("employer.candidateDetail.contact.modalDescription")}</DialogDescription>
         </DialogHeader>
 
-        <Tabs value={undefined} defaultValue={initialTab} key={initialTab} className="mt-2">
+        <Tabs defaultValue={initialTab} key={`${open}-${initialTab}`} className="mt-2">
           <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="invite" className="gap-2"><CalendarClock className="w-4 h-4" />{t("employer.candidateDetail.contact.inviteTab")}</TabsTrigger>
             <TabsTrigger value="linkedin" className="gap-2"><Linkedin className="w-4 h-4" />{t("employer.candidateDetail.contact.linkedinTab")}</TabsTrigger>
