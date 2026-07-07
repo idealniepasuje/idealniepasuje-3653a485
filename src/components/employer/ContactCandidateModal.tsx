@@ -38,6 +38,7 @@ export const ContactCandidateModal = ({
   const [calendarLink, setCalendarLink] = useState("");
   const [interviewMsg, setInterviewMsg] = useState("");
   const [sending, setSending] = useState(false);
+  const [requestingContact, setRequestingContact] = useState(false);
 
   const [contact, setContact] = useState<{ email: string | null; phone: string | null } | null>(null);
   const [loadingContact, setLoadingContact] = useState(false);
