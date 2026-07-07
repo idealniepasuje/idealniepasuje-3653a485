@@ -587,7 +587,7 @@ const EmployerCandidateDetail = () => {
                         <strong>{t(statusKey, status || 'Nie wysłano')}</strong>
                       </p>
                     </div>
-                    <Button variant="outline" onClick={() => openContactAt('tools')}>
+                    <Button variant="outline" onClick={requestTools} disabled={requestingTools}>
                       <Wrench className="w-4 h-4 mr-2" />
                       {t("employer.candidateDetail.contact.requestTools", "Poproś o uzupełnienie narzędzi")}
                     </Button>
