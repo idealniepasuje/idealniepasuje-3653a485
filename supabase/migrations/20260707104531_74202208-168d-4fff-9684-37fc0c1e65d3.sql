@@ -1,0 +1,1 @@
+ALTER TABLE public.candidate_test_results ADD COLUMN IF NOT EXISTS phone TEXT;

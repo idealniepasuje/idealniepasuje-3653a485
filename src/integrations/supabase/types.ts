@@ -169,6 +169,7 @@ export type Database = {
           linkedin_url: string | null
           myslenie_analityczne_score: number | null
           out_of_the_box_score: number | null
+          phone: string | null
           position_level: string | null
           profile_ready: boolean
           target_industries: string[] | null
@@ -210,6 +211,7 @@ export type Database = {
           linkedin_url?: string | null
           myslenie_analityczne_score?: number | null
           out_of_the_box_score?: number | null
+          phone?: string | null
           position_level?: string | null
           profile_ready?: boolean
           target_industries?: string[] | null
@@ -251,6 +253,7 @@ export type Database = {
           linkedin_url?: string | null
           myslenie_analityczne_score?: number | null
           out_of_the_box_score?: number | null
+          phone?: string | null
           position_level?: string | null
           profile_ready?: boolean
           target_industries?: string[] | null

@@ -16,6 +16,7 @@ import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { toast } from "sonner";
 import { getLevel, getFeedback, getLocalizedLevelLabels } from "@/data/feedbackData";
 import { getAprobataQuestions } from "@/data/competencyQuestions";
+import { getLinkedinRequestTemplate, getProfileCompletionTemplate, getToolsRequestTemplate } from "@/data/messageTemplates";
 
 interface MatchDetails {
   competenceDetails: {
@@ -74,13 +75,88 @@ const EmployerCandidateDetail = () => {
   const [loading, setLoading] = useState(true);
   const [currentStatus, setCurrentStatus] = useState<string>('pending');
   const [contactOpen, setContactOpen] = useState(false);
-  const [contactInitialTab, setContactInitialTab] = useState<'invite' | 'linkedin' | 'gtk' | 'tools'>('invite');
   const [employerCompanyName, setEmployerCompanyName] = useState<string>('');
+  const [requestingLinkedin, setRequestingLinkedin] = useState(false);
+  const [requestingGtk, setRequestingGtk] = useState(false);
+  const [requestingTools, setRequestingTools] = useState(false);
 
-  const openContactAt = (tab: 'invite' | 'linkedin' | 'gtk' | 'tools') => {
-    setContactInitialTab(tab);
-    setContactOpen(true);
+  const requestLinkedin = async () => {
+    if (!match || !user || !candidateId) return;
+    setRequestingLinkedin(true);
+    try {
+      const msg = getLinkedinRequestTemplate(i18n.language, employerCompanyName);
+      await supabase.from('candidate_messages').insert({
+        match_result_id: match.id,
+        candidate_user_id: candidateId,
+        employer_user_id: user.id,
+        type: 'linkedin_request',
+        content: msg,
+        metadata: {},
+      });
+      await supabase.from('match_results').update({ linkedin_requested_at: new Date().toISOString() }).eq('id', match.id);
+      toast.success(t("employer.candidateDetail.contact.linkedinRequestSent"));
+    } catch (e) {
+      logError('EmployerCandidateDetail.requestLinkedin', e);
+      toast.error(t("errors.genericError"));
+    } finally {
+      setRequestingLinkedin(false);
+    }
   };
+
+  const requestGtk = async () => {
+    if (!match || !user || !candidateId) return;
+    setRequestingGtk(true);
+    try {
+      const msg = getProfileCompletionTemplate(i18n.language, employerCompanyName);
+      await supabase.from('candidate_messages').insert({
+        match_result_id: match.id,
+        candidate_user_id: candidateId,
+        employer_user_id: user.id,
+        type: 'profile_completion',
+        content: msg,
+        metadata: {},
+      });
+      await supabase.from('match_results').update({ profile_completion_requested_at: new Date().toISOString() }).eq('id', match.id);
+      try {
+        await supabase.functions.invoke('send-profile-completion-request', {
+          body: { candidate_user_id: candidateId, employer_company_name: employerCompanyName, message: msg },
+        });
+      } catch (mailErr) {
+        logError('EmployerCandidateDetail.requestGtk.email', mailErr);
+      }
+      toast.success(t("employer.candidateDetail.contact.completionRequested"));
+    } catch (e) {
+      logError('EmployerCandidateDetail.requestGtk', e);
+      toast.error(t("errors.genericError"));
+    } finally {
+      setRequestingGtk(false);
+    }
+  };
+
+  const requestTools = async () => {
+    if (!match || !user || !candidateId) return;
+    setRequestingTools(true);
+    try {
+      const msg = getToolsRequestTemplate(i18n.language, employerCompanyName);
+      await supabase.functions.invoke('send-tools-completion-request', {
+        body: {
+          candidate_user_id: candidateId,
+          match_id: match.id,
+          employer_company_name: employerCompanyName,
+          message: msg,
+          trigger: 'manual',
+        },
+      });
+      toast.success(t("employer.candidateDetail.contact.toolsRequested", "Prośba o uzupełnienie narzędzi została wysłana"));
+      fetchMatchData();
+    } catch (e) {
+      logError('EmployerCandidateDetail.requestTools', e);
+      toast.error(t("errors.genericError"));
+    } finally {
+      setRequestingTools(false);
+    }
+  };
+
 
   useEffect(() => {
     if (!authLoading && !user) { navigate("/login"); return; }
@@ -358,7 +434,7 @@ const EmployerCandidateDetail = () => {
                   </Button>
                   {currentStatus === 'considering' && (
                     <Button
-                      onClick={() => openContactAt('invite')}
+                      onClick={() => setContactOpen(true)}
                       variant="outline"
                       className="border-accent text-accent hover:bg-accent/10"
                     >
@@ -390,7 +466,7 @@ const EmployerCandidateDetail = () => {
                       <Linkedin className="w-5 h-5" />
                       {t("employer.candidateDetail.noLinkedin")}
                     </div>
-                    <Button size="sm" variant="outline" onClick={() => openContactAt('linkedin')} className="border-accent text-accent hover:bg-accent/10 shrink-0">
+                    <Button size="sm" variant="outline" onClick={requestLinkedin} disabled={requestingLinkedin} className="border-accent text-accent hover:bg-accent/10 shrink-0">
                       <Mail className="w-4 h-4 mr-2" />
                       {t("employer.candidateDetail.requestFill", "Poproś o uzupełnienie")}
                     </Button>
@@ -407,33 +483,37 @@ const EmployerCandidateDetail = () => {
                     { key: 'motivation', label: t("candidate.additional.gettingToKnow.q3Label"), value: gtk.motivation },
                     { key: 'proud_of', label: t("candidate.additional.gettingToKnow.q4Label"), value: gtk.proud_of },
                   ];
+                  const anyMissing = items.some((it) => !(it.value && it.value.trim()));
                   return (
                     <div className="space-y-3 pt-4 border-t">
-                      <h3 className="font-semibold flex items-center gap-2">
-                        <Sparkles className="w-4 h-4 text-accent" />
-                        {t("employer.candidateDetail.gettingToKnowTitle")}
-                      </h3>
+                      <div>
+                        <h3 className="font-semibold flex items-center gap-2">
+                          <Sparkles className="w-4 h-4 text-accent" />
+                          {t("employer.candidateDetail.gettingToKnowTitle")}
+                        </h3>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {t("employer.candidateDetail.gettingToKnowUseHint", "Te odpowiedzi wykorzystaj w rozmowie z kandydatem.")}
+                        </p>
+                      </div>
                       {items.map((it) => {
                         const filled = !!(it.value && it.value.trim());
                         return (
-                          <div key={it.key} className="flex items-start justify-between gap-3">
-                            <div className="text-sm flex-1 min-w-0">
-                              <p className="text-xs font-medium text-muted-foreground mb-1">{it.label}</p>
-                              {filled ? (
-                                <p className="whitespace-pre-wrap">{it.value}</p>
-                              ) : (
-                                <p className="text-sm italic text-muted-foreground">{t("employer.candidateDetail.notProvided", "Nie uzupełnione")}</p>
-                              )}
-                            </div>
-                            {!filled && (
-                              <Button size="sm" variant="outline" onClick={() => openContactAt('gtk')} className="border-accent text-accent hover:bg-accent/10 shrink-0">
-                                <Mail className="w-4 h-4 mr-2" />
-                                {t("employer.candidateDetail.requestFill", "Poproś o uzupełnienie")}
-                              </Button>
+                          <div key={it.key} className="text-sm">
+                            <p className="text-xs font-medium text-muted-foreground mb-1">{it.label}</p>
+                            {filled ? (
+                              <p className="whitespace-pre-wrap">{it.value}</p>
+                            ) : (
+                              <p className="text-sm italic text-muted-foreground">{t("employer.candidateDetail.notProvided", "Nie uzupełnione")}</p>
                             )}
                           </div>
                         );
                       })}
+                      {anyMissing && (
+                        <Button size="sm" variant="outline" onClick={requestGtk} disabled={requestingGtk} className="border-accent text-accent hover:bg-accent/10">
+                          <Mail className="w-4 h-4 mr-2" />
+                          {t("employer.candidateDetail.requestFillGtk", "Poproś o uzupełnienie brakujących odpowiedzi")}
+                        </Button>
+                      )}
                     </div>
                   );
                 })()}
@@ -507,7 +587,7 @@ const EmployerCandidateDetail = () => {
                         <strong>{t(statusKey, status || 'Nie wysłano')}</strong>
                       </p>
                     </div>
-                    <Button variant="outline" onClick={() => openContactAt('tools')}>
+                    <Button variant="outline" onClick={requestTools} disabled={requestingTools}>
                       <Wrench className="w-4 h-4 mr-2" />
                       {t("employer.candidateDetail.contact.requestTools", "Poproś o uzupełnienie narzędzi")}
                     </Button>
@@ -863,11 +943,6 @@ const EmployerCandidateDetail = () => {
           candidateUserId={candidateId}
           employerUserId={user.id}
           companyName={employerCompanyName}
-          candidateLinkedinUrl={candidateData?.linkedin_url}
-          candidateGettingToKnow={(candidateData?.getting_to_know || {}) as Record<string, string>}
-          candidateTools={(candidateData as any)?.tools || []}
-          requiredTools={(jobOfferData as any)?.required_tools || []}
-          initialTab={contactInitialTab}
           onUpdated={fetchMatchData}
         />
       )}
