@@ -238,9 +238,9 @@ const Index = () => {
                   </a>
                 </div>
                 <div className="mt-10 flex flex-wrap gap-6 text-sm text-slate-600">
-                  <div className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-[#2DD4BF]" /> Oparte na psychologii</div>
-                  <div className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-[#2DD4BF]" /> Spersonalizowane wyniki</div>
-                  <div className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-[#2DD4BF]" /> Setki ścieżek kariery</div>
+                  <div className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-[#2DD4BF]" /> Testy stworzone przez psychologów</div>
+                  <div className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-[#2DD4BF]" /> Spersonalizowane wyniki i rekomendacje</div>
+                  <div className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-[#2DD4BF]" /> Ścieżki kariery dopasowane do Ciebie</div>
                 </div>
               </Reveal>
 
