@@ -86,16 +86,24 @@ const DashboardMockup = () => (
           </div>
         </div>
         <div className="rounded-2xl bg-[#F8FAFC] p-3 md:p-4">
-          <p className="text-[10px] md:text-xs text-slate-500 mb-3">Najlepiej dopasowane ścieżki</p>
-          <div className="space-y-2">
+          <p className="text-[10px] md:text-xs text-slate-500 mb-3">Poziom kompetencji</p>
+          <div className="space-y-3">
             {[
-              { name: "UX Designer", val: 92 },
-              { name: "Product Manager", val: 89 },
-              { name: "Customer Success", val: 87 },
+              { name: "Myślenie analityczne", val: 92 },
+              { name: "Kreatywność", val: 89 },
+              { name: "Komunikacja", val: 87 },
             ].map((r) => (
-              <div key={r.name} className="flex items-center justify-between text-xs md:text-sm">
-                <span className="text-[#0F172A] font-medium">{r.name}</span>
-                <span className="font-bold text-[#6366F1]">{r.val}%</span>
+              <div key={r.name} className="space-y-1">
+                <div className="flex items-center justify-between text-xs md:text-sm">
+                  <span className="text-[#0F172A] font-medium">{r.name}</span>
+                  <span className="font-bold text-[#6366F1]">{r.val}%</span>
+                </div>
+                <div className="h-1.5 rounded-full bg-[#E2E8F0] overflow-hidden">
+                  <div
+                    className="h-full rounded-full bg-gradient-to-r from-[#6366F1] to-[#2DD4BF]"
+                    style={{ width: `${r.val}%` }}
+                  />
+                </div>
               </div>
             ))}
           </div>
