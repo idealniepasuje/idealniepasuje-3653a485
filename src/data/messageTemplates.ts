@@ -27,6 +27,14 @@ export const getProfileCompletionTemplate = (lang: string, companyName?: string)
   return `Cześć! Twój profil wygląda obiecująco dla rekrutacji w ${company}. Aby przejść dalej, czy możesz uzupełnić brakujące sekcje: opis pracy, doświadczenie oraz sekcję „Daj się poznać"? Gdy profil będzie kompletny, odblokujemy pełny widok. Dziękujemy!`;
 };
 
+export const getContactRequestTemplate = (lang: string, companyName?: string): string => {
+  const company = companyName?.trim() || (lang === 'en' ? 'our company' : 'naszej firmy');
+  if (lang === 'en') {
+    return `Hi! ${company} is interested in your profile and would like to contact you directly. Could you please add your phone number and contact email in your profile? It will make scheduling a conversation much easier. Thank you!`;
+  }
+  return `Cześć! ${company} jest zainteresowana Twoim profilem i chciałaby skontaktować się z Tobą bezpośrednio. Prosimy o uzupełnienie w profilu numeru telefonu oraz adresu e-mail kontaktowego. Ułatwi to umówienie rozmowy. Dziękujemy!`;
+};
+
 export const getInterviewInviteTemplate = (
   lang: string,
   type: InterviewType,
