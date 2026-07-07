@@ -80,6 +80,36 @@ const EmployerCandidateDetail = () => {
   const [requestingLinkedin, setRequestingLinkedin] = useState(false);
   const [requestingGtk, setRequestingGtk] = useState(false);
   const [requestingTools, setRequestingTools] = useState(false);
+  const [requestingLanguages, setRequestingLanguages] = useState(false);
+
+  const requestLanguages = async () => {
+    if (!match || !user || !candidateId) return;
+    setRequestingLanguages(true);
+    try {
+      const msg = getLanguagesRequestTemplate(i18n.language, employerCompanyName);
+      await supabase.from('candidate_messages').insert({
+        match_result_id: match.id,
+        candidate_user_id: candidateId,
+        employer_user_id: user.id,
+        type: 'profile_completion',
+        content: msg,
+        metadata: { field: 'languages' },
+      });
+      try {
+        await supabase.functions.invoke('send-profile-completion-request', {
+          body: { candidate_user_id: candidateId, employer_company_name: employerCompanyName, message: msg },
+        });
+      } catch (mailErr) {
+        logError('EmployerCandidateDetail.requestLanguages.email', mailErr);
+      }
+      toast.success(t("employer.candidateDetail.contact.completionRequested"));
+    } catch (e) {
+      logError('EmployerCandidateDetail.requestLanguages', e);
+      toast.error(t("errors.genericError"));
+    } finally {
+      setRequestingLanguages(false);
+    }
+  };
 
   const requestLinkedin = async () => {
     if (!match || !user || !candidateId) return;
