@@ -740,6 +740,8 @@
       "activeOffers": "Aktywne zlecenia",
       "archivedOffers": "Archiwalne zlecenia",
       "archived": "Archiwalna",
+      "inactiveWarningTitle": "Masz nieaktywne zlecenia",
+      "inactiveWarningDescription": "{{count}} zlecenie nie jest widoczne dla kandydatów. Rozważ ponowne otwarcie lub usunięcie nieaktywnych zleceń.",
       "viewCandidates": "Zobacz kandydatów",
       "viewDetails": "Zobacz szczegóły",
       "createNew": "Nowa oferta pracy",
