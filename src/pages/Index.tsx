@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Menu, X, ClipboardList, BarChart3, Handshake, Sparkles, Home, Star, TrendingUp, CheckCircle2 } from "lucide-react";
+import { ArrowRight, Menu, X, ClipboardList, BarChart3, Handshake, Sparkles, Home, Star, TrendingUp, CheckCircle2, Zap, Target } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
