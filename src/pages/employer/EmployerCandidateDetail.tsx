@@ -16,7 +16,8 @@ import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { toast } from "sonner";
 import { getLevel, getFeedback, getLocalizedLevelLabels } from "@/data/feedbackData";
 import { getAprobataQuestions } from "@/data/competencyQuestions";
-import { getLinkedinRequestTemplate, getProfileCompletionTemplate, getToolsRequestTemplate } from "@/data/messageTemplates";
+import { getLinkedinRequestTemplate, getProfileCompletionTemplate, getToolsRequestTemplate, getLanguagesRequestTemplate } from "@/data/messageTemplates";
+import { LANGUAGE_LEVELS, languageLevelLabels, languageNames } from "@/data/additionalQuestions";
 
 interface MatchDetails {
   competenceDetails: {
@@ -79,6 +80,36 @@ const EmployerCandidateDetail = () => {
   const [requestingLinkedin, setRequestingLinkedin] = useState(false);
   const [requestingGtk, setRequestingGtk] = useState(false);
   const [requestingTools, setRequestingTools] = useState(false);
+  const [requestingLanguages, setRequestingLanguages] = useState(false);
+
+  const requestLanguages = async () => {
+    if (!match || !user || !candidateId) return;
+    setRequestingLanguages(true);
+    try {
+      const msg = getLanguagesRequestTemplate(i18n.language, employerCompanyName);
+      await supabase.from('candidate_messages').insert({
+        match_result_id: match.id,
+        candidate_user_id: candidateId,
+        employer_user_id: user.id,
+        type: 'profile_completion',
+        content: msg,
+        metadata: { field: 'languages' },
+      });
+      try {
+        await supabase.functions.invoke('send-profile-completion-request', {
+          body: { candidate_user_id: candidateId, employer_company_name: employerCompanyName, message: msg },
+        });
+      } catch (mailErr) {
+        logError('EmployerCandidateDetail.requestLanguages.email', mailErr);
+      }
+      toast.success(t("employer.candidateDetail.contact.completionRequested"));
+    } catch (e) {
+      logError('EmployerCandidateDetail.requestLanguages', e);
+      toast.error(t("errors.genericError"));
+    } finally {
+      setRequestingLanguages(false);
+    }
+  };
 
   const requestLinkedin = async () => {
     if (!match || !user || !candidateId) return;
@@ -210,7 +241,7 @@ const EmployerCandidateDetail = () => {
       // Fetch candidate test results for additional info
       const { data: testData } = await supabase
         .from("candidate_test_results")
-        .select("industry, experience, position_level, work_description, target_industries, has_no_experience, industry_experiences, competency_answers, linkedin_url, work_mode, city, getting_to_know, profile_ready, tools")
+        .select("industry, experience, position_level, work_description, target_industries, has_no_experience, industry_experiences, competency_answers, linkedin_url, work_mode, city, getting_to_know, profile_ready, tools, lang_english, lang_spanish, lang_german, lang_polish")
         .eq("user_id", candidateId)
         .single();
 
@@ -573,6 +604,57 @@ const EmployerCandidateDetail = () => {
             </CardContent>
           </Card>
         )}
+
+        {/* Languages */}
+        {(() => {
+          const langUi = i18n.language === 'en' ? 'en' : 'pl';
+          const names = languageNames[langUi];
+          const labels = languageLevelLabels[langUi];
+          const items: Array<{ key: keyof typeof names; value: string }> = [
+            { key: 'english', value: (candidateData as any)?.lang_english || '' },
+            { key: 'spanish', value: (candidateData as any)?.lang_spanish || '' },
+            { key: 'german', value: (candidateData as any)?.lang_german || '' },
+            { key: 'polish', value: (candidateData as any)?.lang_polish || '' },
+          ];
+          const hasAny = items.some(it => it.value && it.value !== 'none');
+          const allMissing = items.every(it => !it.value);
+          return (
+            <Card className="mb-6">
+              <CardHeader>
+                <div className="flex items-start justify-between gap-3">
+                  <CardTitle className="flex items-center gap-2">
+                    <Sparkles className="w-5 h-5 text-accent" />
+                    {langUi === 'pl' ? 'Poziom znajomości języków' : 'Language proficiency'}
+                  </CardTitle>
+                  {(!hasAny || allMissing) && (
+                    <Button size="sm" variant="outline" onClick={requestLanguages} disabled={requestingLanguages} className="border-accent text-accent hover:bg-accent/10 shrink-0">
+                      <Mail className="w-4 h-4 mr-2" />
+                      {t("employer.candidateDetail.requestFill", "Poproś o uzupełnienie")}
+                    </Button>
+                  )}
+                </div>
+              </CardHeader>
+              <CardContent>
+                {hasAny ? (
+                  <div className="grid sm:grid-cols-2 gap-3">
+                    {items.map(it => (
+                      <div key={it.key as string} className="flex items-center justify-between p-3 rounded-lg border bg-muted/30">
+                        <span className="text-sm font-medium">{names[it.key]}</span>
+                        {it.value ? (
+                          <Badge variant="outline">{labels[it.value as keyof typeof labels] || it.value}</Badge>
+                        ) : (
+                          <span className="text-xs italic text-muted-foreground">{t("employer.candidateDetail.notProvided", "Nie uzupełnione")}</span>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm italic text-muted-foreground">{t("employer.candidateDetail.notProvided", "Nie uzupełnione")}</p>
+                )}
+              </CardContent>
+            </Card>
+          );
+        })()}
 
         {/* Tool proficiency */}
         <Card className="mb-6">

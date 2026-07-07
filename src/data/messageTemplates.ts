@@ -35,6 +35,14 @@ export const getContactRequestTemplate = (lang: string, companyName?: string): s
   return `Cześć! ${company} jest zainteresowana Twoim profilem i chciałaby skontaktować się z Tobą bezpośrednio. Prosimy o uzupełnienie w profilu numeru telefonu oraz adresu e-mail kontaktowego. Ułatwi to umówienie rozmowy. Dziękujemy!`;
 };
 
+export const getLanguagesRequestTemplate = (lang: string, companyName?: string): string => {
+  const company = companyName?.trim() || (lang === 'en' ? 'our company' : 'naszej firmy');
+  if (lang === 'en') {
+    return `Hi! ${company} is interested in your profile. Please complete the "Language proficiency" section in your profile (CEFR levels) so we can better evaluate your fit for the role. Thank you!`;
+  }
+  return `Cześć! ${company} jest zainteresowana Twoim profilem. Prosimy o uzupełnienie sekcji „Poziom znajomości języków" (poziomy CEFR) w Twoim profilu, aby umożliwić dalszą ocenę dopasowania do stanowiska. Dziękujemy!`;
+};
+
 export const getInterviewInviteTemplate = (
   lang: string,
   type: InterviewType,
