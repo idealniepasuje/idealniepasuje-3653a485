@@ -466,7 +466,7 @@ const EmployerCandidateDetail = () => {
                       <Linkedin className="w-5 h-5" />
                       {t("employer.candidateDetail.noLinkedin")}
                     </div>
-                    <Button size="sm" variant="outline" onClick={() => openContactAt('linkedin')} className="border-accent text-accent hover:bg-accent/10 shrink-0">
+                    <Button size="sm" variant="outline" onClick={requestLinkedin} disabled={requestingLinkedin} className="border-accent text-accent hover:bg-accent/10 shrink-0">
                       <Mail className="w-4 h-4 mr-2" />
                       {t("employer.candidateDetail.requestFill", "Poproś o uzupełnienie")}
                     </Button>
