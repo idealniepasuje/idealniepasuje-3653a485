@@ -3,8 +3,9 @@ import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Briefcase, ChevronRight, Users, MoreVertical, Trash2, Edit, Archive, RotateCcw } from "lucide-react";
+import { Plus, Briefcase, ChevronRight, Users, MoreVertical, Trash2, Edit, Archive, RotateCcw, AlertTriangle } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { logError } from "@/lib/errorLogger";
@@ -216,6 +217,16 @@ const EmployerOffers = () => {
           </Button>
         </Link>
       </div>
+
+      {archivedOffers.length > 0 && (
+        <Alert className="mb-6 border-cta/30 bg-cta/10 text-foreground">
+          <AlertTriangle className="h-4 w-4 text-cta" />
+          <AlertTitle>{t("employer.offers.inactiveWarningTitle")}</AlertTitle>
+          <AlertDescription>
+            {t("employer.offers.inactiveWarningDescription", { count: archivedOffers.length })}
+          </AlertDescription>
+        </Alert>
+      )}
 
       {offers.length === 0 ? (
         <Card className="border-dashed">

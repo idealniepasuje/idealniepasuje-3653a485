@@ -740,6 +740,8 @@
       "activeOffers": "Active orders",
       "archivedOffers": "Archived orders",
       "archived": "Archived",
+      "inactiveWarningTitle": "You have inactive orders",
+      "inactiveWarningDescription": "{{count}} order is not visible to candidates. Consider reopening or deleting inactive orders.",
       "viewCandidates": "View candidates",
       "viewDetails": "View details",
       "createNew": "New job offer",
