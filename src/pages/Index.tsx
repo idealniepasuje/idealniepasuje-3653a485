@@ -340,6 +340,11 @@ const Index = () => {
                       <ArrowRight className="w-5 h-5 ml-1" />
                     </Button>
                   </Link>
+                  <div className="mt-8 flex flex-wrap justify-center gap-4 md:gap-8 text-sm text-slate-300">
+                    <div className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-[#2DD4BF]" /> Testy stworzone przez psychologów</div>
+                    <div className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-[#2DD4BF]" /> Spersonalizowane wyniki i rekomendacje</div>
+                    <div className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-[#2DD4BF]" /> Ścieżki kariery dopasowane do Ciebie</div>
+                  </div>
                 </div>
               </div>
             </Reveal>
