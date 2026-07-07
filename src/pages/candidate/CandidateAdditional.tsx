@@ -534,6 +534,9 @@ const CandidateAdditional = () => {
                 onChange={(e) => setWorkDescription(e.target.value)}
               />
               <p className="text-xs text-muted-foreground">{t("candidate.additional.workDescriptionHint")}</p>
+              {!workDescription.trim() && (
+                <AttractHint text={t("candidate.additional.attractHint.workDescription", "Krótki opis pracy pokazuje pracodawcom, czym się zajmujesz — uzupełnij, aby stać się bardziej atrakcyjnym kandydatem.")} />
+              )}
             </div>
 
             {/* Daj się poznać */}
@@ -561,6 +564,9 @@ const CandidateAdditional = () => {
                 <Label htmlFor="gtk-proud">{t("candidate.additional.gettingToKnow.q4Label")}</Label>
                 <Textarea id="gtk-proud" rows={2} maxLength={1000} placeholder={t("candidate.additional.gettingToKnow.placeholder")} value={gtkProudOf} onChange={(e) => setGtkProudOf(e.target.value)} />
               </div>
+              {!(gtkTasks.trim() && gtkProblems.trim() && gtkMotivation.trim() && gtkProudOf.trim()) && (
+                <AttractHint text={t("candidate.additional.attractHint.gtk", "Uzupełnienie wszystkich odpowiedzi zwiększa Twoją atrakcyjność — pracodawca dowie się więcej o Twoich mocnych stronach.")} />
+              )}
             </div>
 
             {/* Poziom języków */}
@@ -606,6 +612,9 @@ const CandidateAdditional = () => {
             {/* Znajomość narzędzi */}
             <div id="tools-section" className="space-y-2 p-4 rounded-lg border border-accent/20 bg-accent/5 scroll-mt-24">
               <ToolsSelector value={tools} onChange={setTools} variant="candidate" />
+              {tools.length === 0 && (
+                <AttractHint text={t("candidate.additional.attractHint.tools", "Zaznacz narzędzia, których używasz — pracodawcy szukają konkretnych kompetencji.")} />
+              )}
             </div>
 
             {/* LinkedIn */}
@@ -625,6 +634,29 @@ const CandidateAdditional = () => {
               </p>
               {linkedinUrl && !validateLinkedinUrl(linkedinUrl) && (
                 <p className="text-xs text-destructive">{t("candidate.additional.linkedinInvalidUrl")}</p>
+              )}
+              {!linkedinUrl.trim() && (
+                <AttractHint text={t("candidate.additional.attractHint.linkedin", "Dodaj link do LinkedIn — pracodawca zobaczy Twoje doświadczenie i szybciej podejmie decyzję.")} />
+              )}
+            </div>
+
+            {/* Telefon */}
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2">
+                <Phone className="w-4 h-4" />
+                {t("candidate.additional.phoneLabel", "Numer telefonu (opcjonalnie)")}
+              </Label>
+              <Input
+                type="tel"
+                placeholder="+48 500 600 700"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+              />
+              <p className="text-xs text-muted-foreground">
+                {t("candidate.additional.phoneHint", "Widoczny tylko dla pracodawców, którzy zaznaczyli Cię jako zainteresowanego.")}
+              </p>
+              {!phone.trim() && (
+                <AttractHint text={t("candidate.additional.attractHint.phone", "Dodaj numer telefonu — pracodawcy chętniej kontaktują się z kandydatami, których mogą szybko złapać.")} />
               )}
             </div>
 
