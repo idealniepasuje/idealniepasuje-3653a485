@@ -289,7 +289,7 @@ const Index = () => {
                 <div aria-hidden className="absolute top-0 right-0 w-96 h-96 rounded-full opacity-30 blur-3xl bg-gradient-to-br from-[#6366F1] to-[#2DD4BF]" />
                 <div className="relative">
                   <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">Gotów znaleźć swoje miejsce?</h2>
-                  <p className="text-slate-300 mb-8 max-w-xl mx-auto">Rozpocznij bezpłatny test i odkryj ścieżki kariery, które naprawdę do Ciebie pasują.</p>
+                  <p className="text-slate-300 mb-8 max-w-xl mx-auto">Rozpocznij bezpłatny test i odkryj swoje mocne strony</p>
                   <Link to="/register">
                     <Button size="lg" className="bg-white hover:bg-slate-100 text-[#0F172A] rounded-2xl px-8 py-6 text-base font-semibold">
                       Rozpocznij teraz
