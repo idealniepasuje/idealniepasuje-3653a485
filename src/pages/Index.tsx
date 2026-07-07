@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Menu, X, ClipboardList, BarChart3, Handshake, Sparkles, Home, Star, TrendingUp, CheckCircle2, Zap, Target } from "lucide-react";
+import { ArrowRight, Menu, X, ClipboardList, BarChart3, Handshake, Sparkles, Home, Star, CheckCircle2, Zap, Target } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
@@ -251,50 +251,6 @@ const Index = () => {
           </div>
         </section>
 
-        {/* DASHBOARD SHOWCASE */}
-        <section className="py-16 md:py-24 bg-white border-y border-[#E2E8F0]">
-          <div className="container mx-auto px-4">
-            <Reveal>
-              <div className="text-center max-w-2xl mx-auto mb-12">
-                <span className="inline-block px-4 py-1.5 rounded-full bg-[#2DD4BF]/15 text-[#0F172A] text-xs font-semibold uppercase tracking-wide mb-4">
-                  Twój panel
-                </span>
-                <h2 className="text-3xl md:text-4xl font-bold mb-4">Wszystko w jednym miejscu</h2>
-                <p className="text-slate-600">
-                  Postęp testów, dopasowania, ścieżki kariery i wiadomości od pracodawców — w intuicyjnym pulpicie.
-                </p>
-              </div>
-            </Reveal>
-
-            <Reveal delay={100}>
-              <div className="max-w-5xl mx-auto">
-                <div className="rounded-[24px] p-1 bg-gradient-to-br from-[#6366F1] to-[#2DD4BF] shadow-[0_30px_80px_-20px_rgba(99,102,241,0.35)]">
-                  <div className="rounded-[20px] bg-white p-4 md:p-6">
-                    <DashboardMockup />
-                  </div>
-                </div>
-              </div>
-            </Reveal>
-
-            <div className="grid md:grid-cols-3 gap-5 mt-12 max-w-5xl mx-auto">
-              {[
-                { icon: TrendingUp, title: "Śledź postęp", desc: "Widzisz, jak rośnie Twoje dopasowanie z każdą odpowiedzią." },
-                { icon: Sparkles, title: "AI matching", desc: "Algorytm dopasowuje Cię do ról zgodnych z Twoimi predyspozycjami zawodowymi." },
-                { icon: Star, title: "Gotowe dopasowania", desc: "Otrzymujesz propozycje dopasowane do profilu — bez samodzielnego szukania pracy." },
-              ].map((f, i) => (
-                <Reveal key={f.title} delay={i * 100}>
-                  <div className="rounded-[20px] bg-[#F8FAFC] border border-[#E2E8F0] p-6 h-full">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#6366F1] to-[#2DD4BF] flex items-center justify-center mb-4">
-                      <f.icon className="w-5 h-5 text-white" />
-                    </div>
-                    <h3 className="font-bold text-lg mb-2">{f.title}</h3>
-                    <p className="text-sm text-slate-600 leading-relaxed">{f.desc}</p>
-                  </div>
-                </Reveal>
-              ))}
-            </div>
-          </div>
-        </section>
 
         {/* JAK TO DZIAŁA */}
         <section id="jak-to-dziala" className="py-16 md:py-24">
