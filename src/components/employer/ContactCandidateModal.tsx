@@ -99,6 +99,34 @@ export const ContactCandidateModal = ({
     }
   };
 
+  const handleRequestContact = async () => {
+    setRequestingContact(true);
+    try {
+      const msg = getContactRequestTemplate(lang, companyName);
+      await supabase.from('candidate_messages').insert({
+        match_result_id: match?.id,
+        candidate_user_id: candidateUserId,
+        employer_user_id: employerUserId,
+        type: 'profile_completion',
+        content: msg,
+        metadata: { request: 'contact' },
+      });
+      try {
+        await supabase.functions.invoke('send-profile-completion-request', {
+          body: { candidate_user_id: candidateUserId, employer_company_name: companyName, message: msg },
+        });
+      } catch (mailErr) {
+        logError('ContactCandidateModal.requestContact.email', mailErr);
+      }
+      toast.success(t("employer.candidateDetail.contact.contactRequestSent", "Prośba o dane kontaktowe została wysłana"));
+    } catch (e) {
+      logError('ContactCandidateModal.requestContact', e);
+      toast.error(t("errors.genericError"));
+    } finally {
+      setRequestingContact(false);
+    }
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
