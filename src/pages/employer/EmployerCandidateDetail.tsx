@@ -483,33 +483,37 @@ const EmployerCandidateDetail = () => {
                     { key: 'motivation', label: t("candidate.additional.gettingToKnow.q3Label"), value: gtk.motivation },
                     { key: 'proud_of', label: t("candidate.additional.gettingToKnow.q4Label"), value: gtk.proud_of },
                   ];
+                  const anyMissing = items.some((it) => !(it.value && it.value.trim()));
                   return (
                     <div className="space-y-3 pt-4 border-t">
-                      <h3 className="font-semibold flex items-center gap-2">
-                        <Sparkles className="w-4 h-4 text-accent" />
-                        {t("employer.candidateDetail.gettingToKnowTitle")}
-                      </h3>
+                      <div>
+                        <h3 className="font-semibold flex items-center gap-2">
+                          <Sparkles className="w-4 h-4 text-accent" />
+                          {t("employer.candidateDetail.gettingToKnowTitle")}
+                        </h3>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {t("employer.candidateDetail.gettingToKnowUseHint", "Te odpowiedzi wykorzystaj w rozmowie z kandydatem.")}
+                        </p>
+                      </div>
                       {items.map((it) => {
                         const filled = !!(it.value && it.value.trim());
                         return (
-                          <div key={it.key} className="flex items-start justify-between gap-3">
-                            <div className="text-sm flex-1 min-w-0">
-                              <p className="text-xs font-medium text-muted-foreground mb-1">{it.label}</p>
-                              {filled ? (
-                                <p className="whitespace-pre-wrap">{it.value}</p>
-                              ) : (
-                                <p className="text-sm italic text-muted-foreground">{t("employer.candidateDetail.notProvided", "Nie uzupełnione")}</p>
-                              )}
-                            </div>
-                            {!filled && (
-                              <Button size="sm" variant="outline" onClick={() => openContactAt('gtk')} className="border-accent text-accent hover:bg-accent/10 shrink-0">
-                                <Mail className="w-4 h-4 mr-2" />
-                                {t("employer.candidateDetail.requestFill", "Poproś o uzupełnienie")}
-                              </Button>
+                          <div key={it.key} className="text-sm">
+                            <p className="text-xs font-medium text-muted-foreground mb-1">{it.label}</p>
+                            {filled ? (
+                              <p className="whitespace-pre-wrap">{it.value}</p>
+                            ) : (
+                              <p className="text-sm italic text-muted-foreground">{t("employer.candidateDetail.notProvided", "Nie uzupełnione")}</p>
                             )}
                           </div>
                         );
                       })}
+                      {anyMissing && (
+                        <Button size="sm" variant="outline" onClick={requestGtk} disabled={requestingGtk} className="border-accent text-accent hover:bg-accent/10">
+                          <Mail className="w-4 h-4 mr-2" />
+                          {t("employer.candidateDetail.requestFillGtk", "Poproś o uzupełnienie brakujących odpowiedzi")}
+                        </Button>
+                      )}
                     </div>
                   );
                 })()}
