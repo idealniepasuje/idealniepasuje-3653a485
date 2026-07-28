@@ -1,0 +1,77 @@
+{
+  "version": 1,
+  "sdk_version": "0.24.0",
+  "path": "/functions/v1/mcp",
+  "auth": {
+    "type": "oauth",
+    "issuer": "https://yqqubonlxloyhmicdfhi.supabase.co/auth/v1",
+    "accepted_audiences": [
+      "authenticated"
+    ]
+  },
+  "mcp": {
+    "server": {
+      "name": "idealniepasuje-mcp",
+      "version": "0.1.0",
+      "title": "idealnie pasuje"
+    },
+    "tools": [
+      {
+        "name": "get_me",
+        "title": "Get my profile",
+        "description": "Return the currently signed-in idealniepasuje user: user id, email, user type (candidate or employer), and either the candidate additional info or the employer company profile.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {}
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_my_matches",
+        "title": "List my matches",
+        "description": "List match results visible to the signed-in user. For candidates: matches with employer job offers. For employers: matches for their own job offers. Returns overall match percentage, status and linked offer/candidate ids.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50,
+              "description": "Max number of matches to return."
+            }
+          },
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_my_offers",
+        "title": "List my job offers",
+        "description": "For employers: list the job offers owned by the signed-in employer. For candidates this returns an empty list.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {}
+        },
+        "outputSchema": null
+      }
+    ]
+  }
+}

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,24 +12,41 @@ import { toast } from "sonner";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { useAuth } from "@/contexts/AuthContext";
 
+// Only accept same-origin relative paths as post-login redirects.
+function sanitizeNext(raw: string | null): string | null {
+  if (!raw) return null;
+  if (!raw.startsWith("/") || raw.startsWith("//")) return null;
+  return raw;
+}
+
 const Login = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { t } = useTranslation();
   const { user, userType, loading: authLoading } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const next = sanitizeNext(searchParams.get("next"));
+  const oauthRedirectUri = next
+    ? `${window.location.origin}${next}`
+    : window.location.origin;
+
   // Redirect if already logged in
   useEffect(() => {
     if (!authLoading && user && userType) {
+      if (next) {
+        navigate(next);
+        return;
+      }
       if (userType === "employer") {
         navigate("/employer/dashboard");
       } else {
         navigate("/candidate/dashboard");
       }
     }
-  }, [user, userType, authLoading, navigate]);
+  }, [user, userType, authLoading, navigate, next]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -47,14 +64,17 @@ const Login = () => {
       }
 
       if (data.user) {
+        toast.success(t("login.successMessage"));
+        if (next) {
+          navigate(next);
+          return;
+        }
         const { data: profile } = await supabase
           .from("profiles")
           .select("user_type")
           .eq("user_id", data.user.id)
           .single();
 
-        toast.success(t("login.successMessage"));
-        
         if (profile?.user_type === "employer") {
           navigate("/employer/dashboard");
         } else {
@@ -72,7 +92,7 @@ const Login = () => {
     setLoading(true);
     try {
       const { error } = await lovable.auth.signInWithOAuth("apple", {
-        redirect_uri: window.location.origin,
+        redirect_uri: oauthRedirectUri,
       });
       if (error) {
         toast.error(t("login.appleError"));
@@ -88,7 +108,7 @@ const Login = () => {
     setLoading(true);
     try {
       const { error } = await lovable.auth.signInWithOAuth("google", {
-        redirect_uri: window.location.origin,
+        redirect_uri: oauthRedirectUri,
       });
       if (error) {
         toast.error(t("login.googleError"));
