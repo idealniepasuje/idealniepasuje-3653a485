@@ -87,47 +87,12 @@ const Login = () => {
       setLoading(false);
     }
   };
-    e.preventDefault();
-    setLoading(true);
-
-    try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (error) {
-        toast.error(error.message);
-        return;
-      }
-
-      if (data.user) {
-        const { data: profile } = await supabase
-          .from("profiles")
-          .select("user_type")
-          .eq("user_id", data.user.id)
-          .single();
-
-        toast.success(t("login.successMessage"));
-        
-        if (profile?.user_type === "employer") {
-          navigate("/employer/dashboard");
-        } else {
-          navigate("/candidate/dashboard");
-        }
-      }
-    } catch (error: any) {
-      toast.error(t("login.errorMessage"));
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleAppleSignIn = async () => {
     setLoading(true);
     try {
       const { error } = await lovable.auth.signInWithOAuth("apple", {
-        redirect_uri: window.location.origin,
+        redirect_uri: oauthRedirectUri,
       });
       if (error) {
         toast.error(t("login.appleError"));
@@ -143,7 +108,7 @@ const Login = () => {
     setLoading(true);
     try {
       const { error } = await lovable.auth.signInWithOAuth("google", {
-        redirect_uri: window.location.origin,
+        redirect_uri: oauthRedirectUri,
       });
       if (error) {
         toast.error(t("login.googleError"));
