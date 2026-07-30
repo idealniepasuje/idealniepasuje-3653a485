@@ -775,8 +775,8 @@ const EmployerCandidateDetail = () => {
                       </Badge>
                     </div>
                     <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                      <span>{t("employer.candidateDetail.candidateScore")}: {comp.candidateScore.toFixed(1)}</span>
-                      <span>{t("employer.candidateDetail.yourRequirement")}: {comp.employerRequirement}</span>
+                      <span>{t("employer.candidateDetail.candidateScore")}: {levelLabels[level].label}</span>
+                      <span>{t("employer.candidateDetail.yourRequirement")}: {levelLabels[getLevel(comp.employerRequirement)].label}</span>
                     </div>
                     <Progress value={comp.matchPercent} className="h-2" />
                     <div className="p-3 rounded-lg bg-muted/50 border border-border">
