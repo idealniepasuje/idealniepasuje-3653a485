@@ -823,8 +823,7 @@ const EmployerCandidateDetail = () => {
                         <ShieldCheck className="w-4 h-4 text-accent" />
                         {t("employer.candidateDetail.reliabilityScale")}
                       </span>
-                      <div className="flex items-center gap-2">
-                        <span className={`text-xs font-semibold px-2 py-0.5 rounded ${
+                      <span className={`text-xs font-semibold px-2 py-0.5 rounded ${
                           avgScore >= 4.5 ? 'bg-destructive/20 text-destructive' :
                           avgScore >= 3.5 ? 'bg-cta/20 text-cta' :
                           'bg-success/20 text-success'
@@ -833,8 +832,6 @@ const EmployerCandidateDetail = () => {
                            avgScore >= 3.5 ? t("employer.candidateDetail.reliabilityMedium") :
                            t("employer.candidateDetail.reliabilityHigh")}
                         </span>
-                        <span className="text-xs text-muted-foreground">{avgScore.toFixed(1)}/5.0</span>
-                      </div>
                     </div>
                     <p className="text-xs text-muted-foreground/70 leading-relaxed">
                       {t("employer.candidateDetail.reliabilityDescription")}
@@ -874,8 +871,8 @@ const EmployerCandidateDetail = () => {
                       </Badge>
                     </div>
                     <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                      <span>{t("employer.candidateDetail.candidateScore")}: {cult.candidateScore.toFixed(1)}</span>
-                      <span>{t("employer.candidateDetail.yourScore")}: {cult.employerScore.toFixed(1)}</span>
+                      <span>{t("employer.candidateDetail.candidateScore")}: {levelLabels[level].label}</span>
+                      <span>{t("employer.candidateDetail.yourScore")}: {levelLabels[getLevel(cult.employerScore)].label}</span>
                     </div>
                     <Progress value={cult.matchPercent} className="h-2" />
                     <div className="p-3 rounded-lg bg-muted/50 border border-border">
