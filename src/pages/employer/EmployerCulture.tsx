@@ -206,7 +206,11 @@ const EmployerCulture = () => {
           <CheckCircle2 className="w-16 h-16 text-success mx-auto" />
           <h2 className="text-2xl font-bold">{t("employer.culture.profileCompleted")}</h2>
           <p className="text-muted-foreground">{t("employer.culture.profileCompletedDescription")}</p>
-          <div className="space-y-3 text-left">{Object.entries(localizedDimensions).map(([code, dim]) => (<div key={code} className="bg-muted/50 rounded-lg p-3"><div className="flex justify-between"><span className="font-medium">{dim.name}</span><span>{dimensionScores[code]?.toFixed(1)}/5</span></div><p className="text-xs text-muted-foreground mt-1">{getFeedback('culture', code, getLevel(dimensionScores[code] || 0), 'employer', i18n.language)}</p></div>))}</div>
+          <div className="space-y-3 text-left">{Object.entries(localizedDimensions).map(([code, dim]) => (<div key={code} className="bg-muted/50 rounded-lg p-3"><div className="flex justify-between items-center"><span className="font-medium">{dim.name}</span><span className={`text-xs font-semibold px-2 py-0.5 rounded ${
+            (dimensionScores[code] || 0) >= 3.8 ? 'bg-success/20 text-success' :
+            (dimensionScores[code] || 0) >= 2.3 ? 'bg-cta/20 text-cta' :
+            'bg-destructive/20 text-destructive'
+          }">{getFeedback('culture', code, getLevel(dimensionScores[code] || 0), 'employer', i18n.language).split('.')[0]}</span></div><p className="text-xs text-muted-foreground mt-1">{getFeedback('culture', code, getLevel(dimensionScores[code] || 0), 'employer', i18n.language)}</p></div>))}</div>
           <Link to={backPath}><Button className="w-full bg-cta text-cta-foreground">{t("common.backToPanel")}</Button></Link>
         </CardContent></Card>
       </main>

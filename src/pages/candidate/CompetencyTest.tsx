@@ -195,7 +195,6 @@ const CompetencyTest = () => {
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="text-center">
-                <div className="text-4xl font-bold text-accent mb-2">{averageScore.toFixed(1)} / 5.0</div>
                 <div className="text-lg font-medium capitalize">
                   {t("candidate.test.level")}: <span className={`${level === 'high' ? 'text-success' : level === 'medium' ? 'text-cta' : 'text-destructive'}`}>
                     {level === 'high' ? t("candidate.test.levelHigh") : level === 'medium' ? t("candidate.test.levelMedium") : t("candidate.test.levelLow")}
