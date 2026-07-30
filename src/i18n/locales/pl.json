@@ -444,9 +444,9 @@
     "test": {
       "testCompleted": "Test ukończony!",
       "level": "Poziom",
-      "levelHigh": "Wysoki",
-      "levelMedium": "Średni",
-      "levelLow": "Niski",
+      "levelHigh": "Poziom świadomego wykorzystania kompetencji",
+      "levelMedium": "Poziom stabilnego wykorzystania kompetencji",
+      "levelLow": "Poziom budowania kompetencji",
       "yourResult": "Twój wynik",
       "resultReminder": "Pamiętaj: nie ma dobrych ani złych wyników. Ten test pomaga nam dopasować Cię do odpowiedniego miejsca pracy.",
       "continueToNextTest": "Kontynuuj do następnego testu",

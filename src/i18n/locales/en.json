@@ -444,9 +444,9 @@
     "test": {
       "testCompleted": "Test completed!",
       "level": "Level",
-      "levelHigh": "High",
-      "levelMedium": "Medium",
-      "levelLow": "Low",
+      "levelHigh": "Conscious competency use level",
+      "levelMedium": "Stable competency use level",
+      "levelLow": "Competency building level",
       "yourResult": "Your result",
       "resultReminder": "Remember: there are no good or bad results. This test helps us match you to the right workplace.",
       "continueToNextTest": "Continue to next test",
