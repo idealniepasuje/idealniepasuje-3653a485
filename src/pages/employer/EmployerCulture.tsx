@@ -12,7 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { employerCultureQuestions, getLocalizedCultureDimensions } from "@/data/cultureQuestions";
 import { agreementScale, getLocalizedData } from "@/data/additionalQuestions";
-import { getLevel, getFeedback } from "@/data/feedbackData";
+import { getLevel, getFeedback, getLocalizedLevelLabels } from "@/data/feedbackData";
 import { useQuestionTimer } from "@/hooks/useQuestionTimer";
 import { QuestionTimer } from "@/components/QuestionTimer";
 
@@ -206,11 +206,24 @@ const EmployerCulture = () => {
           <CheckCircle2 className="w-16 h-16 text-success mx-auto" />
           <h2 className="text-2xl font-bold">{t("employer.culture.profileCompleted")}</h2>
           <p className="text-muted-foreground">{t("employer.culture.profileCompletedDescription")}</p>
-          <div className="space-y-3 text-left">{Object.entries(localizedDimensions).map(([code, dim]) => (<div key={code} className="bg-muted/50 rounded-lg p-3"><div className="flex justify-between items-center"><span className="font-medium">{dim.name}</span><span className={`text-xs font-semibold px-2 py-0.5 rounded ${
-            (dimensionScores[code] || 0) >= 3.8 ? 'bg-success/20 text-success' :
-            (dimensionScores[code] || 0) >= 2.3 ? 'bg-cta/20 text-cta' :
-            'bg-destructive/20 text-destructive'
-          }">{getFeedback('culture', code, getLevel(dimensionScores[code] || 0), 'employer', i18n.language).split('.')[0]}</span></div><p className="text-xs text-muted-foreground mt-1">{getFeedback('culture', code, getLevel(dimensionScores[code] || 0), 'employer', i18n.language)}</p></div>))}</div>
+          <div className="space-y-3 text-left">{Object.entries(localizedDimensions).map(([code, dim]) => {
+            const score = dimensionScores[code] || 0;
+            const level = getLevel(score);
+            const levelLabels = getLocalizedLevelLabels(i18n.language);
+            return (
+              <div key={code} className="bg-muted/50 rounded-lg p-3">
+                <div className="flex justify-between items-center">
+                  <span className="font-medium">{dim.name}</span>
+                  <span className={`text-xs font-semibold px-2 py-0.5 rounded ${
+                    level === 'high' ? 'bg-success/20 text-success' :
+                    level === 'medium' ? 'bg-cta/20 text-cta' :
+                    'bg-destructive/20 text-destructive'
+                  }`}>{levelLabels[level].label}</span>
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">{getFeedback('culture', code, level, 'employer', i18n.language)}</p>
+              </div>
+            );
+          })}</div>
           <Link to={backPath}><Button className="w-full bg-cta text-cta-foreground">{t("common.backToPanel")}</Button></Link>
         </CardContent></Card>
       </main>
