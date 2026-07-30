@@ -23,7 +23,6 @@ export const CompetencySliderWithFeedback = ({
   const levelLabels = getLocalizedLevelLabels(i18n.language);
   const levelInfo = levelLabels[level];
   const step = 0.1;
-  const displayPrecision = 1;
 
   return (
     <div className="mb-6">
