@@ -26,14 +26,14 @@ export const getLevel = (average: number): FeedbackLevel => {
 
 export const levelLabels = {
   pl: {
-    low: { label: 'Niski', color: 'destructive' },
-    medium: { label: 'Średni', color: 'cta' },
-    high: { label: 'Wysoki', color: 'success' },
+    low: { label: 'Poziom budowania kompetencji', color: 'destructive' },
+    medium: { label: 'Poziom stabilnego wykorzystania kompetencji', color: 'cta' },
+    high: { label: 'Poziom świadomego wykorzystania kompetencji', color: 'success' },
   },
   en: {
-    low: { label: 'Low', color: 'destructive' },
-    medium: { label: 'Medium', color: 'cta' },
-    high: { label: 'High', color: 'success' },
+    low: { label: 'Competency building level', color: 'destructive' },
+    medium: { label: 'Stable competency use level', color: 'cta' },
+    high: { label: 'Conscious competency use level', color: 'success' },
   },
 };
 
