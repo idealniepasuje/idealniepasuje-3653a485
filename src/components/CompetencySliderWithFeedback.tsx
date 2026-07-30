@@ -23,13 +23,18 @@ export const CompetencySliderWithFeedback = ({
   const levelLabels = getLocalizedLevelLabels(i18n.language);
   const levelInfo = levelLabels[level];
   const step = 0.1;
-  const displayPrecision = 1;
 
   return (
     <div className="mb-6">
       <div className="flex justify-between mb-2">
         <span className="text-sm font-medium">{label}</span>
-        <span className="text-sm font-bold">{value.toFixed(displayPrecision)}</span>
+        <span className={`text-xs font-semibold px-2 py-0.5 rounded ${
+          level === 'high' ? 'bg-success/20 text-success' : 
+          level === 'medium' ? 'bg-cta/20 text-cta' : 
+          'bg-destructive/20 text-destructive'
+        }`}>
+          {levelInfo.label}
+        </span>
       </div>
       <Slider 
         value={[value]} 

@@ -317,8 +317,8 @@ const CandidateEmployerDetail = () => {
                       </div>
                     </div>
                     <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                      <span>{t("candidate.employerDetail.yourScore")}: {comp.candidateScore.toFixed(1)}</span>
-                      <span>{t("candidate.employerDetail.requirement")}: {comp.employerRequirement}</span>
+                      <span>{t("candidate.employerDetail.yourScore")}: {levelLabels[getLevel(comp.candidateScore)].label}</span>
+                      <span>{t("candidate.employerDetail.requirement")}: {levelLabels[employerLevel].label}</span>
                     </div>
                     <Progress value={comp.matchPercent} className="h-2" />
                     <div className="p-3 rounded-lg bg-muted/50 border border-border">
@@ -368,8 +368,8 @@ const CandidateEmployerDetail = () => {
                       </Badge>
                     </div>
                     <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                      <span>{t("candidate.employerDetail.yourScore")}: {cult.candidateScore.toFixed(1)}</span>
-                      <span>{t("candidate.employerDetail.companyScore")}: {cult.employerScore.toFixed(1)}</span>
+                      <span>{t("candidate.employerDetail.yourScore")}: {levelLabels[getLevel(cult.candidateScore)].label}</span>
+                      <span>{t("candidate.employerDetail.companyScore")}: {levelLabels[employerLevel].label}</span>
                     </div>
                     <Progress value={cult.matchPercent} className="h-2" />
                     <div className="p-3 rounded-lg bg-muted/50 border border-border">
