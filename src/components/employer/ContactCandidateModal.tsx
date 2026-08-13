@@ -105,7 +105,7 @@ export const ContactCandidateModal = ({
     setRequestingContact(true);
     try {
       const msg = getContactRequestTemplate(lang, companyName);
-      await supabase.from('candidate_messages').insert({
+      const { error: insertErr } = await supabase.from('candidate_messages').insert({
         match_result_id: match?.id,
         candidate_user_id: candidateUserId,
         employer_user_id: employerUserId,
@@ -113,6 +113,8 @@ export const ContactCandidateModal = ({
         content: msg,
         metadata: { request: 'contact' },
       });
+      if (insertErr) throw insertErr;
+
       try {
         await supabase.functions.invoke('send-profile-completion-request', {
           body: { candidate_user_id: candidateUserId, employer_company_name: companyName, message: msg },
