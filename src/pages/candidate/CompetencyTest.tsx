@@ -76,20 +76,24 @@ const CompetencyTest = () => {
     setAverageScore(mainScore);
 
     // Save the computed score to DB
-    saveCompetencyScore(mainScore);
+    void saveCompetencyScore(mainScore);
 
     setShowResults(true);
   };
 
-  const saveCompetencyScore = async (score: number) => {
-    if (!user || !competencyCode) return;
+  const saveCompetencyScore = async (score: number): Promise<boolean> => {
+    if (!user || !competencyCode) return false;
     const scoreColumn = `${competencyCode}_score`;
     try {
-      await supabase.from("candidate_test_results").update({
+      const { error } = await supabase.from("candidate_test_results").update({
         [scoreColumn]: score,
       }).eq("user_id", user.id);
+      if (error) throw error;
+      return true;
     } catch (error) {
       logError("CompetencyTest.saveCompetencyScore", error);
+      toast.error(t("errors.saveProgressError"));
+      return false;
     }
   };
 
@@ -98,41 +102,63 @@ const CompetencyTest = () => {
     setAnswers(prev => ({ ...prev, [questionId]: value }));
   };
 
-  const saveProgress = async () => {
-    if (!user || !competencyCode) return;
+  // Accepts an explicit answers snapshot so callers never rely on stale state.
+  const saveProgress = async (answersToSave: Record<string, number>): Promise<boolean> => {
+    if (!user || !competencyCode) return false;
     setSaving(true);
     try {
-      const { data: currentData } = await supabase.from("candidate_test_results").select("competency_answers").eq("user_id", user.id).single();
+      const { data: currentData, error: fetchError } = await supabase.from("candidate_test_results").select("competency_answers").eq("user_id", user.id).single();
+      if (fetchError && fetchError.code !== "PGRST116") throw fetchError;
       const existingAnswers = (currentData?.competency_answers as Record<string, Record<string, number>> | null) || {};
-      const updatedAnswers = { ...existingAnswers, [competencyCode]: answers };
+      const updatedAnswers = { ...existingAnswers, [competencyCode]: answersToSave };
       const { error } = await supabase.from("candidate_test_results").update({ competency_answers: updatedAnswers }).eq("user_id", user.id);
       if (error) throw error;
+      return true;
     } catch (error) {
       logError("CompetencyTest.saveProgress", error);
       toast.error(t("errors.saveProgressError"));
+      return false;
     } finally {
       setSaving(false);
     }
   };
 
-  const handleNext = useCallback(async () => {
-    if (currentQuestionIndex < questions.length - 1) {
-      setCurrentQuestionIndex(prev => prev + 1);
-      await saveProgress();
-    } else {
-      await saveProgress();
-      calculateAndShowResults(answers);
-      toast.success(t("candidate.test.testCompletedMessage"));
+  // Guards against timeout + manual click firing at the same time.
+  const advancingRef = useRef(false);
+
+  const advance = useCallback(async (answersToUse: Record<string, number>) => {
+    if (advancingRef.current) return;
+    advancingRef.current = true;
+    try {
+      const isLast = currentQuestionIndex >= questions.length - 1;
+      if (!isLast) {
+        setCurrentQuestionIndex(prev => Math.min(prev + 1, questions.length - 1));
+        await saveProgress(answersToUse);
+      } else {
+        const ok = await saveProgress(answersToUse);
+        if (!ok) return;
+        calculateAndShowResults(answersToUse);
+        toast.success(t("candidate.test.testCompletedMessage"));
+      }
+    } finally {
+      advancingRef.current = false;
     }
-  }, [currentQuestionIndex, questions.length, answers, t]);
+  }, [currentQuestionIndex, questions.length, t]);
+
+  const handleNext = useCallback(() => {
+    void advance(answers);
+  }, [advance, answers]);
 
   const handleTimeUp = useCallback(() => {
+    if (advancingRef.current) return;
     const currentQ = questions[currentQuestionIndex];
-    if (answers[currentQ.id] === undefined) {
-      setAnswers(prev => ({ ...prev, [currentQ.id]: 3 }));
-    }
-    handleNext();
-  }, [currentQuestionIndex, questions, answers, handleNext]);
+    if (!currentQ) return;
+    const nextAnswers = answers[currentQ.id] === undefined
+      ? { ...answers, [currentQ.id]: 3 }
+      : answers;
+    if (nextAnswers !== answers) setAnswers(nextAnswers);
+    void advance(nextAnswers);
+  }, [currentQuestionIndex, questions, answers, advance]);
 
   const { timeLeft, progress: timerProgress } = useQuestionTimer({
     duration: 25,
@@ -144,6 +170,12 @@ const CompetencyTest = () => {
   const handlePrevious = () => {
     if (currentQuestionIndex > 0) setCurrentQuestionIndex(prev => prev - 1);
   };
+
+  const handleSaveAndBack = async () => {
+    const ok = await saveProgress(answers);
+    if (ok) navigate("/candidate/dashboard");
+  };
+
 
   if (authLoading || loading) {
     return (
