@@ -125,7 +125,13 @@ export const CandidateCard = ({ match, candidateData, offerTitle }: CandidateCar
               </Badge>
               <Badge variant="outline" className="text-xs gap-1">
                 <Building className="w-3 h-3" />
-                {t("common.additional")}: {match.extra_percent || 0}%
+                {t("common.additional")}: {
+                  match.match_details?.extraStatus === 'insufficient_data'
+                    ? (match.insufficientData ?? t("common.noData"))
+                    : match.extra_percent === null || match.extra_percent === undefined
+                      ? '-'
+                      : `${match.extra_percent}%`
+                }
               </Badge>
             </div>
           </div>
