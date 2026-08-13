@@ -410,7 +410,9 @@ const CandidateDashboard = () => {
                           key={match.id} 
                           match={match} 
                           employer={employer}
+                          jobOffer={match.job_offer_id ? offersById[match.job_offer_id] : null}
                         />
+
                       );
                     })}
                   </div>
