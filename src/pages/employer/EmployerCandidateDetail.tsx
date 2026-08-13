@@ -18,6 +18,7 @@ import { getLevel, getFeedback, getLocalizedLevelLabels } from "@/data/feedbackD
 import { getAprobataQuestions } from "@/data/competencyQuestions";
 import { getLinkedinRequestTemplate, getProfileCompletionTemplate, getToolsRequestTemplate, getLanguagesRequestTemplate } from "@/data/messageTemplates";
 import { LANGUAGE_LEVELS, languageLevelLabels, languageNames } from "@/data/additionalQuestions";
+import { ExtraCriteriaList } from "@/components/match/ExtraCriteriaList";
 
 interface MatchDetails {
   competenceDetails: {
@@ -921,136 +922,12 @@ const EmployerCandidateDetail = () => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              {/* Build criteria from live data */}
-              {(() => {
-                // Use ONLY job offer data — additional criteria must come from the specific
-                // job offer (what the employer wrote in the ad), not from the general company profile.
-                const requirementData = {
-                  industry: jobOfferData?.industry ?? null,
-                  required_experience: jobOfferData?.required_experience ?? null,
-                  position_level: jobOfferData?.position_level ?? null,
-                  no_experience_required: jobOfferData?.no_experience_required ?? false,
-                  accepted_industries: jobOfferData?.accepted_industries ?? [],
-                  accepted_industry_requirements: jobOfferData?.accepted_industry_requirements ?? null,
-                };
-                const getDisplayValue = (value: string | null | undefined, field: string, isExperience = false) => {
-                  if (value === null || value === undefined || value === '') return '';
-                  if (field === 'industry') {
-                    return t(`candidate.additional.industries.${value}`, value);
-                  }
-                  if (field === 'position_level') {
-                    return t(`candidate.additional.positionLevels.${value}`, value);
-                  }
-                  if (isExperience) {
-                    if (String(value) === '0') return t("employer.requirements.noExperienceRequired");
-                    return `${value} ${t("common.years")}`;
-                  }
-                  return value;
-                };
-
-                // Industry match
-                const industryMatch = 
-                  candidateData?.industry === requirementData?.industry ||
-                  (requirementData?.accepted_industries?.includes(candidateData?.industry) ?? false);
-                
-                // Experience match
-                const candidateExp = parseInt(candidateData?.experience || '0') || 0;
-                const requiredExp = parseInt(requirementData?.required_experience || '0') || 0;
-                const experienceMatch = requirementData?.no_experience_required || candidateExp >= requiredExp;
-                
-                // Position level match
-                const positionLevelOrder = ['junior', 'mid', 'senior', 'lead', 'manager', 'director'];
-                const candidateLevelIndex = positionLevelOrder.indexOf(candidateData?.position_level || '');
-                const employerLevelIndex = positionLevelOrder.indexOf(requirementData?.position_level || '');
-                const positionMatch = candidateData?.position_level === requirementData?.position_level || 
-                  (candidateLevelIndex >= employerLevelIndex && employerLevelIndex !== -1);
-
-                const criteria = [
-                  {
-                    field: t("employer.candidateDetail.criteriaIndustry"),
-                    matched: industryMatch,
-                    noData: !candidateData?.industry,
-                    candidateValue: candidateData?.industry,
-                    employerValue: requirementData?.industry,
-                    acceptedValues: requirementData?.accepted_industries || [],
-                    fieldType: 'industry'
-                  },
-                  {
-                    field: t("employer.candidateDetail.criteriaExperience"),
-                    matched: experienceMatch,
-                    noData: !requirementData?.no_experience_required && !candidateData?.experience,
-                    candidateValue: candidateData?.experience,
-                    employerValue: requirementData?.no_experience_required ? '0' : requirementData?.required_experience,
-                    fieldType: 'experience'
-                  },
-                  {
-                    field: t("employer.candidateDetail.criteriaPositionLevel"),
-                    matched: positionMatch,
-                    noData: !candidateData?.position_level,
-                    candidateValue: candidateData?.position_level,
-                    employerValue: requirementData?.position_level,
-                    fieldType: 'position_level'
-                  },
-                ];
-
-                return criteria.map((crit) => (
-                  <div 
-                    key={crit.field} 
-                    className={`p-4 rounded-lg border ${
-                      crit.noData
-                        ? 'border-border bg-muted/30'
-                        : crit.matched ? 'border-success/30 bg-success/5' : 'border-destructive/30 bg-destructive/5'
-                    }`}
-                  >
-                    <div className="flex items-start gap-3">
-                      {crit.noData ? (
-                        <HelpCircle className="w-5 h-5 text-muted-foreground mt-0.5 shrink-0" />
-                      ) : crit.matched ? (
-                        <CheckCircle2 className="w-5 h-5 text-success mt-0.5 shrink-0" />
-                      ) : (
-                        <AlertCircle className="w-5 h-5 text-destructive mt-0.5 shrink-0" />
-                      )}
-                      <div className="flex-1">
-                        <div className="flex items-center justify-between mb-2">
-                          <span className={`font-medium ${crit.matched && !crit.noData ? '' : 'text-muted-foreground'}`}>
-                            {crit.field}
-                          </span>
-                          <Badge
-                            variant={crit.noData ? "secondary" : crit.matched ? "default" : "destructive"}
-                            className={!crit.noData && crit.matched ? "bg-success" : ""}
-                          >
-                            {crit.noData
-                              ? t("employer.candidateDetail.noData")
-                              : crit.matched ? t("common.match") : t("employer.candidateDetail.noMatch")}
-                          </Badge>
-                        </div>
-
-                        <div className="grid sm:grid-cols-2 gap-2 text-sm">
-                          <div className="flex items-center gap-2">
-                            <span className="text-muted-foreground">{t("employer.candidateDetail.candidateScore")}:</span>
-                            <span className="font-medium">
-                              {getDisplayValue(crit.candidateValue, crit.fieldType, crit.fieldType === 'experience') || '-'}
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <span className="text-muted-foreground">{t("employer.candidateDetail.yourRequirement")}:</span>
-                            <span className="font-medium">
-                              {getDisplayValue(crit.employerValue, crit.fieldType, crit.fieldType === 'experience') || t("employer.candidateDetail.noExpectations")}
-                            </span>
-                          </div>
-                        </div>
-                        {crit.acceptedValues && crit.acceptedValues.length > 0 && crit.fieldType === 'industry' && (
-                          <div className="mt-2 text-xs text-muted-foreground">
-                            {t("employer.candidateDetail.acceptedIndustries")}: {crit.acceptedValues.map((v: string) => t(`candidate.additional.industries.${v}`, v)).join(', ')}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                ));
-              })()}
-            </div>
+            {/* Jedyne źródło prawdy: wynik policzony przez algorytm i zapisany w match_details */}
+            <ExtraCriteriaList
+              details={matchDetails?.extraDetails}
+              extraStatus={matchDetails?.extraStatus}
+              requirementLabelKey="employer.candidateDetail.yourRequirement"
+            />
           </CardContent>
         </Card>
 
