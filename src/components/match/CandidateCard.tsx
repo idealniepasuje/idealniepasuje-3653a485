@@ -18,7 +18,13 @@ interface CandidateCardProps {
     status: string;
     created_at: string;
     job_offer_id?: string;
-    match_details?: any;
+    insufficientData?: string;
+    match_details?: {
+      extraStatus?: string;
+      matchStatus?: string;
+      reliable?: boolean;
+      profile_ready?: boolean;
+    };
   };
   candidateData?: {
     industry?: string;
@@ -32,7 +38,12 @@ interface CandidateCardProps {
 export const CandidateCard = ({ match, candidateData, offerTitle }: CandidateCardProps) => {
   const { t } = useTranslation();
   const isRejected = match.status === 'rejected';
-  const isBestMatch = match.overall_percent >= 80;
+  const isBestMatch =
+    match.overall_percent >= 80 &&
+    !(
+      match.match_details?.matchStatus === 'low_confidence' ||
+      match.match_details?.reliable === false
+    );
   const isNewTalent = match.status === 'pending';
   const isConsidering = match.status === 'considering';
 
@@ -114,7 +125,13 @@ export const CandidateCard = ({ match, candidateData, offerTitle }: CandidateCar
               </Badge>
               <Badge variant="outline" className="text-xs gap-1">
                 <Building className="w-3 h-3" />
-                {t("common.additional")}: {match.extra_percent || 0}%
+                {t("common.additional")}: {
+                  match.match_details?.extraStatus === 'insufficient_data'
+                    ? (match.insufficientData ?? t("common.noData"))
+                    : match.extra_percent === null || match.extra_percent === undefined
+                      ? '-'
+                      : `${match.extra_percent}%`
+                }
               </Badge>
             </div>
           </div>

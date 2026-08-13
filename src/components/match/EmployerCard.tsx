@@ -18,6 +18,12 @@ interface EmployerCardProps {
     extra_percent: number | null;
     status: string;
     created_at: string;
+    insufficientData?: string;
+    match_details?: {
+      extraStatus?: string;
+      matchStatus?: string;
+      reliable?: boolean;
+    };
   };
   /** General employer profile data (keyed by employer_user_id) */
   employer?: {
@@ -48,7 +54,12 @@ export const EmployerCard = ({ match, employer, jobOffer }: EmployerCardProps) =
   const city = jobOffer?.city || null;
 
   const isRejected = match.status === 'rejected';
-  const isBestMatch = match.overall_percent >= 80;
+  const isBestMatch =
+    match.overall_percent >= 80 &&
+    !(
+      match.match_details?.matchStatus === 'low_confidence' ||
+      match.match_details?.reliable === false
+    );
   const isEmployerInterested = match.status === 'considering';
   
   const getAvatarColor = (id: string) => {
@@ -135,7 +146,13 @@ export const EmployerCard = ({ match, employer, jobOffer }: EmployerCardProps) =
                 </Badge>
                 <Badge variant="outline" className="text-xs gap-1">
                   <Building className="w-3 h-3" />
-                  {t("common.additional")}: {match.extra_percent || 0}%
+                  {t("common.additional")}: {
+                    match.match_details?.extraStatus === 'insufficient_data'
+                      ? (match.insufficientData ?? t("common.noData"))
+                      : match.extra_percent === null || match.extra_percent === undefined
+                        ? '-'
+                        : `${match.extra_percent}%`
+                  }
                 </Badge>
               </div>
             </div>
