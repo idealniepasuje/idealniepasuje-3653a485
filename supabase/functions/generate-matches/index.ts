@@ -196,14 +196,14 @@ Deno.serve(async (req) => {
     // Generate matches for each job offer
     for (const offer of eligibleOffers) {
       for (const candidate of candidates || []) {
-        // Check if match already exists for this offer-candidate pair
+        // Single lookup: gives both id and lifecycle status
         const { data: existingMatch } = await supabase
           .from('match_results')
-          .select('id')
+          .select('id, status')
           .eq('employer_user_id', employer_user_id)
           .eq('candidate_user_id', candidate.user_id)
           .eq('job_offer_id', offer.id)
-          .single();
+          .maybeSingle();
 
         const isNewMatch = !existingMatch;
 
