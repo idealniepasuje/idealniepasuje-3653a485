@@ -543,7 +543,7 @@ export const calculateMatch = (
   if (extra.percent !== null) parts.push({ weight: WEIGHTS.extra, percent: extra.percent });
 
   const totalWeight = parts.reduce((s, p) => s + p.weight, 0);
-  const overallPercent =
+  const technical =
     totalWeight > 0 ? parts.reduce((s, p) => s + (p.weight / totalWeight) * p.percent, 0) : 0;
 
   const appliedWeights = {
@@ -552,8 +552,32 @@ export const calculateMatch = (
     extra: extra.percent !== null && totalWeight > 0 ? WEIGHTS.extra / totalWeight : 0,
   };
 
+  const availableSections: MatchSection[] = [];
+  if (competence.percent !== null) availableSections.push('competence');
+  if (culture.percent !== null) availableSections.push('culture');
+  if (extra.percent !== null) availableSections.push('extra');
+
+  // Zasada bezpieczeństwa: 0 sekcji = brak wyniku, 1 sekcja = niska wiarygodność
+  const matchStatus: MatchStatus =
+    availableSections.length === 0
+      ? 'insufficient_data'
+      : availableSections.length === 1
+        ? 'low_confidence'
+        : 'ok';
+
+  const risks = generateRisks(competence.details, culture.details, extra.details, culture.percent !== null);
+  if (matchStatus === 'low_confidence') {
+    risks.unshift('Niska wiarygodność wyniku — dostępna tylko jedna sekcja oceny');
+  } else if (matchStatus === 'insufficient_data') {
+    risks.unshift('Brak danych do wyliczenia dopasowania');
+  }
+
   return {
-    overallPercent: Math.round(overallPercent),
+    overallPercent: matchStatus === 'insufficient_data' ? null : Math.round(technical),
+    technicalPercent: Math.round(technical),
+    matchStatus,
+    reliable: matchStatus === 'ok',
+    availableSections,
     competencePercent: Math.round(competence.percent ?? 0),
     culturePercent: Math.round(culture.percent ?? 0),
     extraPercent: Math.round(extra.percent ?? 0),
