@@ -590,6 +590,6 @@ export const calculateMatch = (
     extraCoveragePercent: extra.coveragePercent,
     appliedWeights,
     strengths: generateStrengths(competence.details, culture.details, extra.details),
-    risks: generateRisks(competence.details, culture.details, extra.details, culture.percent !== null),
+    risks,
   };
 };
