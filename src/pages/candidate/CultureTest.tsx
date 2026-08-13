@@ -113,8 +113,9 @@ const CultureTest = () => {
     try {
       const isLast = currentQuestionIndex >= questions.length - 1;
       if (!isLast) {
+        const ok = await saveProgress(answersToUse);
+        if (!ok) return;
         setCurrentQuestionIndex(prev => Math.min(prev + 1, questions.length - 1));
-        await saveProgress(answersToUse);
       } else {
         const ok = await saveProgress(answersToUse, true);
         if (!ok) return;
