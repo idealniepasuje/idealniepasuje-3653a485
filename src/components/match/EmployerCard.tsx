@@ -100,7 +100,7 @@ export const EmployerCard = ({ match, employer, jobOffer }: EmployerCardProps) =
               
               {/* Company name */}
               <h3 className="font-semibold text-lg sm:text-xl text-foreground">
-                {employer?.company_name || t("candidate.matches.company")}
+                {companyName || t("candidate.matches.company")}
               </h3>
               
               {/* Offer title */}
@@ -109,18 +109,19 @@ export const EmployerCard = ({ match, employer, jobOffer }: EmployerCardProps) =
               )}
               
               {/* Industry */}
-              {employer?.industry && (
+              {industry && (
                 <p className="text-muted-foreground text-sm mb-2">
-                  {employer.industry}
+                  {industry}
                 </p>
               )}
               
               {/* Work mode badge */}
-              {employer?.work_mode && (
+              {workMode && (
                 <div className="mb-2">
-                  <WorkModeBadge workMode={employer.work_mode} city={employer.city} />
+                  <WorkModeBadge workMode={workMode} city={city || undefined} />
                 </div>
               )}
+
 
               {/* Competence, culture & additional badges */}
               <div className="flex flex-wrap gap-1.5">
