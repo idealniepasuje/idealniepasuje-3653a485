@@ -82,12 +82,14 @@ export const ContactCandidateModal = ({
         metadata: { interview_type: interviewType, calendar_link: calendarLink },
       });
       if (insertErr) throw insertErr;
-      await supabase.from('match_results').update({
+      const { error: updateErr } = await supabase.from('match_results').update({
         interview_invited_at: new Date().toISOString(),
         interview_type: interviewType,
         interview_calendar_link: calendarLink || null,
         interview_message: interviewMsg,
       }).eq('id', match.id);
+      if (updateErr) throw updateErr;
+
       toast.success(t("employer.candidateDetail.contact.inviteSent"));
       onUpdated();
       onOpenChange(false);
