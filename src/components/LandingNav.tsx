@@ -35,6 +35,12 @@ export const LandingNav = ({ variant }: LandingNavProps) => {
         <div className="hidden md:flex items-center gap-4">
           <InstagramLink className="w-5 h-5 text-foreground" />
           <LanguageSwitcher />
+          <Link to="/connect">
+            <Button variant="ghost" size="sm" className="gap-1.5">
+              <Sparkles className="w-4 h-4" />
+              AI
+            </Button>
+          </Link>
           <Link to={switchLink.to}>
             <Button variant="ghost" size="sm">{switchLink.label}</Button>
           </Link>
