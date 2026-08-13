@@ -7,6 +7,7 @@ const corsHeaders = {
 
 import {
   calculateMatch,
+  checkOfferEligibility,
   type CandidateData,
   type JobOfferData,
   type EmployerCultureData,
@@ -102,14 +103,25 @@ Deno.serve(async (req) => {
 
     let totalMatches = 0;
     const errors: string[] = [];
+    const skippedOffers: { job_offer_id: string; title: string; reason: string }[] = [];
+
+    // Oferty bez kompletu wymagań kompetencyjnych nie generują dopasowań
+    const eligibleOffers = jobOffers.filter((o) => {
+      const check = checkOfferEligibility(o as JobOfferData);
+      if (!check.eligible) {
+        skippedOffers.push({ job_offer_id: o.id, title: o.title, reason: check.reason! });
+      }
+      return check.eligible;
+    });
 
     for (const candidate of candidates) {
-      for (const offer of jobOffers) {
+      for (const offer of eligibleOffers) {
         const employerProfile = employerProfileMap.get(offer.user_id);
         
         if (!employerProfile) {
           continue;
         }
+
 
         const outcome = calculateMatch(
           candidate as CandidateData,
@@ -166,7 +178,9 @@ Deno.serve(async (req) => {
       success: true, 
       total_matches_created: totalMatches,
       candidates_processed: candidates.length,
-      offers_processed: jobOffers.length,
+      offers_processed: eligibleOffers.length,
+      skipped_offers: skippedOffers,
+
       errors: errors.length > 0 ? errors : undefined,
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

@@ -222,3 +222,43 @@ describe("wynik końcowy", () => {
     expect(r.risks.some((x) => x.includes("Branża"))).toBe(true);
   });
 });
+
+describe("kwalifikowalność oferty (brak wymagań kompetencyjnych)", () => {
+  it("odrzuca ofertę bez kompletu kompetencji i podaje brakujące", async () => {
+    const { checkOfferEligibility, isOfferEligibleForMatching } = await import("@/lib/matching");
+    const incomplete = offer({ req_komunikacja: null as any, req_adaptacja: null as any });
+    const res = checkOfferEligibility(incomplete);
+    expect(res.eligible).toBe(false);
+    expect(res.missingCompetencies).toContain("Komunikacja");
+    expect(res.missingCompetencies).toContain("Adaptacja do zmian");
+    expect(res.reason).toBeTruthy();
+    expect(isOfferEligibleForMatching(incomplete)).toBe(false);
+  });
+
+  it("akceptuje ofertę z kompletem 5 kompetencji", async () => {
+    const { checkOfferEligibility } = await import("@/lib/matching");
+    expect(checkOfferEligibility(offer()).eligible).toBe(true);
+  });
+});
+
+describe("trzeci stan: brak danych kandydata", () => {
+  it("pomija kryterium bez danych i przelicza wagi pozostałych", () => {
+    const res = calculateExtraMatch(
+      candidate({ industry: null as any, position_level: null as any }),
+      offer(),
+    );
+    const industry = res.details.find((d) => d.key === "industry");
+    expect(industry?.status).toBe("no_data");
+    expect(industry?.weight).toBe(0);
+    const active = res.details.filter((d) => d.status !== "no_data");
+    expect(active.every((d) => d.weight > 0)).toBe(true);
+    // sekcja liczona wyłącznie z kryteriów posiadających dane
+    expect(res.percent).not.toBeNull();
+  });
+
+  it("brak danych nie obniża wyniku sekcji", () => {
+    const full = calculateExtraMatch(candidate(), offer());
+    const partial = calculateExtraMatch(candidate({ industry: null as any }), offer());
+    expect(partial.percent).toBeGreaterThanOrEqual(full.percent);
+  });
+});

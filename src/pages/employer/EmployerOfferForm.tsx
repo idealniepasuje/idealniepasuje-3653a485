@@ -78,6 +78,8 @@ const EmployerOfferForm = () => {
   const [roleCompleted, setRoleCompleted] = useState(false);
   const [requirementsCompleted, setRequirementsCompleted] = useState(false);
   const [cultureCompleted, setCultureCompleted] = useState(false);
+  // Test kultury organizacyjnej pracodawcy — warunek publikacji ogłoszenia
+  const [employerCultureCompleted, setEmployerCultureCompleted] = useState(true);
 
   const localizedIndustries = getLocalizedData(industries, i18n.language);
   const localizedPositionLevels = getLocalizedData(positionLevels, i18n.language);
@@ -85,9 +87,20 @@ const EmployerOfferForm = () => {
 
   useEffect(() => {
     if (!authLoading && !user) { navigate("/login"); return; }
+    if (user) checkEmployerCulture();
     if (user && !isNew) fetchOffer();
     if (user && isNew) loadCompanyDefaults();
   }, [user, authLoading, navigate, isNew]);
+
+  const checkEmployerCulture = async () => {
+    if (!user) return;
+    const { data } = await supabase
+      .from("employer_profiles")
+      .select("culture_completed")
+      .eq("user_id", user.id)
+      .maybeSingle();
+    setEmployerCultureCompleted(!!data?.culture_completed);
+  };
 
   const loadCompanyDefaults = async () => {
     if (!user) return;
@@ -103,6 +116,7 @@ const EmployerOfferForm = () => {
       }));
     }
   };
+
 
   const fetchOffer = async () => {
     if (!user || !offerId) return;
@@ -230,9 +244,16 @@ const EmployerOfferForm = () => {
 
   const saveRole = async () => {
     if (!user) return;
+
+    // Publikacja ogłoszenia wymaga ukończonego testu kultury organizacyjnej
+    if (!employerCultureCompleted) {
+      toast.error(t("employer.offerForm.cultureRequiredToast"));
+      return;
+    }
     
     const titleErr = validateTitle(formData.title);
     if (titleErr) { setTitleError(titleErr); return; }
+
     
     setSaving(true);
     try {
@@ -268,6 +289,13 @@ const EmployerOfferForm = () => {
 
   const saveRequirements = async () => {
     if (!user) return;
+
+    if (!employerCultureCompleted) {
+      toast.error(t("employer.offerForm.cultureRequiredToast"));
+      return;
+    }
+    
+
     
     if (!formData.industry || !formData.positionLevel) { 
       toast.error(t("employer.requirements.fillRequiredFields")); 
@@ -370,6 +398,24 @@ const EmployerOfferForm = () => {
               <ArrowLeft className="w-4 h-4" />{t("common.back")}
             </Button>
           </div>
+
+          {!employerCultureCompleted && (
+            <Card className="mb-6 border-destructive/40 bg-destructive/5">
+              <CardContent className="pt-6">
+                <div className="flex items-center justify-between gap-4">
+                  <div>
+                    <p className="font-semibold">{t("employer.offerForm.cultureRequiredTitle")}</p>
+                    <p className="text-sm text-muted-foreground">{t("employer.offerForm.cultureRequiredDescription")}</p>
+                  </div>
+                  <Button onClick={() => navigate("/employer/culture")} className="gap-2 shrink-0">
+                    {t("employer.offerForm.cultureRequiredCta")}
+                    <ChevronRight className="w-4 h-4" />
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
 
           {roleCompleted && requirementsCompleted && currentOfferId && currentOfferId !== "new" && (
             <Card className="mb-6 border-accent/30 bg-accent/5">

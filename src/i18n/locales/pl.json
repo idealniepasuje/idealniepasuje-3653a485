@@ -7,23 +7,6 @@
     "profile": "Profil firmy"
   },
   "common": {
-    "cancel": "Anuluj"
-  },
-  "match": {
-    "status": {
-      "new": "Nowy",
-      "viewed": "Obejrzany",
-      "interested": "Zainteresowany",
-      "rejected": "Odrzucony",
-      "employerInterested": "Pracodawca zainteresowany"
-    },
-    "timeAgo": {
-      "justNow": "Przed chwilą",
-      "hoursAgo": "{{count}} godz. temu",
-      "daysAgo": "{{count}} dni temu"
-    }
-  },
-  "common": {
     "login": "Zaloguj się",
     "register": "Zarejestruj się",
     "logout": "Wyloguj",
@@ -86,6 +69,20 @@
     "send": "Wyślij",
     "thankYou": "Dziękujemy!",
     "noData": "Brak danych"
+  },
+  "match": {
+    "status": {
+      "new": "Nowy",
+      "viewed": "Obejrzany",
+      "interested": "Zainteresowany",
+      "rejected": "Odrzucony",
+      "employerInterested": "Pracodawca zainteresowany"
+    },
+    "timeAgo": {
+      "justNow": "Przed chwilą",
+      "hoursAgo": "{{count}} godz. temu",
+      "daysAgo": "{{count}} dni temu"
+    }
   },
   "howItWorks": {
     "title": "Jak to działa?",
@@ -716,7 +713,8 @@
         "toolsMissingDesc": "Wyślij prośbę o uzupełnienie, aby ocenić dopasowanie do stanowiska.",
         "requestTools": "Poproś o uzupełnienie narzędzi",
         "toolsRequested": "Prośba o uzupełnienie narzędzi została wysłana"
-      }
+      },
+      "noData": "Brak danych"
     },
     "offers": {
       "title": "Oferty pracy",
@@ -773,7 +771,11 @@
       "saveRoleFirst": "Najpierw zapisz opis roli, aby przejść dalej",
       "allStepsCompleted": "Zlecenie jest kompletne",
       "viewOrderHint": "Opis roli i wymagania zostały uzupełnione.",
-      "viewOrder": "Zobacz zlecenie"
+      "viewOrder": "Zobacz zlecenie",
+      "cultureRequiredTitle": "Wymagany test kultury organizacyjnej",
+      "cultureRequiredDescription": "Aby opublikować ogłoszenie, musisz najpierw ukończyć i zapisać test kultury organizacyjnej. Bez tych danych algorytm nie może policzyć pełnego dopasowania.",
+      "cultureRequiredCta": "Wypełnij test kultury",
+      "cultureRequiredToast": "Nie możesz opublikować ogłoszenia — najpierw ukończ test kultury organizacyjnej."
     },
     "profile": {
       "title": "Profil firmy",

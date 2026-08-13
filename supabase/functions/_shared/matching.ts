@@ -67,15 +67,20 @@ export interface CultureDetail {
   status: 'aligned' | 'partial' | 'divergent';
 }
 
+export type ExtraStatus = 'matched' | 'unmatched' | 'no_data';
+
 export interface ExtraDetail {
   field: string;
   key: string;
   matched: boolean;
+  /** ETAP: trzeci stan — brak danych kandydata nie oznacza niespełnienia wymagania */
+  status: ExtraStatus;
   weight: number;
   candidateValue?: string | null;
   employerValue?: string | null;
   acceptedValues?: string[];
 }
+
 
 export interface MatchOutcome {
   overallPercent: number;
@@ -232,18 +237,19 @@ export const calculateExtraMatch = (
 ): { percent: number | null; details: ExtraDetail[] } => {
   const details: ExtraDetail[] = [];
 
-  // --- Branża (TAK/NIE, liczona dokładnie raz, bez punktów za otwartość) ---
+  // --- Branża (TAK/NIE/BRAK DANYCH, liczona dokładnie raz, bez punktów za otwartość) ---
   const accepted = Array.isArray(offer.accepted_industries) ? offer.accepted_industries : [];
   const hasIndustryRequirement = !!offer.industry || accepted.length > 0;
   let industryCriterion: ExtraDetail | null = null;
   if (hasIndustryRequirement) {
+    const noData = !candidate.industry;
     const industryMatched =
-      !!candidate.industry &&
-      (candidate.industry === offer.industry || accepted.includes(candidate.industry));
+      !noData && (candidate.industry === offer.industry || accepted.includes(candidate.industry!));
     industryCriterion = {
       field: 'Branża',
       key: 'industry',
       matched: industryMatched,
+      status: noData ? 'no_data' : industryMatched ? 'matched' : 'unmatched',
       weight: 0,
       candidateValue: candidate.industry,
       employerValue: offer.industry,
@@ -251,13 +257,14 @@ export const calculateExtraMatch = (
     };
   }
 
-  // --- Doświadczenie (TAK/NIE) ---
+  // --- Doświadczenie (TAK/NIE/BRAK DANYCH) ---
   let experienceCriterion: ExtraDetail | null = null;
   if (offer.no_experience_required) {
     experienceCriterion = {
       field: 'Doświadczenie',
       key: 'experience',
       matched: true,
+      status: 'matched',
       weight: 0,
       candidateValue: candidate.experience,
       employerValue: 'Nie wymagane',
@@ -266,10 +273,13 @@ export const calculateExtraMatch = (
     const required = parseMinYears(offer.required_experience);
     const candidateYears = parseMinYears(candidate.experience);
     if (required !== null) {
+      const noData = candidateYears === null;
+      const matched = !noData && candidateYears! >= required;
       experienceCriterion = {
         field: 'Doświadczenie',
         key: 'experience',
-        matched: candidateYears !== null && candidateYears >= required,
+        matched,
+        status: noData ? 'no_data' : matched ? 'matched' : 'unmatched',
         weight: 0,
         candidateValue: candidate.experience,
         employerValue: offer.required_experience,
@@ -277,15 +287,18 @@ export const calculateExtraMatch = (
     }
   }
 
-  // --- Poziom stanowiska (TAK/NIE, równy lub wyższy) ---
+  // --- Poziom stanowiska (TAK/NIE/BRAK DANYCH, równy lub wyższy) ---
   let positionCriterion: ExtraDetail | null = null;
   const requiredLevel = positionLevelIndex(offer.position_level);
   if (requiredLevel !== null) {
     const candidateLevel = positionLevelIndex(candidate.position_level);
+    const noData = candidateLevel === null;
+    const matched = !noData && candidateLevel! >= requiredLevel;
     positionCriterion = {
       field: 'Poziom stanowiska',
       key: 'position_level',
-      matched: candidateLevel !== null && candidateLevel >= requiredLevel,
+      matched,
+      status: noData ? 'no_data' : matched ? 'matched' : 'unmatched',
       weight: 0,
       candidateValue: candidate.position_level,
       employerValue: offer.position_level,
@@ -299,32 +312,46 @@ export const calculateExtraMatch = (
     ? [experienceCriterion, industryCriterion, positionCriterion]
     : [industryCriterion, experienceCriterion, positionCriterion];
 
+  // Kryteria bez danych kandydata nie dostają wagi — hierarchia wag dotyczy tylko
+  // kryteriów możliwych do oceny, dzięki czemu sekcja zawsze sumuje się do 100%.
   const RANK_WEIGHTS = [0.4, 0.3, 0.15];
-  rankedCore.forEach((criterion, idx) => {
+  let rankIdx = 0;
+  rankedCore.forEach((criterion) => {
     if (!criterion) return;
-    criterion.weight = RANK_WEIGHTS[idx];
+    if (criterion.status === 'no_data') {
+      criterion.weight = 0;
+    } else {
+      criterion.weight = RANK_WEIGHTS[rankIdx];
+      rankIdx++;
+    }
     details.push(criterion);
   });
 
   // --- ETAP 7: tryb pracy ---
-  if (candidate.work_mode && offer.work_mode) {
+  if (offer.work_mode) {
+    const noData = !candidate.work_mode;
+    const matched = !noData && workModeCompatible(candidate.work_mode!, offer.work_mode);
     details.push({
       field: 'Tryb pracy',
       key: 'work_mode',
-      matched: workModeCompatible(candidate.work_mode, offer.work_mode),
-      weight: 0.1,
+      matched,
+      status: noData ? 'no_data' : matched ? 'matched' : 'unmatched',
+      weight: noData ? 0 : 0.1,
       candidateValue: candidate.work_mode,
       employerValue: offer.work_mode,
     });
   }
 
   // --- ETAP 8: lokalizacja (tylko dla ofert hybrydowych/stacjonarnych) ---
-  if (offer.work_mode && offer.work_mode !== 'remote' && offer.city && candidate.city) {
+  if (offer.work_mode && offer.work_mode !== 'remote' && offer.city) {
+    const noData = !candidate.city;
+    const matched = !noData && normalizeCity(offer.city) === normalizeCity(candidate.city);
     details.push({
       field: 'Lokalizacja',
       key: 'city',
-      matched: normalizeCity(offer.city) === normalizeCity(candidate.city),
-      weight: 0.05,
+      matched,
+      status: noData ? 'no_data' : matched ? 'matched' : 'unmatched',
+      weight: noData ? 0 : 0.05,
       candidateValue: candidate.city,
       employerValue: offer.city,
     });
@@ -334,10 +361,12 @@ export const calculateExtraMatch = (
 
   const totalWeight = details.reduce((s, d) => s + d.weight, 0);
   const matchedWeight = details.reduce((s, d) => s + (d.matched ? d.weight : 0), 0);
+  // Wszystkie kryteria bez danych → sekcji nie da się policzyć
   const percent = totalWeight > 0 ? (matchedWeight / totalWeight) * 100 : null;
 
   return { percent, details };
 };
+
 
 // ---------- ETAP 10: mocne strony i ryzyka ----------
 const COMPETENCY_NAMES: Record<string, string> = {
@@ -364,7 +393,8 @@ export const generateStrengths = (
     strengths.push('Wysoka zgodność wartości i kultury organizacyjnej');
   }
 
-  if (extraDetails.length > 0 && extraDetails.every((d) => d.matched)) {
+  const evaluableExtra = extraDetails.filter((d) => d.status !== 'no_data');
+  if (evaluableExtra.length > 0 && evaluableExtra.every((d) => d.matched)) {
     strengths.push('Kandydat spełnia wszystkie wymagania formalne');
   }
 
@@ -393,13 +423,56 @@ export const generateRisks = (
   }
 
   extraDetails
-    .filter((d) => !d.matched)
+    .filter((d) => d.status === 'unmatched')
     .forEach((d) => risks.push(`Niespełnione wymaganie: ${d.field}`));
+
+  extraDetails
+    .filter((d) => d.status === 'no_data')
+    .forEach((d) => risks.push(`Brak danych: ${d.field}`));
+
 
   return risks;
 };
 
+// ---------- Kwalifikowalność oferty do dopasowań ----------
+// Oferta bez kompletu wymagań kompetencyjnych NIE MOŻE generować dopasowań.
+const REQUIRED_COMPETENCE_FIELDS = [
+  { key: 'req_komunikacja', label: 'Komunikacja' },
+  { key: 'req_myslenie_analityczne', label: 'Myślenie analityczne' },
+  { key: 'req_out_of_the_box', label: 'Kreatywność' },
+  { key: 'req_determinacja', label: 'Determinacja' },
+  { key: 'req_adaptacja', label: 'Adaptacja do zmian' },
+] as const;
+
+export interface OfferEligibility {
+  eligible: boolean;
+  reason?: string;
+  missingCompetencies: string[];
+}
+
+export const checkOfferEligibility = (offer: JobOfferData): OfferEligibility => {
+  const missingCompetencies = REQUIRED_COMPETENCE_FIELDS
+    .filter((f) => !isNum((offer as any)[f.key]))
+    .map((f) => f.label);
+
+  if (missingCompetencies.length > 0) {
+    return {
+      eligible: false,
+      reason:
+        'Oferta wymaga uzupełnienia oczekiwanych poziomów kompetencji przed rozpoczęciem dopasowywania. ' +
+        `Brakujące kompetencje: ${missingCompetencies.join(', ')}.`,
+      missingCompetencies,
+    };
+  }
+
+  return { eligible: true, missingCompetencies: [] };
+};
+
+export const isOfferEligibleForMatching = (offer: JobOfferData): boolean =>
+  checkOfferEligibility(offer).eligible;
+
 // ---------- Główna funkcja ----------
+
 export const calculateMatch = (
   candidate: CandidateData,
   offer: JobOfferData,
