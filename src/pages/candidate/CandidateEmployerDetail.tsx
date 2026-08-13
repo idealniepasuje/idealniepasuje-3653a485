@@ -11,6 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { logError } from "@/lib/errorLogger";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { getLevel, getFeedback, getLocalizedLevelLabels } from "@/data/feedbackData";
+import { ExtraCriteriaList } from "@/components/match/ExtraCriteriaList";
 
 interface MatchDetails {
   competenceDetails: {
