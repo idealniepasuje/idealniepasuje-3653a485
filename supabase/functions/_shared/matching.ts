@@ -82,8 +82,19 @@ export interface ExtraDetail {
 }
 
 
+export type MatchStatus = 'ok' | 'low_confidence' | 'insufficient_data';
+export type MatchSection = 'competence' | 'culture' | 'extra';
+
 export interface MatchOutcome {
-  overallPercent: number;
+  /** null = brak jakiejkolwiek dostępnej sekcji (insufficient_data) */
+  overallPercent: number | null;
+  /** Techniczny wynik (zawsze liczba) — do celów diagnostycznych, nie do rankingu przy low_confidence */
+  technicalPercent: number;
+  /** Wiarygodność wyniku ogólnego */
+  matchStatus: MatchStatus;
+  /** Czy wynik nadaje się do normalnego rankingu */
+  reliable: boolean;
+  availableSections: MatchSection[];
   competencePercent: number;
   culturePercent: number;
   extraPercent: number;
