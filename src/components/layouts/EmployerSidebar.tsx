@@ -1,6 +1,6 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { Home, Briefcase, Users, Settings, LogOut, Building2 } from "lucide-react";
+import { Home, Briefcase, Users, Settings, LogOut, Building2, Sparkles } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import {
   Sidebar,
