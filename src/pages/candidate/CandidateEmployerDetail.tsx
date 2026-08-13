@@ -30,7 +30,12 @@ interface MatchDetails {
   extraDetails: {
     field: string;
     matched: boolean;
+    status?: 'matched' | 'unmatched' | 'no_data';
   }[];
+  extraStatus?: 'ok' | 'insufficient_data';
+  extraAvailableCriteria?: number;
+  extraTotalCriteria?: number;
+  extraCoveragePercent?: number;
   strengths: string[];
   risks: string[];
 }
