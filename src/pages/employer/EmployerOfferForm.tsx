@@ -164,7 +164,7 @@ const EmployerOfferForm = () => {
 
         setRequiredTools(normalizeTools((data as any).required_tools));
 
-        setRoleCompleted(!!(data.role_description || data.role_responsibilities));
+        setRoleCompleted(!!(data.role_description && data.role_description.trim()));
         setRequirementsCompleted(!!(data.industry && data.position_level && (data.no_experience_required || data.required_experience)));
         setCultureCompleted(!!(data as any).culture_completed);
       }
@@ -380,11 +380,11 @@ const EmployerOfferForm = () => {
       if (error) throw error;
 
       // Aktywacja tylko przy kompletnej ofercie (dane z bazy jako źródło prawdy)
-      const activated = await syncOfferActiveState(realOfferId);
+      await syncOfferActiveState(realOfferId);
 
       setRequirementsCompleted(true);
       setCurrentStep("overview");
-      toast.success(activated ? t("common.saved") : t("common.saved"));
+      toast.success(t("common.saved"));
     } catch (error: any) {
       logError("EmployerOfferForm.saveRequirements", error);
       console.error("Save requirements error:", error);
