@@ -90,6 +90,11 @@ export interface MatchOutcome {
   competenceDetails: CompetenceDetail[];
   cultureDetails: CultureDetail[];
   extraDetails: ExtraDetail[];
+  /** Pokrycie danych w sekcji dodatkowej */
+  extraStatus: 'ok' | 'insufficient_data';
+  extraAvailableCriteria: number;
+  extraTotalCriteria: number;
+  extraCoveragePercent: number;
   appliedWeights: { competence: number; culture: number; extra: number };
   strengths: string[];
   risks: string[];
