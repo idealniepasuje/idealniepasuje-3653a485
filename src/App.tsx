@@ -31,6 +31,7 @@ const EmployerCandidateDetail = lazy(() => import("./pages/employer/EmployerCand
 const EmployerFeedback = lazy(() => import("./pages/employer/EmployerFeedback"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const OAuthConsent = lazy(() => import("./pages/OAuthConsent"));
+const AgentConnect = lazy(() => import("./pages/AgentConnect"));
 
 const queryClient = new QueryClient();
 
