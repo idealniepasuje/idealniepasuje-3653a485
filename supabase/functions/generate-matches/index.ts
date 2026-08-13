@@ -7,6 +7,7 @@ const corsHeaders = {
 
 import {
   calculateMatch,
+  checkOfferEligibility,
   type CandidateData,
   type JobOfferData,
   type EmployerCultureData,
@@ -114,6 +115,35 @@ Deno.serve(async (req) => {
       });
     }
 
+    // Oferty bez kompletu wymagań kompetencyjnych nie generują dopasowań
+    const skippedOffers: { job_offer_id: string; title: string; reason: string; missing: string[] }[] = [];
+    const eligibleOffers = jobOffers.filter((o) => {
+      const check = checkOfferEligibility(o as JobOfferData);
+      if (!check.eligible) {
+        skippedOffers.push({
+          job_offer_id: o.id,
+          title: o.title,
+          reason: check.reason!,
+          missing: check.missingCompetencies,
+        });
+      }
+      return check.eligible;
+    });
+
+    if (eligibleOffers.length === 0) {
+      return new Response(JSON.stringify({
+        success: false,
+        matches_count: 0,
+        skipped_offers: skippedOffers,
+        message: skippedOffers[0]?.reason
+          ?? 'Oferta wymaga uzupełnienia oczekiwanych poziomów kompetencji przed rozpoczęciem dopasowywania.',
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+
+
     // Stats counters
     const { count: totalCandidates } = await supabase
       .from('candidate_test_results')
@@ -145,7 +175,7 @@ Deno.serve(async (req) => {
 
     // Remove stale matches for candidates that are no longer eligible (for these offers)
     const eligibleIds = (candidates || []).map(c => c.user_id);
-    for (const offer of jobOffers) {
+    for (const offer of eligibleOffers) {
       let delQuery = supabase
         .from('match_results')
         .delete()
@@ -162,7 +192,7 @@ Deno.serve(async (req) => {
     const newMatchCandidates: { user_id: string; overall_percent: number; job_offer_id: string; offer_title: string }[] = [];
 
     // Generate matches for each job offer
-    for (const offer of jobOffers) {
+    for (const offer of eligibleOffers) {
       for (const candidate of candidates || []) {
         // Check if match already exists for this offer-candidate pair
         const { data: existingMatch } = await supabase
@@ -319,7 +349,9 @@ Deno.serve(async (req) => {
       success: true, 
       matches_count: allMatches.length,
       matches: allMatches,
+      skipped_offers: skippedOffers,
       stats: {
+
         totalCandidates: totalCandidates || 0,
         completedTestsCandidates: completedTestsCandidates || 0,
         profileReadyCandidates: profileReadyCandidates || 0,
