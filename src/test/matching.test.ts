@@ -252,7 +252,7 @@ describe("trzeci stan: brak danych kandydata", () => {
     expect(industry?.weight).toBe(0);
     const active = res.details.filter((d) => d.status !== "no_data");
     const sum = active.reduce((a, d) => a + d.weight, 0);
-    expect(Math.round(sum)).toBe(100);
+    expect(Math.round(sum * 100)).toBe(100);
   });
 
   it("brak danych nie obniża wyniku sekcji", () => {
