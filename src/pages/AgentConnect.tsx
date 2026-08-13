@@ -130,24 +130,21 @@ export default function AgentConnect() {
 
           <Tabs defaultValue="chatgpt" className="w-full">
             <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 h-auto p-1 bg-muted">
-              <TabsTrigger value="chatgpt" className="gap-1.5 py-2.5">
+              <TabsTrigger value="chatgpt" className="gap-1.5 py-2.5 text-xs sm:text-sm">
                 <MessageSquare className="w-4 h-4" />
-                <span className="hidden sm:inline">ChatGPT</span>
-                <span className="sm:hidden">ChatGPT</span>
+                ChatGPT
               </TabsTrigger>
-              <TabsTrigger value="claude" className="gap-1.5 py-2.5">
+              <TabsTrigger value="claude" className="gap-1.5 py-2.5 text-xs sm:text-sm">
                 <Bot className="w-4 h-4" />
-                <span>Claude</span>
+                Claude
               </TabsTrigger>
-              <TabsTrigger value="claude-code" className="gap-1.5 py-2.5">
+              <TabsTrigger value="claude-code" className="gap-1.5 py-2.5 text-xs sm:text-sm">
                 <Terminal className="w-4 h-4" />
-                <span className="hidden sm:inline">Claude Code</span>
-                <span className="sm:hidden">Code</span>
+                Claude Code
               </TabsTrigger>
-              <TabsTrigger value="other" className="gap-1.5 py-2.5">
+              <TabsTrigger value="other" className="gap-1.5 py-2.5 text-xs sm:text-sm">
                 <Sparkles className="w-4 h-4" />
-                <span className="hidden sm:inline">Other</span>
-                <span className="sm:hidden">Other</span>
+                Other
               </TabsTrigger>
             </TabsList>
 
