@@ -284,7 +284,11 @@ const EmployerOfferForm = () => {
     const titleErr = validateTitle(formData.title);
     if (titleErr) { setTitleError(titleErr); return; }
 
-    
+    if (!formData.roleDescription.trim()) {
+      toast.error(t("employer.requirements.fillRequiredFields"));
+      return;
+    }
+
     setSaving(true);
     try {
       const realOfferId = await createOfferIfNeeded();
@@ -306,6 +310,8 @@ const EmployerOfferForm = () => {
         .eq("id", realOfferId)
         .eq("user_id", user.id);
       if (error) throw error;
+      // Zapis sekcji "Rola" nie aktywuje oferty, ale może ją zdezaktywować
+      await syncOfferActiveState(realOfferId);
       setRoleCompleted(true);
       setCurrentStep("overview");
       toast.success(t("common.saved"));
