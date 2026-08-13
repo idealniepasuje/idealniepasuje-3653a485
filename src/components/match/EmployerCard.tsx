@@ -54,7 +54,12 @@ export const EmployerCard = ({ match, employer, jobOffer }: EmployerCardProps) =
   const city = jobOffer?.city || null;
 
   const isRejected = match.status === 'rejected';
-  const isBestMatch = match.overall_percent >= 80;
+  const isBestMatch =
+    match.overall_percent >= 80 &&
+    !(
+      match.match_details?.matchStatus === 'low_confidence' ||
+      match.match_details?.reliable === false
+    );
   const isEmployerInterested = match.status === 'considering';
   
   const getAvatarColor = (id: string) => {
