@@ -69,13 +69,25 @@ const handler = async (req: Request): Promise<Response> => {
       .eq("employer_user_id", userData.user.id)
       .eq("candidate_user_id", candidate_user_id);
     if (match_id) matchQuery = matchQuery.eq("id", match_id);
-    const { data: matchRows } = await matchQuery.limit(1);
+    const { data: matchRows, error: matchErr } = await matchQuery.limit(1);
+    if (matchErr) {
+      console.error("match lookup failed:", matchErr);
+      throw new Error("Match lookup failed");
+    }
     const matchRow = Array.isArray(matchRows) ? matchRows[0] : null;
     if (!matchRow) {
       return new Response(JSON.stringify({ error: "No match with this candidate" }), {
         status: 403, headers: { "Content-Type": "application/json", ...corsHeaders },
       });
     }
+
+    // Idempotency: a pending request already exists -> do not duplicate message/email
+    if (["sent_auto", "awaiting"].includes(matchRow.tools_request_status)) {
+      return new Response(JSON.stringify({ success: true, already_sent: true }), {
+        status: 200, headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
+    }
+
 
     const { data: candidateUser, error: cErr } = await admin.auth.admin.getUserById(candidate_user_id);
     if (cErr || !candidateUser?.user?.email) throw new Error("Could not fetch candidate email");
