@@ -713,7 +713,8 @@
         "toolsMissingDesc": "Wyślij prośbę o uzupełnienie, aby ocenić dopasowanie do stanowiska.",
         "requestTools": "Poproś o uzupełnienie narzędzi",
         "toolsRequested": "Prośba o uzupełnienie narzędzi została wysłana"
-      }
+      },
+      "noData": "Brak danych"
     },
     "offers": {
       "title": "Oferty pracy",

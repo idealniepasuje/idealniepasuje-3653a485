@@ -713,7 +713,8 @@
         "toolsMissingDesc": "Send a request so you can assess the fit for the role.",
         "requestTools": "Ask to add tools",
         "toolsRequested": "Tools completion request sent"
-      }
+      },
+      "noData": "No data"
     },
     "offers": {
       "title": "Job Offers",
