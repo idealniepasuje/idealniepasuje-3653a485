@@ -287,10 +287,19 @@ const CandidateAdditional = () => {
           motivation: gtkMotivation,
           proud_of: gtkProudOf,
         } as unknown as Json,
-        additional_completed: !!(gtkTasks.trim() && gtkProblems.trim() && gtkMotivation.trim() && gtkProudOf.trim()),
-        all_tests_completed: !!(gtkTasks.trim() && gtkProblems.trim() && gtkMotivation.trim() && gtkProudOf.trim()),
+        // additional_completed / all_tests_completed / profile_ready are computed
+        // by the database trigger (source of truth) — never set from the client.
       }).eq("user_id", user.id);
       if (error) throw error;
+
+      // Re-read the DB-computed readiness flags after the save
+      const { data: readiness, error: readinessError } = await supabase
+        .from("candidate_test_results")
+        .select("all_tests_completed")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      if (readinessError) logError("CandidateAdditional.readReadiness", readinessError);
+      const isReadyForMatching = readiness?.all_tests_completed === true;
 
       // Auto-mark related employer messages as read once candidate provided the requested info
       try {
