@@ -68,6 +68,12 @@ export const LandingNav = ({ variant }: LandingNavProps) => {
       {open && (
         <div className="md:hidden border-t border-border bg-card/95 backdrop-blur-sm animate-fade-in">
           <div className="container mx-auto px-4 py-4 flex flex-col gap-3">
+            <Link to="/connect" onClick={() => setOpen(false)}>
+              <Button variant="ghost" size="sm" className="w-full justify-start gap-2">
+                <Sparkles className="w-4 h-4" />
+                AI
+              </Button>
+            </Link>
             <Link to={switchLink.to} onClick={() => setOpen(false)}>
               <Button variant="ghost" size="sm" className="w-full justify-start">
                 {switchLink.label}
