@@ -82,12 +82,14 @@ export const ContactCandidateModal = ({
         metadata: { interview_type: interviewType, calendar_link: calendarLink },
       });
       if (insertErr) throw insertErr;
-      await supabase.from('match_results').update({
+      const { error: updateErr } = await supabase.from('match_results').update({
         interview_invited_at: new Date().toISOString(),
         interview_type: interviewType,
         interview_calendar_link: calendarLink || null,
         interview_message: interviewMsg,
       }).eq('id', match.id);
+      if (updateErr) throw updateErr;
+
       toast.success(t("employer.candidateDetail.contact.inviteSent"));
       onUpdated();
       onOpenChange(false);
@@ -103,7 +105,7 @@ export const ContactCandidateModal = ({
     setRequestingContact(true);
     try {
       const msg = getContactRequestTemplate(lang, companyName);
-      await supabase.from('candidate_messages').insert({
+      const { error: insertErr } = await supabase.from('candidate_messages').insert({
         match_result_id: match?.id,
         candidate_user_id: candidateUserId,
         employer_user_id: employerUserId,
@@ -111,6 +113,8 @@ export const ContactCandidateModal = ({
         content: msg,
         metadata: { request: 'contact' },
       });
+      if (insertErr) throw insertErr;
+
       try {
         await supabase.functions.invoke('send-profile-completion-request', {
           body: { candidate_user_id: candidateUserId, employer_company_name: companyName, message: msg },
