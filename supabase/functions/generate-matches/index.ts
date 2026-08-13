@@ -237,16 +237,7 @@ Deno.serve(async (req) => {
           candidate_profile_status: (candidate as any).profile_ready === true ? 'complete' : 'incomplete',
         };
 
-        // Preserve any existing lifecycle status (viewed/considering/rejected)
-        const { data: existingMatch } = await supabase
-          .from('match_results')
-          .select('id, status')
-          .eq('employer_user_id', employer_user_id)
-          .eq('candidate_user_id', candidate.user_id)
-          .eq('job_offer_id', offer.id)
-          .maybeSingle();
-
-        // Upsert match result with job_offer_id
+        // Upsert match result with job_offer_id (lifecycle status preserved)
         const { error: upsertError } = await supabase
           .from('match_results')
           .upsert({
