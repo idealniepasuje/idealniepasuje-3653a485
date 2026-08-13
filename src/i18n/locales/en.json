@@ -4,7 +4,8 @@
     "tests": "Tests",
     "matches": "Matches",
     "jobOffers": "Job Offers",
-    "profile": "Company Profile"
+    "profile": "Company Profile",
+    "connectAI": "Connect AI"
   },
   "common": {
     "login": "Log in",
