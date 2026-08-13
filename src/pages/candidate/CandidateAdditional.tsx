@@ -332,13 +332,24 @@ const CandidateAdditional = () => {
         logError('CandidateAdditional.clearMessages', e);
       }
 
-      await Promise.all([
-        isReadyForMatching ? generateMatches() : Promise.resolve(),
+      const [matchesOk, emailOk] = await Promise.all([
+        isReadyForMatching ? generateMatches() : Promise.resolve(true),
         sendResultsEmail(),
       ]);
-      
+
+      // Profil jest już zapisany — błąd matchingu/maila nie cofa zapisu
       setShowSuccess(true);
-      toast.success(t("candidate.additional.thankYouMessage"));
+      if (matchesOk && emailOk) {
+        toast.success(t("candidate.additional.thankYouMessage"));
+      } else {
+        toast.warning(
+          !matchesOk && !emailOk
+            ? t("candidate.additional.savedWithIssues")
+            : !matchesOk
+              ? t("candidate.additional.savedMatchingIssue")
+              : t("candidate.additional.savedEmailIssue")
+        );
+      }
     } catch (error) {
       logError("CandidateAdditional.handleSubmit", error);
       toast.error(t("errors.saveError"));
