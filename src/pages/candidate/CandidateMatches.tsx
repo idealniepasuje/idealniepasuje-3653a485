@@ -142,7 +142,7 @@ const CandidateMatches = () => {
               key={match.id} 
               match={match} 
               employer={employers[match.employer_user_id]}
-              offerTitle={match.job_offer_id ? offerTitles[match.job_offer_id] : undefined}
+              jobOffer={match.job_offer_id ? offersById[match.job_offer_id] : null}
             />
           ))}
         </div>
