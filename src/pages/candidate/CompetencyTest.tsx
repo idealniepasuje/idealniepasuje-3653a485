@@ -60,8 +60,8 @@ const CompetencyTest = () => {
     }
   };
 
-  const calculateAndShowResults = (answerData: Record<string, number>) => {
-    if (!competencyCode) return;
+  const calculateAndShowResults = async (answerData: Record<string, number>): Promise<boolean> => {
+    if (!competencyCode) return false;
     // Calculate overall score EXCLUDING aprobata questions
     const nonAprobataQs = getNonAprobataQuestions(competencyCode);
     let sum = 0, count = 0;
@@ -73,12 +73,11 @@ const CompetencyTest = () => {
       }
     });
     const mainScore = count > 0 ? sum / count : 0;
+    const scoreSaved = await saveCompetencyScore(mainScore);
+    if (!scoreSaved) return false;
     setAverageScore(mainScore);
-
-    // Save the computed score to DB
-    void saveCompetencyScore(mainScore);
-
     setShowResults(true);
+    return true;
   };
 
   const saveCompetencyScore = async (score: number): Promise<boolean> => {
@@ -132,12 +131,14 @@ const CompetencyTest = () => {
     try {
       const isLast = currentQuestionIndex >= questions.length - 1;
       if (!isLast) {
+        const ok = await saveProgress(answersToUse);
+        if (!ok) return;
         setCurrentQuestionIndex(prev => Math.min(prev + 1, questions.length - 1));
-        await saveProgress(answersToUse);
       } else {
         const ok = await saveProgress(answersToUse);
         if (!ok) return;
-        calculateAndShowResults(answersToUse);
+        const scoreSaved = await calculateAndShowResults(answersToUse);
+        if (!scoreSaved) return;
         toast.success(t("candidate.test.testCompletedMessage"));
       }
     } finally {
