@@ -18,6 +18,7 @@ import { getLevel, getFeedback, getLocalizedLevelLabels } from "@/data/feedbackD
 import { getAprobataQuestions } from "@/data/competencyQuestions";
 import { getLinkedinRequestTemplate, getProfileCompletionTemplate, getToolsRequestTemplate, getLanguagesRequestTemplate } from "@/data/messageTemplates";
 import { LANGUAGE_LEVELS, languageLevelLabels, languageNames } from "@/data/additionalQuestions";
+import { ExtraCriteriaList } from "@/components/match/ExtraCriteriaList";
 
 interface MatchDetails {
   competenceDetails: {
