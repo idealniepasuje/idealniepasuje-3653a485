@@ -143,7 +143,7 @@ const handler = async (req: Request): Promise<Response> => {
     await client.send({
       from: "idealniepasuje <idealnyserwisrekrutacyjny@gmail.com>",
       to: candidate_email,
-      subject: `🎉 Nowe dopasowanie: ${companyName} (${matchPercentFormatted}%)`,
+      subject: `🎉 Nowe dopasowanie: ${companyNameRaw} (${matchPercentFormatted}%)`,
       content: "auto",
       html: emailHtml,
     });
