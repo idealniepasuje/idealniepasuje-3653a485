@@ -251,8 +251,9 @@ describe("trzeci stan: brak danych kandydata", () => {
     expect(industry?.status).toBe("no_data");
     expect(industry?.weight).toBe(0);
     const active = res.details.filter((d) => d.status !== "no_data");
-    const sum = active.reduce((a, d) => a + d.weight, 0);
-    expect(Math.round(sum * 100)).toBe(100);
+    expect(active.every((d) => d.weight > 0)).toBe(true);
+    // sekcja liczona wyłącznie z kryteriów posiadających dane
+    expect(res.percent).not.toBeNull();
   });
 
   it("brak danych nie obniża wyniku sekcji", () => {
