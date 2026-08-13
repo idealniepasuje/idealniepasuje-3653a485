@@ -173,18 +173,20 @@ Deno.serve(async (req) => {
     const eligibleCandidates = candidates?.length || 0;
     let insertedMatches = 0;
 
-    // Remove stale matches for candidates that are no longer eligible (for these offers)
-    const eligibleIds = (candidates || []).map(c => c.user_id);
-    for (const offer of eligibleOffers) {
-      let delQuery = supabase
+    // NOTE: historical matches are intentionally never deleted here.
+    // Candidates may fail the current (stricter) `all_tests_completed` definition
+    // while still having legitimate historical matches with lifecycle statuses.
+    const eligibleIds = new Set((candidates || []).map((c) => c.user_id));
+    let preservedHistoricalMatches = 0;
+    {
+      const { data: existingForOffers } = await supabase
         .from('match_results')
-        .delete()
+        .select('candidate_user_id')
         .eq('employer_user_id', employer_user_id)
-        .eq('job_offer_id', offer.id);
-      if (eligibleIds.length > 0) {
-        delQuery = delQuery.not('candidate_user_id', 'in', `(${eligibleIds.join(',')})`);
-      }
-      await delQuery;
+        .in('job_offer_id', eligibleOffers.map((o) => o.id));
+      preservedHistoricalMatches = (existingForOffers || []).filter(
+        (m) => !eligibleIds.has(m.candidate_user_id),
+      ).length;
     }
 
     const employerCultureCompleted = (employer as any).culture_completed === true;
