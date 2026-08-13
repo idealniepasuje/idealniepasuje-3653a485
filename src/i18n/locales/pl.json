@@ -82,7 +82,8 @@
       "justNow": "Przed chwilą",
       "hoursAgo": "{{count}} godz. temu",
       "daysAgo": "{{count}} dni temu"
-    }
+    },
+    "insufficientData": "Niewystarczające dane"
   },
   "howItWorks": {
     "title": "Jak to działa?",
