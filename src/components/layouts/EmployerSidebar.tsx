@@ -19,6 +19,7 @@ const menuItems = [
   { titleKey: "sidebar.start", icon: Home, path: "/employer/dashboard" },
   { titleKey: "sidebar.jobOffers", icon: Briefcase, path: "/employer/offers" },
   { titleKey: "sidebar.profile", icon: Settings, path: "/employer/profile" },
+  { titleKey: "sidebar.connectAI", icon: Sparkles, path: "/connect" },
 ];
 
 export const EmployerSidebar = () => {
