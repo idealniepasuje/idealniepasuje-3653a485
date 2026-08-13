@@ -374,15 +374,33 @@ export const calculateExtraMatch = (
     });
   }
 
-  if (details.length === 0) return { percent: null, details };
+  // --- Pokrycie danych: sekcja liczona tylko przy min. 3 ocenialnych kryteriach ---
+  const availableCriteria = details.filter((d) => d.status !== 'no_data').length;
+  const coveragePercent = Math.round((availableCriteria / EXTRA_TOTAL_CRITERIA) * 100);
+  const insufficient = availableCriteria < EXTRA_MIN_AVAILABLE_CRITERIA;
+
+  const base = {
+    details,
+    availableCriteria,
+    totalCriteria: EXTRA_TOTAL_CRITERIA,
+    coveragePercent,
+  };
+
+  if (insufficient) {
+    return { ...base, percent: null, status: 'insufficient_data' as const };
+  }
 
   const totalWeight = details.reduce((s, d) => s + d.weight, 0);
   const matchedWeight = details.reduce((s, d) => s + (d.matched ? d.weight : 0), 0);
-  // Wszystkie kryteria bez danych → sekcji nie da się policzyć
   const percent = totalWeight > 0 ? (matchedWeight / totalWeight) * 100 : null;
 
-  return { percent, details };
+  return {
+    ...base,
+    percent,
+    status: percent === null ? ('insufficient_data' as const) : ('ok' as const),
+  };
 };
+
 
 
 // ---------- ETAP 10: mocne strony i ryzyka ----------
