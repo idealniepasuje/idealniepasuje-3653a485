@@ -38,7 +38,12 @@ interface CandidateCardProps {
 export const CandidateCard = ({ match, candidateData, offerTitle }: CandidateCardProps) => {
   const { t } = useTranslation();
   const isRejected = match.status === 'rejected';
-  const isBestMatch = match.overall_percent >= 80;
+  const isBestMatch =
+    match.overall_percent >= 80 &&
+    !(
+      match.match_details?.matchStatus === 'low_confidence' ||
+      match.match_details?.reliable === false
+    );
   const isNewTalent = match.status === 'pending';
   const isConsidering = match.status === 'considering';
 
