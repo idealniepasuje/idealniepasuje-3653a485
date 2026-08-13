@@ -378,10 +378,13 @@ const EmployerOfferForm = () => {
         .eq("user_id", user.id);
       
       if (error) throw error;
-      
+
+      // Aktywacja tylko przy kompletnej ofercie (dane z bazy jako źródło prawdy)
+      const activated = await syncOfferActiveState(realOfferId);
+
       setRequirementsCompleted(true);
       setCurrentStep("overview");
-      toast.success(t("common.saved"));
+      toast.success(activated ? t("common.saved") : t("common.saved"));
     } catch (error: any) {
       logError("EmployerOfferForm.saveRequirements", error);
       console.error("Save requirements error:", error);
