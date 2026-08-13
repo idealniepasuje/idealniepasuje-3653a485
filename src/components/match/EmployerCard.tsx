@@ -18,6 +18,12 @@ interface EmployerCardProps {
     extra_percent: number | null;
     status: string;
     created_at: string;
+    insufficientData?: string;
+    match_details?: {
+      extraStatus?: string;
+      matchStatus?: string;
+      reliable?: boolean;
+    };
   };
   /** General employer profile data (keyed by employer_user_id) */
   employer?: {
