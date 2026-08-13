@@ -233,11 +233,17 @@ const EmployerCandidateDetail = () => {
         
         // Mark as viewed if status is pending (hasn't been seen yet)
         if (matchData && matchData.status === 'pending') {
-          await supabase
+          const { error: viewedError } = await supabase
             .from("match_results")
             .update({ status: 'viewed', viewed_at: new Date().toISOString() })
             .eq("id", matchData.id);
-          setCurrentStatus('viewed');
+
+          if (viewedError) {
+            logError("EmployerCandidateDetail.markViewed", viewedError);
+          } else {
+            setCurrentStatus('viewed');
+            setMatch({ ...matchData, status: 'viewed' });
+          }
         }
       }
 
