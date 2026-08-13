@@ -18,6 +18,7 @@ import {
 const menuItems = [
   { titleKey: "sidebar.start", icon: Home, path: "/candidate/dashboard" },
   { titleKey: "sidebar.matches", icon: Trophy, path: "/candidate/matches" },
+  { titleKey: "sidebar.connectAI", icon: Sparkles, path: "/connect" },
 ];
 
 export const CandidateSidebar = () => {
