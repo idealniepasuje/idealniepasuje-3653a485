@@ -320,7 +320,10 @@ const CandidateAdditional = () => {
         logError('CandidateAdditional.clearMessages', e);
       }
 
-      await Promise.all([generateMatches(), sendResultsEmail()]);
+      await Promise.all([
+        isReadyForMatching ? generateMatches() : Promise.resolve(),
+        sendResultsEmail(),
+      ]);
       
       setShowSuccess(true);
       toast.success(t("candidate.additional.thankYouMessage"));
