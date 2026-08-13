@@ -17,8 +17,9 @@ const CandidateMatches = () => {
   const { t } = useTranslation();
   const [matches, setMatches] = useState<any[]>([]);
   const [employers, setEmployers] = useState<Record<string, any>>({});
-  const [offerTitles, setOfferTitles] = useState<Record<string, string>>({});
+  const [offersById, setOffersById] = useState<Record<string, any>>({});
   const [loading, setLoading] = useState(true);
+
 
   useEffect(() => {
     if (!authLoading && !user) { navigate("/login"); return; }
@@ -48,10 +49,10 @@ const CandidateMatches = () => {
         });
         setMatches(sorted);
         
-        // Fetch employer profiles and job offer titles
+        // Fetch employer profiles (by employer_user_id) and job offers (by job_offer_id) separately
         if (matchData && matchData.length > 0) {
-          const employerIds = matchData.map(m => m.employer_user_id);
-          const offerIds = matchData.map(m => m.job_offer_id).filter(Boolean);
+          const employerIds = Array.from(new Set(matchData.map(m => m.employer_user_id).filter(Boolean)));
+          const offerIds = Array.from(new Set(matchData.map(m => m.job_offer_id).filter(Boolean))) as string[];
           
           const [employerResult, offerResult] = await Promise.all([
             supabase
@@ -59,7 +60,10 @@ const CandidateMatches = () => {
               .select("user_id, company_name, industry, role_description")
               .in("user_id", employerIds),
             offerIds.length > 0
-              ? supabase.from("job_offers").select("id, title, company_name, industry, work_mode, city").in("id", offerIds)
+              ? supabase
+                  .from("job_offers")
+                  .select("id, title, company_name, industry, work_mode, city, position_level, required_experience")
+                  .in("id", offerIds)
               : Promise.resolve({ data: [], error: null })
           ]);
           
@@ -70,29 +74,18 @@ const CandidateMatches = () => {
             });
           }
           
+          const offerMap: Record<string, any> = {};
           if (!offerResult.error && offerResult.data) {
-            const titleMap: Record<string, string> = {};
             (offerResult.data as any[]).forEach((o: any) => {
-              titleMap[o.id] = o.title;
-              // Merge offer-level data into employer map
-              const matchForOffer = matchData?.find(m => m.job_offer_id === o.id);
-              if (matchForOffer) {
-                const emp = employerMap[matchForOffer.employer_user_id] || {};
-                employerMap[matchForOffer.employer_user_id] = {
-                  ...emp,
-                  company_name: o.company_name || emp.company_name,
-                  industry: o.industry || emp.industry,
-                  work_mode: o.work_mode || emp.work_mode,
-                  city: o.city || emp.city,
-                };
-              }
+              offerMap[o.id] = o;
             });
-            setOfferTitles(titleMap);
           }
           
+          setOffersById(offerMap);
           setEmployers(employerMap);
         }
       }
+
     } catch (error) {
       logError("CandidateMatches.fetchMatches", error);
     } finally {
@@ -149,7 +142,7 @@ const CandidateMatches = () => {
               key={match.id} 
               match={match} 
               employer={employers[match.employer_user_id]}
-              offerTitle={match.job_offer_id ? offerTitles[match.job_offer_id] : undefined}
+              jobOffer={match.job_offer_id ? offersById[match.job_offer_id] : null}
             />
           ))}
         </div>

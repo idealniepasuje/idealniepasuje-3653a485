@@ -11,7 +11,7 @@ interface EmployerCardProps {
   match: {
     id: string;
     employer_user_id: string;
-    job_offer_id?: string;
+    job_offer_id?: string | null;
     overall_percent: number;
     competence_percent: number;
     culture_percent: number;
@@ -19,18 +19,34 @@ interface EmployerCardProps {
     status: string;
     created_at: string;
   };
+  /** General employer profile data (keyed by employer_user_id) */
   employer?: {
-    company_name?: string;
-    industry?: string;
-    role_description?: string;
-    work_mode?: string;
-    city?: string;
+    company_name?: string | null;
+    industry?: string | null;
+    role_description?: string | null;
   };
-  offerTitle?: string;
+  /** Offer-specific data for THIS match (keyed by job_offer_id) */
+  jobOffer?: {
+    id?: string;
+    title?: string | null;
+    company_name?: string | null;
+    industry?: string | null;
+    work_mode?: string | null;
+    city?: string | null;
+    position_level?: string | null;
+    required_experience?: string | null;
+  } | null;
 }
 
-export const EmployerCard = ({ match, employer, offerTitle }: EmployerCardProps) => {
+export const EmployerCard = ({ match, employer, jobOffer }: EmployerCardProps) => {
   const { t } = useTranslation();
+  const companyName = jobOffer?.company_name || employer?.company_name;
+  const offerTitle = jobOffer?.title || undefined;
+  // Industry/work mode/city must come from the offer bound to this match only.
+  const industry = jobOffer?.industry || (match.job_offer_id ? null : employer?.industry);
+  const workMode = jobOffer?.work_mode || null;
+  const city = jobOffer?.city || null;
+
   const isRejected = match.status === 'rejected';
   const isBestMatch = match.overall_percent >= 80;
   const isEmployerInterested = match.status === 'considering';
@@ -84,7 +100,7 @@ export const EmployerCard = ({ match, employer, offerTitle }: EmployerCardProps)
               
               {/* Company name */}
               <h3 className="font-semibold text-lg sm:text-xl text-foreground">
-                {employer?.company_name || t("candidate.matches.company")}
+                {companyName || t("candidate.matches.company")}
               </h3>
               
               {/* Offer title */}
@@ -93,18 +109,19 @@ export const EmployerCard = ({ match, employer, offerTitle }: EmployerCardProps)
               )}
               
               {/* Industry */}
-              {employer?.industry && (
+              {industry && (
                 <p className="text-muted-foreground text-sm mb-2">
-                  {employer.industry}
+                  {industry}
                 </p>
               )}
               
               {/* Work mode badge */}
-              {employer?.work_mode && (
+              {workMode && (
                 <div className="mb-2">
-                  <WorkModeBadge workMode={employer.work_mode} city={employer.city} />
+                  <WorkModeBadge workMode={workMode} city={city || undefined} />
                 </div>
               )}
+
 
               {/* Competence, culture & additional badges */}
               <div className="flex flex-wrap gap-1.5">
