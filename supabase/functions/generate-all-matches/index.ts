@@ -129,11 +129,19 @@ Deno.serve(async (req) => {
           employerProfile as EmployerCultureData,
         );
 
+        if (outcome.matchStatus === 'insufficient_data') {
+          continue;
+        }
+
         const matchDetails = {
           competenceDetails: outcome.competenceDetails,
           cultureDetails: outcome.cultureDetails,
           extraDetails: outcome.extraDetails,
-          extraStatus: outcome.extraStatus,
+          matchStatus: outcome.matchStatus,
+        reliable: outcome.reliable,
+        availableSections: outcome.availableSections,
+        technicalPercent: outcome.technicalPercent,
+        extraStatus: outcome.extraStatus,
           extraAvailableCriteria: outcome.extraAvailableCriteria,
           extraTotalCriteria: outcome.extraTotalCriteria,
           extraCoveragePercent: outcome.extraCoveragePercent,
