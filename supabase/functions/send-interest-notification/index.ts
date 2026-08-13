@@ -2,6 +2,7 @@ import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
 import { SMTPClient } from "https://deno.land/x/denomailer@1.6.0/mod.ts";
 import { isValidEmail, sanitizeHeader } from "../_shared/email-validation.ts";
+import { escapeHtml } from "../_shared/html.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -78,8 +79,10 @@ const handler = async (req: Request): Promise<Response> => {
       .eq("user_id", candidate_user_id)
       .single();
 
-    const candidateName = profile?.full_name || "Kandydacie";
-    const companyName = sanitizeHeader(employer_company_name || "Pracodawca");
+    const candidateNameRaw = profile?.full_name || "Kandydacie";
+    const candidateName = escapeHtml(candidateNameRaw);
+    const companyNameRaw = sanitizeHeader(employer_company_name || "Pracodawca");
+    const companyName = escapeHtml(companyNameRaw);
     const dashboardLink = "https://idealniepasuje.lovable.app/candidate/matches";
 
     // Calculate culture score out of 30
@@ -108,7 +111,7 @@ const handler = async (req: Request): Promise<Response> => {
     await client.send({
       from: "idealniepasuje <idealnyserwisrekrutacyjny@gmail.com>",
       to: candidateEmail,
-      subject: `🎉 ${companyName} jest Tobą zainteresowany!`,
+      subject: `🎉 ${companyNameRaw} jest Tobą zainteresowany!`,
       content: "auto",
       html: emailHtml,
     });
