@@ -90,6 +90,11 @@ export interface MatchOutcome {
   competenceDetails: CompetenceDetail[];
   cultureDetails: CultureDetail[];
   extraDetails: ExtraDetail[];
+  /** Pokrycie danych w sekcji dodatkowej */
+  extraStatus: 'ok' | 'insufficient_data';
+  extraAvailableCriteria: number;
+  extraTotalCriteria: number;
+  extraCoveragePercent: number;
   appliedWeights: { competence: number; culture: number; extra: number };
   strengths: string[];
   risks: string[];
@@ -231,11 +236,28 @@ export const workModeCompatible = (candidateMode: string, offerMode: string): bo
 
 const normalizeCity = (v: string | null | undefined) => (v || '').trim().toLowerCase();
 
+/** Minimalna liczba ocenialnych kryteriów, aby sekcja dodatkowa mogła zostać policzona */
+export const EXTRA_MIN_AVAILABLE_CRITERIA = 3;
+/** Pełen zbiór kryteriów sekcji dodatkowej */
+export const EXTRA_TOTAL_CRITERIA = 5;
+
+export type ExtraSectionStatus = 'ok' | 'insufficient_data';
+
+export interface ExtraMatchResult {
+  percent: number | null;
+  details: ExtraDetail[];
+  availableCriteria: number;
+  totalCriteria: number;
+  coveragePercent: number;
+  status: ExtraSectionStatus;
+}
+
 export const calculateExtraMatch = (
   candidate: CandidateData,
   offer: JobOfferData,
-): { percent: number | null; details: ExtraDetail[] } => {
+): ExtraMatchResult => {
   const details: ExtraDetail[] = [];
+
 
   // --- Branża (TAK/NIE/BRAK DANYCH, liczona dokładnie raz, bez punktów za otwartość) ---
   const accepted = Array.isArray(offer.accepted_industries) ? offer.accepted_industries : [];
@@ -357,15 +379,33 @@ export const calculateExtraMatch = (
     });
   }
 
-  if (details.length === 0) return { percent: null, details };
+  // --- Pokrycie danych: sekcja liczona tylko przy min. 3 ocenialnych kryteriach ---
+  const availableCriteria = details.filter((d) => d.status !== 'no_data').length;
+  const coveragePercent = Math.round((availableCriteria / EXTRA_TOTAL_CRITERIA) * 100);
+  const insufficient = availableCriteria < EXTRA_MIN_AVAILABLE_CRITERIA;
+
+  const base = {
+    details,
+    availableCriteria,
+    totalCriteria: EXTRA_TOTAL_CRITERIA,
+    coveragePercent,
+  };
+
+  if (insufficient) {
+    return { ...base, percent: null, status: 'insufficient_data' as const };
+  }
 
   const totalWeight = details.reduce((s, d) => s + d.weight, 0);
   const matchedWeight = details.reduce((s, d) => s + (d.matched ? d.weight : 0), 0);
-  // Wszystkie kryteria bez danych → sekcji nie da się policzyć
   const percent = totalWeight > 0 ? (matchedWeight / totalWeight) * 100 : null;
 
-  return { percent, details };
+  return {
+    ...base,
+    percent,
+    status: percent === null ? ('insufficient_data' as const) : ('ok' as const),
+  };
 };
+
 
 
 // ---------- ETAP 10: mocne strony i ryzyka ----------
@@ -509,6 +549,10 @@ export const calculateMatch = (
     competenceDetails: competence.details,
     cultureDetails: culture.details,
     extraDetails: extra.details,
+    extraStatus: extra.status,
+    extraAvailableCriteria: extra.availableCriteria,
+    extraTotalCriteria: extra.totalCriteria,
+    extraCoveragePercent: extra.coveragePercent,
     appliedWeights,
     strengths: generateStrengths(competence.details, culture.details, extra.details),
     risks: generateRisks(competence.details, culture.details, extra.details, culture.percent !== null),

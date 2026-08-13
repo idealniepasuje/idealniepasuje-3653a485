@@ -82,7 +82,8 @@
       "justNow": "Just now",
       "hoursAgo": "{{count}}h ago",
       "daysAgo": "{{count}}d ago"
-    }
+    },
+    "insufficientData": "Insufficient data"
   },
   "howItWorks": {
     "title": "How does it work?",

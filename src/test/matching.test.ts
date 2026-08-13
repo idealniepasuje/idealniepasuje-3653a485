@@ -262,3 +262,57 @@ describe("trzeci stan: brak danych kandydata", () => {
     expect(partial.percent).toBeGreaterThanOrEqual(full.percent);
   });
 });
+
+describe("minimalne pokrycie danych w sekcji dodatkowej", () => {
+  const bare = (over: Partial<CandidateData> = {}): CandidateData =>
+    candidate({ industry: null, experience: null, position_level: null, work_mode: null, city: null, ...over });
+
+  it("1 dostępne kryterium (zgodne) → percent = null, nie 100%", () => {
+    const r = calculateExtraMatch(bare({ work_mode: "onsite" }), offer());
+    expect(r.availableCriteria).toBe(1);
+    expect(r.totalCriteria).toBe(5);
+    expect(r.coveragePercent).toBe(20);
+    expect(r.status).toBe("insufficient_data");
+    expect(r.percent).toBeNull();
+  });
+
+  it("2 dostępne kryteria → percent = null", () => {
+    const r = calculateExtraMatch(bare({ work_mode: "onsite", city: "Warszawa" }), offer());
+    expect(r.availableCriteria).toBe(2);
+    expect(r.coveragePercent).toBe(40);
+    expect(r.status).toBe("insufficient_data");
+    expect(r.percent).toBeNull();
+  });
+
+  it("3 dostępne kryteria → sekcja liczona", () => {
+    const r = calculateExtraMatch(
+      bare({ industry: "Marketing", work_mode: "onsite", city: "Warszawa" }),
+      offer(),
+    );
+    expect(r.availableCriteria).toBe(3);
+    expect(r.status).toBe("ok");
+    expect(r.percent).toBe(100);
+  });
+
+  it("5 dostępnych kryteriów → sekcja liczona normalnie", () => {
+    const r = calculateExtraMatch(candidate(), offer());
+    expect(r.availableCriteria).toBe(5);
+    expect(r.coveragePercent).toBe(100);
+    expect(r.status).toBe("ok");
+    expect(r.percent).toBe(100);
+  });
+
+  it("brak danych nie obniża wyniku (przy zachowanym pokryciu)", () => {
+    const full = calculateExtraMatch(candidate(), offer());
+    const partial = calculateExtraMatch(candidate({ city: null }), offer());
+    expect(partial.percent!).toBeGreaterThanOrEqual(full.percent!);
+  });
+
+  it("kandydat z pustym profilem nie jest zawyżany w wyniku końcowym", () => {
+    const empty = calculateMatch(bare({ work_mode: "onsite" }), offer(), culture());
+    const complete = calculateMatch(candidate(), offer(), culture());
+    expect(empty.extraStatus).toBe("insufficient_data");
+    expect(empty.appliedWeights.extra).toBe(0);
+    expect(complete.overallPercent).toBeGreaterThanOrEqual(empty.overallPercent);
+  });
+});
