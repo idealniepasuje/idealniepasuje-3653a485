@@ -82,20 +82,39 @@ const CandidateDashboard = () => {
         setMatches(matchData || []);
         
         if (matchData && matchData.length > 0) {
-          const employerIds = matchData.map(m => m.employer_user_id);
-          const { data: employerData, error: employerError } = await supabase
-            .from("employer_profiles")
-            .select("user_id, company_name, industry, role_description")
-            .in("user_id", employerIds);
-          
-          if (!employerError && employerData) {
+          const employerIds = Array.from(new Set(matchData.map(m => m.employer_user_id).filter(Boolean)));
+          const offerIds = Array.from(new Set(matchData.map(m => m.job_offer_id).filter(Boolean))) as string[];
+
+          const [employerResult, offerResult] = await Promise.all([
+            supabase
+              .from("employer_profiles")
+              .select("user_id, company_name, industry, role_description")
+              .in("user_id", employerIds),
+            offerIds.length > 0
+              ? supabase
+                  .from("job_offers")
+                  .select("id, title, company_name, industry, work_mode, city, position_level, required_experience")
+                  .in("id", offerIds)
+              : Promise.resolve({ data: [], error: null }),
+          ]);
+
+          if (!employerResult.error && employerResult.data) {
             const employerMap: Record<string, any> = {};
-            employerData.forEach(emp => {
+            employerResult.data.forEach(emp => {
               employerMap[emp.user_id] = emp;
             });
             setEmployers(employerMap);
           }
+
+          if (!offerResult.error && offerResult.data) {
+            const offerMap: Record<string, any> = {};
+            (offerResult.data as any[]).forEach((o: any) => {
+              offerMap[o.id] = o;
+            });
+            setOffersById(offerMap);
+          }
         }
+
       }
     } catch (error) {
       logError("CandidateDashboard.fetchMatches", error);
