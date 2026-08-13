@@ -133,7 +133,7 @@ Deno.serve(async (req) => {
           continue;
         }
 
-      const matchDetails = {
+        const matchDetails = {
           competenceDetails: outcome.competenceDetails,
           cultureDetails: outcome.cultureDetails,
           extraDetails: outcome.extraDetails,
