@@ -143,29 +143,41 @@ const CandidateAdditional = () => {
     }
   }, [industryExperiences, hasNoExperience]);
 
-  const generateMatches = async () => {
-    if (!user) return;
+  const generateMatches = async (): Promise<boolean> => {
+    if (!user) return false;
     try {
-      const response = await supabase.functions.invoke('generate-candidate-matches', {
+      const { data, error } = await supabase.functions.invoke('generate-candidate-matches', {
         body: { candidate_user_id: user.id }
       });
-      if (response.data?.matches_count > 0) {
-        toast.success(t("candidate.additional.matchesGenerated", { count: response.data.matches_count }));
+      if (error) {
+        logError('CandidateAdditional.generateMatches', error);
+        return false;
       }
+      if (data?.matches_count > 0) {
+        toast.success(t("candidate.additional.matchesGenerated", { count: data.matches_count }));
+      }
+      return true;
     } catch (error) {
-      console.error('Error generating matches:', error);
+      logError('CandidateAdditional.generateMatches', error);
+      return false;
     }
   };
 
-  const sendResultsEmail = async () => {
-    if (!user?.email) return;
+  const sendResultsEmail = async (): Promise<boolean> => {
+    if (!user?.email) return true;
     try {
       const feedbackUrl = `${window.location.origin}/candidate/feedback`;
-      await supabase.functions.invoke('send-candidate-results', {
+      const { error } = await supabase.functions.invoke('send-candidate-results', {
         body: { candidate_user_id: user.id, candidate_email: user.email, feedback_url: feedbackUrl }
       });
+      if (error) {
+        logError('CandidateAdditional.sendResultsEmail', error);
+        return false;
+      }
+      return true;
     } catch (error) {
-      console.error('Error sending results email:', error);
+      logError('CandidateAdditional.sendResultsEmail', error);
+      return false;
     }
   };
 
@@ -320,13 +332,24 @@ const CandidateAdditional = () => {
         logError('CandidateAdditional.clearMessages', e);
       }
 
-      await Promise.all([
-        isReadyForMatching ? generateMatches() : Promise.resolve(),
+      const [matchesOk, emailOk] = await Promise.all([
+        isReadyForMatching ? generateMatches() : Promise.resolve(true),
         sendResultsEmail(),
       ]);
-      
+
+      // Profil jest już zapisany — błąd matchingu/maila nie cofa zapisu
       setShowSuccess(true);
-      toast.success(t("candidate.additional.thankYouMessage"));
+      if (matchesOk && emailOk) {
+        toast.success(t("candidate.additional.thankYouMessage"));
+      } else {
+        toast.warning(
+          !matchesOk && !emailOk
+            ? t("candidate.additional.savedWithIssues")
+            : !matchesOk
+              ? t("candidate.additional.savedMatchingIssue")
+              : t("candidate.additional.savedEmailIssue")
+        );
+      }
     } catch (error) {
       logError("CandidateAdditional.handleSubmit", error);
       toast.error(t("errors.saveError"));

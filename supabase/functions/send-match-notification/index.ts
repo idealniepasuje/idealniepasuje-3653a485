@@ -2,6 +2,7 @@ import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
 import { SMTPClient } from "https://deno.land/x/denomailer@1.6.0/mod.ts";
 import { isValidEmail, sanitizeHeader } from "../_shared/email-validation.ts";
+import { escapeHtml, escapeHtmlMultiline } from "../_shared/html.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -105,8 +106,9 @@ const handler = async (req: Request): Promise<Response> => {
       }
     }
 
-    const candidateName = profile?.full_name || "Kandydacie";
-    const companyName = sanitizeHeader(finalCompanyName || "Nowy pracodawca");
+    const candidateName = escapeHtml(profile?.full_name || "Kandydacie");
+    const companyNameRaw = sanitizeHeader(finalCompanyName || "Nowy pracodawca");
+    const companyName = escapeHtml(companyNameRaw);
     const matchPercentFormatted = match_percent || 0;
     const dashboardLink = dashboard_url || "https://idealniepasuje.lovable.app/candidate/dashboard";
 
@@ -115,7 +117,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Build job description section - minified to avoid MIME encoding issues
     const jobDescriptionSection = finalRoleDescription ? 
-      `<div style="background:#f0f9ff;border-radius:12px;padding:20px;margin:25px 0;border-left:4px solid #00B2C5;"><h3 style="color:#0369a1;margin:0 0 15px 0;font-size:16px;">📋 Opis stanowiska</h3>${finalPositionLevel ? `<p style="color:#555;margin:0 0 10px 0;"><strong>Poziom:</strong> ${finalPositionLevel}</p>` : ''}${finalIndustry ? `<p style="color:#555;margin:0 0 10px 0;"><strong>Branża:</strong> ${finalIndustry}</p>` : ''}<p style="color:#444;margin:0 0 15px 0;line-height:1.6;">${finalRoleDescription}</p>${finalRoleResponsibilities ? `<div style="margin-top:15px;padding-top:15px;border-top:1px solid #bae6fd;"><p style="color:#0369a1;font-weight:bold;margin:0 0 8px 0;font-size:14px;">Główne obowiązki:</p><p style="color:#444;margin:0;line-height:1.6;font-size:14px;">${finalRoleResponsibilities}</p></div>` : ''}</div>` 
+      `<div style="background:#f0f9ff;border-radius:12px;padding:20px;margin:25px 0;border-left:4px solid #00B2C5;"><h3 style="color:#0369a1;margin:0 0 15px 0;font-size:16px;">📋 Opis stanowiska</h3>${finalPositionLevel ? `<p style="color:#555;margin:0 0 10px 0;"><strong>Poziom:</strong> ${escapeHtml(finalPositionLevel)}</p>` : ''}${finalIndustry ? `<p style="color:#555;margin:0 0 10px 0;"><strong>Branża:</strong> ${escapeHtml(finalIndustry)}</p>` : ''}<p style="color:#444;margin:0 0 15px 0;line-height:1.6;">${escapeHtmlMultiline(finalRoleDescription)}</p>${finalRoleResponsibilities ? `<div style="margin-top:15px;padding-top:15px;border-top:1px solid #bae6fd;"><p style="color:#0369a1;font-weight:bold;margin:0 0 8px 0;font-size:14px;">Główne obowiązki:</p><p style="color:#444;margin:0;line-height:1.6;font-size:14px;">${escapeHtmlMultiline(finalRoleResponsibilities)}</p></div>` : ''}</div>` 
       : '';
 
     // Build match breakdown section - minified to avoid MIME encoding issues
@@ -141,7 +143,7 @@ const handler = async (req: Request): Promise<Response> => {
     await client.send({
       from: "idealniepasuje <idealnyserwisrekrutacyjny@gmail.com>",
       to: candidate_email,
-      subject: `🎉 Nowe dopasowanie: ${companyName} (${matchPercentFormatted}%)`,
+      subject: `🎉 Nowe dopasowanie: ${companyNameRaw} (${matchPercentFormatted}%)`,
       content: "auto",
       html: emailHtml,
     });

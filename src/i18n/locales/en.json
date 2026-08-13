@@ -498,7 +498,10 @@
       "ourTurnNow": "Now it's our turn",
       "ourTurnDescription": "We'll be looking for your ideal employer. When a matched offer appears, you'll receive a notification.",
       "thankYouMessage": "Thank you for completing all the tests!",
-      "matchesGenerated": "Found {{count}} matched employers!"
+      "matchesGenerated": "Found {{count}} matched employers!",
+      "savedWithIssues": "Your profile was saved, but we couldn't refresh matches or send the email right now. We'll retry later.",
+      "savedMatchingIssue": "Your profile was saved, but matches weren't refreshed right now. We'll retry later.",
+      "savedEmailIssue": "Your profile was saved, but we couldn't send the summary email."
     },
     "inbox": {
       "title": "Messages from employers",
