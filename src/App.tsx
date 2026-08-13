@@ -31,6 +31,7 @@ const EmployerCandidateDetail = lazy(() => import("./pages/employer/EmployerCand
 const EmployerFeedback = lazy(() => import("./pages/employer/EmployerFeedback"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const OAuthConsent = lazy(() => import("./pages/OAuthConsent"));
+const AgentConnect = lazy(() => import("./pages/AgentConnect"));
 
 const queryClient = new QueryClient();
 
@@ -74,6 +75,7 @@ const App = () => (
               <Route path="/employer/candidate/:candidateId" element={<ProtectedRoute allowedUserType="employer"><EmployerCandidateDetail /></ProtectedRoute>} />
               <Route path="/employer/feedback" element={<ProtectedRoute allowedUserType="employer"><EmployerFeedback /></ProtectedRoute>} />
               <Route path="/.lovable/oauth/consent" element={<OAuthConsent />} />
+              <Route path="/connect" element={<AgentConnect />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>

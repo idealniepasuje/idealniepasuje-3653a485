@@ -4,7 +4,8 @@
     "tests": "Testy",
     "matches": "Dopasowania",
     "jobOffers": "Ogłoszenia",
-    "profile": "Profil firmy"
+    "profile": "Profil firmy",
+    "connectAI": "Połącz z AI"
   },
   "common": {
     "login": "Zaloguj się",
