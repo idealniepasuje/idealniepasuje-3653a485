@@ -151,27 +151,20 @@ Deno.serve(async (req) => {
         continue;
       }
 
-      const competence = calculateCompetenceMatch(candidate as CandidateData, offer as JobOfferData);
       const employerCultureCompleted = (employerProfile as any).culture_completed === true;
-      const culture = employerCultureCompleted
-        ? calculateCultureMatch(candidate as CandidateData, employerProfile as EmployerProfileData)
-        : { percent: 0, details: [] as any[] };
-      const extra = calculateExtraMatch(candidate as CandidateData, offer as JobOfferData);
-
-      const overallPercent = employerCultureCompleted
-        ? (WEIGHTS.competence * competence.percent + WEIGHTS.culture * culture.percent + WEIGHTS.extra * extra.percent)
-        : ((WEIGHTS.competence / (WEIGHTS.competence + WEIGHTS.extra)) * competence.percent +
-           (WEIGHTS.extra / (WEIGHTS.competence + WEIGHTS.extra)) * extra.percent);
-
-      const strengths = generateStrengths(competence.details, culture.details, extra.details);
-      const risks = generateRisks(competence.details, culture.details);
+      const outcome = calculateMatch(
+        candidate as CandidateData,
+        offer as JobOfferData,
+        employerCultureCompleted ? (employerProfile as EmployerCultureData) : null,
+      );
 
       const matchDetails = {
-        competenceDetails: competence.details,
-        cultureDetails: culture.details,
-        extraDetails: extra.details,
-        strengths,
-        risks,
+        competenceDetails: outcome.competenceDetails,
+        cultureDetails: outcome.cultureDetails,
+        extraDetails: outcome.extraDetails,
+        appliedWeights: outcome.appliedWeights,
+        strengths: outcome.strengths,
+        risks: outcome.risks,
         profile_ready: (candidate as any).profile_ready === true,
         candidate_profile_status: (candidate as any).profile_ready === true ? 'complete' : 'incomplete',
       };
@@ -182,10 +175,10 @@ Deno.serve(async (req) => {
           employer_user_id: offer.user_id,
           candidate_user_id,
           job_offer_id: offer.id,
-          overall_percent: Math.round(overallPercent),
-          competence_percent: Math.round(competence.percent),
-          culture_percent: Math.round(culture.percent),
-          extra_percent: Math.round(extra.percent),
+          overall_percent: outcome.overallPercent,
+          competence_percent: outcome.competencePercent,
+          culture_percent: outcome.culturePercent,
+          extra_percent: outcome.extraPercent,
           match_details: matchDetails,
           status: 'pending',
         }, {
@@ -199,10 +192,10 @@ Deno.serve(async (req) => {
           employer_user_id: offer.user_id,
           job_offer_id: offer.id,
           job_offer_title: offer.title,
-          overall_percent: Math.round(overallPercent),
-          competence_percent: Math.round(competence.percent),
-          culture_percent: Math.round(culture.percent),
-          extra_percent: Math.round(extra.percent),
+          overall_percent: outcome.overallPercent,
+          competence_percent: outcome.competencePercent,
+          culture_percent: outcome.culturePercent,
+          extra_percent: outcome.extraPercent,
           role_description: offer.role_description,
           role_responsibilities: offer.role_responsibilities,
           industry: offer.industry,

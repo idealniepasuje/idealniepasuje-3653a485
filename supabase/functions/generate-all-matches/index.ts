@@ -111,24 +111,19 @@ Deno.serve(async (req) => {
           continue;
         }
 
-        const competence = calculateCompetenceMatch(candidate as CandidateData, offer as JobOfferData);
-        const culture = calculateCultureMatch(candidate as CandidateData, employerProfile as EmployerProfileData);
-        const extra = calculateExtraMatch(candidate as CandidateData, offer as JobOfferData);
-        
-        const overallPercent = 
-          WEIGHTS.competence * competence.percent +
-          WEIGHTS.culture * culture.percent +
-          WEIGHTS.extra * extra.percent;
-
-        const strengths = generateStrengths(competence.details, culture.details, extra.details);
-        const risks = generateRisks(competence.details, culture.details);
+        const outcome = calculateMatch(
+          candidate as CandidateData,
+          offer as JobOfferData,
+          employerProfile as EmployerCultureData,
+        );
 
         const matchDetails = {
-          competenceDetails: competence.details,
-          cultureDetails: culture.details,
-          extraDetails: extra.details,
-          strengths,
-          risks,
+          competenceDetails: outcome.competenceDetails,
+          cultureDetails: outcome.cultureDetails,
+          extraDetails: outcome.extraDetails,
+          appliedWeights: outcome.appliedWeights,
+          strengths: outcome.strengths,
+          risks: outcome.risks,
         };
 
         // Check if a match already exists; preserve employer-set status (interested/considering/rejected/viewed)
@@ -144,10 +139,10 @@ Deno.serve(async (req) => {
           employer_user_id: offer.user_id,
           candidate_user_id: candidate.user_id,
           job_offer_id: offer.id,
-          overall_percent: Math.round(overallPercent),
-          competence_percent: Math.round(competence.percent),
-          culture_percent: Math.round(culture.percent),
-          extra_percent: Math.round(extra.percent),
+          overall_percent: outcome.overallPercent,
+          competence_percent: outcome.competencePercent,
+          culture_percent: outcome.culturePercent,
+          extra_percent: outcome.extraPercent,
           match_details: matchDetails,
           // Only set status='pending' for brand-new matches; never overwrite an existing status
           ...(existingMatch ? { status: existingMatch.status } : { status: 'pending' }),
