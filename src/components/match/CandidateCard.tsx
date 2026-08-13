@@ -23,6 +23,7 @@ interface CandidateCardProps {
       extraStatus?: string;
       matchStatus?: string;
       reliable?: boolean;
+      profile_ready?: boolean;
     };
   };
   candidateData?: {
