@@ -106,24 +106,8 @@ const handler = async (req: Request): Promise<Response> => {
 
     const emailHtml = `<!DOCTYPE html><html lang="pl"><head><meta charset="UTF-8"></head><body style="margin:0;padding:0;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background-color:#f5f7fa;line-height:1.6;"><table role="presentation" style="width:100%;border-collapse:collapse;background-color:#f5f7fa;"><tr><td style="padding:40px 20px;"><table role="presentation" style="max-width:600px;margin:0 auto;background-color:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);"><tr><td style="background:linear-gradient(135deg,#00B2C5 0%,#233448 100%);padding:40px 30px;text-align:center;"><h1 style="color:#ffffff;margin:0;font-size:26px;font-weight:700;">Prosba o uzupelnienie narzedzi</h1><p style="color:rgba(255,255,255,0.9);margin:10px 0 0 0;font-size:15px;">${companyName} jest zainteresowany Twoim profilem</p></td></tr><tr><td style="padding:40px 30px;"><p style="color:#233448;font-size:18px;margin:0 0 20px 0;">Czesc <strong>${escapeHtml(candidateName)}</strong>!</p><div style="background:#f8fafc;border-left:4px solid #00B2C5;border-radius:8px;padding:18px 20px;margin:20px 0;color:#374151;font-size:15px;">${safeMessage}</div><table role="presentation" style="width:100%;margin-top:20px;"><tr><td style="text-align:center;"><a href="${deepLink}" style="display:inline-block;background:linear-gradient(135deg,#FECA41 0%,#f5b82e 100%);color:#233448;text-decoration:none;padding:16px 40px;border-radius:8px;font-weight:700;font-size:16px;box-shadow:0 4px 12px rgba(254,202,65,0.4);">Uzupelnij narzedzia</a></td></tr></table></td></tr><tr><td style="background-color:#f8f9fa;padding:25px 30px;text-align:center;border-top:1px solid #eee;"><p style="color:#00B2C5;font-size:16px;font-weight:700;margin:0;">Zespol <span style="color:#233448;">idealnie</span><span style="color:#FECA41;">pasuje</span></p><p style="color:#aaa;font-size:12px;margin:10px 0 0 0;">© 2026 idealniepasuje. Wszystkie prawa zastrzeżone.</p></td></tr></table></td></tr></table></body></html>`;
 
-    const client = new SMTPClient({
-      connection: {
-        hostname: "smtp.gmail.com", port: 465, tls: true,
-        auth: { username: "idealnyserwisrekrutacyjny@gmail.com", password: gmailAppPassword },
-      },
-    });
-
-    await client.send({
-      from: "idealniepasuje <idealnyserwisrekrutacyjny@gmail.com>",
-      to: candidateEmail,
-      subject: `${companyName} prosi o uzupelnienie informacji o narzedziach`,
-      content: "auto",
-      html: emailHtml,
-    });
-    await client.close();
-
-    // In-app inbox message
-    await admin.from("candidate_messages").insert({
+    // 1) In-app inbox message (source of truth for the candidate)
+    const { error: msgErr } = await admin.from("candidate_messages").insert({
       match_result_id: matchRow.id,
       candidate_user_id,
       employer_user_id: userData.user.id,
@@ -131,14 +115,51 @@ const handler = async (req: Request): Promise<Response> => {
       content: message?.trim() || defaultMessage,
       metadata: { trigger: trigger || "manual" },
     });
+    if (msgErr) {
+      console.error("candidate_messages insert failed:", msgErr);
+      return new Response(JSON.stringify({ error: "Could not save in-app message" }), {
+        status: 500, headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
+    }
 
-    await admin.from("match_results").update({
+    // 2) Request status
+    const { error: statusErr } = await admin.from("match_results").update({
       tools_request_status: trigger === "auto" ? "sent_auto" : "awaiting",
     }).eq("id", matchRow.id);
+    if (statusErr) {
+      console.error("match_results status update failed:", statusErr);
+      return new Response(JSON.stringify({ error: "Could not update request status" }), {
+        status: 500, headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
+    }
 
-    return new Response(JSON.stringify({ success: true }), {
+    // 3) Email (best effort - reported as partial failure, DB stays consistent)
+    try {
+      const client = new SMTPClient({
+        connection: {
+          hostname: "smtp.gmail.com", port: 465, tls: true,
+          auth: { username: "idealnyserwisrekrutacyjny@gmail.com", password: gmailAppPassword },
+        },
+      });
+      await client.send({
+        from: "idealniepasuje <idealnyserwisrekrutacyjny@gmail.com>",
+        to: candidateEmail,
+        subject: `${companyName} prosi o uzupelnienie informacji o narzedziach`,
+        content: "auto",
+        html: emailHtml,
+      });
+      await client.close();
+    } catch (mailErr) {
+      console.error("tools request email failed:", mailErr);
+      return new Response(JSON.stringify({ success: false, partial: true, saved: true, email_sent: false }), {
+        status: 207, headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
+    }
+
+    return new Response(JSON.stringify({ success: true, email_sent: true }), {
       status: 200, headers: { "Content-Type": "application/json", ...corsHeaders },
     });
+
   } catch (error: any) {
     console.error("send-tools-completion-request error:", error);
     return new Response(JSON.stringify({ error: "Internal server error" }), {
