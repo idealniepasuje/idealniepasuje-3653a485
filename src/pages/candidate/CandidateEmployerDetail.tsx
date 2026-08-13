@@ -30,8 +30,12 @@ interface MatchDetails {
   }[];
   extraDetails: {
     field: string;
+    key?: string;
     matched: boolean;
     status?: 'matched' | 'unmatched' | 'no_data';
+    candidateValue?: string | null;
+    employerValue?: string | null;
+    acceptedValues?: string[];
   }[];
   extraStatus?: 'ok' | 'insufficient_data';
   extraAvailableCriteria?: number;
@@ -66,7 +70,6 @@ const CandidateEmployerDetail = () => {
   const [match, setMatch] = useState<any>(null);
   const [employer, setEmployer] = useState<any>(null);
   const [jobOffer, setJobOffer] = useState<any>(null);
-  const [candidateData, setCandidateData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -94,16 +97,11 @@ const CandidateEmployerDetail = () => {
       setMatch(matchData);
       
       // Fetch employer profile, job offer details, and candidate data in parallel
-      const [employerResult, candidateResult, offerResult] = await Promise.all([
+      const [employerResult, offerResult] = await Promise.all([
         supabase
           .from("employer_profiles")
           .select("company_name, role_description, industry, required_experience, position_level, accepted_industries, no_experience_required")
           .eq("user_id", matchData.employer_user_id)
-          .single(),
-        supabase
-          .from("candidate_test_results")
-          .select("industry, experience, position_level, target_industries")
-          .eq("user_id", user.id)
           .single(),
         matchData.job_offer_id
           ? supabase
@@ -115,7 +113,6 @@ const CandidateEmployerDetail = () => {
       ]);
 
       if (!employerResult.error) setEmployer(employerResult.data);
-      if (!candidateResult.error) setCandidateData(candidateResult.data);
       if (!offerResult.error && offerResult.data) setJobOffer(offerResult.data);
     } catch (error) {
       logError("CandidateEmployerDetail.fetchMatchData", error);
