@@ -171,20 +171,23 @@ Deno.serve(async (req) => {
     }
 
     const eligibleCandidates = candidates?.length || 0;
-    let insertedMatches = 0;
+    let createdMatches = 0;
+    let updatedMatches = 0;
 
-    // Remove stale matches for candidates that are no longer eligible (for these offers)
-    const eligibleIds = (candidates || []).map(c => c.user_id);
-    for (const offer of eligibleOffers) {
-      let delQuery = supabase
+    // NOTE: historical matches are intentionally never deleted here.
+    // Candidates may fail the current (stricter) `all_tests_completed` definition
+    // while still having legitimate historical matches with lifecycle statuses.
+    const eligibleIds = new Set((candidates || []).map((c) => c.user_id));
+    let preservedHistoricalMatches = 0;
+    {
+      const { data: existingForOffers } = await supabase
         .from('match_results')
-        .delete()
+        .select('candidate_user_id')
         .eq('employer_user_id', employer_user_id)
-        .eq('job_offer_id', offer.id);
-      if (eligibleIds.length > 0) {
-        delQuery = delQuery.not('candidate_user_id', 'in', `(${eligibleIds.join(',')})`);
-      }
-      await delQuery;
+        .in('job_offer_id', eligibleOffers.map((o) => o.id));
+      preservedHistoricalMatches = (existingForOffers || []).filter(
+        (m) => !eligibleIds.has(m.candidate_user_id),
+      ).length;
     }
 
     const employerCultureCompleted = (employer as any).culture_completed === true;
@@ -194,14 +197,14 @@ Deno.serve(async (req) => {
     // Generate matches for each job offer
     for (const offer of eligibleOffers) {
       for (const candidate of candidates || []) {
-        // Check if match already exists for this offer-candidate pair
+        // Single lookup: gives both id and lifecycle status
         const { data: existingMatch } = await supabase
           .from('match_results')
-          .select('id')
+          .select('id, status')
           .eq('employer_user_id', employer_user_id)
           .eq('candidate_user_id', candidate.user_id)
           .eq('job_offer_id', offer.id)
-          .single();
+          .maybeSingle();
 
         const isNewMatch = !existingMatch;
 
@@ -235,16 +238,7 @@ Deno.serve(async (req) => {
           candidate_profile_status: (candidate as any).profile_ready === true ? 'complete' : 'incomplete',
         };
 
-        // Preserve any existing lifecycle status (viewed/considering/rejected)
-        const { data: existingMatch } = await supabase
-          .from('match_results')
-          .select('id, status')
-          .eq('employer_user_id', employer_user_id)
-          .eq('candidate_user_id', candidate.user_id)
-          .eq('job_offer_id', offer.id)
-          .maybeSingle();
-
-        // Upsert match result with job_offer_id
+        // Upsert match result with job_offer_id (lifecycle status preserved)
         const { error: upsertError } = await supabase
           .from('match_results')
           .upsert({
@@ -270,12 +264,15 @@ Deno.serve(async (req) => {
 
           // Track new matches for email notifications
           if (isNewMatch) {
+            createdMatches++;
             newMatchCandidates.push({
               user_id: candidate.user_id,
               overall_percent: outcome.overallPercent,
               job_offer_id: offer.id,
               offer_title: offer.title,
             });
+          } else {
+            updatedMatches++;
           }
         }
       }
@@ -377,6 +374,9 @@ Deno.serve(async (req) => {
         completedTestsCandidates: completedTestsCandidates || 0,
         profileReadyCandidates: profileReadyCandidates || 0,
         eligibleCandidates,
+        createdMatches,
+        updatedMatches,
+        preservedHistoricalMatches,
         insertedMatches: allMatches.length,
       },
     }), {

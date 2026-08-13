@@ -250,11 +250,15 @@ const EmployerCandidateDetail = () => {
       // Candidate is anonymous - don't fetch their name
 
       // Fetch candidate test results for additional info
-      const { data: testData } = await supabase
+      const { data: testData, error: testError } = await supabase
         .from("candidate_test_results")
         .select("industry, experience, position_level, work_description, target_industries, has_no_experience, industry_experiences, competency_answers, linkedin_url, work_mode, city, getting_to_know, profile_ready, tools, lang_english, lang_spanish, lang_german, lang_polish")
         .eq("user_id", candidateId)
-        .single();
+        .maybeSingle();
+
+      if (testError) {
+        logError("EmployerCandidateDetail.fetchCandidateTestResults", testError);
+      }
 
       if (testData) {
         setCandidateData(testData);

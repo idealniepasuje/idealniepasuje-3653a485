@@ -34,7 +34,9 @@ const EmployerCandidates = () => {
       if (error) throw error;
       const s = (data as any)?.stats;
       if (s) {
-        toast.success(`Przeliczono: ${s.insertedMatches} dopasowań (testy ukończone: ${s.completedTestsCandidates}, pełny profil: ${s.profileReadyCandidates})`);
+        toast.success(
+          `Przeliczono: nowe ${s.createdMatches ?? 0}, zaktualizowane ${s.updatedMatches ?? 0}, zachowane historyczne ${s.preservedHistoricalMatches ?? 0}`
+        );
       } else {
         toast.success("Dopasowania odświeżone");
       }
