@@ -22,6 +22,7 @@ import { WorkModeSelector } from "@/components/WorkModeSelector";
 import { ToolsSelector } from "@/components/tools/ToolsSelector";
 import { normalizeTools, ToolEntry } from "@/data/tools";
 import type { Json } from "@/integrations/supabase/types";
+import { isOfferComplete } from "@/lib/offerCompleteness";
 
 interface AcceptedIndustryRequirement {
   industry: string;
@@ -229,6 +230,8 @@ const EmployerOfferForm = () => {
         user_id: user.id,
         title: formData.title.trim(),
         company_name: profile?.company_name || formData.companyName.trim() || null,
+        // Nowa oferta powstaje jako draft — aktywacja dopiero po komplecie danych
+        is_active: false,
       })
       .select("id")
       .single();
@@ -241,6 +244,33 @@ const EmployerOfferForm = () => {
     }
     return null;
   };
+
+  /**
+   * Ustala is_active na podstawie rzeczywistych danych oferty w bazie
+   * (nie na podstawie stanu frontendu).
+   */
+  const syncOfferActiveState = async (realOfferId: string): Promise<boolean> => {
+    if (!user) return false;
+    const { data: offer, error } = await supabase
+      .from("job_offers")
+      .select("title, role_description, work_mode, city, industry, position_level, no_experience_required, required_experience, req_komunikacja, req_myslenie_analityczne, req_out_of_the_box, req_determinacja, req_adaptacja, is_active")
+      .eq("id", realOfferId)
+      .eq("user_id", user.id)
+      .maybeSingle();
+    if (error || !offer) return false;
+
+    const complete = isOfferComplete(offer, employerCultureCompleted);
+    if (!!offer.is_active !== complete) {
+      const { error: updErr } = await supabase
+        .from("job_offers")
+        .update({ is_active: complete })
+        .eq("id", realOfferId)
+        .eq("user_id", user.id);
+      if (updErr) logError("EmployerOfferForm.syncOfferActiveState", updErr);
+    }
+    return complete;
+  };
+
 
   const saveRole = async () => {
     if (!user) return;
