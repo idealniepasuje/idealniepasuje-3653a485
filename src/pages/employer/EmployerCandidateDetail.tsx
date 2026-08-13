@@ -302,58 +302,57 @@ const EmployerCandidateDetail = () => {
       // If clicking the same status, revert to 'viewed'
       const statusToSet = currentStatus === newStatus ? 'viewed' : newStatus;
       
-      const { error } = await supabase
-        .from("match_results")
-        .update({ status: statusToSet })
-        .eq("id", match.id);
-      
-      if (error) {
-        logError("EmployerCandidateDetail.handleStatusChange", error);
-        toast.error(t("errors.genericError"));
-        return;
+      const isNewInterest = currentStatus !== 'considering' && statusToSet === 'considering';
+
+      if (isNewInterest) {
+        // Server-side: verifies ownership, sets status and sends the interest email with service role.
+        const { error: fnError } = await supabase.functions.invoke('mark-candidate-interest', {
+          body: { match_id: match.id },
+        });
+        if (fnError) {
+          logError("EmployerCandidateDetail.markCandidateInterest", fnError);
+          toast.error(t("errors.genericError"));
+          return;
+        }
+      } else {
+        const { error } = await supabase
+          .from("match_results")
+          .update({ status: statusToSet })
+          .eq("id", match.id);
+
+        if (error) {
+          logError("EmployerCandidateDetail.handleStatusChange", error);
+          toast.error(t("errors.genericError"));
+          return;
+        }
       }
-      
-      // Send notification to candidate when employer marks interest
-      if (currentStatus !== 'considering' && statusToSet === 'considering') {
+
+      if (isNewInterest) {
+        // Auto-send tools request if candidate hasn't filled tools yet and we haven't already asked.
         try {
           const { data: employerProfile } = await supabase
             .from("employer_profiles")
             .select("company_name")
             .eq("user_id", user?.id)
             .single();
-          
-          await supabase.functions.invoke('send-interest-notification', {
-            body: {
-              candidate_user_id: candidateId,
-              employer_company_name: employerProfile?.company_name || 'Pracodawca',
-              match_percent: match.overall_percent,
-              competence_percent: match.competence_percent,
-              culture_percent: match.culture_percent,
-              extra_percent: match.extra_percent,
-            }
-          });
 
-          // Auto-send tools request if candidate hasn't filled tools yet and we haven't already asked.
-          try {
-            const candidateHasTools = Array.isArray((candidateData as any)?.tools) && (candidateData as any).tools.length > 0;
-            const alreadyAsked = match.tools_request_status && match.tools_request_status !== 'not_sent';
-            if (!candidateHasTools && !alreadyAsked) {
-              await supabase.functions.invoke('send-tools-completion-request', {
-                body: {
-                  candidate_user_id: candidateId,
-                  match_id: match.id,
-                  employer_company_name: employerProfile?.company_name || 'Pracodawca',
-                  trigger: 'auto',
-                },
-              });
-            }
-          } catch (toolsErr) {
-            logError("EmployerCandidateDetail.autoToolsRequest", toolsErr);
+          const candidateHasTools = Array.isArray((candidateData as any)?.tools) && (candidateData as any).tools.length > 0;
+          const alreadyAsked = match.tools_request_status && match.tools_request_status !== 'not_sent';
+          if (!candidateHasTools && !alreadyAsked) {
+            await supabase.functions.invoke('send-tools-completion-request', {
+              body: {
+                candidate_user_id: candidateId,
+                match_id: match.id,
+                employer_company_name: employerProfile?.company_name || 'Pracodawca',
+                trigger: 'auto',
+              },
+            });
           }
-        } catch (notifError) {
-          logError("EmployerCandidateDetail.sendNotification", notifError);
+        } catch (toolsErr) {
+          logError("EmployerCandidateDetail.autoToolsRequest", toolsErr);
         }
       }
+
       
       setCurrentStatus(statusToSet);
       setMatch({ ...match, status: statusToSet });
