@@ -231,11 +231,28 @@ export const workModeCompatible = (candidateMode: string, offerMode: string): bo
 
 const normalizeCity = (v: string | null | undefined) => (v || '').trim().toLowerCase();
 
+/** Minimalna liczba ocenialnych kryteriów, aby sekcja dodatkowa mogła zostać policzona */
+export const EXTRA_MIN_AVAILABLE_CRITERIA = 3;
+/** Pełen zbiór kryteriów sekcji dodatkowej */
+export const EXTRA_TOTAL_CRITERIA = 5;
+
+export type ExtraSectionStatus = 'ok' | 'insufficient_data';
+
+export interface ExtraMatchResult {
+  percent: number | null;
+  details: ExtraDetail[];
+  availableCriteria: number;
+  totalCriteria: number;
+  coveragePercent: number;
+  status: ExtraSectionStatus;
+}
+
 export const calculateExtraMatch = (
   candidate: CandidateData,
   offer: JobOfferData,
-): { percent: number | null; details: ExtraDetail[] } => {
+): ExtraMatchResult => {
   const details: ExtraDetail[] = [];
+
 
   // --- Branża (TAK/NIE/BRAK DANYCH, liczona dokładnie raz, bez punktów za otwartość) ---
   const accepted = Array.isArray(offer.accepted_industries) ? offer.accepted_industries : [];
