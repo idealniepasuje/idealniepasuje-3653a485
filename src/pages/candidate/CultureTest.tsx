@@ -226,9 +226,9 @@ const CultureTest = () => {
       <header className="bg-primary text-primary-foreground">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <Link to="/candidate/dashboard" className="flex items-center gap-2 text-primary-foreground/80 hover:text-primary-foreground">
+            <button type="button" onClick={handleSaveAndBack} disabled={saving} className="flex items-center gap-2 text-primary-foreground/80 hover:text-primary-foreground disabled:opacity-60">
               <ArrowLeft className="w-4 h-4" />{t("common.saveAndBack")}
-            </Link>
+            </button>
             <span className="text-sm text-primary-foreground/80">{t("common.question")} {currentQuestionIndex + 1} {t("common.of")} {questions.length}</span>
           </div>
         </div>
