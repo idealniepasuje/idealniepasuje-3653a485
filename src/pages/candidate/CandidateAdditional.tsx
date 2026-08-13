@@ -164,7 +164,7 @@ const CandidateAdditional = () => {
   };
 
   const sendResultsEmail = async (): Promise<boolean> => {
-    if (!user?.email) return false;
+    if (!user?.email) return true;
     try {
       const feedbackUrl = `${window.location.origin}/candidate/feedback`;
       const { error } = await supabase.functions.invoke('send-candidate-results', {

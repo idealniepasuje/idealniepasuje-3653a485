@@ -498,7 +498,10 @@
       "ourTurnNow": "Teraz cała robota jest po naszej stronie",
       "ourTurnDescription": "Będziemy szukać dla Ciebie idealnego pracodawcy. Gdy pojawi się dopasowana oferta, otrzymasz powiadomienie.",
       "thankYouMessage": "Dziękujemy za wypełnienie wszystkich testów!",
-      "matchesGenerated": "Znaleziono {{count}} dopasowanych pracodawców!"
+      "matchesGenerated": "Znaleziono {{count}} dopasowanych pracodawców!",
+      "savedWithIssues": "Profil został zapisany, ale nie udało się teraz odświeżyć dopasowań ani wysłać e-maila. Spróbujemy ponownie później.",
+      "savedMatchingIssue": "Profil został zapisany, ale dopasowania nie zostały teraz odświeżone. Spróbujemy ponownie później.",
+      "savedEmailIssue": "Profil został zapisany, ale nie udało się wysłać e-maila z podsumowaniem."
     },
     "inbox": {
       "title": "Wiadomości od pracodawców",
