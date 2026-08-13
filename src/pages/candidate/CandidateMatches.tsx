@@ -17,8 +17,9 @@ const CandidateMatches = () => {
   const { t } = useTranslation();
   const [matches, setMatches] = useState<any[]>([]);
   const [employers, setEmployers] = useState<Record<string, any>>({});
-  const [offerTitles, setOfferTitles] = useState<Record<string, string>>({});
+  const [offersById, setOffersById] = useState<Record<string, any>>({});
   const [loading, setLoading] = useState(true);
+
 
   useEffect(() => {
     if (!authLoading && !user) { navigate("/login"); return; }
