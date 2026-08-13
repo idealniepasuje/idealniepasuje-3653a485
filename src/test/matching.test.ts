@@ -310,7 +310,7 @@ describe("minimalne pokrycie danych w sekcji dodatkowej", () => {
 
   it("kandydat z pustym profilem nie jest zawyżany w wyniku końcowym", () => {
     const empty = calculateMatch(bare({ work_mode: "onsite" }), offer(), culture());
-    const complete = calculateMatch(candidate({ city: "Kraków" }), offer(), culture());
+    const complete = calculateMatch(candidate(), offer(), culture());
     expect(empty.extraStatus).toBe("insufficient_data");
     expect(empty.appliedWeights.extra).toBe(0);
     expect(complete.overallPercent).toBeGreaterThanOrEqual(empty.overallPercent);
