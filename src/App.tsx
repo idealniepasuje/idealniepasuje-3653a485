@@ -75,6 +75,7 @@ const App = () => (
               <Route path="/employer/candidate/:candidateId" element={<ProtectedRoute allowedUserType="employer"><EmployerCandidateDetail /></ProtectedRoute>} />
               <Route path="/employer/feedback" element={<ProtectedRoute allowedUserType="employer"><EmployerFeedback /></ProtectedRoute>} />
               <Route path="/.lovable/oauth/consent" element={<OAuthConsent />} />
+              <Route path="/connect" element={<AgentConnect />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>
