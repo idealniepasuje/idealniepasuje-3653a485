@@ -316,3 +316,104 @@ describe("minimalne pokrycie danych w sekcji dodatkowej", () => {
     expect(complete.overallPercent).toBeGreaterThanOrEqual(empty.overallPercent);
   });
 });
+
+// ---------- Renormalizacja wag: 8 przypadków ----------
+describe("renormalizacja wag i wiarygodność wyniku", () => {
+  const noComp: Partial<JobOfferData> = {
+    req_komunikacja: null,
+    req_myslenie_analityczne: null,
+    req_out_of_the_box: null,
+    req_determinacja: null,
+    req_adaptacja: null,
+  };
+  const noExtraOffer: Partial<JobOfferData> = {
+    industry: null,
+    accepted_industries: [],
+    required_experience: null,
+    no_experience_required: false,
+    position_level: null,
+    work_mode: null,
+    city: null,
+  };
+  const noCultureCandidate: Partial<CandidateData> = {
+    culture_relacja_wspolpraca: null,
+    culture_elastycznosc_innowacyjnosc: null,
+    culture_wyniki_cele: null,
+    culture_stabilnosc_struktura: null,
+    culture_autonomia_styl_pracy: null,
+    culture_wlb_dobrostan: null,
+  };
+
+  it("1. kompetencje + kultura + extra", () => {
+    const r = calculateMatch(candidate(), offer(), culture());
+    expect(r.availableSections).toEqual(["competence", "culture", "extra"]);
+    expect(r.appliedWeights).toEqual({ competence: 0.5, culture: 0.35, extra: 0.15 });
+    expect(r.matchStatus).toBe("ok");
+    expect(r.reliable).toBe(true);
+    expect(r.overallPercent).toBe(100);
+  });
+
+  it("2. kompetencje + kultura (extra = null)", () => {
+    const r = calculateMatch(candidate(), offer(noExtraOffer), culture());
+    expect(r.availableSections).toEqual(["competence", "culture"]);
+    expect(r.appliedWeights.competence).toBeCloseTo(0.5 / 0.85, 5);
+    expect(r.appliedWeights.culture).toBeCloseTo(0.35 / 0.85, 5);
+    expect(r.appliedWeights.extra).toBe(0);
+    expect(r.matchStatus).toBe("ok");
+  });
+
+  it("3. kompetencje + extra (kultura = null)", () => {
+    const r = calculateMatch(candidate(noCultureCandidate), offer(), culture());
+    expect(r.availableSections).toEqual(["competence", "extra"]);
+    expect(r.appliedWeights.competence).toBeCloseTo(0.5 / 0.65, 5);
+    expect(r.appliedWeights.extra).toBeCloseTo(0.15 / 0.65, 5);
+    expect(r.matchStatus).toBe("ok");
+  });
+
+  it("4. kultura + extra (kompetencje = null)", () => {
+    const r = calculateMatch(candidate(), offer(noComp), culture());
+    expect(r.availableSections).toEqual(["culture", "extra"]);
+    expect(r.appliedWeights.culture).toBeCloseTo(0.35 / 0.5, 5);
+    expect(r.appliedWeights.extra).toBeCloseTo(0.15 / 0.5, 5);
+    expect(r.matchStatus).toBe("ok");
+  });
+
+  it("5. tylko kompetencje → low_confidence", () => {
+    const r = calculateMatch(candidate(noCultureCandidate), offer(noExtraOffer), culture());
+    expect(r.availableSections).toEqual(["competence"]);
+    expect(r.appliedWeights.competence).toBe(1);
+    expect(r.matchStatus).toBe("low_confidence");
+    expect(r.reliable).toBe(false);
+    expect(r.technicalPercent).toBe(100);
+    expect(r.overallPercent).toBe(100);
+  });
+
+  it("6. tylko kultura → low_confidence", () => {
+    const r = calculateMatch(candidate(), offer({ ...noComp, ...noExtraOffer }), culture());
+    expect(r.availableSections).toEqual(["culture"]);
+    expect(r.appliedWeights.culture).toBe(1);
+    expect(r.matchStatus).toBe("low_confidence");
+    expect(r.reliable).toBe(false);
+  });
+
+  it("7. tylko extra → low_confidence", () => {
+    const r = calculateMatch(candidate(noCultureCandidate), offer(noComp), culture());
+    expect(r.availableSections).toEqual(["extra"]);
+    expect(r.appliedWeights.extra).toBe(1);
+    expect(r.matchStatus).toBe("low_confidence");
+    expect(r.reliable).toBe(false);
+  });
+
+  it("8. brak sekcji → insufficient_data, overall = null", () => {
+    const r = calculateMatch(
+      candidate(noCultureCandidate),
+      offer({ ...noComp, ...noExtraOffer }),
+      culture(),
+    );
+    expect(r.availableSections).toEqual([]);
+    expect(r.matchStatus).toBe("insufficient_data");
+    expect(r.overallPercent).toBeNull();
+    expect(r.reliable).toBe(false);
+    expect(r.appliedWeights).toEqual({ competence: 0, culture: 0, extra: 0 });
+  });
+});
