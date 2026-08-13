@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
@@ -71,18 +71,19 @@ const CultureTest = () => {
     setAnswers(prev => ({ ...prev, [questionId]: value }));
   };
 
-  const saveProgress = async (completed: boolean = false) => {
-    if (!user) return;
+  // Accepts an explicit answers snapshot so callers never rely on stale state.
+  const saveProgress = async (answersToSave: Record<string, number>, completed: boolean = false): Promise<boolean> => {
+    if (!user) return false;
     setSaving(true);
     try {
       const scores: Record<string, number> = {};
       Object.keys(cultureDimensions).forEach(dimCode => {
         const dimQuestions = questions.filter(q => q.dimensionCode === dimCode);
         let sum = 0, count = 0;
-        dimQuestions.forEach(q => { if (answers[q.id] !== undefined) { sum += answers[q.id]; count++; } });
+        dimQuestions.forEach(q => { if (answersToSave[q.id] !== undefined) { sum += answersToSave[q.id]; count++; } });
         scores[dimCode] = count > 0 ? sum / count : 0;
       });
-      const updateData: any = { culture_answers: answers, culture_test_completed: completed };
+      const updateData: any = { culture_answers: answersToSave, culture_test_completed: completed };
       if (completed) {
         updateData.culture_relacja_wspolpraca = scores.relacja_wspolpraca || null;
         updateData.culture_elastycznosc_innowacyjnosc = scores.elastycznosc_innowacyjnosc || null;
@@ -93,32 +94,52 @@ const CultureTest = () => {
       }
       const { error } = await supabase.from("candidate_test_results").update(updateData).eq("user_id", user.id);
       if (error) throw error;
+      return true;
     } catch (error) {
       logError("CultureTest.saveProgress", error);
       toast.error(t("errors.saveProgressError"));
+      return false;
     } finally {
       setSaving(false);
     }
   };
 
-  const handleNext = useCallback(async () => {
-    if (currentQuestionIndex < questions.length - 1) {
-      setCurrentQuestionIndex(prev => prev + 1);
-      await saveProgress();
-    } else {
-      await saveProgress(true);
-      calculateAndShowResults(answers);
-      toast.success(t("candidate.test.testCompletedMessage"));
+  // Guards against timeout + manual click firing at the same time.
+  const advancingRef = useRef(false);
+
+  const advance = useCallback(async (answersToUse: Record<string, number>) => {
+    if (advancingRef.current) return;
+    advancingRef.current = true;
+    try {
+      const isLast = currentQuestionIndex >= questions.length - 1;
+      if (!isLast) {
+        setCurrentQuestionIndex(prev => Math.min(prev + 1, questions.length - 1));
+        await saveProgress(answersToUse);
+      } else {
+        const ok = await saveProgress(answersToUse, true);
+        if (!ok) return;
+        calculateAndShowResults(answersToUse);
+        toast.success(t("candidate.test.testCompletedMessage"));
+      }
+    } finally {
+      advancingRef.current = false;
     }
-  }, [currentQuestionIndex, questions.length, answers, t]);
+  }, [currentQuestionIndex, questions.length, t]);
+
+  const handleNext = useCallback(() => {
+    void advance(answers);
+  }, [advance, answers]);
 
   const handleTimeUp = useCallback(() => {
+    if (advancingRef.current) return;
     const currentQ = questions[currentQuestionIndex];
-    if (answers[currentQ.id] === undefined) {
-      setAnswers(prev => ({ ...prev, [currentQ.id]: 3 }));
-    }
-    handleNext();
-  }, [currentQuestionIndex, questions, answers, handleNext]);
+    if (!currentQ) return;
+    const nextAnswers = answers[currentQ.id] === undefined
+      ? { ...answers, [currentQ.id]: 3 }
+      : answers;
+    if (nextAnswers !== answers) setAnswers(nextAnswers);
+    void advance(nextAnswers);
+  }, [currentQuestionIndex, questions, answers, advance]);
 
   const { timeLeft, progress: timerProgress } = useQuestionTimer({
     duration: 25,
@@ -130,6 +151,12 @@ const CultureTest = () => {
   const handlePrevious = () => {
     if (currentQuestionIndex > 0) setCurrentQuestionIndex(prev => prev - 1);
   };
+
+  const handleSaveAndBack = async () => {
+    const ok = await saveProgress(answers);
+    if (ok) navigate("/candidate/dashboard");
+  };
+
 
   if (authLoading || loading) {
     return (
@@ -199,9 +226,9 @@ const CultureTest = () => {
       <header className="bg-primary text-primary-foreground">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <Link to="/candidate/dashboard" className="flex items-center gap-2 text-primary-foreground/80 hover:text-primary-foreground">
+            <button type="button" onClick={handleSaveAndBack} disabled={saving} className="flex items-center gap-2 text-primary-foreground/80 hover:text-primary-foreground disabled:opacity-60">
               <ArrowLeft className="w-4 h-4" />{t("common.saveAndBack")}
-            </Link>
+            </button>
             <span className="text-sm text-primary-foreground/80">{t("common.question")} {currentQuestionIndex + 1} {t("common.of")} {questions.length}</span>
           </div>
         </div>
