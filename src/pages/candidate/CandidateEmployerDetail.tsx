@@ -208,7 +208,10 @@ const CandidateEmployerDetail = () => {
                       <Heart className="w-3 h-3" />{t("common.culture")}: {match.culture_percent}%
                     </Badge>
                     <Badge variant="outline" className="gap-1">
-                      <Briefcase className="w-3 h-3" />{t("common.additional")}: {match.extra_percent}%
+                      <Briefcase className="w-3 h-3" />{t("common.additional")}:{' '}
+                      {matchDetails?.extraStatus === 'insufficient_data'
+                        ? t("match.insufficientData")
+                        : `${match.extra_percent}%`}
                     </Badge>
                   </div>
                 </div>
