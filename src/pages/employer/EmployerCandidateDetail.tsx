@@ -952,6 +952,7 @@ const EmployerCandidateDetail = () => {
                   {
                     field: t("employer.candidateDetail.criteriaIndustry"),
                     matched: industryMatch,
+                    noData: !candidateData?.industry,
                     candidateValue: candidateData?.industry,
                     employerValue: requirementData?.industry,
                     acceptedValues: requirementData?.accepted_industries || [],
@@ -960,6 +961,7 @@ const EmployerCandidateDetail = () => {
                   {
                     field: t("employer.candidateDetail.criteriaExperience"),
                     matched: experienceMatch,
+                    noData: !requirementData?.no_experience_required && !candidateData?.experience,
                     candidateValue: candidateData?.experience,
                     employerValue: requirementData?.no_experience_required ? '0' : requirementData?.required_experience,
                     fieldType: 'experience'
@@ -967,6 +969,7 @@ const EmployerCandidateDetail = () => {
                   {
                     field: t("employer.candidateDetail.criteriaPositionLevel"),
                     matched: positionMatch,
+                    noData: !candidateData?.position_level,
                     candidateValue: candidateData?.position_level,
                     employerValue: requirementData?.position_level,
                     fieldType: 'position_level'
@@ -977,24 +980,34 @@ const EmployerCandidateDetail = () => {
                   <div 
                     key={crit.field} 
                     className={`p-4 rounded-lg border ${
-                      crit.matched ? 'border-success/30 bg-success/5' : 'border-destructive/30 bg-destructive/5'
+                      crit.noData
+                        ? 'border-border bg-muted/30'
+                        : crit.matched ? 'border-success/30 bg-success/5' : 'border-destructive/30 bg-destructive/5'
                     }`}
                   >
                     <div className="flex items-start gap-3">
-                      {crit.matched ? (
+                      {crit.noData ? (
+                        <HelpCircle className="w-5 h-5 text-muted-foreground mt-0.5 shrink-0" />
+                      ) : crit.matched ? (
                         <CheckCircle2 className="w-5 h-5 text-success mt-0.5 shrink-0" />
                       ) : (
                         <AlertCircle className="w-5 h-5 text-destructive mt-0.5 shrink-0" />
                       )}
                       <div className="flex-1">
                         <div className="flex items-center justify-between mb-2">
-                          <span className={`font-medium ${crit.matched ? '' : 'text-muted-foreground'}`}>
+                          <span className={`font-medium ${crit.matched && !crit.noData ? '' : 'text-muted-foreground'}`}>
                             {crit.field}
                           </span>
-                          <Badge variant={crit.matched ? "default" : "destructive"} className={crit.matched ? "bg-success" : ""}>
-                            {crit.matched ? t("common.match") : t("employer.candidateDetail.noMatch")}
+                          <Badge
+                            variant={crit.noData ? "secondary" : crit.matched ? "default" : "destructive"}
+                            className={!crit.noData && crit.matched ? "bg-success" : ""}
+                          >
+                            {crit.noData
+                              ? t("employer.candidateDetail.noData")
+                              : crit.matched ? t("common.match") : t("employer.candidateDetail.noMatch")}
                           </Badge>
                         </div>
+
                         <div className="grid sm:grid-cols-2 gap-2 text-sm">
                           <div className="flex items-center gap-2">
                             <span className="text-muted-foreground">{t("employer.candidateDetail.candidateScore")}:</span>
