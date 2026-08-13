@@ -171,7 +171,8 @@ Deno.serve(async (req) => {
     }
 
     const eligibleCandidates = candidates?.length || 0;
-    let insertedMatches = 0;
+    let createdMatches = 0;
+    let updatedMatches = 0;
 
     // NOTE: historical matches are intentionally never deleted here.
     // Candidates may fail the current (stricter) `all_tests_completed` definition
@@ -263,12 +264,15 @@ Deno.serve(async (req) => {
 
           // Track new matches for email notifications
           if (isNewMatch) {
+            createdMatches++;
             newMatchCandidates.push({
               user_id: candidate.user_id,
               overall_percent: outcome.overallPercent,
               job_offer_id: offer.id,
               offer_title: offer.title,
             });
+          } else {
+            updatedMatches++;
           }
         }
       }
@@ -370,6 +374,9 @@ Deno.serve(async (req) => {
         completedTestsCandidates: completedTestsCandidates || 0,
         profileReadyCandidates: profileReadyCandidates || 0,
         eligibleCandidates,
+        createdMatches,
+        updatedMatches,
+        preservedHistoricalMatches,
         insertedMatches: allMatches.length,
       },
     }), {
