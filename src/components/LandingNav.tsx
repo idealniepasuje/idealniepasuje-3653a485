@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { Menu, X, Sparkles } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { InstagramLink } from "@/components/InstagramIcon";
@@ -35,12 +35,6 @@ export const LandingNav = ({ variant }: LandingNavProps) => {
         <div className="hidden md:flex items-center gap-4">
           <InstagramLink className="w-5 h-5 text-foreground" />
           <LanguageSwitcher />
-          <Link to="/connect">
-            <Button variant="ghost" size="sm" className="gap-1.5">
-              <Sparkles className="w-4 h-4" />
-              AI
-            </Button>
-          </Link>
           <Link to={switchLink.to}>
             <Button variant="ghost" size="sm">{switchLink.label}</Button>
           </Link>
@@ -68,12 +62,6 @@ export const LandingNav = ({ variant }: LandingNavProps) => {
       {open && (
         <div className="md:hidden border-t border-border bg-card/95 backdrop-blur-sm animate-fade-in">
           <div className="container mx-auto px-4 py-4 flex flex-col gap-3">
-            <Link to="/connect" onClick={() => setOpen(false)}>
-              <Button variant="ghost" size="sm" className="w-full justify-start gap-2">
-                <Sparkles className="w-4 h-4" />
-                AI
-              </Button>
-            </Link>
             <Link to={switchLink.to} onClick={() => setOpen(false)}>
               <Button variant="ghost" size="sm" className="w-full justify-start">
                 {switchLink.label}
