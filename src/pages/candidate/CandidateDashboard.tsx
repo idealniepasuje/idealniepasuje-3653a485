@@ -186,29 +186,29 @@ const CandidateDashboard = () => {
         <Card className="mb-8 overflow-hidden border-0 shadow-lg bg-gradient-to-br from-cta via-cta/90 to-accent/80">
           <CardContent className="p-5">
             <div className="flex items-start gap-4">
-              <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
-                <Sparkles className="w-5 h-5 text-primary" />
+              <div className="w-10 h-10 rounded-full bg-primary-foreground/20 flex items-center justify-center shrink-0">
+                <Sparkles className="w-5 h-5 text-primary-foreground" />
               </div>
               <div className="flex-1 min-w-0">
-                <h2 className="text-base font-bold text-primary mb-2">{t("candidate.dashboard.introTitle")}</h2>
-                <p className="text-primary/85 text-sm mb-3 leading-relaxed">
+                <h2 className="text-base font-bold text-primary-foreground mb-2">{t("candidate.dashboard.introTitle")}</h2>
+                <p className="text-primary-foreground/90 text-sm mb-3 leading-relaxed">
                   {t("candidate.dashboard.introGreetingShort")}
                 </p>
                 <div className="flex flex-wrap gap-2 mb-3">
-                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/15 text-primary text-xs font-medium">
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary-foreground/15 text-primary-foreground text-xs font-medium">
                     <ClipboardList className="w-3 h-3" />
                     {t("candidate.dashboard.introBadge1")}
                   </span>
-                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/15 text-primary text-xs font-medium">
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary-foreground/15 text-primary-foreground text-xs font-medium">
                     <Heart className="w-3 h-3" />
                     {t("candidate.dashboard.introBadge2")}
                   </span>
-                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/15 text-primary text-xs font-medium">
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary-foreground/15 text-primary-foreground text-xs font-medium">
                     <Briefcase className="w-3 h-3" />
                     {t("candidate.dashboard.introBadge3")}
                   </span>
                 </div>
-                <p className="text-xs text-primary/80 flex items-center gap-1.5">
+                <p className="text-xs text-primary-foreground/90 flex items-center gap-1.5">
                   <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
                   {t("candidate.dashboard.introReminderShort")}
                 </p>
