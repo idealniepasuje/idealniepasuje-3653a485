@@ -18,7 +18,7 @@ serve(async (req) => {
 
   try {
     const authHeader = req.headers.get("Authorization");
-    if (!authHeader) return json({ error: "Unauthorized" }, 401);
+    if (!authHeader?.startsWith("Bearer ")) return json({ error: "Unauthorized" }, 401);
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -27,9 +27,10 @@ serve(async (req) => {
     const userClient = createClient(supabaseUrl, anonKey, {
       global: { headers: { Authorization: authHeader } },
     });
-    const { data: userData } = await userClient.auth.getUser();
-    const employerId = userData?.user?.id;
-    if (!employerId) return json({ error: "Unauthorized" }, 401);
+    const token = authHeader.replace("Bearer ", "");
+    const { data: claimsData, error: claimsErr } = await userClient.auth.getClaims(token);
+    const employerId = claimsData?.claims?.sub as string | undefined;
+    if (claimsErr || !employerId) return json({ error: "Unauthorized" }, 401);
 
     const body = await req.json().catch(() => ({}));
     const matchId: string | undefined = body?.match_id;
