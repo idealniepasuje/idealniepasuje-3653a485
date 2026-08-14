@@ -44,7 +44,7 @@ serve(async (req) => {
     const { data: matchRows } = await admin
       .from("match_results")
       .select("id, status, unlocked_at")
-      .eq("employer_user_id", userData.user.id)
+      .eq("employer_user_id", callerId)
       .eq("candidate_user_id", candidate_user_id)
       .limit(5);
     const allowed = (matchRows || []).some(
