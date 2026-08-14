@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
+import { createClient } from "npm:@supabase/supabase-js@2";
+
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -11,7 +12,7 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
   try {
     const authHeader = req.headers.get("Authorization");
-    if (!authHeader) {
+    if (!authHeader?.startsWith("Bearer ")) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401, headers: { "Content-Type": "application/json", ...corsHeaders },
       });
@@ -23,12 +24,15 @@ serve(async (req) => {
     const userClient = createClient(supabaseUrl, anonKey, {
       global: { headers: { Authorization: authHeader } },
     });
-    const { data: userData } = await userClient.auth.getUser();
-    if (!userData?.user) {
+    const token = authHeader.replace("Bearer ", "");
+    const { data: claimsData, error: claimsErr } = await userClient.auth.getClaims(token);
+    const callerId = claimsData?.claims?.sub as string | undefined;
+    if (claimsErr || !callerId) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401, headers: { "Content-Type": "application/json", ...corsHeaders },
       });
     }
+
 
     const body = await req.json().catch(() => ({}));
     const candidate_user_id: string | undefined = body?.candidate_user_id;
@@ -40,7 +44,7 @@ serve(async (req) => {
     const { data: matchRows } = await admin
       .from("match_results")
       .select("id, status, unlocked_at")
-      .eq("employer_user_id", userData.user.id)
+      .eq("employer_user_id", callerId)
       .eq("candidate_user_id", candidate_user_id)
       .limit(5);
     const allowed = (matchRows || []).some(
