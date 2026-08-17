@@ -11,18 +11,20 @@ interface WorkModeSelectorProps {
   onWorkModeChange: (value: string) => void;
   onCityChange: (value: string) => void;
   required?: boolean;
+  workModeError?: boolean;
+  cityError?: boolean;
 }
 
-export const WorkModeSelector = ({ workMode, city, onWorkModeChange, onCityChange, required }: WorkModeSelectorProps) => {
+export const WorkModeSelector = ({ workMode, city, onWorkModeChange, onCityChange, required, workModeError, cityError }: WorkModeSelectorProps) => {
   const { t } = useTranslation();
 
   const showCity = workMode === "hybrid" || workMode === "onsite";
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-3" id="workmode-section">
       <Label>{t("common.workMode")} {required && <span className="text-destructive">*</span>}</Label>
       <Select value={workMode} onValueChange={onWorkModeChange}>
-        <SelectTrigger className="h-11">
+        <SelectTrigger className={`h-11 ${workModeError ? "border-destructive ring-2 ring-destructive/40" : ""}`}>
           <SelectValue placeholder={t("common.selectWorkMode")} />
         </SelectTrigger>
         <SelectContent>
@@ -41,7 +43,9 @@ export const WorkModeSelector = ({ workMode, city, onWorkModeChange, onCityChang
       {showCity && (
         <div className="space-y-2">
           <Label>{t("common.city")} <span className="text-destructive">*</span></Label>
-          <CityCombobox value={city} onChange={onCityChange} />
+          <div className={cityError ? "rounded-md ring-2 ring-destructive/40 border border-destructive" : ""}>
+            <CityCombobox value={city} onChange={onCityChange} />
+          </div>
         </div>
       )}
     </div>

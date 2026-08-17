@@ -101,12 +101,12 @@ export const CandidateMessagesInbox = () => {
                       </a>
                     )}
                     {msg.type === 'profile_completion' && (
-                      <Link to="/candidate/additional">
+                      <Link to="/candidate/additional#gtk">
                         <Button size="sm" variant="outline">{t("candidate.inbox.openProfile")}</Button>
                       </Link>
                     )}
                     {msg.type === 'linkedin_request' && (
-                      <Link to="/candidate/additional">
+                      <Link to="/candidate/additional#linkedin">
                         <Button size="sm" variant="outline">{t("candidate.inbox.addLinkedin")}</Button>
                       </Link>
                     )}
