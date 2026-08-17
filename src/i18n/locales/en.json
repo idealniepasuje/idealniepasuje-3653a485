@@ -657,6 +657,8 @@
       "noMatch": "not matching",
       "noExpectations": "No expectations set",
       "acceptedIndustries": "Accepted industries",
+      "industrySourcePrimary": "Matched via target industry",
+      "industrySourceAccepted": "Matched via additional (accepted) industry",
       "criteriaIndustry": "Industry",
       "criteriaExperience": "Experience",
       "criteriaPositionLevel": "Position level",

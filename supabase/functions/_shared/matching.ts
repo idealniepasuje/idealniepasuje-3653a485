@@ -79,6 +79,8 @@ export interface ExtraDetail {
   candidateValue?: string | null;
   employerValue?: string | null;
   acceptedValues?: string[];
+  /** Tylko dla branży: czy dopasowanie nastąpiło przez branżę docelową oferty czy dodatkową (akceptowaną) */
+  matchSource?: 'primary' | 'accepted' | null;
 }
 
 
@@ -276,8 +278,9 @@ export const calculateExtraMatch = (
   let industryCriterion: ExtraDetail | null = null;
   if (hasIndustryRequirement) {
     const noData = !candidate.industry;
-    const industryMatched =
-      !noData && (candidate.industry === offer.industry || accepted.includes(candidate.industry!));
+    const matchedPrimary = !noData && candidate.industry === offer.industry;
+    const matchedAccepted = !noData && !matchedPrimary && accepted.includes(candidate.industry!);
+    const industryMatched = matchedPrimary || matchedAccepted;
     industryCriterion = {
       field: 'Branża',
       key: 'industry',
@@ -287,6 +290,7 @@ export const calculateExtraMatch = (
       candidateValue: candidate.industry,
       employerValue: offer.industry,
       acceptedValues: accepted,
+      matchSource: matchedPrimary ? 'primary' : matchedAccepted ? 'accepted' : null,
     };
   }
 
