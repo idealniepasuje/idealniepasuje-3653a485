@@ -312,7 +312,7 @@ const CandidateProfile = () => {
               <div key={code} className="flex flex-wrap items-center justify-between gap-2 p-2 rounded-lg border bg-background">
                 <span className="text-sm font-medium">{compTests[code]?.name ?? code}</span>
                 {score != null ? (
-                  <Badge variant="outline">{levelLabels[getLevel(Number(score))]}</Badge>
+                  <Badge variant="outline">{levelLabels[getLevel(Number(score))].label}</Badge>
                 ) : (
                   <span className="text-xs text-muted-foreground">{tr("Test nieukończony", "Test not completed")}</span>
                 )}
@@ -340,7 +340,7 @@ const CandidateProfile = () => {
                   <p className="text-xs text-muted-foreground">{cultureDims[code]?.description}</p>
                 </div>
                 {score != null ? (
-                  <Badge variant="outline">{levelLabels[getLevel(Number(score))]}</Badge>
+                  <Badge variant="outline">{levelLabels[getLevel(Number(score))].label}</Badge>
                 ) : (
                   <span className="text-xs text-muted-foreground">{tr("Test nieukończony", "Test not completed")}</span>
                 )}
