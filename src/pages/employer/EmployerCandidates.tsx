@@ -110,11 +110,14 @@ const EmployerCandidates = () => {
     }
   };
 
+  const isSeen = (status: string) => status !== 'pending';
+
   const filteredMatches = matches.filter((match) => {
     if (filterStatus === 'all') return true;
-    if (filterStatus === 'viewed') return match.status === 'viewed';
-    return match.status !== 'viewed';
+    if (filterStatus === 'viewed') return isSeen(match.status);
+    return !isSeen(match.status);
   });
+
 
   if (authLoading || loading) {
     return (
