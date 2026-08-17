@@ -110,11 +110,14 @@ const EmployerCandidates = () => {
     }
   };
 
+  const isSeen = (status: string) => status !== 'pending';
+
   const filteredMatches = matches.filter((match) => {
     if (filterStatus === 'all') return true;
-    if (filterStatus === 'viewed') return match.status === 'viewed';
-    return match.status !== 'viewed';
+    if (filterStatus === 'viewed') return isSeen(match.status);
+    return !isSeen(match.status);
   });
+
 
   if (authLoading || loading) {
     return (
@@ -177,7 +180,7 @@ const EmployerCandidates = () => {
           <Eye className="w-4 h-4" />
           {t("employer.candidates.filters.viewed")}
           <Badge variant="secondary" className="ml-1 bg-accent-foreground/20 text-accent-foreground">
-            {matches.filter((m) => m.status === 'viewed').length}
+            {matches.filter((m) => isSeen(m.status)).length}
           </Badge>
         </Button>
         <Button
@@ -192,7 +195,7 @@ const EmployerCandidates = () => {
           <EyeOff className="w-4 h-4" />
           {t("employer.candidates.filters.notViewed")}
           <Badge variant="secondary" className="ml-1 bg-accent-foreground/20 text-accent-foreground">
-            {matches.filter((m) => m.status !== 'viewed').length}
+            {matches.filter((m) => !isSeen(m.status)).length}
           </Badge>
         </Button>
       </div>
