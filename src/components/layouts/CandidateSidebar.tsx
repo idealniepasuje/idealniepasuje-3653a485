@@ -17,6 +17,7 @@ import {
 
 const menuItems = [
   { titleKey: "sidebar.start", icon: Home, path: "/candidate/dashboard" },
+  { titleKey: "sidebar.myProfile", icon: UserCircle, path: "/candidate/profile" },
   { titleKey: "sidebar.matches", icon: Trophy, path: "/candidate/matches" },
 ];
 
