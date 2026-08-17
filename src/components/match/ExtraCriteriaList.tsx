@@ -145,14 +145,12 @@ export const ExtraCriteriaList = ({ details, extraStatus, requirementLabelKey = 
 
                 {fieldKey === 'industry' && isMatched && (() => {
                   // Fallback dla starszych rekordów bez `matchSource`
-                  const source =
+                  const source: 'primary' | 'accepted' =
                     d.matchSource ??
                     (d.candidateValue && d.employerValue && d.candidateValue === d.employerValue
                       ? 'primary'
-                      : d.candidateValue && Array.isArray(d.acceptedValues) && d.acceptedValues.includes(d.candidateValue)
-                        ? 'accepted'
-                        : null);
-                  if (!source) return null;
+                      : 'accepted');
+
                   return (
                     <div className="mt-2">
                       <Badge variant="outline" className="text-xs font-normal">
