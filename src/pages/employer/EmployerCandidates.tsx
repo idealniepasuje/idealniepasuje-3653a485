@@ -195,7 +195,7 @@ const EmployerCandidates = () => {
           <EyeOff className="w-4 h-4" />
           {t("employer.candidates.filters.notViewed")}
           <Badge variant="secondary" className="ml-1 bg-accent-foreground/20 text-accent-foreground">
-            {matches.filter((m) => m.status !== 'viewed').length}
+            {matches.filter((m) => !isSeen(m.status)).length}
           </Badge>
         </Button>
       </div>
