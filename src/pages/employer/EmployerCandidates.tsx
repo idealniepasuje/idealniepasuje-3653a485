@@ -220,7 +220,7 @@ const EmployerCandidates = () => {
             <h3 className="text-xl font-semibold mb-3">Brak dopasowanych kandydatów</h3>
             <p className="text-muted-foreground max-w-md mx-auto mb-6">
               {offerId && offerDiagnostics?.emptyIndustries
-                ? "Nie wybrano branż — dopasowania będą liczone bez filtra branży. Kliknij „Odśwież dopasowania", aby przeliczyć."
+                ? "Nie wybrano branż — dopasowania będą liczone bez filtra branży. Kliknij 'Odśwież dopasowania', aby przeliczyć."
                 : "Brak kandydatów spełniających aktualne kryteria. Rozszerz wymagania, aby zobaczyć więcej dopasowań."}
             </p>
             <div className="flex gap-2 justify-center">
