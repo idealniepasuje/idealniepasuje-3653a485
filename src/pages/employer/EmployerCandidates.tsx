@@ -3,7 +3,8 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Users, ArrowLeft, RefreshCw } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Users, ArrowLeft, RefreshCw, Eye, EyeOff } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { logError } from "@/lib/errorLogger";
@@ -11,6 +12,7 @@ import { DashboardLayout } from "@/components/layouts/DashboardLayout";
 import { EmployerSidebar } from "@/components/layouts/EmployerSidebar";
 import { CandidateCard } from "@/components/match/CandidateCard";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 const EmployerCandidates = () => {
   const { user, loading: authLoading } = useAuth();
@@ -19,6 +21,7 @@ const EmployerCandidates = () => {
   const offerId = searchParams.get("offerId");
   const { t } = useTranslation();
   const [matches, setMatches] = useState<any[]>([]);
+  const [filterStatus, setFilterStatus] = useState<'all' | 'viewed' | 'notViewed'>('all');
   const [offerTitle, setOfferTitle] = useState<string>("");
   const [offerDiagnostics, setOfferDiagnostics] = useState<{ emptyIndustries: boolean } | null>(null);
   const [loading, setLoading] = useState(true);
@@ -107,6 +110,12 @@ const EmployerCandidates = () => {
     }
   };
 
+  const filteredMatches = matches.filter((match) => {
+    if (filterStatus === 'all') return true;
+    if (filterStatus === 'viewed') return match.status === 'viewed';
+    return match.status !== 'viewed';
+  });
+
   if (authLoading || loading) {
     return (
       <DashboardLayout sidebar={<EmployerSidebar />}>
@@ -139,30 +148,79 @@ const EmployerCandidates = () => {
         </Button>
       </div>
 
+      {/* Filter chips */}
+      <div className="flex flex-wrap gap-2 mb-6">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setFilterStatus('all')}
+          className={cn(
+            "gap-2 rounded-full",
+            filterStatus === 'all' && "bg-accent text-accent-foreground border-accent"
+          )}
+        >
+          <Users className="w-4 h-4" />
+          {t("employer.candidates.filters.all")}
+          <Badge variant="secondary" className="ml-1 bg-accent-foreground/20 text-accent-foreground">
+            {matches.length}
+          </Badge>
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setFilterStatus('viewed')}
+          className={cn(
+            "gap-2 rounded-full",
+            filterStatus === 'viewed' && "bg-accent text-accent-foreground border-accent"
+          )}
+        >
+          <Eye className="w-4 h-4" />
+          {t("employer.candidates.filters.viewed")}
+          <Badge variant="secondary" className="ml-1 bg-accent-foreground/20 text-accent-foreground">
+            {matches.filter((m) => m.status === 'viewed').length}
+          </Badge>
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setFilterStatus('notViewed')}
+          className={cn(
+            "gap-2 rounded-full",
+            filterStatus === 'notViewed' && "bg-accent text-accent-foreground border-accent"
+          )}
+        >
+          <EyeOff className="w-4 h-4" />
+          {t("employer.candidates.filters.notViewed")}
+          <Badge variant="secondary" className="ml-1 bg-accent-foreground/20 text-accent-foreground">
+            {matches.filter((m) => m.status !== 'viewed').length}
+          </Badge>
+        </Button>
+      </div>
+
       <Card className="mb-8 border-accent/20 bg-accent/5">
         <CardContent className="pt-6">
           <div className="flex items-center gap-4">
             <div className="w-16 h-16 rounded-full bg-accent/20 flex items-center justify-center"><Users className="w-8 h-8 text-accent" /></div>
             <div>
-              <h2 className="text-2xl font-bold">{matches.length}</h2>
+              <h2 className="text-2xl font-bold">{filteredMatches.length}</h2>
               <p className="text-muted-foreground">
-                {matches.length === 0 && t("common.noMatchedCandidates")}
-                {matches.length === 1 && t("common.matchedCandidate")}
-                {matches.length > 1 && t("common.matchedCandidates")}
+                {filteredMatches.length === 0 && t("common.noMatchedCandidates")}
+                {filteredMatches.length === 1 && t("common.matchedCandidate")}
+                {filteredMatches.length > 1 && t("common.matchedCandidates")}
               </p>
             </div>
           </div>
         </CardContent>
       </Card>
 
-      {matches.length === 0 ? (
+      {filteredMatches.length === 0 ? (
         <Card className="border-muted">
           <CardContent className="pt-6 text-center py-16">
             <div className="w-16 h-16 rounded-full bg-accent/20 mx-auto mb-6 flex items-center justify-center opacity-50"><Users className="w-8 h-8 text-accent" /></div>
             <h3 className="text-xl font-semibold mb-3">Brak dopasowanych kandydatów</h3>
             <p className="text-muted-foreground max-w-md mx-auto mb-6">
               {offerId && offerDiagnostics?.emptyIndustries
-                ? "Nie wybrano branż — dopasowania będą liczone bez filtra branży. Kliknij „Odśwież dopasowania”, aby przeliczyć."
+                ? "Nie wybrano branż — dopasowania będą liczone bez filtra branży. Kliknij 'Odśwież dopasowania', aby przeliczyć."
                 : "Brak kandydatów spełniających aktualne kryteria. Rozszerz wymagania, aby zobaczyć więcej dopasowań."}
             </p>
             <div className="flex gap-2 justify-center">
@@ -176,7 +234,7 @@ const EmployerCandidates = () => {
         </Card>
       ) : (
         <div className="grid gap-4">
-          {matches.map((match) => (
+          {filteredMatches.map((match) => (
             <CandidateCard key={match.id} match={match} offerTitle={offerTitle} />
           ))}
         </div>
