@@ -252,34 +252,49 @@ const EmployerDashboard = () => {
               {displayedOffers.map((offer) => {
                 const stats = offerMatchCounts[offer.id] || { count: 0, avgMatch: 0 };
                 return (
-                  <Link key={offer.id} to={`/employer/order/${offer.id}`} className="block">
-                    <div className={`p-4 border rounded-lg hover:shadow-md transition-shadow cursor-pointer ${!offer.is_active ? "opacity-70" : ""}`}>
-                      <div className="flex items-center justify-between">
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-1">
-                            <Briefcase className="w-4 h-4 text-accent shrink-0" />
-                            <h3 className="font-semibold truncate">{offer.title}</h3>
-                            <Badge variant={offer.is_active ? "default" : "secondary"} className={`shrink-0 ${offer.is_active ? "bg-success text-success-foreground" : ""}`}>
-                              {offer.is_active ? t("employer.offers.active") : t("employer.offers.inactive")}
-                            </Badge>
-                          </div>
-                          <div className="flex items-center gap-4 text-xs text-muted-foreground ml-6">
-                            <span className="flex items-center gap-1">
-                              <Calendar className="w-3 h-3" />
-                              {formatDate(offer.created_at)}
-                            </span>
-                            <span className="flex items-center gap-1">
-                              <Users className="w-3 h-3" />
-                              {stats.count} {stats.count === 1 ? t("common.matchedCandidate") : t("common.matchedCandidates")}
-                            </span>
-                          </div>
+                  <div key={offer.id} className={`p-4 border rounded-lg hover:shadow-md transition-shadow ${!offer.is_active ? "opacity-70" : ""}`}>
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                      <Link to={`/employer/order/${offer.id}`} className="flex-1 min-w-0 block">
+                        <div className="flex items-center gap-2 mb-1">
+                          <Briefcase className="w-4 h-4 text-accent shrink-0" />
+                          <h3 className="font-semibold truncate">{offer.title}</h3>
+                          <Badge variant={offer.is_active ? "default" : "secondary"} className={`shrink-0 ${offer.is_active ? "bg-success text-success-foreground" : ""}`}>
+                            {offer.is_active ? t("employer.offers.active") : t("employer.offers.inactive")}
+                          </Badge>
                         </div>
-                        <ChevronRight className="w-5 h-5 text-muted-foreground shrink-0" />
+                        <div className="flex items-center gap-4 text-xs text-muted-foreground ml-6">
+                          <span className="flex items-center gap-1">
+                            <Calendar className="w-3 h-3" />
+                            {formatDate(offer.created_at)}
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <Users className="w-3 h-3" />
+                            {stats.count} {stats.count === 1 ? t("common.matchedCandidate") : t("common.matchedCandidates")}
+                          </span>
+                        </div>
+                      </Link>
+                      <div className="flex items-center gap-2 shrink-0 ml-6 sm:ml-0">
+                        <Link to={`/employer/candidates?offerId=${offer.id}`}>
+                          <Button size="sm" variant="outline" className="gap-1">
+                            <Users className="w-4 h-4" />
+                            {t("employer.dashboard.viewCandidates", "Kandydaci")}
+                          </Button>
+                        </Link>
+                        <Link to={`/employer/offer/${offer.id}`}>
+                          <Button size="sm" variant="outline" className="gap-1">
+                            <Briefcase className="w-4 h-4" />
+                            {t("employer.dashboard.viewOffer", "Oferta")}
+                          </Button>
+                        </Link>
+                        <Link to={`/employer/order/${offer.id}`} aria-label={t("employer.dashboard.viewOrder", "Szczegóły")}>
+                          <ChevronRight className="w-5 h-5 text-muted-foreground" />
+                        </Link>
                       </div>
                     </div>
-                  </Link>
+                  </div>
                 );
               })}
+
               <Link to="/employer/offers" className="block text-center">
                 <Button variant="ghost" size="sm" className="w-full">
                   {t("employer.dashboard.viewMore")}
