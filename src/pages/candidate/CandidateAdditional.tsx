@@ -71,19 +71,36 @@ const CandidateAdditional = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [errors, setErrors] = useState<Record<string, boolean>>({});
+
+  const clearError = (key: string) =>
+    setErrors(prev => (prev[key] ? { ...prev, [key]: false } : prev));
+  const errCls = (key: string) => (errors[key] ? "border-destructive ring-2 ring-destructive/40" : "");
 
   useEffect(() => {
     if (!authLoading && !user) { navigate("/login"); return; }
     if (user) fetchExistingData();
   }, [user, authLoading, navigate]);
 
-  // Deep-link scroll: /candidate/additional#tools focuses tools section after data loaded.
+  // Deep-link scroll: /candidate/additional#tools | #linkedin | #gtk | #workmode
   useEffect(() => {
-    if (!loading && typeof window !== 'undefined' && window.location.hash === '#tools') {
-      setTimeout(() => {
-        document.getElementById('tools-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }, 150);
-    }
+    if (loading || typeof window === 'undefined') return;
+    const map: Record<string, { section: string; focus?: string }> = {
+      '#tools': { section: 'tools-section' },
+      '#linkedin': { section: 'linkedin-section', focus: 'linkedin-url' },
+      '#gtk': { section: 'gtk-section', focus: 'gtk-tasks' },
+      '#workmode': { section: 'workmode-section' },
+      '#phone': { section: 'phone-section', focus: 'phone-input' },
+    };
+    const target = map[window.location.hash];
+    if (!target) return;
+    setTimeout(() => {
+      document.getElementById(target.section)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      if (target.focus) {
+        const el = document.getElementById(target.focus) as HTMLInputElement | null;
+        el?.focus({ preventScroll: true });
+      }
+    }, 150);
   }, [loading]);
 
   const fetchExistingData = async () => {
@@ -238,35 +255,51 @@ const CandidateAdditional = () => {
   const handleSubmit = async () => {
     if (!user) return;
 
-    // Work mode validation
-    if (!workMode) {
-      toast.error(t("candidate.additional.workModeRequired"));
-      return;
-    }
-    if ((workMode === "hybrid" || workMode === "onsite") && !city) {
-      toast.error(t("candidate.additional.cityRequired"));
-      return;
-    }
-    
-    // Experience validation
+    // Collect ALL missing required fields so they can be highlighted at once
+    const nextErrors: Record<string, boolean> = {};
+
+    if (!workMode) nextErrors.workMode = true;
+    if ((workMode === "hybrid" || workMode === "onsite") && !city) nextErrors.city = true;
+
     if (!hasNoExperience) {
       const hasValidExperience = industryExperiences.some(
         exp => exp.industry && exp.years && exp.positionLevel
       );
-      if (!hasValidExperience) {
-        toast.error(t("candidate.additional.fillRequiredFields"));
-        return;
-      }
-    }
-    
-    if (targetIndustries.length === 0) {
-      toast.error(t("candidate.additional.selectAtLeastOneIndustry"));
-      return;
+      industryExperiences.forEach((exp, i) => {
+        const rowTouched = !!(exp.industry || exp.years || exp.positionLevel);
+        if (!hasValidExperience || rowTouched) {
+          if (!exp.industry) nextErrors[`exp-${i}-industry`] = true;
+          if (!exp.positionLevel) nextErrors[`exp-${i}-positionLevel`] = true;
+          if (!exp.years) nextErrors[`exp-${i}-years`] = true;
+        }
+      });
     }
 
-    // LinkedIn validation
-    if (linkedinUrl && !validateLinkedinUrl(linkedinUrl)) {
-      toast.error(t("candidate.additional.linkedinInvalidUrl"));
+    if (targetIndustries.length === 0) nextErrors.targetIndustries = true;
+
+    if (!gtkTasks.trim()) nextErrors.gtkTasks = true;
+    if (!gtkProblems.trim()) nextErrors.gtkProblems = true;
+    if (!gtkMotivation.trim()) nextErrors.gtkMotivation = true;
+    if (!gtkProudOf.trim()) nextErrors.gtkProudOf = true;
+
+    if (linkedinUrl && !validateLinkedinUrl(linkedinUrl)) nextErrors.linkedin = true;
+
+    const errorKeys = Object.keys(nextErrors).filter(k => nextErrors[k]);
+    setErrors(nextErrors);
+
+    if (errorKeys.length > 0) {
+      toast.error(t("candidate.additional.fillRequiredFields"));
+      const firstSection =
+        nextErrors.workMode || nextErrors.city
+          ? "workmode-section"
+          : errorKeys.some(k => k.startsWith("exp-"))
+            ? "experience-section"
+            : nextErrors.targetIndustries
+              ? "target-industries-section"
+              : (nextErrors.gtkTasks || nextErrors.gtkProblems || nextErrors.gtkMotivation || nextErrors.gtkProudOf)
+                ? "gtk-section"
+                : "linkedin-section";
+      document.getElementById(firstSection)?.scrollIntoView({ behavior: "smooth", block: "center" });
       return;
     }
 
@@ -428,9 +461,11 @@ const CandidateAdditional = () => {
             <WorkModeSelector
               workMode={workMode}
               city={city}
-              onWorkModeChange={setWorkMode}
-              onCityChange={setCity}
+              onWorkModeChange={(v) => { setWorkMode(v); clearError("workMode"); }}
+              onCityChange={(v) => { setCity(v); clearError("city"); }}
               required
+              workModeError={errors.workMode}
+              cityError={errors.city}
             />
 
             {/* No experience checkbox */}
@@ -447,7 +482,7 @@ const CandidateAdditional = () => {
 
             {/* Industry experiences */}
             {!hasNoExperience && (
-              <div className="space-y-4">
+              <div className="space-y-4" id="experience-section">
                 <Label>{t("candidate.additional.industryExperienceLabel")} *</Label>
                 
                 {industryExperiences.map((exp, index) => (
@@ -464,9 +499,9 @@ const CandidateAdditional = () => {
                     <div className="grid gap-3">
                       <Select 
                         value={exp.industry} 
-                        onValueChange={(v) => updateIndustryExperience(index, "industry", v)}
+                        onValueChange={(v) => { updateIndustryExperience(index, "industry", v); clearError(`exp-${index}-industry`); }}
                       >
-                        <SelectTrigger>
+                        <SelectTrigger className={errCls(`exp-${index}-industry`)}>
                           <SelectValue placeholder={t("candidate.additional.industryPlaceholder")} />
                         </SelectTrigger>
                         <SelectContent>
@@ -479,9 +514,9 @@ const CandidateAdditional = () => {
                       <div className="grid grid-cols-2 gap-3">
                         <Select 
                           value={exp.positionLevel} 
-                          onValueChange={(v) => updateIndustryExperience(index, "positionLevel", v)}
+                          onValueChange={(v) => { updateIndustryExperience(index, "positionLevel", v); clearError(`exp-${index}-positionLevel`); }}
                         >
-                          <SelectTrigger>
+                          <SelectTrigger className={errCls(`exp-${index}-positionLevel`)}>
                             <SelectValue placeholder={t("candidate.additional.positionLevelPlaceholder")} />
                           </SelectTrigger>
                           <SelectContent>
@@ -493,9 +528,9 @@ const CandidateAdditional = () => {
                         
                         <Select 
                           value={exp.years} 
-                          onValueChange={(v) => updateIndustryExperience(index, "years", v)}
+                          onValueChange={(v) => { updateIndustryExperience(index, "years", v); clearError(`exp-${index}-years`); }}
                         >
-                          <SelectTrigger>
+                          <SelectTrigger className={errCls(`exp-${index}-years`)}>
                             <SelectValue placeholder={t("candidate.additional.experiencePlaceholder")} />
                           </SelectTrigger>
                           <SelectContent>
@@ -523,9 +558,9 @@ const CandidateAdditional = () => {
             )}
 
             {/* Target industries */}
-            <div className="space-y-2">
-              <Label>
-                {t("candidate.additional.searchIndustriesLabel")} ({targetIndustries.length}/3)
+            <div className="space-y-2" id="target-industries-section">
+              <Label className={errors.targetIndustries ? "text-destructive" : ""}>
+                {t("candidate.additional.searchIndustriesLabel")} ({targetIndustries.length}/3) *
               </Label>
               <p className="text-sm text-muted-foreground">
                 {hasNoExperience 
@@ -551,8 +586,8 @@ const CandidateAdditional = () => {
               )}
               
               {targetIndustries.length < 3 && (
-                <Select value="" onValueChange={addTargetIndustry}>
-                  <SelectTrigger>
+                <Select value="" onValueChange={(v) => { addTargetIndustry(v); clearError("targetIndustries"); }}>
+                  <SelectTrigger className={errCls("targetIndustries")}>
                     <SelectValue placeholder={t("candidate.additional.addIndustryPlaceholder")} />
                   </SelectTrigger>
                   <SelectContent>
@@ -583,7 +618,7 @@ const CandidateAdditional = () => {
             </div>
 
             {/* Daj się poznać */}
-            <div className="space-y-4 p-4 rounded-lg border border-accent/20 bg-accent/5">
+            <div id="gtk-section" className="space-y-4 p-4 rounded-lg border border-accent/20 bg-accent/5 scroll-mt-24">
               <div className="flex items-start gap-2">
                 <Sparkles className="w-5 h-5 text-accent mt-0.5 shrink-0" />
                 <div>
@@ -592,20 +627,20 @@ const CandidateAdditional = () => {
                 </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="gtk-tasks">{t("candidate.additional.gettingToKnow.q1Label")}</Label>
-                <Textarea id="gtk-tasks" rows={2} maxLength={1000} placeholder={t("candidate.additional.gettingToKnow.placeholder")} value={gtkTasks} onChange={(e) => setGtkTasks(e.target.value)} />
+                <Label htmlFor="gtk-tasks">{t("candidate.additional.gettingToKnow.q1Label")} *</Label>
+                <Textarea id="gtk-tasks" className={errCls("gtkTasks")} rows={2} maxLength={1000} placeholder={t("candidate.additional.gettingToKnow.placeholder")} value={gtkTasks} onChange={(e) => { setGtkTasks(e.target.value); clearError("gtkTasks"); }} />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="gtk-problems">{t("candidate.additional.gettingToKnow.q2Label")}</Label>
-                <Textarea id="gtk-problems" rows={2} maxLength={1000} placeholder={t("candidate.additional.gettingToKnow.placeholder")} value={gtkProblems} onChange={(e) => setGtkProblems(e.target.value)} />
+                <Label htmlFor="gtk-problems">{t("candidate.additional.gettingToKnow.q2Label")} *</Label>
+                <Textarea id="gtk-problems" className={errCls("gtkProblems")} rows={2} maxLength={1000} placeholder={t("candidate.additional.gettingToKnow.placeholder")} value={gtkProblems} onChange={(e) => { setGtkProblems(e.target.value); clearError("gtkProblems"); }} />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="gtk-motivation">{t("candidate.additional.gettingToKnow.q3Label")}</Label>
-                <Textarea id="gtk-motivation" rows={2} maxLength={1000} placeholder={t("candidate.additional.gettingToKnow.placeholder")} value={gtkMotivation} onChange={(e) => setGtkMotivation(e.target.value)} />
+                <Label htmlFor="gtk-motivation">{t("candidate.additional.gettingToKnow.q3Label")} *</Label>
+                <Textarea id="gtk-motivation" className={errCls("gtkMotivation")} rows={2} maxLength={1000} placeholder={t("candidate.additional.gettingToKnow.placeholder")} value={gtkMotivation} onChange={(e) => { setGtkMotivation(e.target.value); clearError("gtkMotivation"); }} />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="gtk-proud">{t("candidate.additional.gettingToKnow.q4Label")}</Label>
-                <Textarea id="gtk-proud" rows={2} maxLength={1000} placeholder={t("candidate.additional.gettingToKnow.placeholder")} value={gtkProudOf} onChange={(e) => setGtkProudOf(e.target.value)} />
+                <Label htmlFor="gtk-proud">{t("candidate.additional.gettingToKnow.q4Label")} *</Label>
+                <Textarea id="gtk-proud" className={errCls("gtkProudOf")} rows={2} maxLength={1000} placeholder={t("candidate.additional.gettingToKnow.placeholder")} value={gtkProudOf} onChange={(e) => { setGtkProudOf(e.target.value); clearError("gtkProudOf"); }} />
               </div>
               {!(gtkTasks.trim() && gtkProblems.trim() && gtkMotivation.trim() && gtkProudOf.trim()) && (
                 <AttractHint text={t("candidate.additional.attractHint.gtk", "Uzupełnienie wszystkich odpowiedzi zwiększa Twoją atrakcyjność — pracodawca dowie się więcej o Twoich mocnych stronach.")} />
@@ -661,16 +696,18 @@ const CandidateAdditional = () => {
             </div>
 
             {/* LinkedIn */}
-            <div className="space-y-2">
+            <div className="space-y-2 scroll-mt-24" id="linkedin-section">
               <Label className="flex items-center gap-2">
                 <Linkedin className="w-4 h-4" />
                 {t("candidate.additional.linkedinLabel")}
               </Label>
               <Input 
+                id="linkedin-url"
                 type="url"
+                className={errCls("linkedin")}
                 placeholder={t("candidate.additional.linkedinPlaceholder")}
                 value={linkedinUrl}
-                onChange={(e) => setLinkedinUrl(e.target.value)}
+                onChange={(e) => { setLinkedinUrl(e.target.value); clearError("linkedin"); }}
               />
               <p className="text-xs text-muted-foreground">
                 {t("candidate.additional.linkedinHint")}
@@ -684,12 +721,13 @@ const CandidateAdditional = () => {
             </div>
 
             {/* Telefon */}
-            <div className="space-y-2">
+            <div className="space-y-2 scroll-mt-24" id="phone-section">
               <Label className="flex items-center gap-2">
                 <Phone className="w-4 h-4" />
                 {t("candidate.additional.phoneLabel", "Numer telefonu (opcjonalnie)")}
               </Label>
               <Input
+                id="phone-input"
                 type="tel"
                 placeholder="+48 500 600 700"
                 value={phone}
