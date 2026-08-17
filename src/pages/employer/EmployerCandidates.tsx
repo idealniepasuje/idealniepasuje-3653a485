@@ -3,7 +3,8 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Users, ArrowLeft, RefreshCw } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Users, ArrowLeft, RefreshCw, Eye, EyeOff } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { logError } from "@/lib/errorLogger";
@@ -11,6 +12,8 @@ import { DashboardLayout } from "@/components/layouts/DashboardLayout";
 import { EmployerSidebar } from "@/components/layouts/EmployerSidebar";
 import { CandidateCard } from "@/components/match/CandidateCard";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
+
 
 const EmployerCandidates = () => {
   const { user, loading: authLoading } = useAuth();
