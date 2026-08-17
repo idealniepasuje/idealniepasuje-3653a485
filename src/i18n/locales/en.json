@@ -630,7 +630,12 @@
       "searchingTitle": "Searching for ideal candidates",
       "searchingDescription": "We don't have any candidates matching your profile yet. When we find suitable people, they'll appear here.",
       "candidateNumber": "Candidate",
-      "forOrder": "Order"
+      "forOrder": "Order",
+      "filters": {
+        "all": "All",
+        "viewed": "Viewed",
+        "notViewed": "Not viewed"
+      }
     },
     "candidateDetail": {
       "notFound": "Candidate not found",
