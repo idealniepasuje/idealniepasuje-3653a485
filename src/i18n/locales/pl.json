@@ -657,6 +657,8 @@
       "noMatch": "niezgodne",
       "noExpectations": "Brak określonych oczekiwań",
       "acceptedIndustries": "Akceptowane branże",
+      "industrySourcePrimary": "Dopasowanie przez branżę docelową",
+      "industrySourceAccepted": "Dopasowanie przez branżę dodatkową (akceptowaną)",
       "criteriaIndustry": "Branża",
       "criteriaExperience": "Doświadczenie",
       "criteriaPositionLevel": "Poziom stanowiska",

@@ -10,6 +10,7 @@ export interface ExtraDetailItem {
   candidateValue?: string | null;
   employerValue?: string | null;
   acceptedValues?: string[];
+  matchSource?: 'primary' | 'accepted' | null;
 }
 
 interface Props {
@@ -141,6 +142,27 @@ export const ExtraCriteriaList = ({ details, extraStatus, requirementLabelKey = 
                     </span>
                   </div>
                 </div>
+
+                {fieldKey === 'industry' && isMatched && (() => {
+                  // Fallback dla starszych rekordów bez `matchSource`
+                  const source =
+                    d.matchSource ??
+                    (d.candidateValue && d.employerValue && d.candidateValue === d.employerValue
+                      ? 'primary'
+                      : d.candidateValue && Array.isArray(d.acceptedValues) && d.acceptedValues.includes(d.candidateValue)
+                        ? 'accepted'
+                        : null);
+                  if (!source) return null;
+                  return (
+                    <div className="mt-2">
+                      <Badge variant="outline" className="text-xs font-normal">
+                        {source === 'primary'
+                          ? t("employer.candidateDetail.industrySourcePrimary")
+                          : t("employer.candidateDetail.industrySourceAccepted")}
+                      </Badge>
+                    </div>
+                  );
+                })()}
 
                 {fieldKey === 'industry' && Array.isArray(d.acceptedValues) && d.acceptedValues.length > 0 && (
                   <div className="mt-2 text-xs text-muted-foreground">
