@@ -158,7 +158,7 @@ const EmployerCandidates = () => {
           size="sm"
           onClick={() => setFilterStatus('all')}
           className={cn(
-            "gap-2 rounded-full",
+            "gap-2 rounded-full h-auto py-2 w-fit",
             filterStatus === 'all' && "bg-accent text-accent-foreground border-accent"
           )}
         >
@@ -175,7 +175,7 @@ const EmployerCandidates = () => {
           size="sm"
           onClick={() => setFilterStatus('viewed')}
           className={cn(
-            "gap-2 rounded-full h-auto py-2",
+            "gap-2 rounded-full h-auto py-2 w-fit",
             filterStatus === 'viewed' && "bg-accent text-accent-foreground border-accent"
           )}
         >
@@ -192,7 +192,7 @@ const EmployerCandidates = () => {
           size="sm"
           onClick={() => setFilterStatus('notViewed')}
           className={cn(
-            "gap-2 rounded-full h-auto py-2",
+            "gap-2 rounded-full h-auto py-2 w-fit",
             filterStatus === 'notViewed' && "bg-accent text-accent-foreground border-accent"
           )}
         >
