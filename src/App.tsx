@@ -20,6 +20,7 @@ const CandidateAdditional = lazy(() => import("./pages/candidate/CandidateAdditi
 const CandidateMatches = lazy(() => import("./pages/candidate/CandidateMatches"));
 const CandidateEmployerDetail = lazy(() => import("./pages/candidate/CandidateEmployerDetail"));
 const CandidateFeedback = lazy(() => import("./pages/candidate/CandidateFeedback"));
+const CandidateProfile = lazy(() => import("./pages/candidate/CandidateProfile"));
 const EmployerDashboard = lazy(() => import("./pages/employer/EmployerDashboard"));
 const EmployerOffers = lazy(() => import("./pages/employer/EmployerOffers"));
 const EmployerOfferForm = lazy(() => import("./pages/employer/EmployerOfferForm"));
