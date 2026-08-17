@@ -1,6 +1,6 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { Home, Trophy, LogOut, Users } from "lucide-react";
+import { Home, Trophy, LogOut, Users, UserCircle } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import {
   Sidebar,
@@ -17,6 +17,7 @@ import {
 
 const menuItems = [
   { titleKey: "sidebar.start", icon: Home, path: "/candidate/dashboard" },
+  { titleKey: "sidebar.myProfile", icon: UserCircle, path: "/candidate/profile" },
   { titleKey: "sidebar.matches", icon: Trophy, path: "/candidate/matches" },
 ];
 

@@ -1,6 +1,7 @@
 {
   "sidebar": {
     "start": "Start",
+    "myProfile": "My profile",
     "tests": "Tests",
     "matches": "Matches",
     "jobOffers": "Job Offers",
