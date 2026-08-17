@@ -22,10 +22,12 @@ const EmployerCandidates = () => {
   const offerId = searchParams.get("offerId");
   const { t } = useTranslation();
   const [matches, setMatches] = useState<any[]>([]);
+  const [filterStatus, setFilterStatus] = useState<'all' | 'viewed' | 'notViewed'>('all');
   const [offerTitle, setOfferTitle] = useState<string>("");
   const [offerDiagnostics, setOfferDiagnostics] = useState<{ emptyIndustries: boolean } | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+
 
   const handleRefreshMatches = async () => {
     if (!user) return;
