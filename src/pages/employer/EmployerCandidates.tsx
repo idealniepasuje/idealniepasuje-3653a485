@@ -163,40 +163,46 @@ const EmployerCandidates = () => {
           )}
         >
           <Users className="w-4 h-4" />
-          {t("employer.candidates.filters.all")}
-          <Badge variant="secondary" className="ml-1 bg-accent-foreground/20 text-accent-foreground">
-            {matches.length}
-          </Badge>
+          <div className="flex flex-col items-center leading-tight">
+            <span>{t("employer.candidates.filters.all")}</span>
+            <Badge variant="secondary" className="bg-accent-foreground/20 text-accent-foreground text-[10px] py-0 px-1 mt-0.5">
+              {matches.length}
+            </Badge>
+          </div>
         </Button>
         <Button
           variant="outline"
           size="sm"
           onClick={() => setFilterStatus('viewed')}
           className={cn(
-            "gap-2 rounded-full",
+            "gap-2 rounded-full h-auto py-2",
             filterStatus === 'viewed' && "bg-accent text-accent-foreground border-accent"
           )}
         >
           <Eye className="w-4 h-4" />
-          {t("employer.candidates.filters.viewed")}
-          <Badge variant="secondary" className="ml-1 bg-accent-foreground/20 text-accent-foreground">
-            {matches.filter((m) => isSeen(m.status)).length}
-          </Badge>
+          <div className="flex flex-col items-center leading-tight">
+            <span>{t("employer.candidates.filters.viewed")}</span>
+            <Badge variant="secondary" className="bg-accent-foreground/20 text-accent-foreground text-[10px] py-0 px-1 mt-0.5">
+              {matches.filter((m) => isSeen(m.status)).length}
+            </Badge>
+          </div>
         </Button>
         <Button
           variant="outline"
           size="sm"
           onClick={() => setFilterStatus('notViewed')}
           className={cn(
-            "gap-2 rounded-full",
+            "gap-2 rounded-full h-auto py-2",
             filterStatus === 'notViewed' && "bg-accent text-accent-foreground border-accent"
           )}
         >
           <EyeOff className="w-4 h-4" />
-          {t("employer.candidates.filters.notViewed")}
-          <Badge variant="secondary" className="ml-1 bg-accent-foreground/20 text-accent-foreground">
-            {matches.filter((m) => !isSeen(m.status)).length}
-          </Badge>
+          <div className="flex flex-col items-center leading-tight">
+            <span>{t("employer.candidates.filters.notViewed")}</span>
+            <Badge variant="secondary" className="bg-accent-foreground/20 text-accent-foreground text-[10px] py-0 px-1 mt-0.5">
+              {matches.filter((m) => !isSeen(m.status)).length}
+            </Badge>
+          </div>
         </Button>
       </div>
 

@@ -632,9 +632,9 @@
       "candidateNumber": "Kandydat",
       "forOrder": "Zlecenie",
       "filters": {
-        "all": "Wszystkie",
-        "viewed": "Obejrzane",
-        "notViewed": "Nieobejrzane"
+      "all": "Wszyscy",
+      "viewed": "Obejrzani",
+      "notViewed": "Nieobejrzani"
       }
     },
     "candidateDetail": {
