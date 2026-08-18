@@ -125,7 +125,14 @@ const EmployerCandidateDetail = () => {
         content: msg,
         metadata: { field: 'languages' },
       });
-      if (insertErr) throw insertErr;
+      if (insertErr) {
+        // Unique index guards against duplicate requests of the same kind for this match.
+        if ((insertErr as any).code === '23505') {
+          toast.info(t("employer.candidateDetail.contact.requestAlreadySent", "Prośba została już wysłana"));
+          return;
+        }
+        throw insertErr;
+      }
       const sent = await notifyByEmail('EmployerCandidateDetail.requestLanguages.email', msg);
       requestToast(sent, "employer.candidateDetail.contact.completionRequested");
     } catch (e) {
@@ -135,6 +142,7 @@ const EmployerCandidateDetail = () => {
       setRequestingLanguages(false);
     }
   };
+
 
   const requestLinkedin = async () => {
     if (!match || !user || !candidateId || requestingLinkedin) return;
@@ -154,7 +162,14 @@ const EmployerCandidateDetail = () => {
         content: msg,
         metadata: {},
       });
-      if (insertErr) throw insertErr;
+      if (insertErr) {
+        if ((insertErr as any).code === '23505') {
+          toast.info(t("employer.candidateDetail.contact.requestAlreadySent", "Prośba została już wysłana"));
+          return;
+        }
+        throw insertErr;
+      }
+
       const stamp = new Date().toISOString();
       const { error: updErr } = await supabase.from('match_results').update({ linkedin_requested_at: stamp }).eq('id', match.id);
       if (updErr) throw updErr;
@@ -186,7 +201,14 @@ const EmployerCandidateDetail = () => {
         content: msg,
         metadata: {},
       });
-      if (insertErr) throw insertErr;
+      if (insertErr) {
+        if ((insertErr as any).code === '23505') {
+          toast.info(t("employer.candidateDetail.contact.requestAlreadySent", "Prośba została już wysłana"));
+          return;
+        }
+        throw insertErr;
+      }
+
       const stamp = new Date().toISOString();
       const { error: updErr } = await supabase.from('match_results').update({ profile_completion_requested_at: stamp }).eq('id', match.id);
       if (updErr) throw updErr;

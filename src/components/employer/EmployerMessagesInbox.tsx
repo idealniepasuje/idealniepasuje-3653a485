@@ -35,7 +35,9 @@ export const EmployerMessagesInbox = () => {
   const [loading, setLoading] = useState(true);
   const [contacts, setContacts] = useState<Record<string, Contact>>({});
   const [replyingId, setReplyingId] = useState<string | null>(null);
-  const [replyText, setReplyText] = useState("");
+  // Draft per message id — a draft must never leak between different responses.
+  const [drafts, setDrafts] = useState<Record<string, string>>({});
+
   const [sending, setSending] = useState(false);
 
   useEffect(() => {
@@ -46,13 +48,14 @@ export const EmployerMessagesInbox = () => {
 
   const fetchMessages = async () => {
     try {
+      // Full history (read + unread), newest first.
       const { data, error } = await supabase
         .from("candidate_messages")
         .select("*")
         .eq("employer_user_id", user!.id)
         .eq("type", "interview_response")
-        .is("employer_read_at", null)
-        .order("created_at", { ascending: false });
+        .order("created_at", { ascending: false })
+        .limit(50);
       if (error) throw error;
       const rows = (data || []) as unknown as EmployerMessage[];
       setMessages(rows);
@@ -79,29 +82,36 @@ export const EmployerMessagesInbox = () => {
   };
 
   const markRead = async (id: string) => {
+    const stamp = new Date().toISOString();
     const { error } = await supabase
       .from("candidate_messages")
-      .update({ employer_read_at: new Date().toISOString() } as any)
+      .update({ employer_read_at: stamp } as any)
       .eq("id", id);
     if (error) {
       logError("EmployerMessagesInbox.markRead", error);
       toast.error(t("errors.genericError"));
       return;
     }
-    setMessages((prev) => prev.filter((m) => m.id !== id));
+    setMessages((prev) => prev.map((m) => (m.id === id ? { ...m, employer_read_at: stamp } : m)));
   };
 
+
   const sendReply = async (msg: EmployerMessage) => {
-    if (!replyText.trim() || !msg.match_result_id) return;
+    const draft = (drafts[msg.id] || "").trim();
+    if (!draft || !msg.match_result_id) return;
     setSending(true);
     try {
       const { error } = await supabase.functions.invoke("send-employer-reply", {
-        body: { match_result_id: msg.match_result_id, message: replyText.trim() },
+        body: { match_result_id: msg.match_result_id, message: draft },
       });
       if (error) throw error;
       toast.success(t("employer.inbox.replySent", "Wiadomość została wysłana do kandydata"));
       setReplyingId(null);
-      setReplyText("");
+      setDrafts((prev) => {
+        const next = { ...prev };
+        delete next[msg.id];
+        return next;
+      });
       await markRead(msg.id);
     } catch (e) {
       logError("EmployerMessagesInbox.sendReply", e);
@@ -113,13 +123,15 @@ export const EmployerMessagesInbox = () => {
 
   if (loading || messages.length === 0) return null;
 
+  const unreadCount = messages.filter((m) => !m.employer_read_at).length;
+
   return (
     <Card className="mb-6 border-accent/30">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Mail className="w-5 h-5 text-accent" />
           {t("employer.inbox.title", "Odpowiedzi kandydatów")}
-          <Badge className="bg-accent text-accent-foreground">{messages.length}</Badge>
+          {unreadCount > 0 && <Badge className="bg-accent text-accent-foreground">{unreadCount}</Badge>}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
@@ -136,7 +148,11 @@ export const EmployerMessagesInbox = () => {
           const contact = contacts[msg.candidate_user_id];
 
           return (
-            <div key={msg.id} className="p-4 rounded-lg border bg-accent/5 border-accent/30">
+            <div
+              key={msg.id}
+              className={`p-4 rounded-lg border ${msg.employer_read_at ? "bg-muted/30" : "bg-accent/5 border-accent/30"}`}
+            >
+
               <div className="flex items-start gap-3">
                 <div className="w-8 h-8 rounded-full bg-accent/20 flex items-center justify-center shrink-0">
                   <Icon className={`w-4 h-4 ${declined ? "text-destructive" : "text-accent"}`} />
@@ -171,19 +187,20 @@ export const EmployerMessagesInbox = () => {
                     <div className="w-full space-y-2 mt-3">
                       <Textarea
                         placeholder={t("employer.inbox.replyPlaceholder", "Napisz wiadomość do kandydata...")}
-                        value={replyText}
-                        onChange={(e) => setReplyText(e.target.value)}
+                        value={drafts[msg.id] ?? ""}
+                        onChange={(e) => setDrafts((prev) => ({ ...prev, [msg.id]: e.target.value }))}
                         rows={3}
                         className="text-sm"
                       />
                       <div className="flex gap-2 flex-wrap">
-                        <Button size="sm" disabled={sending || !replyText.trim()} onClick={() => sendReply(msg)}>
+                        <Button size="sm" disabled={sending || !(drafts[msg.id] ?? "").trim()} onClick={() => sendReply(msg)}>
                           <MessageSquare className="w-3 h-3 mr-1" />
                           {t("employer.inbox.sendReply", "Wyślij wiadomość")}
                         </Button>
-                        <Button size="sm" variant="ghost" onClick={() => { setReplyingId(null); setReplyText(""); }}>
+                        <Button size="sm" variant="ghost" onClick={() => { setReplyingId(null); setDrafts((prev) => ({ ...prev, [msg.id]: "" })); }}>
                           {t("common.cancel", "Anuluj")}
                         </Button>
+
                       </div>
                     </div>
                   ) : (
@@ -202,9 +219,12 @@ export const EmployerMessagesInbox = () => {
                           {t("employer.inbox.openCandidate", "Zobacz profil kandydata")}
                         </Button>
                       </Link>
-                      <Button size="sm" variant="ghost" onClick={() => markRead(msg.id)}>
-                        {t("employer.inbox.markAsRead", "Oznacz jako przeczytane")}
-                      </Button>
+                      {!msg.employer_read_at && (
+                        <Button size="sm" variant="ghost" onClick={() => markRead(msg.id)}>
+                          {t("employer.inbox.markAsRead", "Oznacz jako przeczytane")}
+                        </Button>
+                      )}
+
                     </div>
                   )}
                 </div>

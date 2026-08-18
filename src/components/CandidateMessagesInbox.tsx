@@ -37,7 +37,8 @@ export const CandidateMessagesInbox = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(true);
   const [replyingId, setReplyingId] = useState<string | null>(null);
-  const [replyText, setReplyText] = useState("");
+  // Draft per message id — a draft must never leak between different invitations.
+  const [drafts, setDrafts] = useState<Record<string, string>>({});
   const [sendingResponse, setSendingResponse] = useState(false);
 
   useEffect(() => {
@@ -48,13 +49,14 @@ export const CandidateMessagesInbox = () => {
 
   const fetchMessages = async () => {
     try {
+      // Full history (read + unread), newest first.
       const { data, error } = await supabase
         .from('candidate_messages')
         .select('*')
         .eq('candidate_user_id', user!.id)
         .neq('type', 'interview_response')
-        .is('read_at', null)
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false })
+        .limit(50);
       if (error) throw error;
       setMessages((data || []) as Message[]);
     } catch (e) {
@@ -66,13 +68,14 @@ export const CandidateMessagesInbox = () => {
 
   const submitResponse = async (msg: Message, response: 'accepted' | 'declined' | 'reply') => {
     if (!user) return;
+    const draft = (drafts[msg.id] || "").trim();
     setSendingResponse(true);
     try {
       const { data, error } = await supabase.functions.invoke('send-interview-response', {
         body: {
           match_result_id: msg.match_result_id,
           response,
-          message: response === 'reply' ? replyText.trim() : undefined,
+          message: response === 'reply' ? draft : undefined,
         },
       });
       if (error) throw error;
@@ -88,7 +91,11 @@ export const CandidateMessagesInbox = () => {
         toast.success(t("candidate.inbox.responseSent", "Odpowiedź została wysłana do pracodawcy"));
       }
       setReplyingId(null);
-      setReplyText("");
+      setDrafts((prev) => {
+        const next = { ...prev };
+        delete next[msg.id];
+        return next;
+      });
       await fetchMessages();
     } catch (e) {
       logError('CandidateMessagesInbox.submitResponse', e);
@@ -100,9 +107,16 @@ export const CandidateMessagesInbox = () => {
 
 
   const markRead = async (id: string) => {
-    await supabase.from('candidate_messages').update({ read_at: new Date().toISOString() }).eq('id', id);
-    setMessages((prev) => prev.filter((m) => m.id !== id));
+    const stamp = new Date().toISOString();
+    const { error } = await supabase.from('candidate_messages').update({ read_at: stamp }).eq('id', id);
+    if (error) {
+      logError('CandidateMessagesInbox.markRead', error);
+      toast.error(t("errors.genericError"));
+      return;
+    }
+    setMessages((prev) => prev.map((m) => (m.id === id ? { ...m, read_at: stamp } : m)));
   };
+
 
   if (loading || messages.length === 0) return null;
 
@@ -147,8 +161,8 @@ export const CandidateMessagesInbox = () => {
                           <div className="w-full space-y-2">
                             <Textarea
                               placeholder={t("candidate.inbox.replyPlaceholder", "Napisz wiadomość do pracodawcy...")}
-                              value={replyText}
-                              onChange={(e) => setReplyText(e.target.value)}
+                              value={drafts[msg.id] ?? ""}
+                              onChange={(e) => setDrafts((prev) => ({ ...prev, [msg.id]: e.target.value }))}
                               rows={3}
                               className="text-sm"
                             />
@@ -156,15 +170,16 @@ export const CandidateMessagesInbox = () => {
                               <Button
                                 size="sm"
                                 variant="outline"
-                                disabled={sendingResponse || !replyText.trim()}
+                                disabled={sendingResponse || !(drafts[msg.id] ?? "").trim()}
                                 onClick={() => submitResponse(msg, 'reply')}
                               >
                                 <MessageSquare className="w-3 h-3 mr-1" />
                                 {t("candidate.inbox.sendReply", "Wyślij odpowiedź")}
                               </Button>
-                              <Button size="sm" variant="ghost" onClick={() => { setReplyingId(null); setReplyText(""); }}>
+                              <Button size="sm" variant="ghost" onClick={() => { setReplyingId(null); setDrafts((prev) => ({ ...prev, [msg.id]: "" })); }}>
                                 {t("common.cancel", "Anuluj")}
                               </Button>
+
                             </div>
                           </div>
                         ) : (
