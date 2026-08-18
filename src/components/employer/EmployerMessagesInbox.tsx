@@ -37,6 +37,7 @@ export const EmployerMessagesInbox = () => {
   const [replyingId, setReplyingId] = useState<string | null>(null);
   // Draft per message id — a draft must never leak between different responses.
   const [drafts, setDrafts] = useState<Record<string, string>>({});
+  const [requestIds, setRequestIds] = useState<Record<string, string>>({});
 
   const [sending, setSending] = useState(false);
 
@@ -99,15 +100,43 @@ export const EmployerMessagesInbox = () => {
   const sendReply = async (msg: EmployerMessage) => {
     const draft = (drafts[msg.id] || "").trim();
     if (!draft || !msg.match_result_id) return;
+    // Stable idempotency key per reply attempt (kept across retries of the same draft)
+    let requestId = requestIds[msg.id];
+    if (!requestId) {
+      requestId = crypto.randomUUID();
+      setRequestIds((prev) => ({ ...prev, [msg.id]: requestId! }));
+    }
     setSending(true);
     try {
-      const { error } = await supabase.functions.invoke("send-employer-reply", {
-        body: { match_result_id: msg.match_result_id, message: draft },
+      const { data, error } = await supabase.functions.invoke("send-employer-reply", {
+        body: {
+          match_result_id: msg.match_result_id,
+          message: draft,
+          client_request_id: requestId,
+          in_reply_to_message_id: msg.id,
+        },
       });
       if (error) throw error;
-      toast.success(t("employer.inbox.replySent", "Wiadomość została wysłana do kandydata"));
+
+      const partial = data && data.saved === true && data.email_sent === false;
+      if (partial) {
+        toast.warning(
+          t(
+            "employer.inbox.replySavedEmailFailed",
+            "Wiadomość została zapisana, ale nie udało się wysłać e-maila do kandydata.",
+          ),
+        );
+      } else {
+        toast.success(t("employer.inbox.replySent", "Wiadomość została wysłana do kandydata"));
+      }
+
       setReplyingId(null);
       setDrafts((prev) => {
+        const next = { ...prev };
+        delete next[msg.id];
+        return next;
+      });
+      setRequestIds((prev) => {
         const next = { ...prev };
         delete next[msg.id];
         return next;
