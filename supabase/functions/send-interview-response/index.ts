@@ -103,25 +103,59 @@ const handler = async (req: Request): Promise<Response> => {
     const label = responseLabel(response);
     const dashboardLink = "https://idealniepasuje.lovable.app/employer/candidates";
 
-    // Idempotent save: one interview_response per (match_result_id, candidate_user_id).
-    const { error: upsertErr } = await admin
+    // Idempotent save: exactly one interview_response per (match_result_id, candidate_user_id).
+    const payload = {
+      content: message || label,
+      metadata: { response, interview_type: match.interview_type, interview_calendar_link: match.interview_calendar_link },
+      employer_read_at: null,
+    };
+    const { data: existing, error: existingErr } = await admin
       .from("candidate_messages")
-      .upsert({
-        match_result_id: match.id,
-        candidate_user_id: callerId,
-        employer_user_id: match.employer_user_id,
-        type: "interview_response",
-        content: message || label,
-        metadata: { response, interview_type: match.interview_type, interview_calendar_link: match.interview_calendar_link },
-        employer_read_at: null,
-        created_at: new Date().toISOString(),
-      }, { onConflict: "match_result_id,candidate_user_id" });
-    if (upsertErr) {
-      console.error("send-interview-response upsert error:", upsertErr);
+      .select("id")
+      .eq("match_result_id", match.id)
+      .eq("candidate_user_id", callerId)
+      .eq("type", "interview_response")
+      .maybeSingle();
+    if (existingErr) {
+      console.error("send-interview-response lookup error:", existingErr);
       return new Response(JSON.stringify({ error: "Could not save response" }), {
         status: 500, headers: { "Content-Type": "application/json", ...corsHeaders },
       });
     }
+
+    let saveErr: unknown = null;
+    if (existing) {
+      const { error } = await admin.from("candidate_messages").update(payload).eq("id", existing.id);
+      saveErr = error;
+    } else {
+      const { error } = await admin.from("candidate_messages").insert({
+        match_result_id: match.id,
+        candidate_user_id: callerId,
+        employer_user_id: match.employer_user_id,
+        type: "interview_response",
+        ...payload,
+      });
+      // Race: another concurrent call inserted first — fall back to update (idempotent).
+      if (error && (error as any).code === "23505") {
+        const { data: raced } = await admin
+          .from("candidate_messages").select("id")
+          .eq("match_result_id", match.id).eq("candidate_user_id", callerId)
+          .eq("type", "interview_response").maybeSingle();
+        if (raced) {
+          const { error: updErr } = await admin.from("candidate_messages").update(payload).eq("id", raced.id);
+          saveErr = updErr;
+        } else saveErr = error;
+      } else {
+        saveErr = error;
+      }
+    }
+    if (saveErr) {
+      console.error("send-interview-response save error:", saveErr);
+      return new Response(JSON.stringify({ error: "Could not save response" }), {
+        status: 500, headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
+    }
+
 
     // Only the invitation tied to THIS match is marked as read.
     const { error: markErr } = await admin
