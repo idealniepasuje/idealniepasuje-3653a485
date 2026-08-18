@@ -187,19 +187,20 @@ export const EmployerMessagesInbox = () => {
                     <div className="w-full space-y-2 mt-3">
                       <Textarea
                         placeholder={t("employer.inbox.replyPlaceholder", "Napisz wiadomość do kandydata...")}
-                        value={replyText}
-                        onChange={(e) => setReplyText(e.target.value)}
+                        value={drafts[msg.id] ?? ""}
+                        onChange={(e) => setDrafts((prev) => ({ ...prev, [msg.id]: e.target.value }))}
                         rows={3}
                         className="text-sm"
                       />
                       <div className="flex gap-2 flex-wrap">
-                        <Button size="sm" disabled={sending || !replyText.trim()} onClick={() => sendReply(msg)}>
+                        <Button size="sm" disabled={sending || !(drafts[msg.id] ?? "").trim()} onClick={() => sendReply(msg)}>
                           <MessageSquare className="w-3 h-3 mr-1" />
                           {t("employer.inbox.sendReply", "Wyślij wiadomość")}
                         </Button>
-                        <Button size="sm" variant="ghost" onClick={() => { setReplyingId(null); setReplyText(""); }}>
+                        <Button size="sm" variant="ghost" onClick={() => { setReplyingId(null); setDrafts((prev) => ({ ...prev, [msg.id]: "" })); }}>
                           {t("common.cancel", "Anuluj")}
                         </Button>
+
                       </div>
                     </div>
                   ) : (
