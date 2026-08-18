@@ -162,7 +162,14 @@ const EmployerCandidateDetail = () => {
         content: msg,
         metadata: {},
       });
-      if (insertErr) throw insertErr;
+      if (insertErr) {
+        if ((insertErr as any).code === '23505') {
+          toast.info(t("employer.candidateDetail.contact.requestAlreadySent", "Prośba została już wysłana"));
+          return;
+        }
+        throw insertErr;
+      }
+
       const stamp = new Date().toISOString();
       const { error: updErr } = await supabase.from('match_results').update({ linkedin_requested_at: stamp }).eq('id', match.id);
       if (updErr) throw updErr;
