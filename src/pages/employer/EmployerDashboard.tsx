@@ -12,6 +12,7 @@ import { logError } from "@/lib/errorLogger";
 import { DashboardLayout } from "@/components/layouts/DashboardLayout";
 import { EmployerSidebar } from "@/components/layouts/EmployerSidebar";
 import { FeedbackModal } from "@/components/FeedbackModal";
+import { EmployerMessagesInbox } from "@/components/employer/EmployerMessagesInbox";
 
 const EmployerDashboard = () => {
   const { user, loading: authLoading } = useAuth();
