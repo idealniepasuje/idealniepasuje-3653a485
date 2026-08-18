@@ -219,9 +219,12 @@ export const EmployerMessagesInbox = () => {
                           {t("employer.inbox.openCandidate", "Zobacz profil kandydata")}
                         </Button>
                       </Link>
-                      <Button size="sm" variant="ghost" onClick={() => markRead(msg.id)}>
-                        {t("employer.inbox.markAsRead", "Oznacz jako przeczytane")}
-                      </Button>
+                      {!msg.employer_read_at && (
+                        <Button size="sm" variant="ghost" onClick={() => markRead(msg.id)}>
+                          {t("employer.inbox.markAsRead", "Oznacz jako przeczytane")}
+                        </Button>
+                      )}
+
                     </div>
                   )}
                 </div>
