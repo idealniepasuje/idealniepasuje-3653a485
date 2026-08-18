@@ -41,9 +41,9 @@ export const CandidateToolsDisplay = ({ candidateTools, requiredTools = [] }: Pr
     if (cand && !req) return { tone: "extra" as const, text: lang === "pl" ? "Dodatkowe" : "Extra" };
     if (cand && req) {
       if (toolLevelOrder[cand] >= toolLevelOrder[req]) {
-        return { tone: "match" as const, text: lang === "pl" ? "Spełnia wymóg" : "Meets requirement" };
+        return { tone: "match" as const, text: lang === "pl" ? "Zgodne z preferencją" : "Matches preference" };
       }
-      return { tone: "below" as const, text: lang === "pl" ? "Poniżej wymogu" : "Below requirement" };
+      return { tone: "below" as const, text: lang === "pl" ? "Poniżej preferowanego poziomu" : "Below preferred level" };
     }
     return null;
   };
@@ -89,7 +89,7 @@ export const CandidateToolsDisplay = ({ candidateTools, requiredTools = [] }: Pr
                     <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
                       {req && (
                         <span>
-                          {lang === "pl" ? "Wymagany" : "Required"}: <strong className="text-foreground">{toolLevelLabels[lang][req]}</strong>
+                          {lang === "pl" ? "Preferowany" : "Preferred"}: <strong className="text-foreground">{toolLevelLabels[lang][req]}</strong>
                         </span>
                       )}
                       {cand && (
