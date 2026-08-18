@@ -143,6 +143,7 @@ Deno.serve(async (req) => {
     );
 
     const matches: any[] = [];
+    const newReliableMatches: any[] = [];
     const skippedOffers: { job_offer_id: string; title: string; reason: string }[] = [];
 
     for (const offer of jobOffers) {
@@ -219,7 +220,7 @@ Deno.serve(async (req) => {
       if (upsertError) {
         console.error(`Failed to upsert match for offer ${offer.id}:`, upsertError);
       } else {
-        matches.push({
+        const entry = {
           employer_user_id: offer.user_id,
           job_offer_id: offer.id,
           job_offer_title: offer.title,
@@ -232,21 +233,31 @@ Deno.serve(async (req) => {
           industry: offer.industry,
           position_level: offer.position_level,
           company_name: employerProfile.company_name,
-        });
+        };
+        matches.push(entry);
+
+        const isNew = !existingMatch;
+        const isReliable =
+          outcome.reliable !== false &&
+          outcome.matchStatus !== 'low_confidence' &&
+          outcome.matchStatus !== 'insufficient_data';
+        if (isNew && isReliable) {
+          newReliableMatches.push(entry);
+        }
       }
     }
 
     // Send email notifications to candidate
-    if (matches.length > 0) {
+    if (newReliableMatches.length > 0) {
       // Get candidate email
       const { data: candidateAuth } = await supabase.auth.admin.getUserById(candidate_user_id);
       const candidateEmail = candidateAuth?.user?.email;
 
       if (candidateEmail) {
         // Send notification for the best match
-        const bestMatch = matches.reduce((best, current) => 
+        const bestMatch = newReliableMatches.reduce((best, current) =>
           current.overall_percent > best.overall_percent ? current : best
-        , matches[0]);
+        , newReliableMatches[0]);
         
         try {
           const notificationResponse = await fetch(
@@ -284,7 +295,7 @@ Deno.serve(async (req) => {
           console.error(`Error sending candidate notification:`, emailError);
         }
       }
-    } else {
+    } else if (matches.length === 0) {
       // No matches found - send no-match email
       try {
         const { data: candidateAuth } = await supabase.auth.admin.getUserById(candidate_user_id);
@@ -323,6 +334,7 @@ Deno.serve(async (req) => {
     return new Response(JSON.stringify({ 
       success: true, 
       matches_count: matches.length,
+      new_reliable_matches: newReliableMatches.length,
       skipped_offers: skippedOffers,
       matches 
 
