@@ -90,6 +90,20 @@ export const ContactCandidateModal = ({
       }).eq('id', match.id);
       if (updateErr) throw updateErr;
 
+      try {
+        await supabase.functions.invoke('send-interview-invite', {
+          body: {
+            candidate_user_id: candidateUserId,
+            employer_company_name: companyName,
+            message: interviewMsg,
+            interview_type: interviewType,
+            calendar_link: calendarLink || null,
+          },
+        });
+      } catch (mailErr) {
+        logError('ContactCandidateModal.interview.email', mailErr);
+      }
+
       toast.success(t("employer.candidateDetail.contact.inviteSent"));
       onUpdated();
       onOpenChange(false);
