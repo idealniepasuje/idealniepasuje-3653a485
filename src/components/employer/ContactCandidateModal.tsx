@@ -144,7 +144,15 @@ export const ContactCandidateModal = ({
         content: msg,
         metadata: { request: 'contact' },
       });
-      if (insertErr) throw insertErr;
+      if (insertErr) {
+        // Unique index guards against duplicate requests of the same kind for this match.
+        if ((insertErr as any).code === '23505') {
+          toast.info(t("employer.candidateDetail.contact.requestAlreadySent", "Prośba została już wysłana"));
+          return;
+        }
+        throw insertErr;
+      }
+
 
       let emailSent = false;
       try {
