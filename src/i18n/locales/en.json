@@ -498,7 +498,7 @@
       "cityRequired": "Please provide a location (city)",
       "languages": {
         "title": "Language proficiency",
-        "required": "Set a CEFR level for each of the four languages. If you do not know a language, pick "None".",
+        "required": "Set a CEFR level for each of the four languages. If you do not know a language, pick \"None\".",
         "placeholder": "Select level"
       },
       "tools": {
