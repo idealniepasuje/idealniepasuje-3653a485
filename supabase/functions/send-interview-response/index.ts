@@ -80,6 +80,15 @@ const handler = async (req: Request): Promise<Response> => {
       });
     }
 
+    // Mark the original interview invitation as read so it disappears from the candidate inbox.
+    await admin
+      .from("candidate_messages")
+      .update({ read_at: new Date().toISOString() })
+      .eq("candidate_user_id", callerId)
+      .eq("employer_user_id", match.employer_user_id)
+      .eq("type", "interview_invite")
+      .is("read_at", null);
+
     const { data: employerProfile } = await admin
       .from("employer_profiles")
       .select("user_id, company_name, contact_email, contact_phone")

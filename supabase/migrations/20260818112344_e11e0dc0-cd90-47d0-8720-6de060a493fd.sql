@@ -1,0 +1,1 @@
+DELETE FROM public.candidate_messages WHERE type = 'interview_response' AND match_result_id = 'fb7fe51a-8ce5-4ebc-be49-2fcea9a995a1' AND candidate_user_id = 'df595569-6bc2-444b-b2d2-649c739a3092';
