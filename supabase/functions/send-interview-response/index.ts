@@ -127,11 +127,18 @@ const handler = async (req: Request): Promise<Response> => {
       },
     });
 
+    const plainText = [
+      `Odpowiedz kandydata: ${candidateName}`,
+      `Status: ${label}`,
+      (message || "").trim() ? `Wiadomosc: ${(message || "").trim()}` : "",
+      `Panel: ${dashboardLink}`,
+    ].filter(Boolean).join("\n");
+
     await client.send({
       from: "idealniepasuje <idealnyserwisrekrutacyjny@gmail.com>",
       to: employerEmail,
-      subject: `${candidateName} ${label.toLowerCase()} — zaproszenie ${companyName}`,
-      content: "auto",
+      subject: `${candidateName}: ${label} (zaproszenie ${companyName})`,
+      content: plainText,
       html: emailHtml,
     });
     await client.close();
