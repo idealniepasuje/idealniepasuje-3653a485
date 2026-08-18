@@ -40,9 +40,15 @@ serve(async (req: Request): Promise<Response> => {
       });
     }
 
-    const { match_result_id, message } = await req.json();
+    const { match_result_id, message, client_request_id, in_reply_to_message_id } = await req.json();
     if (!match_result_id || !message || !String(message).trim()) {
       throw new Error("Missing match_result_id or message");
+    }
+    const requestKey = String(client_request_id || in_reply_to_message_id || "").trim();
+    if (!requestKey) {
+      return new Response(JSON.stringify({ error: "Missing client_request_id" }), {
+        status: 400, headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
     }
 
     const gmailAppPassword = Deno.env.get("GMAIL_APP_PASSWORD");
@@ -87,15 +93,32 @@ serve(async (req: Request): Promise<Response> => {
 
     const text = String(message).trim();
 
-    const { error: insertErr } = await admin.from("candidate_messages").insert({
-      match_result_id: match.id,
-      candidate_user_id: match.candidate_user_id,
-      employer_user_id: callerId,
-      type: "employer_reply",
-      content: text,
-      metadata: { company_name: companyName, employer_email: employerEmail },
-    });
-    if (insertErr) throw insertErr;
+    // Idempotent save: one persisted reply per client_request_id
+    const { data: existingReply } = await admin
+      .from("candidate_messages")
+      .select("id")
+      .eq("match_result_id", match.id)
+      .eq("type", "employer_reply")
+      .eq("metadata->>client_request_id", requestKey)
+      .maybeSingle();
+
+    if (!existingReply) {
+      const { error: insertErr } = await admin.from("candidate_messages").insert({
+        match_result_id: match.id,
+        candidate_user_id: match.candidate_user_id,
+        employer_user_id: callerId,
+        type: "employer_reply",
+        content: text,
+        metadata: {
+          company_name: companyName,
+          employer_email: employerEmail,
+          client_request_id: requestKey,
+          in_reply_to_message_id: in_reply_to_message_id ?? null,
+        },
+      });
+      // 23505 = duplicate from a concurrent retry -> treat as already saved
+      if (insertErr && (insertErr as any).code !== "23505") throw insertErr;
+    }
 
     const safeMessage = escapeHtml(text).replace(/\r?\n/g, "<br>");
     const dashboardLink = "https://idealniepasuje.lovable.app/candidate/dashboard";
@@ -121,17 +144,26 @@ serve(async (req: Request): Promise<Response> => {
       },
     });
 
-    await client.send({
-      from: "idealniepasuje <idealnyserwisrekrutacyjny@gmail.com>",
-      to: candidateEmail,
-      replyTo: employerEmail || undefined,
-      subject: `Wiadomosc od ${companyName}`,
-      content: plainText,
-      html: emailHtml,
-    });
-    await client.close();
+    try {
+      await client.send({
+        from: "idealniepasuje <idealnyserwisrekrutacyjny@gmail.com>",
+        to: candidateEmail,
+        replyTo: employerEmail || undefined,
+        subject: `Wiadomosc od ${companyName}`,
+        content: plainText,
+        html: emailHtml,
+      });
+      await client.close();
+    } catch (smtpError) {
+      console.error("send-employer-reply SMTP error:", smtpError);
+      try { await client.close(); } catch (_) { /* ignore */ }
+      return new Response(
+        JSON.stringify({ success: false, saved: true, email_sent: false }),
+        { status: 207, headers: { "Content-Type": "application/json", ...corsHeaders } },
+      );
+    }
 
-    return new Response(JSON.stringify({ success: true }), {
+    return new Response(JSON.stringify({ success: true, saved: true, email_sent: true }), {
       status: 200, headers: { "Content-Type": "application/json", ...corsHeaders },
     });
   } catch (e) {
