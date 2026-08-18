@@ -282,6 +282,13 @@ const CandidateAdditional = () => {
     if (!gtkMotivation.trim()) nextErrors.gtkMotivation = true;
     if (!gtkProudOf.trim()) nextErrors.gtkProudOf = true;
 
+    // Languages: an explicit answer is required for each of the 4 languages
+    // ("none" is a valid, deliberate answer).
+    if (!langEnglish) nextErrors.langEnglish = true;
+    if (!langSpanish) nextErrors.langSpanish = true;
+    if (!langGerman) nextErrors.langGerman = true;
+    if (!langPolish) nextErrors.langPolish = true;
+
     if (linkedinUrl && !validateLinkedinUrl(linkedinUrl)) nextErrors.linkedin = true;
 
     const errorKeys = Object.keys(nextErrors).filter(k => nextErrors[k]);
@@ -298,7 +305,9 @@ const CandidateAdditional = () => {
               ? "target-industries-section"
               : (nextErrors.gtkTasks || nextErrors.gtkProblems || nextErrors.gtkMotivation || nextErrors.gtkProudOf)
                 ? "gtk-section"
-                : "linkedin-section";
+                : (nextErrors.langEnglish || nextErrors.langSpanish || nextErrors.langGerman || nextErrors.langPolish)
+                  ? "languages-section"
+                  : "linkedin-section";
       document.getElementById(firstSection)?.scrollIntoView({ behavior: "smooth", block: "center" });
       return;
     }
