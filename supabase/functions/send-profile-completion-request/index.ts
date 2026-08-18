@@ -38,11 +38,14 @@ const handler = async (req: Request): Promise<Response> => {
     const userClient = createClient(supabaseUrl, anonKey, {
       global: { headers: { Authorization: authHeader } },
     });
-    const { data: userData, error: userErr } = await userClient.auth.getUser();
-    if (userErr || !userData?.user) {
+    const token = authHeader.replace("Bearer ", "");
+    const { data: claimsData, error: claimsErr } = await userClient.auth.getClaims(token);
+    const callerId = claimsData?.claims?.sub as string | undefined;
+    if (claimsErr || !callerId) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401, headers: { "Content-Type": "application/json", ...corsHeaders },
       });
+    });
     }
 
     const body: ReqBody = await req.json();
@@ -56,7 +59,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Verify caller is an employer
     const { data: callerProfile } = await admin
-      .from("profiles").select("user_type").eq("user_id", userData.user.id).maybeSingle();
+      .from("profiles").select("user_type").eq("user_id", callerId).maybeSingle();
     if (!callerProfile || callerProfile.user_type !== "employer") {
       return new Response(JSON.stringify({ error: "Forbidden" }), {
         status: 403, headers: { "Content-Type": "application/json", ...corsHeaders },
@@ -66,7 +69,7 @@ const handler = async (req: Request): Promise<Response> => {
     // Verify employer actually has a match with this candidate (prevents spam to arbitrary candidates)
     const { data: matchExists } = await admin
       .from("match_results").select("id")
-      .eq("employer_user_id", userData.user.id)
+      .eq("employer_user_id", callerId)
       .eq("candidate_user_id", candidate_user_id)
       .limit(1).maybeSingle();
     if (!matchExists) {
