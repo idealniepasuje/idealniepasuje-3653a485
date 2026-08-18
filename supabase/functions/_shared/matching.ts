@@ -90,6 +90,14 @@ export interface CultureDetail {
 
 export type ExtraStatus = 'matched' | 'unmatched' | 'no_data';
 
+/** Diagnostyka: dokładne źródło dopasowania branżowego */
+export type IndustryMatchSource =
+  | 'current_to_primary'
+  | 'current_to_accepted'
+  | 'target_to_primary'
+  | 'target_to_accepted'
+  | 'none';
+
 export interface ExtraDetail {
   field: string;
   key: string;
@@ -102,6 +110,13 @@ export interface ExtraDetail {
   acceptedValues?: string[];
   /** Tylko dla branży: czy dopasowanie nastąpiło przez branżę docelową oferty czy dodatkową (akceptowaną) */
   matchSource?: 'primary' | 'accepted' | null;
+  /** Tylko dla branży: pełne źródło dopasowania (diagnostyka / source of truth) */
+  industryMatchSource?: IndustryMatchSource;
+  /** Tylko dla branży: konkretna branża, przez którą nastąpiło dopasowanie */
+  matchedIndustry?: string | null;
+  /** Doświadczenie / poziom: z której branży pochodzą zastosowane wymagania pracodawcy */
+  requirementIndustry?: string | null;
+
 }
 
 
