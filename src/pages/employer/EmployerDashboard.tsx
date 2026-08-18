@@ -12,6 +12,7 @@ import { logError } from "@/lib/errorLogger";
 import { DashboardLayout } from "@/components/layouts/DashboardLayout";
 import { EmployerSidebar } from "@/components/layouts/EmployerSidebar";
 import { FeedbackModal } from "@/components/FeedbackModal";
+import { EmployerMessagesInbox } from "@/components/employer/EmployerMessagesInbox";
 
 const EmployerDashboard = () => {
   const { user, loading: authLoading } = useAuth();
@@ -112,6 +113,11 @@ const EmployerDashboard = () => {
         <Sparkles className="w-4 h-4 text-accent" />
         <span>{t("expert.badge")} – {t("expert.description")}</span>
       </div>
+
+      {/* Candidate responses inbox */}
+      <EmployerMessagesInbox />
+
+
 
       {/* Step 1: Complete company profile */}
       {!hasCompanyProfile && (

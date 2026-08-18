@@ -16,7 +16,7 @@ interface Message {
   match_result_id: string;
   candidate_user_id: string;
   employer_user_id: string;
-  type: 'linkedin_request' | 'profile_completion' | 'interview_invite' | 'interview_response' | 'tools_completion_request';
+  type: 'linkedin_request' | 'profile_completion' | 'interview_invite' | 'interview_response' | 'tools_completion_request' | 'employer_reply';
   content: string;
   metadata: any;
   read_at: string | null;
@@ -27,6 +27,7 @@ const iconForType = (type: string) => {
   if (type === 'interview_invite') return CalendarClock;
   if (type === 'linkedin_request') return Linkedin;
   if (type === 'tools_completion_request') return Wrench;
+  if (type === 'employer_reply') return MessageSquare;
   return FileEdit;
 };
 
@@ -112,6 +113,7 @@ export const CandidateMessagesInbox = () => {
             msg.type === 'interview_invite' ? t("candidate.inbox.interviewInvite") :
             msg.type === 'linkedin_request' ? t("candidate.inbox.linkedinRequest") :
             msg.type === 'tools_completion_request' ? t("candidate.inbox.toolsRequest", "Prośba o uzupełnienie narzędzi") :
+            msg.type === 'employer_reply' ? t("candidate.inbox.employerReply", "Wiadomość od pracodawcy") :
             t("candidate.inbox.profileCompletion");
           const calendarLink = msg.metadata?.calendar_link as string | undefined;
           return (
