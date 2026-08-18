@@ -88,12 +88,36 @@ const EmployerCandidateDetail = () => {
   const [requestingTools, setRequestingTools] = useState(false);
   const [requestingLanguages, setRequestingLanguages] = useState(false);
 
+  /** Best-effort email step: DB is already saved, so SMTP problems are reported as a warning only. */
+  const notifyByEmail = async (scope: string, msg: string): Promise<boolean> => {
+    try {
+      const { data, error } = await supabase.functions.invoke('send-profile-completion-request', {
+        body: { candidate_user_id: candidateId, employer_company_name: employerCompanyName, message: msg },
+      });
+      if (error) throw error;
+      const sent = (data as any)?.email_sent !== false;
+      if (!sent) logError(scope, data);
+      return sent;
+    } catch (mailErr) {
+      logError(scope, mailErr);
+      return false;
+    }
+  };
+
+  const requestToast = (sent: boolean, successKey: string, successFallback?: string) => {
+    if (sent) {
+      toast.success(t(successKey, successFallback ?? ''));
+    } else {
+      toast.warning(t("employer.candidateDetail.contact.requestSavedNoEmail", "Prośba została zapisana, ale powiadomienie e-mail nie zostało wysłane"));
+    }
+  };
+
   const requestLanguages = async () => {
-    if (!match || !user || !candidateId) return;
+    if (!match || !user || !candidateId || requestingLanguages) return;
     setRequestingLanguages(true);
     try {
       const msg = getLanguagesRequestTemplate(i18n.language, employerCompanyName);
-      await supabase.from('candidate_messages').insert({
+      const { error: insertErr } = await supabase.from('candidate_messages').insert({
         match_result_id: match.id,
         candidate_user_id: candidateId,
         employer_user_id: user.id,
@@ -101,14 +125,9 @@ const EmployerCandidateDetail = () => {
         content: msg,
         metadata: { field: 'languages' },
       });
-      try {
-        await supabase.functions.invoke('send-profile-completion-request', {
-          body: { candidate_user_id: candidateId, employer_company_name: employerCompanyName, message: msg },
-        });
-      } catch (mailErr) {
-        logError('EmployerCandidateDetail.requestLanguages.email', mailErr);
-      }
-      toast.success(t("employer.candidateDetail.contact.completionRequested"));
+      if (insertErr) throw insertErr;
+      const sent = await notifyByEmail('EmployerCandidateDetail.requestLanguages.email', msg);
+      requestToast(sent, "employer.candidateDetail.contact.completionRequested");
     } catch (e) {
       logError('EmployerCandidateDetail.requestLanguages', e);
       toast.error(t("errors.genericError"));
@@ -118,11 +137,16 @@ const EmployerCandidateDetail = () => {
   };
 
   const requestLinkedin = async () => {
-    if (!match || !user || !candidateId) return;
+    if (!match || !user || !candidateId || requestingLinkedin) return;
+    // Idempotency: reuse the existing timestamp instead of stacking duplicate requests.
+    if (match.linkedin_requested_at) {
+      toast.info(t("employer.candidateDetail.contact.requestAlreadySent", "Prośba została już wysłana"));
+      return;
+    }
     setRequestingLinkedin(true);
     try {
       const msg = getLinkedinRequestTemplate(i18n.language, employerCompanyName);
-      await supabase.from('candidate_messages').insert({
+      const { error: insertErr } = await supabase.from('candidate_messages').insert({
         match_result_id: match.id,
         candidate_user_id: candidateId,
         employer_user_id: user.id,
@@ -130,15 +154,13 @@ const EmployerCandidateDetail = () => {
         content: msg,
         metadata: {},
       });
-      await supabase.from('match_results').update({ linkedin_requested_at: new Date().toISOString() }).eq('id', match.id);
-      try {
-        await supabase.functions.invoke('send-profile-completion-request', {
-          body: { candidate_user_id: candidateId, employer_company_name: employerCompanyName, message: msg },
-        });
-      } catch (mailErr) {
-        logError('EmployerCandidateDetail.requestLinkedin.email', mailErr);
-      }
-      toast.success(t("employer.candidateDetail.contact.linkedinRequestSent"));
+      if (insertErr) throw insertErr;
+      const stamp = new Date().toISOString();
+      const { error: updErr } = await supabase.from('match_results').update({ linkedin_requested_at: stamp }).eq('id', match.id);
+      if (updErr) throw updErr;
+      setMatch((prev: any) => (prev ? { ...prev, linkedin_requested_at: stamp } : prev));
+      const sent = await notifyByEmail('EmployerCandidateDetail.requestLinkedin.email', msg);
+      requestToast(sent, "employer.candidateDetail.contact.linkedinRequestSent");
     } catch (e) {
       logError('EmployerCandidateDetail.requestLinkedin', e);
       toast.error(t("errors.genericError"));
@@ -148,11 +170,15 @@ const EmployerCandidateDetail = () => {
   };
 
   const requestGtk = async () => {
-    if (!match || !user || !candidateId) return;
+    if (!match || !user || !candidateId || requestingGtk) return;
+    if (match.profile_completion_requested_at) {
+      toast.info(t("employer.candidateDetail.contact.requestAlreadySent", "Prośba została już wysłana"));
+      return;
+    }
     setRequestingGtk(true);
     try {
       const msg = getProfileCompletionTemplate(i18n.language, employerCompanyName);
-      await supabase.from('candidate_messages').insert({
+      const { error: insertErr } = await supabase.from('candidate_messages').insert({
         match_result_id: match.id,
         candidate_user_id: candidateId,
         employer_user_id: user.id,
@@ -160,15 +186,13 @@ const EmployerCandidateDetail = () => {
         content: msg,
         metadata: {},
       });
-      await supabase.from('match_results').update({ profile_completion_requested_at: new Date().toISOString() }).eq('id', match.id);
-      try {
-        await supabase.functions.invoke('send-profile-completion-request', {
-          body: { candidate_user_id: candidateId, employer_company_name: employerCompanyName, message: msg },
-        });
-      } catch (mailErr) {
-        logError('EmployerCandidateDetail.requestGtk.email', mailErr);
-      }
-      toast.success(t("employer.candidateDetail.contact.completionRequested"));
+      if (insertErr) throw insertErr;
+      const stamp = new Date().toISOString();
+      const { error: updErr } = await supabase.from('match_results').update({ profile_completion_requested_at: stamp }).eq('id', match.id);
+      if (updErr) throw updErr;
+      setMatch((prev: any) => (prev ? { ...prev, profile_completion_requested_at: stamp } : prev));
+      const sent = await notifyByEmail('EmployerCandidateDetail.requestGtk.email', msg);
+      requestToast(sent, "employer.candidateDetail.contact.completionRequested");
     } catch (e) {
       logError('EmployerCandidateDetail.requestGtk', e);
       toast.error(t("errors.genericError"));
@@ -178,11 +202,15 @@ const EmployerCandidateDetail = () => {
   };
 
   const requestTools = async () => {
-    if (!match || !user || !candidateId) return;
+    if (!match || !user || !candidateId || requestingTools) return;
+    if (match.tools_request_status && match.tools_request_status !== 'not_sent') {
+      toast.info(t("employer.candidateDetail.contact.requestAlreadySent", "Prośba została już wysłana"));
+      return;
+    }
     setRequestingTools(true);
     try {
       const msg = getToolsRequestTemplate(i18n.language, employerCompanyName);
-      await supabase.functions.invoke('send-tools-completion-request', {
+      const { data, error } = await supabase.functions.invoke('send-tools-completion-request', {
         body: {
           candidate_user_id: candidateId,
           match_id: match.id,
@@ -191,7 +219,14 @@ const EmployerCandidateDetail = () => {
           trigger: 'manual',
         },
       });
-      toast.success(t("employer.candidateDetail.contact.toolsRequested", "Prośba o uzupełnienie narzędzi została wysłana"));
+      if (error) throw error;
+      const emailSent = (data as any)?.email_sent !== false;
+      if (emailSent) {
+        toast.success(t("employer.candidateDetail.contact.toolsRequested", "Prośba o uzupełnienie narzędzi została wysłana"));
+      } else {
+        logError('EmployerCandidateDetail.requestTools.email', data);
+        toast.warning(t("employer.candidateDetail.contact.requestSavedNoEmail", "Prośba została zapisana, ale powiadomienie e-mail nie zostało wysłane"));
+      }
       fetchMatchData();
     } catch (e) {
       logError('EmployerCandidateDetail.requestTools', e);
@@ -200,6 +235,7 @@ const EmployerCandidateDetail = () => {
       setRequestingTools(false);
     }
   };
+
 
 
   useEffect(() => {
