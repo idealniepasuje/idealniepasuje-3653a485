@@ -114,6 +114,11 @@ const EmployerDashboard = () => {
         <span>{t("expert.badge")} – {t("expert.description")}</span>
       </div>
 
+      {/* Candidate responses inbox */}
+      <EmployerMessagesInbox />
+
+
+
       {/* Step 1: Complete company profile */}
       {!hasCompanyProfile && (
         <Card className="mb-6 bg-gradient-to-r from-cta/10 to-accent/10 border-cta/20">
