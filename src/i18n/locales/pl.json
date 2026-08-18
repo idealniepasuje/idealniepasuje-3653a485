@@ -744,9 +744,14 @@
         "toolsMissingTitle": "Kandydat nie uzupełnił sekcji „Znajomość narzędzi\"",
         "toolsMissingDesc": "Możesz poprosić o tę informację. Narzędzia nie wpływają na wynik dopasowania.",
         "requestTools": "Poproś o uzupełnienie narzędzi",
-        "toolsRequested": "Prośba o uzupełnienie narzędzi została wysłana"
+        "toolsRequested": "Prośba o uzupełnienie narzędzi została wysłana",
+        "inviteAlreadySent": "Zaproszenie dla tego dopasowania zostało już wysłane",
+        "inviteSavedNoEmail": "Zaproszenie zostało zapisane, ale powiadomienie e-mail nie zostało wysłane",
+        "requestSavedNoEmail": "Prośba została zapisana, ale powiadomienie e-mail nie zostało wysłane",
+        "requestAlreadySent": "Prośba została już wysłana"
       },
-      "noData": "Brak danych"
+      "noData": "Brak danych",
+      "interestSavedNoEmail": "Zainteresowanie zostało zapisane, ale powiadomienie e-mail nie zostało wysłane"
     },
     "offers": {
       "title": "Oferty pracy",

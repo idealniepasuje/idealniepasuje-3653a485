@@ -744,9 +744,14 @@
         "toolsMissingTitle": "Candidate hasn't completed the \"Tool proficiency\" section",
         "toolsMissingDesc": "You can request this information. Tools do not affect the match score.",
         "requestTools": "Ask to add tools",
-        "toolsRequested": "Tools completion request sent"
+        "toolsRequested": "Tools completion request sent",
+        "inviteAlreadySent": "An invitation for this match has already been sent",
+        "inviteSavedNoEmail": "The invitation was saved, but the email notification could not be sent",
+        "requestSavedNoEmail": "The request was saved, but the email notification could not be sent",
+        "requestAlreadySent": "The request has already been sent"
       },
-      "noData": "No data"
+      "noData": "No data",
+      "interestSavedNoEmail": "Interest was saved, but the email notification could not be sent"
     },
     "offers": {
       "title": "Job Offers",
