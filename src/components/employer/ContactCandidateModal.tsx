@@ -71,10 +71,17 @@ export const ContactCandidateModal = ({
 
   const handleSendInterview = async () => {
     if (!interviewMsg.trim()) { toast.error(t("errors.genericError")); return; }
+    if (sending) return;
+    if (!match?.id) { toast.error(t("errors.genericError")); return; }
+    // Idempotency: an invite already exists for this match — no duplicate message/timestamp.
+    if (match?.interview_invited_at) {
+      toast.info(t("employer.candidateDetail.contact.inviteAlreadySent", "Zaproszenie dla tego dopasowania zostało już wysłane"));
+      return;
+    }
     setSending(true);
     try {
       const { error: insertErr } = await supabase.from('candidate_messages').insert({
-        match_result_id: match?.id,
+        match_result_id: match.id,
         candidate_user_id: candidateUserId,
         employer_user_id: employerUserId,
         type: 'interview_invite',
@@ -90,21 +97,30 @@ export const ContactCandidateModal = ({
       }).eq('id', match.id);
       if (updateErr) throw updateErr;
 
+      // Data is saved. Email is best effort: report partial success instead of a fake success.
+      let emailSent = false;
       try {
-        await supabase.functions.invoke('send-interview-invite', {
+        const { data, error } = await supabase.functions.invoke('send-interview-invite', {
           body: {
-            candidate_user_id: candidateUserId,
+            match_result_id: match.id,
             employer_company_name: companyName,
             message: interviewMsg,
             interview_type: interviewType,
             calendar_link: calendarLink || null,
           },
         });
+        if (error) throw error;
+        emailSent = (data as any)?.email_sent === true;
+        if (!emailSent) logError('ContactCandidateModal.interview.email', (data as any)?.email_error ?? data);
       } catch (mailErr) {
         logError('ContactCandidateModal.interview.email', mailErr);
       }
 
-      toast.success(t("employer.candidateDetail.contact.inviteSent"));
+      if (emailSent) {
+        toast.success(t("employer.candidateDetail.contact.inviteSent"));
+      } else {
+        toast.warning(t("employer.candidateDetail.contact.inviteSavedNoEmail", "Zaproszenie zostało zapisane, ale powiadomienie e-mail nie zostało wysłane"));
+      }
       onUpdated();
       onOpenChange(false);
     } catch (e) {
@@ -116,6 +132,7 @@ export const ContactCandidateModal = ({
   };
 
   const handleRequestContact = async () => {
+    if (requestingContact) return;
     setRequestingContact(true);
     try {
       const msg = getContactRequestTemplate(lang, companyName);
@@ -129,14 +146,23 @@ export const ContactCandidateModal = ({
       });
       if (insertErr) throw insertErr;
 
+      let emailSent = false;
       try {
-        await supabase.functions.invoke('send-profile-completion-request', {
+        const { data, error } = await supabase.functions.invoke('send-profile-completion-request', {
           body: { candidate_user_id: candidateUserId, employer_company_name: companyName, message: msg },
         });
+        if (error) throw error;
+        emailSent = (data as any)?.email_sent !== false;
+        if (!emailSent) logError('ContactCandidateModal.requestContact.email', data);
       } catch (mailErr) {
         logError('ContactCandidateModal.requestContact.email', mailErr);
       }
-      toast.success(t("employer.candidateDetail.contact.contactRequestSent", "Prośba o dane kontaktowe została wysłana"));
+
+      if (emailSent) {
+        toast.success(t("employer.candidateDetail.contact.contactRequestSent", "Prośba o dane kontaktowe została wysłana"));
+      } else {
+        toast.warning(t("employer.candidateDetail.contact.requestSavedNoEmail", "Prośba została zapisana, ale powiadomienie e-mail nie zostało wysłane"));
+      }
     } catch (e) {
       logError('ContactCandidateModal.requestContact', e);
       toast.error(t("errors.genericError"));
@@ -144,6 +170,7 @@ export const ContactCandidateModal = ({
       setRequestingContact(false);
     }
   };
+
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
