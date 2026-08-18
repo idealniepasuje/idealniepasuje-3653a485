@@ -54,11 +54,14 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     const body: ReqBody = await req.json();
-    const { candidate_user_id, employer_company_name, message, interview_type, calendar_link } = body;
-    if (!candidate_user_id) throw new Error("Missing candidate_user_id");
+    const { match_result_id, employer_company_name, message, interview_type, calendar_link } = body;
+    if (!match_result_id || typeof match_result_id !== "string") {
+      return new Response(JSON.stringify({ error: "Missing match_result_id" }), {
+        status: 400, headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
+    }
 
     const gmailAppPassword = Deno.env.get("GMAIL_APP_PASSWORD");
-    if (!gmailAppPassword) throw new Error("GMAIL_APP_PASSWORD not configured");
 
     const admin = createClient(supabaseUrl, serviceKey);
 
@@ -70,16 +73,41 @@ const handler = async (req: Request): Promise<Response> => {
       });
     }
 
-    const { data: matchExists } = await admin
-      .from("match_results").select("id")
-      .eq("employer_user_id", callerId)
-      .eq("candidate_user_id", candidate_user_id)
-      .limit(1).maybeSingle();
-    if (!matchExists) {
-      return new Response(JSON.stringify({ error: "No match with this candidate" }), {
+    // Authorization is bound to ONE match row; candidate identity always comes from that row.
+    const { data: match, error: matchErr } = await admin
+      .from("match_results")
+      .select("id, employer_user_id, candidate_user_id, status, unlocked_at")
+      .eq("id", match_result_id)
+      .maybeSingle();
+    if (matchErr) {
+      console.error("send-interview-invite match fetch error:", matchErr);
+      return new Response(JSON.stringify({ error: "Internal server error" }), {
+        status: 500, headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
+    }
+    if (!match) {
+      return new Response(JSON.stringify({ error: "Not found" }), {
+        status: 404, headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
+    }
+    if (match.employer_user_id !== callerId) {
+      return new Response(JSON.stringify({ error: "Forbidden" }), {
         status: 403, headers: { "Content-Type": "application/json", ...corsHeaders },
       });
     }
+    if (match.status === "rejected") {
+      return new Response(JSON.stringify({ error: "Match is rejected" }), {
+        status: 403, headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
+    }
+    // The UI only exposes the contact modal after the employer marked interest (or unlocked the profile).
+    if (match.status !== "considering" && !match.unlocked_at) {
+      return new Response(JSON.stringify({ error: "Candidate not unlocked for contact" }), {
+        status: 403, headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
+    }
+
+    const candidate_user_id = match.candidate_user_id as string;
 
     const { data: candidateUser, error: cErr } = await admin.auth.admin.getUserById(candidate_user_id);
     if (cErr || !candidateUser?.user?.email) throw new Error("Could not fetch candidate email");
@@ -88,6 +116,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     const { data: profile } = await admin
       .from("profiles").select("full_name").eq("user_id", candidate_user_id).maybeSingle();
+
 
     const candidateName = profile?.full_name || "Kandydacie";
     const companyName = sanitizeHeader(employer_company_name || "Pracodawca");
