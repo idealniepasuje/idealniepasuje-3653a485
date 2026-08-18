@@ -68,7 +68,7 @@ export const CandidateMessagesInbox = () => {
     if (!user) return;
     setSendingResponse(true);
     try {
-      const { error } = await supabase.functions.invoke('send-interview-response', {
+      const { data, error } = await supabase.functions.invoke('send-interview-response', {
         body: {
           match_result_id: msg.match_result_id,
           response,
@@ -77,7 +77,16 @@ export const CandidateMessagesInbox = () => {
       });
       if (error) throw error;
 
-      toast.success(t("candidate.inbox.responseSent", "Odpowiedź została wysłana do pracodawcy"));
+      if (data?.saved && data?.email_sent === false) {
+        toast.warning(
+          t(
+            "candidate.inbox.responseSavedNoEmail",
+            "Odpowiedź została zapisana, ale nie udało się wysłać powiadomienia e-mail do pracodawcy. Zobaczy ją w panelu.",
+          ),
+        );
+      } else {
+        toast.success(t("candidate.inbox.responseSent", "Odpowiedź została wysłana do pracodawcy"));
+      }
       setReplyingId(null);
       setReplyText("");
       await fetchMessages();
@@ -88,6 +97,7 @@ export const CandidateMessagesInbox = () => {
       setSendingResponse(false);
     }
   };
+
 
   const markRead = async (id: string) => {
     await supabase.from('candidate_messages').update({ read_at: new Date().toISOString() }).eq('id', id);

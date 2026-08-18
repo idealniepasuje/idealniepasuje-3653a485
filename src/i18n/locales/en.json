@@ -525,7 +525,8 @@
       "reply": "Reply",
       "sendReply": "Send reply",
       "replyPlaceholder": "Write a message to the employer...",
-      "responseSent": "Your reply has been sent to the employer"
+      "responseSent": "Your reply has been sent to the employer",
+      "responseSavedNoEmail": "Your response was saved, but the email notification to the employer failed. They will still see it in their panel."
     }
   },
   "employer": {
