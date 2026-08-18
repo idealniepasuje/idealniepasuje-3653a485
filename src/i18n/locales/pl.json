@@ -496,6 +496,14 @@
       "workModeLabel": "Jakiego trybu pracy szukasz? *",
       "workModeRequired": "Wybierz tryb pracy",
       "cityRequired": "Podaj lokalizację (miasto)",
+      "languages": {
+        "title": "Poziom znajomości języków",
+        "required": "Określ poziom (CEFR) dla każdego z czterech języków. Jeśli nie znasz danego języka, wybierz „Brak”.",
+        "placeholder": "Wybierz poziom"
+      },
+      "tools": {
+        "noScoringNote": "Narzędzia nie wpływają na wynik dopasowania. To informacja dodatkowa widoczna dla pracodawcy."
+      },
       "finishAndSave": "Zakończ i zapisz",
       "fillRequiredFields": "Wypełnij wszystkie wymagane pola",
       "thankYou": "Dziękujemy!",
@@ -695,7 +703,7 @@
       "profileLockedHint": "Kliknij Kontakt, aby odblokować pełny profil lub poprosić kandydata o jego uzupełnienie.",
       "gettingToKnowTitle": "Daj się poznać",
       "toolsTitle": "Znajomość narzędzi",
-      "toolsMissing": "Profil kandydata jest niekompletny – brak informacji o znajomości narzędzi.",
+      "toolsMissing": "Kandydat nie podał informacji o narzędziach. Narzędzia nie wpływają na wynik dopasowania.",
       "toolsRequestStatus": "Status prośby",
       "toolsStatus": {
         "not_sent": "Nie wysłano",
@@ -734,7 +742,7 @@
         "toolsTab": "Narzędzia",
         "toolsProvidedTitle": "Znajomość narzędzi kandydata",
         "toolsMissingTitle": "Kandydat nie uzupełnił sekcji „Znajomość narzędzi\"",
-        "toolsMissingDesc": "Wyślij prośbę o uzupełnienie, aby ocenić dopasowanie do stanowiska.",
+        "toolsMissingDesc": "Możesz poprosić o tę informację. Narzędzia nie wpływają na wynik dopasowania.",
         "requestTools": "Poproś o uzupełnienie narzędzi",
         "toolsRequested": "Prośba o uzupełnienie narzędzi została wysłana"
       },

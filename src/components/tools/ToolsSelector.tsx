@@ -59,14 +59,14 @@ export const ToolsSelector = ({ value, onChange, title, description, variant = "
   };
 
   const fallbackTitle = lang === "pl"
-    ? (variant === "employer" ? "Wymagane narzędzia" : "Znajomość narzędzi")
-    : (variant === "employer" ? "Required tools" : "Tool proficiency");
+    ? (variant === "employer" ? "Preferowane narzędzia (informacyjnie)" : "Znajomość narzędzi")
+    : (variant === "employer" ? "Preferred tools (informational)" : "Tool proficiency");
   const fallbackDesc = lang === "pl"
     ? (variant === "employer"
-        ? "Wybierz narzędzia, których oczekujesz od kandydata, i określ wymagany poziom."
+        ? "Zaznacz narzędzia, które są dla Ciebie istotne. Narzędzia są informacją pomocniczą i nie wpływają na wynik dopasowania."
         : "Wybierz narzędzia, z których korzystasz, i określ poziom znajomości.")
     : (variant === "employer"
-        ? "Pick the tools you expect from candidates and the required proficiency."
+        ? "Mark the tools that matter to you. Tools are supporting information and do not affect the match score."
         : "Pick the tools you use and your proficiency level.");
 
   const selectedCount = value.length;

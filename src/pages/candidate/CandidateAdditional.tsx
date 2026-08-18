@@ -282,6 +282,13 @@ const CandidateAdditional = () => {
     if (!gtkMotivation.trim()) nextErrors.gtkMotivation = true;
     if (!gtkProudOf.trim()) nextErrors.gtkProudOf = true;
 
+    // Languages: an explicit answer is required for each of the 4 languages
+    // ("none" is a valid, deliberate answer).
+    if (!langEnglish) nextErrors.langEnglish = true;
+    if (!langSpanish) nextErrors.langSpanish = true;
+    if (!langGerman) nextErrors.langGerman = true;
+    if (!langPolish) nextErrors.langPolish = true;
+
     if (linkedinUrl && !validateLinkedinUrl(linkedinUrl)) nextErrors.linkedin = true;
 
     const errorKeys = Object.keys(nextErrors).filter(k => nextErrors[k]);
@@ -298,7 +305,9 @@ const CandidateAdditional = () => {
               ? "target-industries-section"
               : (nextErrors.gtkTasks || nextErrors.gtkProblems || nextErrors.gtkMotivation || nextErrors.gtkProudOf)
                 ? "gtk-section"
-                : "linkedin-section";
+                : (nextErrors.langEnglish || nextErrors.langSpanish || nextErrors.langGerman || nextErrors.langPolish)
+                  ? "languages-section"
+                  : "linkedin-section";
       document.getElementById(firstSection)?.scrollIntoView({ behavior: "smooth", block: "center" });
       return;
     }
@@ -652,27 +661,27 @@ const CandidateAdditional = () => {
               const lang = i18n.language === 'en' ? 'en' : 'pl';
               const names = languageNames[lang];
               const labels = languageLevelLabels[lang];
-              const fields: Array<{ key: keyof typeof names; value: string; setter: (v: string) => void }> = [
-                { key: 'english', value: langEnglish, setter: setLangEnglish },
-                { key: 'spanish', value: langSpanish, setter: setLangSpanish },
-                { key: 'german', value: langGerman, setter: setLangGerman },
-                { key: 'polish', value: langPolish, setter: setLangPolish },
+              const fields: Array<{ key: keyof typeof names; errKey: string; value: string; setter: (v: string) => void }> = [
+                { key: 'english', errKey: 'langEnglish', value: langEnglish, setter: setLangEnglish },
+                { key: 'spanish', errKey: 'langSpanish', value: langSpanish, setter: setLangSpanish },
+                { key: 'german', errKey: 'langGerman', value: langGerman, setter: setLangGerman },
+                { key: 'polish', errKey: 'langPolish', value: langPolish, setter: setLangPolish },
               ];
               return (
-                <div className="space-y-3">
+                <div className="space-y-3 scroll-mt-24" id="languages-section">
                   <Label className="text-base font-semibold">
-                    {lang === 'pl' ? 'Poziom znajomości języków' : 'Language proficiency'}
+                    {t("candidate.additional.languages.title")} *
                   </Label>
                   <p className="text-xs text-muted-foreground">
-                    {lang === 'pl' ? 'Wybierz poziom (CEFR) lub pozostaw puste.' : 'Pick a CEFR level or leave empty.'}
+                    {t("candidate.additional.languages.required")}
                   </p>
                   <div className="grid sm:grid-cols-2 gap-3">
-                    {fields.map(({ key, value, setter }) => (
+                    {fields.map(({ key, errKey, value, setter }) => (
                       <div key={key} className="space-y-1">
-                        <Label className="text-sm">{names[key]}</Label>
-                        <Select value={value} onValueChange={setter}>
-                          <SelectTrigger>
-                            <SelectValue placeholder={lang === 'pl' ? 'Wybierz poziom' : 'Select level'} />
+                        <Label className="text-sm">{names[key]} *</Label>
+                        <Select value={value} onValueChange={(v) => { setter(v); clearError(errKey); }}>
+                          <SelectTrigger className={errCls(errKey)}>
+                            <SelectValue placeholder={t("candidate.additional.languages.placeholder")} />
                           </SelectTrigger>
                           <SelectContent>
                             {LANGUAGE_LEVELS.map(lv => (
@@ -690,9 +699,9 @@ const CandidateAdditional = () => {
             {/* Znajomość narzędzi */}
             <div id="tools-section" className="space-y-2 p-4 rounded-lg border border-accent/20 bg-accent/5 scroll-mt-24">
               <ToolsSelector value={tools} onChange={setTools} variant="candidate" />
-              {tools.length === 0 && (
-                <AttractHint text={t("candidate.additional.attractHint.tools", "Zaznacz narzędzia, których używasz — pracodawcy szukają konkretnych kompetencji.")} />
-              )}
+              <p className="text-xs text-muted-foreground">
+                {t("candidate.additional.tools.noScoringNote")}
+              </p>
             </div>
 
             {/* LinkedIn */}
