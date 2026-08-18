@@ -128,6 +128,50 @@ export const CandidateMessagesInbox = () => {
                   </div>
                   <p className="text-sm whitespace-pre-wrap text-muted-foreground">{msg.content}</p>
                   <div className="flex gap-2 mt-3 flex-wrap">
+                    {msg.type === 'interview_invite' && (
+                      <>
+                        {replyingId === msg.id ? (
+                          <div className="w-full space-y-2">
+                            <Textarea
+                              placeholder={t("candidate.inbox.replyPlaceholder", "Napisz wiadomość do pracodawcy...")}
+                              value={replyText}
+                              onChange={(e) => setReplyText(e.target.value)}
+                              rows={3}
+                              className="text-sm"
+                            />
+                            <div className="flex gap-2 flex-wrap">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                disabled={sendingResponse || !replyText.trim()}
+                                onClick={() => submitResponse(msg, 'reply')}
+                              >
+                                <MessageSquare className="w-3 h-3 mr-1" />
+                                {t("candidate.inbox.sendReply", "Wyślij odpowiedź")}
+                              </Button>
+                              <Button size="sm" variant="ghost" onClick={() => { setReplyingId(null); setReplyText(""); }}>
+                                {t("common.cancel", "Anuluj")}
+                              </Button>
+                            </div>
+                          </div>
+                        ) : (
+                          <>
+                            <Button size="sm" variant="outline" className="gap-1" onClick={() => submitResponse(msg, 'accepted')} disabled={sendingResponse}>
+                              <CheckCircle className="w-3 h-3" />
+                              {t("candidate.inbox.acceptInvite", "Potwierdzam udział")}
+                            </Button>
+                            <Button size="sm" variant="outline" className="gap-1" onClick={() => submitResponse(msg, 'declined')} disabled={sendingResponse}>
+                              <XCircle className="w-3 h-3" />
+                              {t("candidate.inbox.declineInvite", "Odmawiam")}
+                            </Button>
+                            <Button size="sm" variant="outline" className="gap-1" onClick={() => setReplyingId(msg.id)} disabled={sendingResponse}>
+                              <MessageSquare className="w-3 h-3" />
+                              {t("candidate.inbox.reply", "Odpowiedz")}
+                            </Button>
+                          </>
+                        )}
+                      </>
+                    )}
                     {calendarLink && (
                       <a href={calendarLink} target="_blank" rel="noopener noreferrer">
                         <Button size="sm" variant="outline" className="gap-1">
