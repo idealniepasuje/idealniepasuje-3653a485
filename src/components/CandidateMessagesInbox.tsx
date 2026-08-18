@@ -13,7 +13,10 @@ import { toast } from "sonner";
 
 interface Message {
   id: string;
-  type: 'linkedin_request' | 'profile_completion' | 'interview_invite' | 'tools_completion_request';
+  match_result_id: string;
+  candidate_user_id: string;
+  employer_user_id: string;
+  type: 'linkedin_request' | 'profile_completion' | 'interview_invite' | 'interview_response' | 'tools_completion_request';
   content: string;
   metadata: any;
   read_at: string | null;
