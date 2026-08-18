@@ -92,7 +92,7 @@ const EmployerDashboard = () => {
     );
   }
 
-  const hasCompanyProfile = !!(employerProfile?.company_name && employerProfile?.industry);
+  const hasCompanyProfile = !!employerProfile?.company_name?.trim();
   const hasCultureCompleted = !!employerProfile?.culture_completed;
   const hasOffers = offers.length > 0;
   const activeDashboardOffers = offers.filter(o => o.is_active !== false);
