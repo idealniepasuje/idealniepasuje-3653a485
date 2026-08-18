@@ -1,0 +1,2 @@
+DELETE FROM public.candidate_messages WHERE match_result_id='ad139f9f-ca0a-4c89-ad6f-b896808fa803' AND type='tools_completion_request' AND created_at > now() - interval '10 minutes';
+UPDATE public.match_results SET tools_request_status='not_sent' WHERE id='ad139f9f-ca0a-4c89-ad6f-b896808fa803';
