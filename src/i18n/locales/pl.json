@@ -525,7 +525,8 @@
       "reply": "Odpowiedz",
       "sendReply": "Wyślij odpowiedź",
       "replyPlaceholder": "Napisz wiadomość do pracodawcy...",
-      "responseSent": "Odpowiedź została wysłana do pracodawcy"
+      "responseSent": "Odpowiedź została wysłana do pracodawcy",
+      "responseSavedNoEmail": "Odpowiedź została zapisana, ale nie udało się wysłać powiadomienia e-mail do pracodawcy. Zobaczy ją w panelu."
     }
   },
   "employer": {
@@ -642,9 +643,9 @@
       "candidateNumber": "Kandydat",
       "forOrder": "Zlecenie",
       "filters": {
-      "all": "Wszyscy",
-      "viewed": "Obejrzani",
-      "notViewed": "Nieobejrzani"
+        "all": "Wszyscy",
+        "viewed": "Obejrzani",
+        "notViewed": "Nieobejrzani"
       }
     },
     "candidateDetail": {
