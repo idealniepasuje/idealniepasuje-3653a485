@@ -2,6 +2,7 @@ import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
 import { SMTPClient } from "https://deno.land/x/denomailer@1.6.0/mod.ts";
 import { isValidEmail, sanitizeHeader } from "../_shared/email-validation.ts";
+import { escapeHtml } from "../_shared/html.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -82,7 +83,7 @@ function buildCandidateCard(
   
   // Build strengths list
   const strengthsHtml = match.match_details.strengths.length > 0
-    ? match.match_details.strengths.map(s => `<li style="color:#22c55e;margin-bottom:4px;">✓ ${s}</li>`).join("")
+    ? match.match_details.strengths.map(s => `<li style="color:#22c55e;margin-bottom:4px;">✓ ${escapeHtml(s)}</li>`).join("")
     : "<li style='color:#888;'>Brak wyróżniających się mocnych stron</li>";
 
   // Build competency breakdown
@@ -91,7 +92,7 @@ function buildCandidateCard(
       const name = competencyNames[c.competency] || c.competency;
       const statusIcon = c.status === 'excellent' ? '🌟' : c.status === 'good' ? '✓' : '○';
       const statusColor = c.status === 'excellent' ? '#22c55e' : c.status === 'good' ? '#00B2C5' : '#888';
-      return `<tr><td style="padding:6px 0;color:#444;">${statusIcon} ${name}</td><td style="text-align:right;color:${statusColor};font-weight:bold;">${Math.round(c.matchPercent)}%</td></tr>`;
+      return `<tr><td style="padding:6px 0;color:#444;">${statusIcon} ${escapeHtml(name)}</td><td style="text-align:right;color:${statusColor};font-weight:bold;">${Math.round(c.matchPercent)}%</td></tr>`;
     })
     .join("");
 
@@ -103,7 +104,7 @@ function buildCandidateCard(
     .map(e => {
       const icon = e.matched ? '✓' : '✗';
       const color = e.matched ? '#22c55e' : '#ef4444';
-      return `<span style="margin-right:12px;color:${color};">${icon} ${e.field}</span>`;
+      return `<span style="margin-right:12px;color:${color};">${icon} ${escapeHtml(e.field)}</span>`;
     })
     .join("");
 
@@ -115,7 +116,7 @@ function buildCandidateCard(
           <tr>
             <td style="vertical-align:middle;">
               <span style="font-size:12px;text-transform:uppercase;letter-spacing:1px;opacity:0.9;">Kandydat #${index + 1}</span>
-              <h3 style="margin:5px 0 0 0;font-size:20px;font-weight:700;">${candidateName}</h3>
+              <h3 style="margin:5px 0 0 0;font-size:20px;font-weight:700;">${escapeHtml(candidateName)}</h3>
             </td>
             <td style="text-align:right;vertical-align:middle;">
               <div style="background:rgba(255,255,255,0.2);border-radius:8px;padding:10px 16px;display:inline-block;">
@@ -212,7 +213,7 @@ function buildMatchesEmail(
               <!-- Intro -->
               <div style="background:#fff;border-radius:12px;padding:25px;margin-bottom:24px;box-shadow:0 2px 8px rgba(0,0,0,0.05);">
                 <p style="color:#233448;font-size:18px;margin:0 0 10px 0;">
-                  Cześć <strong>${companyName}</strong>!
+                  Cześć <strong>${escapeHtml(companyName)}</strong>!
                 </p>
                 <p style="color:#555;font-size:16px;margin:0;">
                   ${matchCount > 0 
@@ -287,7 +288,7 @@ function buildNoMatchesEmail(companyName: string): string {
           <tr>
             <td style="padding:40px 30px;">
               <p style="color:#233448;font-size:18px;margin:0 0 20px 0;">
-                Cześć <strong>${companyName}</strong>!
+                Cześć <strong>${escapeHtml(companyName)}</strong>!
               </p>
               
               <div style="background:#fef3c7;border-radius:12px;padding:25px;text-align:center;margin-bottom:25px;">
