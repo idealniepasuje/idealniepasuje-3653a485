@@ -37,6 +37,7 @@ export const EmployerMessagesInbox = () => {
   const [replyingId, setReplyingId] = useState<string | null>(null);
   // Draft per message id — a draft must never leak between different responses.
   const [drafts, setDrafts] = useState<Record<string, string>>({});
+  const [requestIds, setRequestIds] = useState<Record<string, string>>({});
 
   const [sending, setSending] = useState(false);
 
