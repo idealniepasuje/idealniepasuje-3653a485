@@ -4,6 +4,20 @@
 // oraz (przez re-eksport w src/lib/matching.ts) przez frontend.
 // ============================================================
 
+/** Wpis doświadczenia kandydata w konkretnej branży */
+export interface IndustryExperienceData {
+  industry: string;
+  years: string;
+  positionLevel: string;
+}
+
+/** Wymagania pracodawcy dla alternatywnej (akceptowanej) branży */
+export interface AcceptedIndustryRequirementData {
+  industry: string;
+  years: string;
+  positionLevel: string;
+}
+
 export interface CandidateData {
   user_id?: string;
   komunikacja_score: number | null;
@@ -22,6 +36,10 @@ export interface CandidateData {
   position_level: string | null;
   work_mode: string | null;
   city: string | null;
+  /** Branże docelowe kandydata (kierunek rozwoju) */
+  target_industries?: string[] | null;
+  /** Pełna historia doświadczeń branżowych; ma pierwszeństwo przed polami legacy */
+  industry_experiences?: IndustryExperienceData[] | null;
 }
 
 export interface JobOfferData {
@@ -36,10 +54,13 @@ export interface JobOfferData {
   required_experience: string | null;
   position_level: string | null;
   accepted_industries: string[] | null;
+  /** Wymagania (lata / poziom) dla poszczególnych branż akceptowanych */
+  accepted_industry_requirements?: AcceptedIndustryRequirementData[] | null;
   no_experience_required: boolean | null;
   work_mode: string | null;
   city: string | null;
 }
+
 
 export interface EmployerCultureData {
   culture_completed?: boolean | null;
