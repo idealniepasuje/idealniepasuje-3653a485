@@ -1,4 +1,8 @@
 {
+  "expert": {
+    "badge": "Dopasowanie oparte na kompetencjach",
+    "description": "analizujemy kompetencje, kulturę pracy i kryteria dodatkowe"
+  },
   "sidebar": {
     "start": "Start",
     "myProfile": "Mój profil",
