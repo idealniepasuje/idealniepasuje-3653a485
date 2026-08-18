@@ -496,6 +496,14 @@
       "workModeLabel": "What work mode are you looking for? *",
       "workModeRequired": "Please select a work mode",
       "cityRequired": "Please provide a location (city)",
+      "languages": {
+        "title": "Language proficiency",
+        "required": "Set a CEFR level for each of the four languages. If you do not know a language, pick "None".",
+        "placeholder": "Select level"
+      },
+      "tools": {
+        "noScoringNote": "Tools do not affect the match score. This is extra information visible to employers."
+      },
       "finishAndSave": "Finish and save",
       "fillRequiredFields": "Please fill all required fields",
       "thankYou": "Thank you!",
@@ -695,7 +703,7 @@
       "profileLockedHint": "Click Contact to unlock the full profile or ask the candidate to complete it.",
       "gettingToKnowTitle": "Get to know the candidate",
       "toolsTitle": "Tool proficiency",
-      "toolsMissing": "Candidate's profile is incomplete – no tool proficiency information.",
+      "toolsMissing": "The candidate has not provided tool information. Tools do not affect the match score.",
       "toolsRequestStatus": "Request status",
       "toolsStatus": {
         "not_sent": "Not sent",
@@ -734,7 +742,7 @@
         "toolsTab": "Tools",
         "toolsProvidedTitle": "Candidate's tool proficiency",
         "toolsMissingTitle": "Candidate hasn't completed the \"Tool proficiency\" section",
-        "toolsMissingDesc": "Send a request so you can assess the fit for the role.",
+        "toolsMissingDesc": "You can request this information. Tools do not affect the match score.",
         "requestTools": "Ask to add tools",
         "toolsRequested": "Tools completion request sent"
       },
