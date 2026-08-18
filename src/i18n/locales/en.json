@@ -515,7 +515,13 @@
       "addLinkedin": "Add LinkedIn",
       "openCalendar": "Open calendar",
       "toolsRequest": "Tools completion request",
-      "openTools": "Add tools"
+      "openTools": "Add tools",
+      "acceptInvite": "Confirm attendance",
+      "declineInvite": "Decline",
+      "reply": "Reply",
+      "sendReply": "Send reply",
+      "replyPlaceholder": "Write a message to the employer...",
+      "responseSent": "Your reply has been sent to the employer"
     }
   },
   "employer": {
