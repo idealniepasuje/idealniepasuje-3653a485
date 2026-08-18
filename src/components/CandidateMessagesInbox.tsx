@@ -161,8 +161,8 @@ export const CandidateMessagesInbox = () => {
                           <div className="w-full space-y-2">
                             <Textarea
                               placeholder={t("candidate.inbox.replyPlaceholder", "Napisz wiadomość do pracodawcy...")}
-                              value={replyText}
-                              onChange={(e) => setReplyText(e.target.value)}
+                              value={drafts[msg.id] ?? ""}
+                              onChange={(e) => setDrafts((prev) => ({ ...prev, [msg.id]: e.target.value }))}
                               rows={3}
                               className="text-sm"
                             />
@@ -170,15 +170,16 @@ export const CandidateMessagesInbox = () => {
                               <Button
                                 size="sm"
                                 variant="outline"
-                                disabled={sendingResponse || !replyText.trim()}
+                                disabled={sendingResponse || !(drafts[msg.id] ?? "").trim()}
                                 onClick={() => submitResponse(msg, 'reply')}
                               >
                                 <MessageSquare className="w-3 h-3 mr-1" />
                                 {t("candidate.inbox.sendReply", "Wyślij odpowiedź")}
                               </Button>
-                              <Button size="sm" variant="ghost" onClick={() => { setReplyingId(null); setReplyText(""); }}>
+                              <Button size="sm" variant="ghost" onClick={() => { setReplyingId(null); setDrafts((prev) => ({ ...prev, [msg.id]: "" })); }}>
                                 {t("common.cancel", "Anuluj")}
                               </Button>
+
                             </div>
                           </div>
                         ) : (
