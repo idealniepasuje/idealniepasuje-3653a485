@@ -2,16 +2,13 @@ import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { SMTPClient } from "https://deno.land/x/denomailer@1.6.0/mod.ts";
 import { isValidEmail, sanitizeHeader } from "../_shared/email-validation.ts";
+import { escapeHtml, escapeHtmlMultiline } from "../_shared/html.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
-
-const escapeHtml = (s: string) =>
-  s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
-   .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
 
 serve(async (req: Request): Promise<Response> => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
@@ -120,7 +117,7 @@ serve(async (req: Request): Promise<Response> => {
       if (insertErr && (insertErr as any).code !== "23505") throw insertErr;
     }
 
-    const safeMessage = escapeHtml(text).replace(/\r?\n/g, "<br>");
+    const safeMessage = escapeHtmlMultiline(text);
     const dashboardLink = "https://idealniepasuje.lovable.app/candidate/dashboard";
     const contactLine = employerEmail
       ? `<p style="color:#555;font-size:15px;margin:0 0 20px 0;">Możesz odpowiedzieć bezpośrednio na adres: <a href="mailto:${escapeHtml(employerEmail)}" style="color:#00B2C5;">${escapeHtml(employerEmail)}</a></p>`

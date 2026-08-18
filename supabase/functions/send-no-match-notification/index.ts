@@ -2,6 +2,7 @@ import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
 import { SMTPClient } from "https://deno.land/x/denomailer@1.6.0/mod.ts";
 import { isValidEmail, sanitizeHeader } from "../_shared/email-validation.ts";
+import { escapeHtml, escapeHtmlMultiline } from "../_shared/html.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -41,7 +42,7 @@ function buildCandidateNoMatchEmail(candidateName: string): string {
           <tr>
             <td style="padding:40px 30px;">
               <p style="color:#233448;font-size:18px;margin:0 0 20px 0;">
-                Czesc <strong>${candidateName}</strong>!
+                Czesc <strong>${escapeHtml(candidateName)}</strong>!
               </p>
               
               <div style="background:#fef3c7;border-radius:12px;padding:25px;text-align:center;margin-bottom:25px;">
@@ -120,7 +121,7 @@ function buildEmployerNoMatchEmail(companyName: string): string {
           <tr>
             <td style="padding:40px 30px;">
               <p style="color:#233448;font-size:18px;margin:0 0 20px 0;">
-                Czesc <strong>${companyName}</strong>!
+                Czesc <strong>${escapeHtml(companyName)}</strong>!
               </p>
               
               <div style="background:#fef3c7;border-radius:12px;padding:25px;text-align:center;margin-bottom:25px;">

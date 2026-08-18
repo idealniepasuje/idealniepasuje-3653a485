@@ -2,6 +2,7 @@ import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { SMTPClient } from "https://deno.land/x/denomailer@1.6.0/mod.ts";
 import { isValidEmail, sanitizeHeader } from "../_shared/email-validation.ts";
+import { escapeHtml, escapeHtmlMultiline } from "../_shared/html.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -18,10 +19,6 @@ interface ReqBody {
   calendar_link?: string;
 }
 
-
-const escapeHtml = (s: string) =>
-  s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
-   .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
 
 const typeLabel = (t?: string) =>
   t === "online" ? "Rozmowa online" : t === "phone" ? "Rozmowa telefoniczna" : t === "onsite" ? "Spotkanie stacjonarne" : "";
@@ -120,7 +117,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     const candidateName = profile?.full_name || "Kandydacie";
     const companyName = sanitizeHeader(employer_company_name || "Pracodawca");
-    const safeMessage = escapeHtml((message || "").trim()).replace(/\r?\n/g, "<br>");
+    const safeMessage = escapeHtmlMultiline((message || "").trim());
     const label = typeLabel(interview_type);
     const link = (calendar_link || "").trim();
     const safeLink = /^https?:\/\//i.test(link) ? link : "";
