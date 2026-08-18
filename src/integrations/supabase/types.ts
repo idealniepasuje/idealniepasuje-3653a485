@@ -106,6 +106,7 @@ export type Database = {
           candidate_user_id: string
           content: string
           created_at: string
+          employer_read_at: string | null
           employer_user_id: string
           id: string
           match_result_id: string | null
@@ -117,6 +118,7 @@ export type Database = {
           candidate_user_id: string
           content: string
           created_at?: string
+          employer_read_at?: string | null
           employer_user_id: string
           id?: string
           match_result_id?: string | null
@@ -128,6 +130,7 @@ export type Database = {
           candidate_user_id?: string
           content?: string
           created_at?: string
+          employer_read_at?: string | null
           employer_user_id?: string
           id?: string
           match_result_id?: string | null
