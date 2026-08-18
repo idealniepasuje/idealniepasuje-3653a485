@@ -417,3 +417,102 @@ describe("renormalizacja wag i wiarygodność wyniku", () => {
     expect(r.appliedWeights).toEqual({ competence: 0, culture: 0, extra: 0 });
   });
 });
+
+// ============================================================
+// Branża: target_industries + accepted_industry_requirements
+// ============================================================
+describe("kryterium branżowe (target_industries / accepted_industry_requirements)", () => {
+  const ind = (c: Parameters<typeof candidate>[0], o: Parameters<typeof offer>[0]) =>
+    calculateExtraMatch(candidate(c), offer(o)).details.find((d) => d.key === "industry")!;
+  const crit = (c: Parameters<typeof candidate>[0], o: Parameters<typeof offer>[0], key: string) =>
+    calculateExtraMatch(candidate(c), offer(o)).details.find((d) => d.key === key);
+
+  it("A. obecna == główna branża oferty → current_to_primary", () => {
+    const d = ind({ industry: "IT" }, { industry: "IT" });
+    expect(d.status).toBe("matched");
+    expect(d.industryMatchSource).toBe("current_to_primary");
+  });
+
+  it("B. obecna w accepted_industries → current_to_accepted", () => {
+    const d = ind({ industry: "Produkcja" }, { industry: "IT", accepted_industries: ["Produkcja"] });
+    expect(d.status).toBe("matched");
+    expect(d.industryMatchSource).toBe("current_to_accepted");
+  });
+
+  it("C. branża docelowa == główna branża oferty → target_to_primary", () => {
+    const d = ind({ industry: "Produkcja", target_industries: ["IT"] }, { industry: "IT" });
+    expect(d.status).toBe("matched");
+    expect(d.industryMatchSource).toBe("target_to_primary");
+  });
+
+  it("D. branża docelowa w accepted_industries → target_to_accepted", () => {
+    const d = ind(
+      { industry: "Produkcja", target_industries: ["Sprzedaż"] },
+      { industry: "IT", accepted_industries: ["Sprzedaż"] },
+    );
+    expect(d.status).toBe("matched");
+    expect(d.industryMatchSource).toBe("target_to_accepted");
+    expect(d.matchedIndustry).toBe("Sprzedaż");
+  });
+
+  it("E. brak przecięcia → unmatched / none", () => {
+    const d = ind(
+      { industry: "Produkcja", target_industries: ["Logistyka"] },
+      { industry: "IT", accepted_industries: ["Sprzedaż"] },
+    );
+    expect(d.status).toBe("unmatched");
+    expect(d.industryMatchSource).toBe("none");
+  });
+
+  it("F. wymagania alternatywnej branży zastępują główne", () => {
+    const c = {
+      industry: "Sprzedaż",
+      industry_experiences: [{ industry: "Sprzedaż", years: "2–4", positionLevel: "Specjalista" }],
+    };
+    const o = {
+      industry: "IT",
+      required_experience: "5–7",
+      position_level: "Starszy specjalista",
+      accepted_industries: ["Sprzedaż"],
+      accepted_industry_requirements: [
+        { industry: "Sprzedaż", years: "2–4", positionLevel: "Specjalista" },
+      ],
+    };
+    const exp = crit(c, o, "experience")!;
+    const pos = crit(c, o, "position_level")!;
+    expect(exp.employerValue).toBe("2–4");
+    expect(exp.status).toBe("matched");
+    expect(pos.employerValue).toBe("Specjalista");
+    expect(pos.status).toBe("matched");
+    expect(exp.requirementIndustry).toBe("Sprzedaż");
+  });
+
+  it("G. dopasowanie tylko przez target bez doświadczenia w tej branży → experience no_data", () => {
+    const c = {
+      industry: "Produkcja",
+      target_industries: ["Sprzedaż"],
+      industry_experiences: [{ industry: "Produkcja", years: "8–10", positionLevel: "Ekspert" }],
+    };
+    const o = {
+      industry: "IT",
+      accepted_industries: ["Sprzedaż"],
+      accepted_industry_requirements: [
+        { industry: "Sprzedaż", years: "2–4", positionLevel: "Specjalista" },
+      ],
+    };
+    expect(ind(c, o).status).toBe("matched");
+    expect(crit(c, o, "experience")!.status).toBe("no_data");
+    expect(crit(c, o, "position_level")!.status).toBe("no_data");
+  });
+
+  it("H. rekord legacy bez industry_experiences działa jak wcześniej", () => {
+    const r = calculateExtraMatch(
+      candidate({ industry: "Marketing", experience: "4–6", position_level: "Specjalista" }),
+      offer(),
+    );
+    expect(r.details.find((d) => d.key === "industry")!.status).toBe("matched");
+    expect(r.details.find((d) => d.key === "experience")!.status).toBe("matched");
+    expect(r.details.find((d) => d.key === "position_level")!.status).toBe("matched");
+    expect(r.percent).toBe(100);
+  });
+});

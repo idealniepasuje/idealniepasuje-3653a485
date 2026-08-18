@@ -4,6 +4,20 @@
 // oraz (przez re-eksport w src/lib/matching.ts) przez frontend.
 // ============================================================
 
+/** Wpis doświadczenia kandydata w konkretnej branży */
+export interface IndustryExperienceData {
+  industry: string;
+  years: string;
+  positionLevel: string;
+}
+
+/** Wymagania pracodawcy dla alternatywnej (akceptowanej) branży */
+export interface AcceptedIndustryRequirementData {
+  industry: string;
+  years: string;
+  positionLevel: string;
+}
+
 export interface CandidateData {
   user_id?: string;
   komunikacja_score: number | null;
@@ -22,6 +36,10 @@ export interface CandidateData {
   position_level: string | null;
   work_mode: string | null;
   city: string | null;
+  /** Branże docelowe kandydata (kierunek rozwoju) */
+  target_industries?: string[] | null;
+  /** Pełna historia doświadczeń branżowych; ma pierwszeństwo przed polami legacy */
+  industry_experiences?: IndustryExperienceData[] | null;
 }
 
 export interface JobOfferData {
@@ -36,10 +54,13 @@ export interface JobOfferData {
   required_experience: string | null;
   position_level: string | null;
   accepted_industries: string[] | null;
+  /** Wymagania (lata / poziom) dla poszczególnych branż akceptowanych */
+  accepted_industry_requirements?: AcceptedIndustryRequirementData[] | null;
   no_experience_required: boolean | null;
   work_mode: string | null;
   city: string | null;
 }
+
 
 export interface EmployerCultureData {
   culture_completed?: boolean | null;
@@ -69,6 +90,14 @@ export interface CultureDetail {
 
 export type ExtraStatus = 'matched' | 'unmatched' | 'no_data';
 
+/** Diagnostyka: dokładne źródło dopasowania branżowego */
+export type IndustryMatchSource =
+  | 'current_to_primary'
+  | 'current_to_accepted'
+  | 'target_to_primary'
+  | 'target_to_accepted'
+  | 'none';
+
 export interface ExtraDetail {
   field: string;
   key: string;
@@ -81,6 +110,13 @@ export interface ExtraDetail {
   acceptedValues?: string[];
   /** Tylko dla branży: czy dopasowanie nastąpiło przez branżę docelową oferty czy dodatkową (akceptowaną) */
   matchSource?: 'primary' | 'accepted' | null;
+  /** Tylko dla branży: pełne źródło dopasowania (diagnostyka / source of truth) */
+  industryMatchSource?: IndustryMatchSource;
+  /** Tylko dla branży: konkretna branża, przez którą nastąpiło dopasowanie */
+  matchedIndustry?: string | null;
+  /** Doświadczenie / poziom: z której branży pochodzą zastosowane wymagania pracodawcy */
+  requirementIndustry?: string | null;
+
 }
 
 
@@ -273,25 +309,101 @@ export const calculateExtraMatch = (
 
 
   // --- Branża (TAK/NIE/BRAK DANYCH, liczona dokładnie raz, bez punktów za otwartość) ---
-  const accepted = Array.isArray(offer.accepted_industries) ? offer.accepted_industries : [];
+  const accepted = (Array.isArray(offer.accepted_industries) ? offer.accepted_industries : [])
+    .filter((i): i is string => !!i);
+  const acceptedRequirements = Array.isArray(offer.accepted_industry_requirements)
+    ? offer.accepted_industry_requirements.filter((r) => r && !!r.industry)
+    : [];
+  const experiences = (Array.isArray(candidate.industry_experiences) ? candidate.industry_experiences : [])
+    .filter((e) => e && !!e.industry);
+  const hasExperiencesData = experiences.length > 0;
+
+  // Branże, w których kandydat realnie pracuje/pracował (pełna historia > pole legacy)
+  const currentIndustries = hasExperiencesData
+    ? Array.from(new Set(experiences.map((e) => e.industry)))
+    : candidate.industry
+      ? [candidate.industry]
+      : [];
+  const targetIndustries = (Array.isArray(candidate.target_industries) ? candidate.target_industries : [])
+    .filter((i): i is string => !!i);
+
   const hasIndustryRequirement = !!offer.industry || accepted.length > 0;
   let industryCriterion: ExtraDetail | null = null;
+  let matchedIndustry: string | null = null;
+  let industryMatchSource: IndustryMatchSource = 'none';
+  let matchedViaAccepted = false;
+
   if (hasIndustryRequirement) {
-    const noData = !candidate.industry;
-    const matchedPrimary = !noData && candidate.industry === offer.industry;
-    const matchedAccepted = !noData && !matchedPrimary && accepted.includes(candidate.industry!);
-    const industryMatched = matchedPrimary || matchedAccepted;
+    const noData = currentIndustries.length === 0 && targetIndustries.length === 0;
+
+    if (!noData) {
+      // A. obecna branża == główna branża oferty
+      if (offer.industry && currentIndustries.includes(offer.industry)) {
+        matchedIndustry = offer.industry;
+        industryMatchSource = 'current_to_primary';
+      } else {
+        // B. obecna branża w accepted_industries
+        const b = currentIndustries.find((i) => accepted.includes(i));
+        if (b) {
+          matchedIndustry = b;
+          industryMatchSource = 'current_to_accepted';
+          matchedViaAccepted = true;
+        } else if (offer.industry && targetIndustries.includes(offer.industry)) {
+          // C. branża docelowa kandydata == główna branża oferty
+          matchedIndustry = offer.industry;
+          industryMatchSource = 'target_to_primary';
+        } else {
+          // D. przecięcie branż docelowych z accepted_industries
+          const d = targetIndustries.find((i) => accepted.includes(i));
+          if (d) {
+            matchedIndustry = d;
+            industryMatchSource = 'target_to_accepted';
+            matchedViaAccepted = true;
+          }
+        }
+      }
+    }
+
+    const industryMatched = industryMatchSource !== 'none';
     industryCriterion = {
       field: 'Branża',
       key: 'industry',
       matched: industryMatched,
       status: noData ? 'no_data' : industryMatched ? 'matched' : 'unmatched',
       weight: 0,
-      candidateValue: candidate.industry,
+      candidateValue: currentIndustries[0] ?? candidate.industry,
       employerValue: offer.industry,
       acceptedValues: accepted,
-      matchSource: matchedPrimary ? 'primary' : matchedAccepted ? 'accepted' : null,
+      matchSource: matchedViaAccepted ? 'accepted' : industryMatched ? 'primary' : null,
+      industryMatchSource,
+      matchedIndustry,
     };
+  }
+
+  // --- Wymagania pracodawcy: główne albo z wpisu dla dopasowanej branży alternatywnej ---
+  const acceptedReq = matchedViaAccepted && matchedIndustry
+    ? acceptedRequirements.find((r) => r.industry === matchedIndustry) ?? null
+    : null;
+  const requiredExperienceValue = acceptedReq?.years || offer.required_experience;
+  const requiredPositionValue = acceptedReq?.positionLevel || offer.position_level;
+  const requirementIndustry = acceptedReq ? acceptedReq.industry : offer.industry;
+
+  // --- Dane kandydata: realne doświadczenie w dopasowanej branży (bez sztucznych podstawień) ---
+  let candidateExperienceValue: string | null = candidate.experience;
+  let candidatePositionValue: string | null = candidate.position_level;
+  if (hasExperiencesData) {
+    const forMatched = matchedIndustry
+      ? experiences.find((e) => e.industry === matchedIndustry) ?? null
+      : // brak wymagania branżowego w ofercie — bierzemy najsilniejszy wpis, nie „pierwszy z brzegu”
+        experiences.reduce<IndustryExperienceData | null>((best, e) => {
+          const y = parseMinYears(e.years);
+          const bestY = best ? parseMinYears(best.years) : null;
+          if (y === null) return best;
+          return bestY === null || y > bestY ? e : best;
+        }, null);
+    // Dopasowanie tylko przez branżę docelową, w której kandydat nie ma doświadczenia → brak danych
+    candidateExperienceValue = forMatched?.years ?? null;
+    candidatePositionValue = forMatched?.positionLevel ?? null;
   }
 
   // --- Doświadczenie (TAK/NIE/BRAK DANYCH) ---
@@ -303,12 +415,13 @@ export const calculateExtraMatch = (
       matched: true,
       status: 'matched',
       weight: 0,
-      candidateValue: candidate.experience,
+      candidateValue: candidateExperienceValue,
       employerValue: 'Nie wymagane',
+      requirementIndustry,
     };
   } else {
-    const required = parseMinYears(offer.required_experience);
-    const candidateYears = parseMinYears(candidate.experience);
+    const required = parseMinYears(requiredExperienceValue);
+    const candidateYears = parseMinYears(candidateExperienceValue);
     if (required !== null) {
       const noData = candidateYears === null;
       const matched = !noData && candidateYears! >= required;
@@ -318,17 +431,18 @@ export const calculateExtraMatch = (
         matched,
         status: noData ? 'no_data' : matched ? 'matched' : 'unmatched',
         weight: 0,
-        candidateValue: candidate.experience,
-        employerValue: offer.required_experience,
+        candidateValue: candidateExperienceValue,
+        employerValue: requiredExperienceValue,
+        requirementIndustry,
       };
     }
   }
 
   // --- Poziom stanowiska (TAK/NIE/BRAK DANYCH, równy lub wyższy) ---
   let positionCriterion: ExtraDetail | null = null;
-  const requiredLevel = positionLevelIndex(offer.position_level);
+  const requiredLevel = positionLevelIndex(requiredPositionValue);
   if (requiredLevel !== null) {
-    const candidateLevel = positionLevelIndex(candidate.position_level);
+    const candidateLevel = positionLevelIndex(candidatePositionValue);
     const noData = candidateLevel === null;
     const matched = !noData && candidateLevel! >= requiredLevel;
     positionCriterion = {
@@ -337,10 +451,12 @@ export const calculateExtraMatch = (
       matched,
       status: noData ? 'no_data' : matched ? 'matched' : 'unmatched',
       weight: 0,
-      candidateValue: candidate.position_level,
-      employerValue: offer.position_level,
+      candidateValue: candidatePositionValue,
+      employerValue: requiredPositionValue,
+      requirementIndustry,
     };
   }
+
 
   // ETAP 6: hierarchia wewnątrz danych dodatkowych
   const employerAcceptsExtraIndustries =
