@@ -1,4 +1,8 @@
 {
+  "expert": {
+    "badge": "Competency-based matching",
+    "description": "we analyse competencies, work culture and additional criteria"
+  },
   "sidebar": {
     "start": "Start",
     "myProfile": "My profile",
