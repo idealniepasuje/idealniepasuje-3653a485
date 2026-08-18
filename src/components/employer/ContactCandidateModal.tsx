@@ -88,7 +88,14 @@ export const ContactCandidateModal = ({
         content: interviewMsg,
         metadata: { interview_type: interviewType, calendar_link: calendarLink },
       });
-      if (insertErr) throw insertErr;
+      if (insertErr) {
+        if ((insertErr as any).code === '23505') {
+          toast.info(t("employer.candidateDetail.contact.inviteAlreadySent", "Zaproszenie dla tego dopasowania zostało już wysłane"));
+          return;
+        }
+        throw insertErr;
+      }
+
       const { error: updateErr } = await supabase.from('match_results').update({
         interview_invited_at: new Date().toISOString(),
         interview_type: interviewType,
