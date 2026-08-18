@@ -515,7 +515,13 @@
       "addLinkedin": "Dodaj LinkedIn",
       "openCalendar": "Otwórz kalendarz",
       "toolsRequest": "Prośba o uzupełnienie narzędzi",
-      "openTools": "Uzupełnij narzędzia"
+      "openTools": "Uzupełnij narzędzia",
+      "acceptInvite": "Potwierdzam udział",
+      "declineInvite": "Odmawiam",
+      "reply": "Odpowiedz",
+      "sendReply": "Wyślij odpowiedź",
+      "replyPlaceholder": "Napisz wiadomość do pracodawcy...",
+      "responseSent": "Odpowiedź została wysłana do pracodawcy"
     }
   },
   "employer": {

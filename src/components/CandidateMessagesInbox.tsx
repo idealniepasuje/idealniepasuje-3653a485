@@ -4,14 +4,19 @@ import { useTranslation } from "react-i18next";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Mail, Linkedin, CalendarClock, FileEdit, ExternalLink, Wrench } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { Mail, Linkedin, CalendarClock, FileEdit, ExternalLink, Wrench, CheckCircle, XCircle, MessageSquare } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { logError } from "@/lib/errorLogger";
+import { toast } from "sonner";
 
 interface Message {
   id: string;
-  type: 'linkedin_request' | 'profile_completion' | 'interview_invite' | 'tools_completion_request';
+  match_result_id: string;
+  candidate_user_id: string;
+  employer_user_id: string;
+  type: 'linkedin_request' | 'profile_completion' | 'interview_invite' | 'interview_response' | 'tools_completion_request';
   content: string;
   metadata: any;
   read_at: string | null;
@@ -30,26 +35,57 @@ export const CandidateMessagesInbox = () => {
   const { t } = useTranslation();
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(true);
+  const [replyingId, setReplyingId] = useState<string | null>(null);
+  const [replyText, setReplyText] = useState("");
+  const [sendingResponse, setSendingResponse] = useState(false);
 
   useEffect(() => {
     if (!user) return;
-    (async () => {
-      try {
-        const { data, error } = await supabase
-          .from('candidate_messages')
-          .select('*')
-          .eq('candidate_user_id', user.id)
-          .is('read_at', null)
-          .order('created_at', { ascending: false });
-        if (error) throw error;
-        setMessages((data || []) as Message[]);
-      } catch (e) {
-        logError('CandidateMessagesInbox.fetch', e);
-      } finally {
-        setLoading(false);
-      }
-    })();
+    fetchMessages();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
+
+  const fetchMessages = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('candidate_messages')
+        .select('*')
+        .eq('candidate_user_id', user!.id)
+        .is('read_at', null)
+        .order('created_at', { ascending: false });
+      if (error) throw error;
+      setMessages((data || []) as Message[]);
+    } catch (e) {
+      logError('CandidateMessagesInbox.fetch', e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const submitResponse = async (msg: Message, response: 'accepted' | 'declined' | 'reply') => {
+    if (!user) return;
+    setSendingResponse(true);
+    try {
+      const { error } = await supabase.functions.invoke('send-interview-response', {
+        body: {
+          match_result_id: msg.match_result_id,
+          response,
+          message: response === 'reply' ? replyText.trim() : undefined,
+        },
+      });
+      if (error) throw error;
+
+      toast.success(t("candidate.inbox.responseSent", "Odpowiedź została wysłana do pracodawcy"));
+      setReplyingId(null);
+      setReplyText("");
+      await fetchMessages();
+    } catch (e) {
+      logError('CandidateMessagesInbox.submitResponse', e);
+      toast.error(t("errors.genericError"));
+    } finally {
+      setSendingResponse(false);
+    }
+  };
 
   const markRead = async (id: string) => {
     await supabase.from('candidate_messages').update({ read_at: new Date().toISOString() }).eq('id', id);
@@ -92,6 +128,50 @@ export const CandidateMessagesInbox = () => {
                   </div>
                   <p className="text-sm whitespace-pre-wrap text-muted-foreground">{msg.content}</p>
                   <div className="flex gap-2 mt-3 flex-wrap">
+                    {msg.type === 'interview_invite' && (
+                      <>
+                        {replyingId === msg.id ? (
+                          <div className="w-full space-y-2">
+                            <Textarea
+                              placeholder={t("candidate.inbox.replyPlaceholder", "Napisz wiadomość do pracodawcy...")}
+                              value={replyText}
+                              onChange={(e) => setReplyText(e.target.value)}
+                              rows={3}
+                              className="text-sm"
+                            />
+                            <div className="flex gap-2 flex-wrap">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                disabled={sendingResponse || !replyText.trim()}
+                                onClick={() => submitResponse(msg, 'reply')}
+                              >
+                                <MessageSquare className="w-3 h-3 mr-1" />
+                                {t("candidate.inbox.sendReply", "Wyślij odpowiedź")}
+                              </Button>
+                              <Button size="sm" variant="ghost" onClick={() => { setReplyingId(null); setReplyText(""); }}>
+                                {t("common.cancel", "Anuluj")}
+                              </Button>
+                            </div>
+                          </div>
+                        ) : (
+                          <>
+                            <Button size="sm" variant="outline" className="gap-1" onClick={() => submitResponse(msg, 'accepted')} disabled={sendingResponse}>
+                              <CheckCircle className="w-3 h-3" />
+                              {t("candidate.inbox.acceptInvite", "Potwierdzam udział")}
+                            </Button>
+                            <Button size="sm" variant="outline" className="gap-1" onClick={() => submitResponse(msg, 'declined')} disabled={sendingResponse}>
+                              <XCircle className="w-3 h-3" />
+                              {t("candidate.inbox.declineInvite", "Odmawiam")}
+                            </Button>
+                            <Button size="sm" variant="outline" className="gap-1" onClick={() => setReplyingId(msg.id)} disabled={sendingResponse}>
+                              <MessageSquare className="w-3 h-3" />
+                              {t("candidate.inbox.reply", "Odpowiedz")}
+                            </Button>
+                          </>
+                        )}
+                      </>
+                    )}
                     {calendarLink && (
                       <a href={calendarLink} target="_blank" rel="noopener noreferrer">
                         <Button size="sm" variant="outline" className="gap-1">
