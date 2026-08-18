@@ -46,13 +46,14 @@ export const EmployerMessagesInbox = () => {
 
   const fetchMessages = async () => {
     try {
+      // Full history (read + unread), newest first.
       const { data, error } = await supabase
         .from("candidate_messages")
         .select("*")
         .eq("employer_user_id", user!.id)
         .eq("type", "interview_response")
-        .is("employer_read_at", null)
-        .order("created_at", { ascending: false });
+        .order("created_at", { ascending: false })
+        .limit(50);
       if (error) throw error;
       const rows = (data || []) as unknown as EmployerMessage[];
       setMessages(rows);
@@ -79,17 +80,19 @@ export const EmployerMessagesInbox = () => {
   };
 
   const markRead = async (id: string) => {
+    const stamp = new Date().toISOString();
     const { error } = await supabase
       .from("candidate_messages")
-      .update({ employer_read_at: new Date().toISOString() } as any)
+      .update({ employer_read_at: stamp } as any)
       .eq("id", id);
     if (error) {
       logError("EmployerMessagesInbox.markRead", error);
       toast.error(t("errors.genericError"));
       return;
     }
-    setMessages((prev) => prev.filter((m) => m.id !== id));
+    setMessages((prev) => prev.map((m) => (m.id === id ? { ...m, employer_read_at: stamp } : m)));
   };
+
 
   const sendReply = async (msg: EmployerMessage) => {
     if (!replyText.trim() || !msg.match_result_id) return;
