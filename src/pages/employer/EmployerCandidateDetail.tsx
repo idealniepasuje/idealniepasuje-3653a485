@@ -339,16 +339,22 @@ const EmployerCandidateDetail = () => {
       const statusToSet = currentStatus === newStatus ? 'viewed' : newStatus;
       
       const isNewInterest = currentStatus !== 'considering' && statusToSet === 'considering';
+      let interestEmailSent = true;
 
       if (isNewInterest) {
         // Server-side: verifies ownership, sets status and sends the interest email with service role.
-        const { error: fnError } = await supabase.functions.invoke('mark-candidate-interest', {
+        const { data: fnData, error: fnError } = await supabase.functions.invoke('mark-candidate-interest', {
           body: { match_id: match.id },
         });
         if (fnError) {
           logError("EmployerCandidateDetail.markCandidateInterest", fnError);
           toast.error(t("errors.genericError"));
           return;
+        }
+        // Status saved server-side; email is best effort.
+        interestEmailSent = (fnData as any)?.email_sent === true;
+        if (!interestEmailSent) {
+          logError("EmployerCandidateDetail.markCandidateInterest.email", fnData);
         }
       } else {
         const { error } = await supabase
@@ -375,7 +381,7 @@ const EmployerCandidateDetail = () => {
           const candidateHasTools = Array.isArray((candidateData as any)?.tools) && (candidateData as any).tools.length > 0;
           const alreadyAsked = match.tools_request_status && match.tools_request_status !== 'not_sent';
           if (!candidateHasTools && !alreadyAsked) {
-            await supabase.functions.invoke('send-tools-completion-request', {
+            const { error: toolsFnErr } = await supabase.functions.invoke('send-tools-completion-request', {
               body: {
                 candidate_user_id: candidateId,
                 match_id: match.id,
@@ -383,6 +389,7 @@ const EmployerCandidateDetail = () => {
                 trigger: 'auto',
               },
             });
+            if (toolsFnErr) logError("EmployerCandidateDetail.autoToolsRequest", toolsFnErr);
           }
         } catch (toolsErr) {
           logError("EmployerCandidateDetail.autoToolsRequest", toolsErr);
@@ -394,10 +401,15 @@ const EmployerCandidateDetail = () => {
       setMatch({ ...match, status: statusToSet });
       
       if (newStatus === 'considering') {
-        toast.success(statusToSet === 'considering' 
-          ? t("employer.candidateDetail.interestMarked") 
-          : t("employer.candidateDetail.interestRemoved")
-        );
+        if (statusToSet === 'considering' && !interestEmailSent) {
+          toast.warning(t("employer.candidateDetail.interestSavedNoEmail", "Zainteresowanie zostało zapisane, ale powiadomienie e-mail nie zostało wysłane"));
+        } else {
+          toast.success(statusToSet === 'considering'
+            ? t("employer.candidateDetail.interestMarked")
+            : t("employer.candidateDetail.interestRemoved")
+          );
+        }
+
       } else if (newStatus === 'rejected') {
         toast.success(statusToSet === 'rejected' 
           ? t("employer.candidateDetail.rejectionMarked") 
