@@ -10,12 +10,14 @@ const corsHeaders = {
 };
 
 interface ReqBody {
-  candidate_user_id: string;
+  /** Source of truth for authorization. */
+  match_result_id: string;
   employer_company_name?: string;
   message?: string;
   interview_type?: string;
   calendar_link?: string;
 }
+
 
 const escapeHtml = (s: string) =>
   s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
