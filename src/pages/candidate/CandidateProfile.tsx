@@ -123,7 +123,7 @@ const CandidateProfile = () => {
     { key: "spanish", value: data?.lang_spanish },
     { key: "german", value: data?.lang_german },
     { key: "polish", value: data?.lang_polish },
-  ].filter((l) => l.value && l.value !== "none");
+  ].map((l) => ({ ...l, value: l.value || "none" }));
 
   const toolsByCategory = TOOL_CATEGORIES.map((cat) => ({
     cat,
@@ -274,6 +274,12 @@ const CandidateProfile = () => {
             <Wrench className="w-5 h-5" />
             {tr("Znajomość narzędzi", "Tools")}
           </CardTitle>
+          <p className="text-xs text-muted-foreground">
+            {tr(
+              "Narzędzia nie wpływają na wynik dopasowania. To informacja dodatkowa widoczna dla pracodawcy.",
+              "Tools do not affect the match score. This is extra information visible to employers."
+            )}
+          </p>
         </CardHeader>
         <CardContent className="space-y-4">
           {toolsByCategory.length > 0 ? (

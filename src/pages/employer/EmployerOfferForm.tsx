@@ -822,6 +822,11 @@ const EmployerOfferForm = () => {
               {/* Required tools */}
               <div className="border-t pt-6">
                 <ToolsSelector value={requiredTools} onChange={setRequiredTools} variant="employer" />
+                <p className="text-xs text-muted-foreground mt-2">
+                  {i18n.language === "en"
+                    ? "Tools are supporting information and do not affect the match score."
+                    : "Narzędzia są informacją pomocniczą i nie wpływają na wynik dopasowania."}
+                </p>
               </div>
 
               <Button onClick={saveRequirements} disabled={saving} className="w-full bg-cta hover:bg-cta/90 text-cta-foreground">
