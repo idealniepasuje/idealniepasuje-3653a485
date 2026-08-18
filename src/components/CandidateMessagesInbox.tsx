@@ -4,10 +4,12 @@ import { useTranslation } from "react-i18next";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Mail, Linkedin, CalendarClock, FileEdit, ExternalLink, Wrench } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { Mail, Linkedin, CalendarClock, FileEdit, ExternalLink, Wrench, CheckCircle, XCircle, MessageSquare } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { logError } from "@/lib/errorLogger";
+import { toast } from "sonner";
 
 interface Message {
   id: string;
