@@ -1,0 +1,2 @@
+ALTER TABLE public.candidate_messages DROP CONSTRAINT candidate_messages_type_check;
+ALTER TABLE public.candidate_messages ADD CONSTRAINT candidate_messages_type_check CHECK (type = ANY (ARRAY['linkedin_request'::text, 'profile_completion'::text, 'interview_invite'::text, 'tools_completion_request'::text, 'interview_response'::text]));
