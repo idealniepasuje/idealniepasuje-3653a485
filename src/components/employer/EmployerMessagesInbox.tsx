@@ -95,16 +95,21 @@ export const EmployerMessagesInbox = () => {
 
 
   const sendReply = async (msg: EmployerMessage) => {
-    if (!replyText.trim() || !msg.match_result_id) return;
+    const draft = (drafts[msg.id] || "").trim();
+    if (!draft || !msg.match_result_id) return;
     setSending(true);
     try {
       const { error } = await supabase.functions.invoke("send-employer-reply", {
-        body: { match_result_id: msg.match_result_id, message: replyText.trim() },
+        body: { match_result_id: msg.match_result_id, message: draft },
       });
       if (error) throw error;
       toast.success(t("employer.inbox.replySent", "Wiadomość została wysłana do kandydata"));
       setReplyingId(null);
-      setReplyText("");
+      setDrafts((prev) => {
+        const next = { ...prev };
+        delete next[msg.id];
+        return next;
+      });
       await markRead(msg.id);
     } catch (e) {
       logError("EmployerMessagesInbox.sendReply", e);
@@ -116,13 +121,15 @@ export const EmployerMessagesInbox = () => {
 
   if (loading || messages.length === 0) return null;
 
+  const unreadCount = messages.filter((m) => !m.employer_read_at).length;
+
   return (
     <Card className="mb-6 border-accent/30">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Mail className="w-5 h-5 text-accent" />
           {t("employer.inbox.title", "Odpowiedzi kandydatów")}
-          <Badge className="bg-accent text-accent-foreground">{messages.length}</Badge>
+          {unreadCount > 0 && <Badge className="bg-accent text-accent-foreground">{unreadCount}</Badge>}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
@@ -139,7 +146,11 @@ export const EmployerMessagesInbox = () => {
           const contact = contacts[msg.candidate_user_id];
 
           return (
-            <div key={msg.id} className="p-4 rounded-lg border bg-accent/5 border-accent/30">
+            <div
+              key={msg.id}
+              className={`p-4 rounded-lg border ${msg.employer_read_at ? "bg-muted/30" : "bg-accent/5 border-accent/30"}`}
+            >
+
               <div className="flex items-start gap-3">
                 <div className="w-8 h-8 rounded-full bg-accent/20 flex items-center justify-center shrink-0">
                   <Icon className={`w-4 h-4 ${declined ? "text-destructive" : "text-accent"}`} />
