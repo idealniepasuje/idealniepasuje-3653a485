@@ -32,26 +32,57 @@ export const CandidateMessagesInbox = () => {
   const { t } = useTranslation();
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(true);
+  const [replyingId, setReplyingId] = useState<string | null>(null);
+  const [replyText, setReplyText] = useState("");
+  const [sendingResponse, setSendingResponse] = useState(false);
 
   useEffect(() => {
     if (!user) return;
-    (async () => {
-      try {
-        const { data, error } = await supabase
-          .from('candidate_messages')
-          .select('*')
-          .eq('candidate_user_id', user.id)
-          .is('read_at', null)
-          .order('created_at', { ascending: false });
-        if (error) throw error;
-        setMessages((data || []) as Message[]);
-      } catch (e) {
-        logError('CandidateMessagesInbox.fetch', e);
-      } finally {
-        setLoading(false);
-      }
-    })();
+    fetchMessages();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
+
+  const fetchMessages = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('candidate_messages')
+        .select('*')
+        .eq('candidate_user_id', user!.id)
+        .is('read_at', null)
+        .order('created_at', { ascending: false });
+      if (error) throw error;
+      setMessages((data || []) as Message[]);
+    } catch (e) {
+      logError('CandidateMessagesInbox.fetch', e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const submitResponse = async (msg: Message, response: 'accepted' | 'declined' | 'reply') => {
+    if (!user) return;
+    setSendingResponse(true);
+    try {
+      const { error } = await supabase.functions.invoke('send-interview-response', {
+        body: {
+          match_result_id: msg.match_result_id,
+          response,
+          message: response === 'reply' ? replyText.trim() : undefined,
+        },
+      });
+      if (error) throw error;
+
+      toast.success(t("candidate.inbox.responseSent", "Odpowiedź została wysłana do pracodawcy"));
+      setReplyingId(null);
+      setReplyText("");
+      await fetchMessages();
+    } catch (e) {
+      logError('CandidateMessagesInbox.submitResponse', e);
+      toast.error(t("errors.genericError"));
+    } finally {
+      setSendingResponse(false);
+    }
+  };
 
   const markRead = async (id: string) => {
     await supabase.from('candidate_messages').update({ read_at: new Date().toISOString() }).eq('id', id);
