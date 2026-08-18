@@ -1,5 +1,5 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
+import { createClient } from "npm:@supabase/supabase-js@2";
 import { SMTPClient } from "https://deno.land/x/denomailer@1.6.0/mod.ts";
 import { isValidEmail, sanitizeHeader } from "../_shared/email-validation.ts";
 
@@ -40,8 +40,10 @@ const handler = async (req: Request): Promise<Response> => {
     const userClient = createClient(supabaseUrl, anonKey, {
       global: { headers: { Authorization: authHeader } },
     });
-    const { data: userData, error: userErr } = await userClient.auth.getUser();
-    if (userErr || !userData?.user) {
+    const token = authHeader.replace("Bearer ", "");
+    const { data: claimsData, error: claimsErr } = await userClient.auth.getClaims(token);
+    const callerId = claimsData?.claims?.sub as string | undefined;
+    if (claimsErr || !callerId) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401, headers: { "Content-Type": "application/json", ...corsHeaders },
       });
@@ -57,7 +59,7 @@ const handler = async (req: Request): Promise<Response> => {
     const admin = createClient(supabaseUrl, serviceKey);
 
     const { data: callerProfile } = await admin
-      .from("profiles").select("user_type").eq("user_id", userData.user.id).maybeSingle();
+      .from("profiles").select("user_type").eq("user_id", callerId).maybeSingle();
     if (!callerProfile || callerProfile.user_type !== "employer") {
       return new Response(JSON.stringify({ error: "Forbidden" }), {
         status: 403, headers: { "Content-Type": "application/json", ...corsHeaders },
@@ -66,7 +68,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Verify employer has a match with this candidate (prevents spam)
     let matchQuery = admin.from("match_results").select("id, tools_request_status")
-      .eq("employer_user_id", userData.user.id)
+      .eq("employer_user_id", callerId)
       .eq("candidate_user_id", candidate_user_id);
     if (match_id) matchQuery = matchQuery.eq("id", match_id);
     const { data: matchRows, error: matchErr } = await matchQuery.limit(1);
@@ -110,7 +112,7 @@ const handler = async (req: Request): Promise<Response> => {
     const { error: msgErr } = await admin.from("candidate_messages").insert({
       match_result_id: matchRow.id,
       candidate_user_id,
-      employer_user_id: userData.user.id,
+      employer_user_id: callerId,
       type: "tools_completion_request",
       content: message?.trim() || defaultMessage,
       metadata: { trigger: trigger || "manual" },
