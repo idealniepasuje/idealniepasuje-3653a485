@@ -92,24 +92,6 @@ const EmployerOrderDetail = () => {
 
   if (!offer) return null;
 
-  const sections = [
-    {
-      title: t("employer.offerForm.roleTitle"),
-      description: offer.role_description || offer.role_responsibilities 
-        ? t("common.completed") 
-        : t("common.toDo"),
-      completed: !!(offer.role_description || offer.role_responsibilities),
-      icon: FileText,
-    },
-    {
-      title: t("employer.offerForm.requirementsTitle"),
-      description: offer.industry && offer.position_level 
-        ? `${offer.industry} · ${offer.position_level}` 
-        : t("common.toDo"),
-      completed: !!(offer.industry && offer.position_level),
-      icon: Settings,
-    },
-  ];
 
   return (
     <DashboardLayout sidebar={<EmployerSidebar />}>
