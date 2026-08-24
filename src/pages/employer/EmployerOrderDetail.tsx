@@ -153,6 +153,37 @@ const EmployerOrderDetail = () => {
           </div>
         </div>
 
+        {offer.analyze_internal_team && (
+          <div className="mb-4 sm:mb-6">
+            <InternalTeamPanel offerId={offer.id} organizationId={offer.organization_id ?? null} offerTitle={offer.title} />
+          </div>
+        )}
+
+        {offer.recruit_external_candidates !== false && (
+        <Card className="mb-4 sm:mb-6 border-accent/20 hover:shadow-lg transition-shadow">
+          <Link to={`/employer/candidates?offerId=${offer.id}`} className="block">
+            <CardContent className="pt-4 sm:pt-6 px-4 sm:px-6">
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+                  <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-full bg-accent/20 flex items-center justify-center shrink-0">
+                    <Users className="w-5 h-5 sm:w-7 sm:h-7 text-accent" />
+                  </div>
+                  <div className="min-w-0">
+                    <h3 className="text-sm sm:text-lg font-semibold">{t("employer.orderDetail.candidatesTitle")}</h3>
+                    <p className="text-xs sm:text-sm text-muted-foreground truncate">
+                      {matchCount === 0 && t("employer.orderDetail.noCandidatesYet")}
+                      {matchCount === 1 && `1 ${t("common.matchedCandidate")}`}
+                      {matchCount > 1 && `${matchCount} ${t("common.matchedCandidates")}`}
+                    </p>
+                  </div>
+                </div>
+                <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6 text-muted-foreground shrink-0" />
+              </div>
+            </CardContent>
+          </Link>
+        </Card>
+        )}
+
         <Card className="mb-4 sm:mb-6">
           <CardHeader className="px-4 sm:px-6 py-4 sm:py-6">
             <CardTitle className="text-base sm:text-lg">{t("employer.orderDetail.detailsTitle")}</CardTitle>
@@ -194,37 +225,6 @@ const EmployerOrderDetail = () => {
             )}
           </CardContent>
         </Card>
-
-        {offer.recruit_external_candidates !== false && (
-        <Card className="border-accent/20 hover:shadow-lg transition-shadow">
-          <Link to={`/employer/candidates?offerId=${offer.id}`} className="block">
-            <CardContent className="pt-4 sm:pt-6 px-4 sm:px-6">
-              <div className="flex items-center justify-between gap-3">
-                <div className="flex items-center gap-3 sm:gap-4 min-w-0">
-                  <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-full bg-accent/20 flex items-center justify-center shrink-0">
-                    <Users className="w-5 h-5 sm:w-7 sm:h-7 text-accent" />
-                  </div>
-                  <div className="min-w-0">
-                    <h3 className="text-sm sm:text-lg font-semibold">{t("employer.orderDetail.candidatesTitle")}</h3>
-                    <p className="text-xs sm:text-sm text-muted-foreground truncate">
-                      {matchCount === 0 && t("employer.orderDetail.noCandidatesYet")}
-                      {matchCount === 1 && `1 ${t("common.matchedCandidate")}`}
-                      {matchCount > 1 && `${matchCount} ${t("common.matchedCandidates")}`}
-                    </p>
-                  </div>
-                </div>
-                <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6 text-muted-foreground shrink-0" />
-              </div>
-            </CardContent>
-          </Link>
-        </Card>
-        )}
-
-        {offer.analyze_internal_team && (
-          <div className="mt-4 sm:mt-6">
-            <InternalTeamPanel offerId={offer.id} organizationId={offer.organization_id ?? null} />
-          </div>
-        )}
       </div>
 
       <AlertDialog open={closeDialogOpen} onOpenChange={setCloseDialogOpen}>

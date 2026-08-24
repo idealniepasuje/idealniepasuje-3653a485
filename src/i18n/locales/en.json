@@ -838,5 +838,10 @@
     "saveError": "Failed to save",
     "saveProgressError": "Failed to save progress",
     "genericError": "Save error"
+  },
+  "internal": {
+    "employeeScore": "Employee score",
+    "yourScore": "Your score",
+    "roleRequirement": "Role requirement"
   }
 }

@@ -5,7 +5,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { Building2, ShieldCheck, Globe } from "lucide-react";
+import { Building2, ShieldCheck, Globe, BarChart3 } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { InternalAssessmentDetails, type InternalAssessmentRecord } from "@/components/internal/InternalAssessmentDetails";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { logError } from "@/lib/errorLogger";
@@ -21,11 +23,9 @@ interface MembershipRow {
   organizations: { name: string } | null;
 }
 
-interface AssessmentRow {
-  id: string;
+interface AssessmentRow extends InternalAssessmentRecord {
   organization_id: string;
   job_offer_id: string;
-  consent_status: string;
   organizations: { name: string } | null;
   job_offers: { title: string } | null;
 }
@@ -41,6 +41,7 @@ const CandidateOrganizations = () => {
   const [openToExternal, setOpenToExternal] = useState(true);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
+  const [detailsFor, setDetailsFor] = useState<AssessmentRow | null>(null);
 
   const fetchData = useCallback(async () => {
     if (!user) return;
@@ -52,7 +53,7 @@ const CandidateOrganizations = () => {
           .eq("user_id", user.id),
         supabase
           .from("internal_assessments")
-          .select("id, organization_id, job_offer_id, consent_status, organizations(name), job_offers(title)")
+          .select("id, organization_id, job_offer_id, consent_status, overall_percent, competence_percent, culture_percent, extra_percent, computed_at, match_details, organizations(name), job_offers(title)")
           .eq("employee_user_id", user.id),
         supabase
           .from("candidate_test_results")
@@ -247,7 +248,17 @@ const CandidateOrganizations = () => {
                 <p className="font-medium">{a.organizations?.name || "Firma"}</p>
                 <p className="text-sm text-muted-foreground">Rola: {a.job_offers?.title || "—"}</p>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
+                {a.consent_status === "granted" && a.computed_at && (
+                  <>
+                    <Badge className="bg-accent text-accent-foreground">
+                      {a.overall_percent === null ? "—" : `${a.overall_percent}%`}
+                    </Badge>
+                    <Button size="sm" className="gap-2" onClick={() => setDetailsFor(a)}>
+                      <BarChart3 className="w-4 h-4" /> Zobacz analizę
+                    </Button>
+                  </>
+                )}
                 <Badge variant={a.consent_status === "granted" ? "default" : "secondary"}>
                   {a.consent_status === "granted" ? "Zgoda udzielona" : a.consent_status === "revoked" ? "Zgoda wycofana" : "Odmowa"}
                 </Badge>
@@ -292,6 +303,25 @@ const CandidateOrganizations = () => {
           )}
         </CardContent>
       </Card>
+
+      <Dialog open={!!detailsFor} onOpenChange={(open) => !open && setDetailsFor(null)}>
+        <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Twoje dopasowanie do roli</DialogTitle>
+            <DialogDescription>
+              {detailsFor?.organizations?.name || "Firma"} — {detailsFor?.job_offers?.title || "rola"}
+            </DialogDescription>
+          </DialogHeader>
+          {detailsFor && (
+            <InternalAssessmentDetails
+              assessment={detailsFor}
+              subjectLabel={detailsFor.organizations?.name || "Firma"}
+              roleTitle={detailsFor.job_offers?.title || "rola"}
+              perspective="employee"
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </DashboardLayout>
   );
 };
