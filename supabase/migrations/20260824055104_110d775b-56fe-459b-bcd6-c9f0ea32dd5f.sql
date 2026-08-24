@@ -1,0 +1,9 @@
+REVOKE ALL ON public.candidate_test_results FROM anon;
+REVOKE ALL ON public.employer_profiles FROM anon;
+REVOKE ALL ON public.job_offers FROM anon;
+REVOKE ALL ON public.profiles FROM anon;
+REVOKE ALL ON public.candidate_feedback FROM anon;
+REVOKE ALL ON public.employer_feedback FROM anon;
+REVOKE ALL ON public.candidate_messages FROM anon;
+REVOKE ALL ON public.match_results FROM anon;
+REVOKE ALL ON public.audit_log FROM anon;
