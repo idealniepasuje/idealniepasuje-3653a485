@@ -41,6 +41,15 @@ const EmployerDashboard = () => {
         .limit(1);
       setHasFeedback(!!(feedbackData && feedbackData.length > 0));
 
+      // Persistent dismiss state reuses profiles.feedback_modal_dismissed_at
+      const { data: profileRow } = await supabase
+        .from("profiles")
+        .select("feedback_modal_dismissed_at")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      setFeedbackBannerDismissed(!!profileRow?.feedback_modal_dismissed_at);
+
+
       const { data: profile, error: profileError } = await supabase
         .from("employer_profiles")
         .select("*")
