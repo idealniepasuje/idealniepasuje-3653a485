@@ -134,7 +134,18 @@ serve(async (req) => {
         risks: outcome.risks,
       };
 
-      const { error: updateErr } = await admin
+      // Re-check consent right before writing (race condition with revocation)
+      const { data: fresh } = await admin
+        .from("internal_assessments")
+        .select("consent_status")
+        .eq("id", assessment.id)
+        .maybeSingle();
+      if (!fresh || fresh.consent_status !== "granted") {
+        skipped++;
+        continue;
+      }
+
+      const { data: updated, error: updateErr } = await admin
         .from("internal_assessments")
         .update({
           overall_percent: outcome.overallPercent,
@@ -144,10 +155,14 @@ serve(async (req) => {
           match_details: matchDetails,
           computed_at: new Date().toISOString(),
         })
-        .eq("id", assessment.id);
+        .eq("id", assessment.id)
+        .eq("consent_status", "granted")
+        .select("id");
 
       if (updateErr) {
         console.error("generate-internal-assessments update error", updateErr);
+        skipped++;
+      } else if (!updated || updated.length === 0) {
         skipped++;
       } else {
         computed++;
