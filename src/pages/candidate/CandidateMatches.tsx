@@ -19,6 +19,8 @@ const CandidateMatches = () => {
   const [employers, setEmployers] = useState<Record<string, any>>({});
   const [offersById, setOffersById] = useState<Record<string, any>>({});
   const [loading, setLoading] = useState(true);
+  // Market switch OFF => external matches are hidden (never deleted; internal analyses unaffected).
+  const [externalOffersDisabled, setExternalOffersDisabled] = useState(false);
 
 
   useEffect(() => {
@@ -29,6 +31,14 @@ const CandidateMatches = () => {
   const fetchMatches = async () => {
     if (!user) return;
     try {
+      const { data: pref } = await supabase
+        .from("candidate_test_results")
+        .select("open_to_external_offers")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      const marketOff = pref?.open_to_external_offers === false;
+      setExternalOffersDisabled(marketOff);
+
       const { data: matchData, error: matchError } = await supabase
         .from("match_results")
         .select("*")
@@ -47,10 +57,10 @@ const CandidateMatches = () => {
           if (b.status === 'considering' && a.status !== 'considering') return 1;
           return (b.overall_percent || 0) - (a.overall_percent || 0);
         });
-        setMatches(sorted);
+        setMatches(marketOff ? [] : sorted);
         
         // Fetch employer profiles (by employer_user_id) and job offers (by job_offer_id) separately
-        if (matchData && matchData.length > 0) {
+        if (!marketOff && matchData && matchData.length > 0) {
           const employerIds = Array.from(new Set(matchData.map(m => m.employer_user_id).filter(Boolean)));
           const offerIds = Array.from(new Set(matchData.map(m => m.job_offer_id).filter(Boolean))) as string[];
           
@@ -126,7 +136,23 @@ const CandidateMatches = () => {
         </CardContent>
       </Card>
 
-      {matches.length === 0 ? (
+      {externalOffersDisabled ? (
+        <Card className="border-muted">
+          <CardContent className="pt-6 text-center py-16">
+            <div className="w-16 h-16 rounded-full bg-accent/20 mx-auto mb-6 flex items-center justify-center opacity-50"><Building2 className="w-8 h-8 text-accent" /></div>
+            <h3 className="text-xl font-semibold mb-3">
+              {t("candidate.matches.externalDisabledTitle", "Propozycje z rynku pracy są wyłączone w Twoim profilu")}
+            </h3>
+            <p className="text-muted-foreground max-w-md mx-auto mb-6">
+              {t(
+                "candidate.matches.externalDisabledDescription",
+                "Nie otrzymujesz nowych propozycji od pracodawców spoza Twojej organizacji. Analizy ról w Twojej firmie działają niezależnie.",
+              )}
+            </p>
+            <Link to="/candidate/profile"><Button variant="outline">{t("candidate.matches.goToProfile", "Przejdź do profilu")}</Button></Link>
+          </CardContent>
+        </Card>
+      ) : matches.length === 0 ? (
         <Card className="border-muted">
           <CardContent className="pt-6 text-center py-16">
             <div className="w-16 h-16 rounded-full bg-accent/20 mx-auto mb-6 flex items-center justify-center opacity-50"><Building2 className="w-8 h-8 text-accent" /></div>
