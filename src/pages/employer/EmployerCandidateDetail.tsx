@@ -369,10 +369,25 @@ const EmployerCandidateDetail = () => {
           body: { match_id: match.id },
         });
         if (fnError) {
+          // 409 => candidate turned off external job-market proposals (backend is source of truth).
+          let closed = false;
+          try {
+            const ctx = (fnError as any)?.context;
+            if (ctx?.status === 409) closed = true;
+            else if (typeof ctx?.json === "function") {
+              const payload = await ctx.json();
+              closed = payload?.error === "candidate_not_open_to_external_offers";
+            }
+          } catch { /* ignore parse errors */ }
           logError("EmployerCandidateDetail.markCandidateInterest", fnError);
-          toast.error(t("errors.genericError"));
+          toast.error(
+            closed
+              ? t("employer.candidateDetail.contact.candidateClosed", "Kandydat nie przyjmuje obecnie nowych propozycji od pracodawców.")
+              : t("errors.genericError"),
+          );
           return;
         }
+
         // Status saved server-side; email is best effort.
         interestEmailSent = (fnData as any)?.email_sent === true;
         if (!interestEmailSent) {
