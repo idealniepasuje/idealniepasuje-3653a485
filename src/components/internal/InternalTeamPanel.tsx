@@ -27,15 +27,15 @@ interface AssessmentRow extends InternalAssessmentRecord {
 }
 
 const consentLabel: Record<string, string> = {
-  pending: "Oczekuje na zgodę",
-  granted: "Zgoda udzielona",
-  declined: "Zgoda odrzucona",
-  revoked: "Zgoda wycofana",
+  pending: "Analiza w przygotowaniu",
+  granted: "Aktywny pracownik",
+  declined: "Brak aktywnego członkostwa",
+  revoked: "Brak aktywnego członkostwa",
 };
 
 /**
  * Analiza obecnych pracowników firmy względem konkretnego ogłoszenia.
- * Pracownicy NIE są kandydatami — dane widoczne są wyłącznie po ich zgodzie.
+ * Pracownicy NIE są kandydatami — dostęp wynika z aktywnego członkostwa pracownika w organizacji.
  */
 export const InternalTeamPanel = ({ offerId, organizationId, offerTitle = "ta rola" }: Props) => {
   const [employees, setEmployees] = useState<EmployeeRow[]>([]);
@@ -89,7 +89,7 @@ export const InternalTeamPanel = ({ offerId, organizationId, offerTitle = "ta ro
           throw error;
         }
       } else {
-        toast.success("Wysłano prośbę o zgodę na analizę");
+        toast.success("Pracownik dodany do analizy tej roli");
       }
       await fetchData();
     } catch (e) {
