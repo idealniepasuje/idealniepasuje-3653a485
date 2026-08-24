@@ -12,12 +12,14 @@ import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { logError } from "@/lib/errorLogger";
 import { toast } from "sonner";
-import { Briefcase, RefreshCw, Send } from "lucide-react";
+import { Briefcase, RefreshCw, Send, ToggleRight } from "lucide-react";
 
 interface OfferRow {
   id: string;
   title: string;
   is_active: boolean | null;
+  analyze_internal_team: boolean | null;
+  recruit_external_candidates: boolean | null;
 }
 
 interface AssessmentRow {
@@ -54,9 +56,8 @@ export const AnalyzeEmployeeDialog = ({
       const [offersRes, assessRes] = await Promise.all([
         supabase
           .from("job_offers")
-          .select("id, title, is_active")
+          .select("id, title, is_active, analyze_internal_team, recruit_external_candidates")
           .eq("organization_id", organizationId)
-          .eq("analyze_internal_team", true)
           .order("created_at", { ascending: false }),
         supabase
           .from("internal_assessments")
