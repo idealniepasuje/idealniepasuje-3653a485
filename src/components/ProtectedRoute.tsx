@@ -88,7 +88,7 @@ export const ProtectedRoute = ({
     };
 
     validateAccess();
-  }, [user, authLoading, allowedUserType, navigate, redirectTo, location.pathname]);
+  }, [user, authLoading, allowedUserType, navigate, redirectTo, location.pathname, location.search]);
 
   // Reset handled path only when location actually changes to a new path
   useEffect(() => {
