@@ -208,9 +208,9 @@ export const AnalyzeEmployeeDialog = ({
           </div>
         ) : offers.length === 0 ? (
           <div className="py-8 text-center space-y-4">
-            <p className="text-muted-foreground">Nie masz jeszcze roli z włączoną analizą zespołu.</p>
+            <p className="text-muted-foreground">Nie masz jeszcze żadnej oferty.</p>
             <Button onClick={() => navigate("/employer/offer/new")} className="gap-2">
-              <Briefcase className="w-4 h-4" /> Dodaj ogłoszenie z analizą zespołu
+              <Briefcase className="w-4 h-4" /> Dodaj ofertę
             </Button>
           </div>
         ) : (
@@ -222,6 +222,10 @@ export const AnalyzeEmployeeDialog = ({
               >
                 <div>
                   <p className="font-medium">{offer.title}</p>
+                  <p className="text-xs text-muted-foreground">
+                    Nowi kandydaci: {offer.recruit_external_candidates ? "włączone" : "wyłączone"} · Analiza zespołu:{" "}
+                    {offer.analyze_internal_team ? "włączona" : "wyłączona"}
+                  </p>
                   {!offer.is_active && (
                     <p className="text-xs text-muted-foreground">Ogłoszenie nieaktywne</p>
                   )}
