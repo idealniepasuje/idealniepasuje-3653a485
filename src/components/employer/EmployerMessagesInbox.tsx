@@ -150,21 +150,33 @@ export const EmployerMessagesInbox = () => {
     }
   };
 
-  if (loading || messages.length === 0) return null;
+  // "Requires action" = employer has not replied to / marked the response as handled.
+  const activeMessages = messages.filter((m) => !m.employer_read_at);
+  const handledMessages = messages.filter((m) => m.employer_read_at);
 
-  const unreadCount = messages.filter((m) => !m.employer_read_at).length;
+  if (loading || activeMessages.length === 0) return null;
+
+  const unreadCount = activeMessages.length;
 
   return (
     <Card className="mb-6 border-accent/30">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Mail className="w-5 h-5 text-accent" />
-          {t("employer.inbox.title", "Odpowiedzi kandydatów")}
-          {unreadCount > 0 && <Badge className="bg-accent text-accent-foreground">{unreadCount}</Badge>}
-        </CardTitle>
+        <div className="flex items-center justify-between gap-2 flex-wrap">
+          <CardTitle className="flex items-center gap-2">
+            <Mail className="w-5 h-5 text-accent" />
+            {t("employer.inbox.title", "Odpowiedzi kandydatów")}
+            {unreadCount > 0 && <Badge className="bg-accent text-accent-foreground">{unreadCount}</Badge>}
+          </CardTitle>
+          {handledMessages.length > 0 && (
+            <Button size="sm" variant="ghost" className="gap-1" onClick={() => setHistoryOpen(true)}>
+              <History className="w-4 h-4" />
+              {t("employer.inbox.history", "Historia")}
+            </Button>
+          )}
+        </div>
       </CardHeader>
       <CardContent className="space-y-3">
-        {messages.map((msg) => {
+        {activeMessages.map((msg) => {
           const response = msg.metadata?.response as string | undefined;
           const accepted = response === "accepted";
           const declined = response === "declined";
