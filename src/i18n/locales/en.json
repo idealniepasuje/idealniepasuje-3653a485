@@ -10,7 +10,9 @@
     "matches": "Matches",
     "jobOffers": "Job Offers",
     "profile": "Company Profile",
-    "connectAI": "Connect AI"
+    "connectAI": "Connect AI",
+    "team": "My team",
+    "myCompanies": "My companies"
   },
   "common": {
     "login": "Log in",

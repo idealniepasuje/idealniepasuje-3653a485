@@ -10,7 +10,9 @@
     "matches": "Dopasowania",
     "jobOffers": "Ogłoszenia",
     "profile": "Profil firmy",
-    "connectAI": "Połącz z AI"
+    "connectAI": "Połącz z AI",
+    "team": "Mój zespół",
+    "myCompanies": "Moje firmy"
   },
   "common": {
     "login": "Zaloguj się",
