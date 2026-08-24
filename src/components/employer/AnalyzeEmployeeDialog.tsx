@@ -88,22 +88,33 @@ export const AnalyzeEmployeeDialog = ({
     }
   }, [open, fetchData]);
 
-  const requestAssessment = async (offer: OfferRow) => {
+  /**
+   * Zgoda wynika z aktywnego członkostwa w organizacji — nie pytamy pracownika per rola.
+   * Tworzymy rekord analizy (trigger bazy ustawia consent zgodnie z membership) i od razu liczymy.
+   */
+  const runAssessment = async (offer: OfferRow) => {
     setBusyOfferId(offer.id);
     try {
       const { error } = await supabase.from("internal_assessments").insert({
         organization_id: organizationId,
         job_offer_id: offer.id,
         employee_user_id: employeeUserId,
-        consent_status: "pending",
         requested_by: (await supabase.auth.getUser()).data.user?.id ?? null,
       });
-      if (error) throw error;
-      toast.success("Prośba o zgodę wysłana do pracownika");
+      if (error && (error as any).code !== "23505") throw error;
+      const { data, error: fnErr } = await supabase.functions.invoke("generate-internal-assessments", {
+        body: { job_offer_id: offer.id, employee_user_id: employeeUserId },
+      });
+      if (fnErr) throw fnErr;
+      if ((data as any)?.computed === 0) {
+        toast.warning((data as any)?.message || "Nie udało się przeliczyć analizy");
+      } else {
+        toast.success("Analiza gotowa");
+      }
       await fetchData();
     } catch (e: any) {
-      logError("AnalyzeEmployeeDialog.requestAssessment", e);
-      toast.error(e?.message || "Nie udało się wysłać prośby o analizę");
+      logError("AnalyzeEmployeeDialog.runAssessment", e);
+      toast.error(e?.message || "Nie udało się uruchomić analizy");
     } finally {
       setBusyOfferId(null);
     }
@@ -160,28 +171,16 @@ export const AnalyzeEmployeeDialog = ({
       );
     }
 
-    if (!a) {
-
+    if (!a || a.consent_status === "revoked" || a.consent_status === "declined") {
       return (
-        <Button size="sm" className="gap-2" disabled={busy} onClick={() => requestAssessment(offer)}>
-          <Send className="w-4 h-4" /> Poproś o analizę
+        <Button size="sm" className="gap-2" disabled={busy} onClick={() => runAssessment(offer)}>
+          <Send className="w-4 h-4" /> Uruchom analizę
         </Button>
       );
     }
-    if (a.consent_status === "pending") {
-      return <Badge variant="secondary">Oczekuje na zgodę</Badge>;
-    }
-    if (a.consent_status === "declined") {
-      return <Badge variant="outline">Pracownik odmówił</Badge>;
-    }
-    if (a.consent_status === "revoked") {
-      return <Badge variant="outline">Zgoda wycofana</Badge>;
-    }
-    // granted
     if (a.overall_percent === null || a.overall_percent === undefined) {
       return (
         <div className="flex items-center gap-2">
-          <Badge className="bg-accent/15 text-accent border-0">Zgoda udzielona</Badge>
           <Button size="sm" variant="outline" className="gap-2" disabled={busy} onClick={() => recompute(offer)}>
             <RefreshCw className={`w-4 h-4 ${busy ? "animate-spin" : ""}`} /> Przelicz
           </Button>
@@ -236,7 +235,7 @@ export const AnalyzeEmployeeDialog = ({
           <DialogTitle>Analizuj względem roli</DialogTitle>
           <DialogDescription>
             {employeeLabel} — wybierz rolę, dla której chcesz sprawdzić dopasowanie. Analiza uruchamia się dopiero po
-            zgodzie pracownika.
+            aktywnym członkostwie pracownika w organizacji — nie wymaga osobnej zgody dla każdej roli.
           </DialogDescription>
         </DialogHeader>
 

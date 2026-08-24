@@ -78,20 +78,48 @@ serve(async (req) => {
       .maybeSingle();
     if (!employerProfile) return json({ error: "Employer profile not found" }, 404);
 
+    // Consent follows ACTIVE organization membership (no per-offer consent).
+    const { data: activeEmployees } = await admin
+      .from("organization_employees")
+      .select("user_id")
+      .eq("organization_id", offer.organization_id)
+      .eq("status", "active");
+    const activeIds = new Set((activeEmployees || []).map((e) => e.user_id));
+
     let assessmentsQuery = admin
       .from("internal_assessments")
       .select("id, employee_user_id, consent_status")
-      .eq("job_offer_id", job_offer_id)
-      .eq("consent_status", "granted");
+      .eq("job_offer_id", job_offer_id);
     if (employee_user_id) assessmentsQuery = assessmentsQuery.eq("employee_user_id", employee_user_id);
 
-    const { data: assessments, error: assessErr } = await assessmentsQuery;
+    const { data: allAssessments, error: assessErr } = await assessmentsQuery;
     if (assessErr) {
       console.error("generate-internal-assessments fetch error", assessErr);
       return json({ error: "Nie udało się pobrać analiz" }, 500);
     }
-    if (!assessments || assessments.length === 0) {
-      return json({ success: true, computed: 0, message: "Brak pracowników z udzieloną zgodą" });
+
+    // Keep consent_status technically in sync with membership.
+    const staleGranted = (allAssessments || []).filter(
+      (a) => !activeIds.has(a.employee_user_id) && a.consent_status !== "revoked",
+    );
+    if (staleGranted.length > 0) {
+      await admin
+        .from("internal_assessments")
+        .update({ consent_status: "revoked" })
+        .in("id", staleGranted.map((a) => a.id));
+    }
+
+    const assessments = (allAssessments || []).filter((a) => activeIds.has(a.employee_user_id));
+    const toGrant = assessments.filter((a) => a.consent_status !== "granted");
+    if (toGrant.length > 0) {
+      await admin
+        .from("internal_assessments")
+        .update({ consent_status: "granted" })
+        .in("id", toGrant.map((a) => a.id));
+    }
+
+    if (assessments.length === 0) {
+      return json({ success: true, computed: 0, message: "Brak aktywnych pracowników organizacji do analizy" });
     }
 
     const userIds = assessments.map((a) => a.employee_user_id);
