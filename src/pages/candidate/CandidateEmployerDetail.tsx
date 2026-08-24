@@ -70,7 +70,9 @@ const CandidateEmployerDetail = () => {
   const [match, setMatch] = useState<any>(null);
   const [employer, setEmployer] = useState<any>(null);
   const [jobOffer, setJobOffer] = useState<any>(null);
+  const [marketOff, setMarketOff] = useState(false);
   const [loading, setLoading] = useState(true);
+
 
   useEffect(() => {
     if (!authLoading && !user) { navigate("/login"); return; }
