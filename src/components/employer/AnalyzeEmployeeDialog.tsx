@@ -156,7 +156,7 @@ export const AnalyzeEmployeeDialog = ({
     return (
       <div className="flex items-center gap-2">
         <Badge className="bg-accent/15 text-accent border-0">{a.overall_percent}% dopasowania</Badge>
-        <Button size="sm" variant="outline" onClick={() => navigate(`/employer/offers/${offer.id}`)}>
+        <Button size="sm" variant="outline" onClick={() => navigate(`/employer/offer/${offer.id}`)}>
           Zobacz analizę
         </Button>
       </div>
@@ -181,7 +181,7 @@ export const AnalyzeEmployeeDialog = ({
         ) : offers.length === 0 ? (
           <div className="py-8 text-center space-y-4">
             <p className="text-muted-foreground">Nie masz jeszcze roli z włączoną analizą zespołu.</p>
-            <Button onClick={() => navigate("/employer/offers/new")} className="gap-2">
+            <Button onClick={() => navigate("/employer/offer/new")} className="gap-2">
               <Briefcase className="w-4 h-4" /> Dodaj ogłoszenie z analizą zespołu
             </Button>
           </div>

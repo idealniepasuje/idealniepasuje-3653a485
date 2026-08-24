@@ -5,13 +5,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { UserPlus, Users, Mail, X, ShieldCheck } from "lucide-react";
+import { UserPlus, Users, Mail, X, ShieldCheck, BarChart3 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { logError } from "@/lib/errorLogger";
 import { DashboardLayout } from "@/components/layouts/DashboardLayout";
 import { EmployerSidebar } from "@/components/layouts/EmployerSidebar";
 import { useOrganization } from "@/hooks/useOrganization";
+import { AnalyzeEmployeeDialog } from "@/components/employer/AnalyzeEmployeeDialog";
 import { toast } from "sonner";
 
 interface EmployeeRow {
@@ -39,6 +40,7 @@ const EmployerTeam = () => {
   const [email, setEmail] = useState("");
   const [sending, setSending] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [analyzeTarget, setAnalyzeTarget] = useState<EmployeeRow | null>(null);
 
   const fetchData = useCallback(async () => {
     if (!organization) return;
@@ -237,9 +239,14 @@ const EmployerTeam = () => {
                     </p>
                   </div>
                 </div>
-                <Button variant="outline" size="sm" onClick={() => handleRemoveEmployee(emp)}>
-                  Odłącz
-                </Button>
+                <div className="flex items-center gap-2">
+                  <Button size="sm" className="gap-2" onClick={() => setAnalyzeTarget(emp)}>
+                    <BarChart3 className="w-4 h-4" /> Analizuj względem roli
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={() => handleRemoveEmployee(emp)}>
+                    Odłącz
+                  </Button>
+                </div>
               </div>
             ))
           )}
@@ -257,6 +264,16 @@ const EmployerTeam = () => {
           )}
         </CardContent>
       </Card>
+
+      {organization && analyzeTarget && (
+        <AnalyzeEmployeeDialog
+          open={!!analyzeTarget}
+          onOpenChange={(o) => { if (!o) setAnalyzeTarget(null); }}
+          organizationId={organization.id}
+          employeeUserId={analyzeTarget.user_id}
+          employeeLabel={analyzeTarget.invited_email || "Pracownik"}
+        />
+      )}
     </DashboardLayout>
   );
 };
