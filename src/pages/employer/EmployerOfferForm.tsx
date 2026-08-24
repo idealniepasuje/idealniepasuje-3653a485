@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ArrowLeft, Plus, X, FileText, Settings, ChevronRight, CheckCircle2, CheckCircle } from "lucide-react";
@@ -23,6 +24,7 @@ import { ToolsSelector } from "@/components/tools/ToolsSelector";
 import { normalizeTools, ToolEntry } from "@/data/tools";
 import type { Json } from "@/integrations/supabase/types";
 import { isOfferComplete } from "@/lib/offerCompleteness";
+import { useOrganization } from "@/hooks/useOrganization";
 
 interface AcceptedIndustryRequirement {
   industry: string;
@@ -39,6 +41,9 @@ const EmployerOfferForm = () => {
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
   
+  const { organization } = useOrganization();
+  const [analyzeInternalTeam, setAnalyzeInternalTeam] = useState(false);
+  const [recruitExternal, setRecruitExternal] = useState(true);
   const [currentStep, setCurrentStep] = useState<Step>("overview");
   const [titleError, setTitleError] = useState<string>("");
   const [formData, setFormData] = useState({
@@ -163,6 +168,8 @@ const EmployerOfferForm = () => {
         });
 
         setRequiredTools(normalizeTools((data as any).required_tools));
+        setAnalyzeInternalTeam(!!(data as any).analyze_internal_team);
+        setRecruitExternal((data as any).recruit_external_candidates !== false);
 
         setRoleCompleted(!!(data.role_description && data.role_description.trim()));
         setRequirementsCompleted(!!(data.industry && data.position_level && (data.no_experience_required || data.required_experience)));
@@ -230,6 +237,9 @@ const EmployerOfferForm = () => {
         user_id: user.id,
         title: formData.title.trim(),
         company_name: profile?.company_name || formData.companyName.trim() || null,
+        organization_id: organization?.id ?? null,
+        analyze_internal_team: analyzeInternalTeam,
+        recruit_external_candidates: recruitExternal,
         // Nowa oferta powstaje jako draft — aktywacja dopiero po komplecie danych
         is_active: false,
       })
@@ -289,6 +299,11 @@ const EmployerOfferForm = () => {
       return;
     }
 
+    if (!analyzeInternalTeam && !recruitExternal) {
+      toast.error("Wybierz co najmniej jeden tryb: analiza zespołu lub nowi kandydaci.");
+      return;
+    }
+
     setSaving(true);
     try {
       const realOfferId = await createOfferIfNeeded();
@@ -306,6 +321,9 @@ const EmployerOfferForm = () => {
           lang_spanish: formData.langSpanish || null,
           lang_german: formData.langGerman || null,
           lang_polish: formData.langPolish || null,
+          organization_id: organization?.id ?? null,
+          analyze_internal_team: analyzeInternalTeam,
+          recruit_external_candidates: recruitExternal,
         })
         .eq("id", realOfferId)
         .eq("user_id", user.id);
@@ -575,6 +593,35 @@ const EmployerOfferForm = () => {
                   rows={5}
                   placeholder={t("employer.role.responsibilitiesPlaceholder")}
                 />
+              </div>
+
+              {/* Tryby ogłoszenia */}
+              <div className="space-y-3 rounded-lg border p-4 bg-muted/30">
+                <Label className="text-base font-semibold">Cel ogłoszenia</Label>
+                <p className="text-xs text-muted-foreground">
+                  Możesz analizować własny zespół, szukać nowych osób albo robić obie rzeczy naraz.
+                </p>
+                <div className="flex items-center justify-between gap-4">
+                  <div>
+                    <p className="text-sm font-medium">Analizuj mój zespół</p>
+                    <p className="text-xs text-muted-foreground">
+                      Sprawdź dopasowanie obecnych pracowników do tej roli (za ich zgodą).
+                    </p>
+                  </div>
+                  <Switch checked={analyzeInternalTeam} onCheckedChange={setAnalyzeInternalTeam} />
+                </div>
+                <div className="flex items-center justify-between gap-4">
+                  <div>
+                    <p className="text-sm font-medium">Szukaj nowych kandydatów</p>
+                    <p className="text-xs text-muted-foreground">
+                      Ogłoszenie bierze udział w dopasowaniach z rynku.
+                    </p>
+                  </div>
+                  <Switch checked={recruitExternal} onCheckedChange={setRecruitExternal} />
+                </div>
+                {!analyzeInternalTeam && !recruitExternal && (
+                  <p className="text-xs text-destructive">Wybierz co najmniej jeden tryb.</p>
+                )}
               </div>
 
               {/* Work mode */}
