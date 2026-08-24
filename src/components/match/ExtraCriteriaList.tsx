@@ -18,7 +18,10 @@ interface Props {
   extraStatus?: 'ok' | 'insufficient_data';
   /** Etykieta kolumny z wymaganiem pracodawcy */
   requirementLabelKey?: string;
+  /** Etykieta kolumny z wartością osoby (kandydat / pracownik / Ty) */
+  subjectLabelKey?: string;
 }
+
 
 // Mapowanie technicznych kluczy z algorytmu na klucze tłumaczeń UI
 const FIELD_LABEL_KEYS: Record<string, string> = {
