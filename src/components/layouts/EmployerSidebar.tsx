@@ -1,6 +1,6 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { Home, Briefcase, Users, Settings, LogOut, Building2 } from "lucide-react";
+import { Home, Briefcase, Users, Settings, LogOut, Building2, UsersRound } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import {
   Sidebar,
@@ -18,6 +18,7 @@ import {
 const menuItems = [
   { titleKey: "sidebar.start", icon: Home, path: "/employer/dashboard" },
   { titleKey: "sidebar.jobOffers", icon: Briefcase, path: "/employer/offers" },
+  { titleKey: "sidebar.team", icon: UsersRound, path: "/employer/team" },
   { titleKey: "sidebar.profile", icon: Settings, path: "/employer/profile" },
 ];
 

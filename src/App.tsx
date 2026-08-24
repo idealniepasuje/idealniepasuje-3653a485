@@ -21,8 +21,10 @@ const CandidateMatches = lazy(() => import("./pages/candidate/CandidateMatches")
 const CandidateEmployerDetail = lazy(() => import("./pages/candidate/CandidateEmployerDetail"));
 const CandidateFeedback = lazy(() => import("./pages/candidate/CandidateFeedback"));
 const CandidateProfile = lazy(() => import("./pages/candidate/CandidateProfile"));
+const CandidateOrganizations = lazy(() => import("./pages/candidate/CandidateOrganizations"));
 const EmployerDashboard = lazy(() => import("./pages/employer/EmployerDashboard"));
 const EmployerOffers = lazy(() => import("./pages/employer/EmployerOffers"));
+const EmployerTeam = lazy(() => import("./pages/employer/EmployerTeam"));
 const EmployerOfferForm = lazy(() => import("./pages/employer/EmployerOfferForm"));
 const EmployerProfile = lazy(() => import("./pages/employer/EmployerProfile"));
 const EmployerCulture = lazy(() => import("./pages/employer/EmployerCulture"));
@@ -66,9 +68,11 @@ const App = () => (
               <Route path="/candidate/match/:matchId" element={<ProtectedRoute allowedUserType="candidate"><CandidateEmployerDetail /></ProtectedRoute>} />
               <Route path="/candidate/feedback" element={<ProtectedRoute allowedUserType="candidate"><CandidateFeedback /></ProtectedRoute>} />
               <Route path="/candidate/profile" element={<ProtectedRoute allowedUserType="candidate"><CandidateProfile /></ProtectedRoute>} />
+              <Route path="/candidate/organizations" element={<ProtectedRoute allowedUserType="candidate"><CandidateOrganizations /></ProtectedRoute>} />
               {/* Employer routes */}
               <Route path="/employer/dashboard" element={<ProtectedRoute allowedUserType="employer"><EmployerDashboard /></ProtectedRoute>} />
               <Route path="/employer/offers" element={<ProtectedRoute allowedUserType="employer"><EmployerOffers /></ProtectedRoute>} />
+              <Route path="/employer/team" element={<ProtectedRoute allowedUserType="employer"><EmployerTeam /></ProtectedRoute>} />
               <Route path="/employer/offer/:offerId" element={<ProtectedRoute allowedUserType="employer"><EmployerOfferForm /></ProtectedRoute>} />
               <Route path="/employer/profile" element={<ProtectedRoute allowedUserType="employer"><EmployerProfile /></ProtectedRoute>} />
               <Route path="/employer/culture" element={<ProtectedRoute allowedUserType="employer"><EmployerCulture /></ProtectedRoute>} />
