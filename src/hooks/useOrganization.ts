@@ -44,19 +44,49 @@ export const useOrganization = () => {
         return;
       }
 
-      // Pracodawca bez organizacji — utwórz na podstawie profilu firmy
-      const { data: profile } = await supabase
-        .from("employer_profiles")
-        .select("company_name")
-        .eq("user_id", user.id)
+      // Organizacja może już istnieć (owner bez wpisu członkostwa) — nigdy nie twórz duplikatu
+      const { data: owned } = await supabase
+        .from("organizations")
+        .select("id, name")
+        .eq("owner_user_id", user.id)
         .maybeSingle();
 
-      const { data: created, error: createErr } = await supabase
-        .from("organizations")
-        .insert({ name: profile?.company_name?.trim() || "Moja firma", owner_user_id: user.id })
-        .select("id, name")
-        .single();
-      if (createErr) throw createErr;
+      let created = owned;
+
+      if (!created) {
+        const { data: profile } = await supabase
+          .from("employer_profiles")
+          .select("company_name")
+          .eq("user_id", user.id)
+          .maybeSingle();
+
+        const { data: inserted, error: createErr } = await supabase
+          .from("organizations")
+          .insert({ name: profile?.company_name?.trim() || "Moja firma", owner_user_id: user.id })
+          .select("id, name")
+          .single();
+        if (createErr) {
+          // 23505 = unique violation (organizacja powstała równolegle) — pobierz istniejącą
+          if ((createErr as any).code === "23505") {
+            const { data: existing } = await supabase
+              .from("organizations")
+              .select("id, name")
+              .eq("owner_user_id", user.id)
+              .maybeSingle();
+            if (!existing) throw createErr;
+            created = existing;
+          } else {
+            throw createErr;
+          }
+        } else {
+          created = inserted;
+        }
+      }
+
+      if (!created) {
+        setOrganization(null);
+        return;
+      }
 
       const { error: memberErr } = await supabase
         .from("organization_members")

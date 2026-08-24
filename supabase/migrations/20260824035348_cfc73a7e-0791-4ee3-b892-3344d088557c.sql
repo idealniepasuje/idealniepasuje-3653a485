@@ -1,0 +1,1 @@
+REVOKE EXECUTE ON FUNCTION public.enforce_org_owner_role() FROM PUBLIC, anon, authenticated;
