@@ -38,6 +38,15 @@ const EmployerOrderDetail = () => {
     if (user && orderId) fetchOrder();
   }, [user, authLoading, navigate, orderId]);
 
+  useEffect(() => {
+    if (loading || !offer) return;
+    if (window.location.hash === "#team") {
+      requestAnimationFrame(() => {
+        document.getElementById("team")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+    }
+  }, [loading, offer]);
+
   const fetchOrder = async () => {
     if (!user || !orderId) return;
     try {
