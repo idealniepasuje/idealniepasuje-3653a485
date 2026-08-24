@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
-import { Building2, Users, ChevronRight, Plus, Briefcase, Calendar, Sparkles, MessageSquare, CheckCircle, Settings, ClipboardList, ArrowRight, AlertTriangle } from "lucide-react";
+import { Building2, Users, Users2, ChevronRight, Plus, Briefcase, Calendar, Sparkles, MessageSquare, CheckCircle, Settings, ClipboardList, ArrowRight, AlertTriangle } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { logError } from "@/lib/errorLogger";
@@ -21,6 +21,7 @@ const EmployerDashboard = () => {
   const [employerProfile, setEmployerProfile] = useState<any>(null);
   const [offers, setOffers] = useState<any[]>([]);
   const [offerMatchCounts, setOfferMatchCounts] = useState<Record<string, { count: number; avgMatch: number }>>({});
+  const [offerInternalCounts, setOfferInternalCounts] = useState<Record<string, number>>({});
   const [hasFeedback, setHasFeedback] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -70,6 +71,16 @@ const EmployerDashboard = () => {
           counts[offer.id] = { count: matchList.length, avgMatch: avg };
         }
         setOfferMatchCounts(counts);
+
+        const internalCounts: Record<string, number> = {};
+        for (const offer of offersData.filter((o: any) => o.analyze_internal_team)) {
+          const { count } = await supabase
+            .from("internal_assessments")
+            .select("id", { count: "exact", head: true })
+            .eq("job_offer_id", offer.id);
+          internalCounts[offer.id] = count ?? 0;
+        }
+        setOfferInternalCounts(internalCounts);
       }
     } catch (error) {
       logError("EmployerDashboard.fetchData", error);
@@ -257,6 +268,9 @@ const EmployerDashboard = () => {
             <CardContent className="space-y-3">
               {displayedOffers.map((offer) => {
                 const stats = offerMatchCounts[offer.id] || { count: 0, avgMatch: 0 };
+                const internalEnabled = offer.analyze_internal_team === true;
+                const externalEnabled = offer.recruit_external_candidates !== false;
+                const internalCount = offerInternalCounts[offer.id] ?? 0;
                 return (
                   <div key={offer.id} className={`p-4 border rounded-lg hover:shadow-md transition-shadow ${!offer.is_active ? "opacity-70" : ""}`}>
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -273,19 +287,39 @@ const EmployerDashboard = () => {
                             <Calendar className="w-3 h-3" />
                             {formatDate(offer.created_at)}
                           </span>
-                          <span className="flex items-center gap-1">
-                            <Users className="w-3 h-3" />
-                            {stats.count} {stats.count === 1 ? t("common.matchedCandidate") : t("common.matchedCandidates")}
-                          </span>
+                          {internalEnabled && (
+                            <span className="flex items-center gap-1">
+                              <Users2 className="w-3 h-3" />
+                              {internalCount > 0
+                                ? `${internalCount} ${internalCount === 1 ? t("employer.dashboard.employeeAnalyzed", "pracownik w analizie") : t("employer.dashboard.employeesAnalyzed", "pracowników w analizie")}`
+                                : t("employer.dashboard.internalEnabled", "Analiza zespołu włączona")}
+                            </span>
+                          )}
+                          {externalEnabled && (
+                            <span className="flex items-center gap-1">
+                              <Users className="w-3 h-3" />
+                              {stats.count} {stats.count === 1 ? t("common.matchedCandidate") : t("common.matchedCandidates")}
+                            </span>
+                          )}
                         </div>
                       </Link>
                       <div className="flex items-center gap-2 shrink-0 ml-6 sm:ml-0">
-                        <Link to={`/employer/candidates?offerId=${offer.id}`}>
-                          <Button size="sm" variant="outline" className="gap-1">
-                            <Users className="w-4 h-4" />
-                            {t("employer.dashboard.viewCandidates", "Kandydaci")}
-                          </Button>
-                        </Link>
+                        {internalEnabled && (
+                          <Link to={`/employer/order/${offer.id}#team`}>
+                            <Button size="sm" variant="outline" className="gap-1">
+                              <Users2 className="w-4 h-4" />
+                              {t("employer.dashboard.viewEmployees", "Twoi pracownicy")}
+                            </Button>
+                          </Link>
+                        )}
+                        {externalEnabled && (
+                          <Link to={`/employer/candidates?offerId=${offer.id}`}>
+                            <Button size="sm" variant="outline" className="gap-1">
+                              <Users className="w-4 h-4" />
+                              {t("employer.dashboard.viewCandidates", "Kandydaci")}
+                            </Button>
+                          </Link>
+                        )}
                         <Link to={`/employer/offer/${offer.id}`}>
                           <Button size="sm" variant="outline" className="gap-1">
                             <Briefcase className="w-4 h-4" />
