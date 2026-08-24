@@ -12,6 +12,8 @@ export interface OfferCompletenessInput {
   req_out_of_the_box?: number | null;
   req_determinacja?: number | null;
   req_adaptacja?: number | null;
+  analyze_internal_team?: boolean | null;
+  recruit_external_candidates?: boolean | null;
 }
 
 const filled = (v?: string | null) => !!(v && v.trim().length > 0);
@@ -25,6 +27,10 @@ export function isOfferComplete(
   employerCultureCompleted: boolean,
 ): boolean {
   if (!employerCultureCompleted) return false;
+  // Co najmniej jeden tryb analizy musi być włączony
+  if (offer.analyze_internal_team !== undefined || offer.recruit_external_candidates !== undefined) {
+    if (!offer.analyze_internal_team && !offer.recruit_external_candidates) return false;
+  }
   if (!filled(offer.title) || (offer.title as string).trim().length < 3) return false;
   if (!filled(offer.role_description)) return false;
   if (!filled(offer.work_mode)) return false;
