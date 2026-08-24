@@ -28,7 +28,7 @@ interface AssessmentRow extends InternalAssessmentRecord {
 
 const consentLabel: Record<string, string> = {
   pending: "Analiza w przygotowaniu",
-  granted: "Aktywny pracownik",
+  granted: "Aktywny wybrany kandydat",
   declined: "Brak aktywnego członkostwa",
   revoked: "Brak aktywnego członkostwa",
 };
@@ -84,17 +84,17 @@ export const InternalTeamPanel = ({ offerId, organizationId, offerTitle = "ta ro
       });
       if (error) {
         if ((error as any).code === "23505") {
-          toast.info("Ten pracownik jest już dodany do analizy tej roli");
+          toast.info("Ten wybrany kandydat jest już dodany do analizy tej roli");
         } else {
           throw error;
         }
       } else {
-        toast.success("Pracownik dodany do analizy tej roli");
+        toast.success("Wybrany kandydat dodany do analizy tej roli");
       }
       await fetchData();
     } catch (e) {
       logError("InternalTeamPanel.handleAdd", e);
-      toast.error("Nie udało się dodać pracownika do analizy");
+      toast.error("Nie udało się dodać wybranego kandydata do analizy");
     } finally {
       setBusy(false);
     }
@@ -152,10 +152,10 @@ export const InternalTeamPanel = ({ offerId, organizationId, offerTitle = "ta ro
       <CardHeader>
         <div>
           <CardTitle className="flex items-center gap-2 text-lg">
-            <Users className="w-5 h-5 text-accent" /> Pracownicy firmy
+            <Users className="w-5 h-5 text-accent" /> Wybrani kandydaci
           </CardTitle>
           <CardDescription>
-            Dopasowanie obecnych pracowników do tej roli. Wynik pojawia się dopiero po zgodzie pracownika.
+            Dopasowanie wybranych kandydatów do tej roli. Wynik pojawia się dopiero po ich zgodzie.
           </CardDescription>
         </div>
       </CardHeader>
@@ -163,11 +163,11 @@ export const InternalTeamPanel = ({ offerId, organizationId, offerTitle = "ta ro
         {employees.length === 0 ? (
           <div className="text-center py-8">
             <p className="text-muted-foreground mb-4">
-              W Twojej organizacji nie ma jeszcze pracowników.
+              W Twojej organizacji nie ma jeszcze wybranych kandydatów.
             </p>
             <Link to="/employer/team">
               <Button variant="outline" className="gap-2">
-                <UserPlus className="w-4 h-4" /> Zaproś pracowników
+                <UserPlus className="w-4 h-4" /> Zaproś wybranych kandydatów
               </Button>
             </Link>
           </div>
@@ -177,7 +177,7 @@ export const InternalTeamPanel = ({ offerId, organizationId, offerTitle = "ta ro
             return (
               <div key={emp.id} className="flex flex-wrap items-center justify-between gap-3 border rounded-lg p-3">
                 <div>
-                  <p className="font-medium">{emp.invited_email || "Pracownik"}</p>
+                  <p className="font-medium">{emp.invited_email || "Wybrany kandydat"}</p>
                   {assessment ? (
                     <p className="text-xs text-muted-foreground">
                       {consentLabel[assessment.consent_status] || assessment.consent_status}
@@ -197,7 +197,7 @@ export const InternalTeamPanel = ({ offerId, organizationId, offerTitle = "ta ro
                     <Button
                       size="sm"
                       className="gap-2"
-                      onClick={() => setDetailsFor({ assessment, label: emp.invited_email || "Pracownik" })}
+                      onClick={() => setDetailsFor({ assessment, label: emp.invited_email || "Wybrany kandydat" })}
                     >
                       <BarChart3 className="w-4 h-4" /> Zobacz analizę
                     </Button>
@@ -229,8 +229,8 @@ export const InternalTeamPanel = ({ offerId, organizationId, offerTitle = "ta ro
       <Dialog open={!!detailsFor} onOpenChange={(open) => !open && setDetailsFor(null)}>
         <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Analiza pracownika</DialogTitle>
-            <DialogDescription>Dopasowanie pracownika do roli: {offerTitle}</DialogDescription>
+            <DialogTitle>Analiza wybranego kandydata</DialogTitle>
+            <DialogDescription>Dopasowanie wybranego kandydata do roli: {offerTitle}</DialogDescription>
           </DialogHeader>
           {detailsFor && (
             <InternalAssessmentDetails

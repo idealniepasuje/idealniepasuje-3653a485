@@ -205,7 +205,7 @@ export const AnalyzeEmployeeDialog = ({
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="max-w-3xl">
           <DialogHeader>
-            <DialogTitle>Analiza pracownika</DialogTitle>
+            <DialogTitle>Analiza wybranego kandydata</DialogTitle>
             <DialogDescription>
               {employeeLabel} — dopasowanie do roli: {detailOffer.title}
             </DialogDescription>
@@ -235,7 +235,7 @@ export const AnalyzeEmployeeDialog = ({
           <DialogTitle>Analizuj względem roli</DialogTitle>
           <DialogDescription>
             {employeeLabel} — wybierz rolę, dla której chcesz sprawdzić dopasowanie. Analiza uruchamia się dopiero po
-            aktywnym członkostwie pracownika w organizacji — nie wymaga osobnej zgody dla każdej roli.
+            aktywnym członkostwie wybranego kandydata w organizacji — nie wymaga osobnej zgody dla każdej roli.
           </DialogDescription>
         </DialogHeader>
 

@@ -123,7 +123,7 @@ const CandidateOrganizations = () => {
   return (
     <DashboardLayout sidebar={<CandidateSidebar />}>
       <div className="mb-6">
-        <h1 className="text-3xl font-bold mb-2">Moje firmy</h1>
+        <h1 className="text-3xl font-bold mb-2">Zaproszenia</h1>
         <p className="text-muted-foreground">
           Zarządzaj przynależnością do organizacji oraz analizami dopasowania do ról.
         </p>

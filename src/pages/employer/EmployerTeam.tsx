@@ -77,7 +77,7 @@ const EmployerTeam = () => {
   const handleInvite = async () => {
     if (!organization) return;
     const value = email.trim().toLowerCase();
-    if (!value) { toast.error("Podaj adres e-mail pracownika"); return; }
+    if (!value) { toast.error("Podaj adres e-mail wybranego kandydata"); return; }
     setSending(true);
     try {
       const { data, error } = await supabase.functions.invoke("invite-employee", {
@@ -123,7 +123,7 @@ const EmployerTeam = () => {
         .eq("id", row.id);
       if (error) throw error;
 
-      // Odłączenie odbiera firmie dostęp — usuwamy analizy tego pracownika
+      // Odłączenie odbiera firmie dostęp — usuwamy analizy tego wybranego kandydata
       const { error: delErr } = await supabase
         .from("internal_assessments")
         .delete()
@@ -131,11 +131,11 @@ const EmployerTeam = () => {
         .eq("employee_user_id", row.user_id);
       if (delErr) logError("EmployerTeam.removeAssessments", delErr);
 
-      toast.success("Pracownik odłączony od organizacji");
+      toast.success("Wybrany kandydat odłączony od organizacji");
       await fetchData();
     } catch (e) {
       logError("EmployerTeam.handleRemoveEmployee", e);
-      toast.error("Nie udało się odłączyć pracownika");
+      toast.error("Nie udało się odłączyć wybranego kandydata");
     }
   };
 
@@ -155,9 +155,9 @@ const EmployerTeam = () => {
   return (
     <DashboardLayout sidebar={<EmployerSidebar />}>
       <div className="mb-6">
-        <h1 className="text-3xl font-bold mb-2">Mój zespół</h1>
+        <h1 className="text-3xl font-bold mb-2">Wybrani kandydaci</h1>
         <p className="text-muted-foreground">
-          Pracownicy {organization?.name ? `organizacji ${organization.name}` : "Twojej organizacji"}. Analiza ich dopasowania
+          Wybrani kandydaci {organization?.name ? `organizacji ${organization.name}` : "Twojej organizacji"}. Analiza ich dopasowania
           do roli wymaga ich zgody i zawsze dotyczy konkretnego ogłoszenia.
         </p>
       </div>
@@ -165,10 +165,10 @@ const EmployerTeam = () => {
       <Card className="mb-6">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-lg">
-            <UserPlus className="w-5 h-5 text-accent" /> Zaproś pracownika
+            <UserPlus className="w-5 h-5 text-accent" /> Zaproś wybranego kandydata
           </CardTitle>
           <CardDescription>
-            Zapraszamy wyłącznie po adresie e-mail. Pracownik świadomie akceptuje dołączenie do organizacji.
+            Zapraszamy wyłącznie po adresie e-mail. Wybrany kandydat świadomie akceptuje dołączenie do organizacji.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -180,7 +180,7 @@ const EmployerTeam = () => {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="pracownik@firma.pl"
+                placeholder="kandydat@firma.pl"
               />
             </div>
             <Button onClick={handleInvite} disabled={sending} className="gap-2">
@@ -217,7 +217,7 @@ const EmployerTeam = () => {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-lg">
-            <Users className="w-5 h-5 text-accent" /> Pracownicy ({activeEmployees.length})
+            <Users className="w-5 h-5 text-accent" /> Wybrani kandydaci ({activeEmployees.length})
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-2">
@@ -233,7 +233,7 @@ const EmployerTeam = () => {
                     <ShieldCheck className="w-4 h-4 text-accent" />
                   </div>
                   <div>
-                    <p className="font-medium">{emp.invited_email || "Pracownik"}</p>
+                    <p className="font-medium">{emp.invited_email || "Wybrany kandydat"}</p>
                     <p className="text-xs text-muted-foreground">
                       W organizacji od {emp.joined_at ? new Date(emp.joined_at).toLocaleDateString("pl-PL") : "—"}
                     </p>
@@ -256,7 +256,7 @@ const EmployerTeam = () => {
               <p className="text-sm font-medium text-muted-foreground mb-2">Odłączeni ({removedEmployees.length})</p>
               {removedEmployees.map((emp) => (
                 <div key={emp.id} className="flex items-center justify-between gap-3 border rounded-lg p-3 opacity-60">
-                  <p className="text-sm">{emp.invited_email || "Pracownik"}</p>
+                  <p className="text-sm">{emp.invited_email || "Wybrany kandydat"}</p>
                   <Badge variant="secondary">Odłączony</Badge>
                 </div>
               ))}
@@ -271,7 +271,7 @@ const EmployerTeam = () => {
           onOpenChange={(o) => { if (!o) setAnalyzeTarget(null); }}
           organizationId={organization.id}
           employeeUserId={analyzeTarget.user_id}
-          employeeLabel={analyzeTarget.invited_email || "Pracownik"}
+          employeeLabel={analyzeTarget.invited_email || "Wybrany kandydat"}
         />
       )}
     </DashboardLayout>
