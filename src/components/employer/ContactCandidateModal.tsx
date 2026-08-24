@@ -93,6 +93,11 @@ export const ContactCandidateModal = ({
           toast.info(t("employer.candidateDetail.contact.inviteAlreadySent", "Zaproszenie dla tego dopasowania zostało już wysłane"));
           return;
         }
+        // DB guard: candidate turned off external job-market proposals.
+        if ((insertErr as any).code === '23514') {
+          toast.error(t("employer.candidateDetail.contact.candidateClosed", "Kandydat nie przyjmuje obecnie nowych propozycji od pracodawców."));
+          return;
+        }
         throw insertErr;
       }
 
@@ -155,6 +160,10 @@ export const ContactCandidateModal = ({
         // Unique index guards against duplicate requests of the same kind for this match.
         if ((insertErr as any).code === '23505') {
           toast.info(t("employer.candidateDetail.contact.requestAlreadySent", "Prośba została już wysłana"));
+          return;
+        }
+        if ((insertErr as any).code === '23514') {
+          toast.error(t("employer.candidateDetail.contact.candidateClosed", "Kandydat nie przyjmuje obecnie nowych propozycji od pracodawców."));
           return;
         }
         throw insertErr;
