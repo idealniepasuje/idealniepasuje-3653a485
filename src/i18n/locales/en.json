@@ -750,7 +750,8 @@
         "inviteAlreadySent": "An invitation for this match has already been sent",
         "inviteSavedNoEmail": "The invitation was saved, but the email notification could not be sent",
         "requestSavedNoEmail": "The request was saved, but the email notification could not be sent",
-        "requestAlreadySent": "The request has already been sent"
+        "requestAlreadySent": "The request has already been sent",
+        "candidateClosed": "This candidate is not accepting new offers from employers at the moment."
       },
       "noData": "No data",
       "interestSavedNoEmail": "Interest was saved, but the email notification could not be sent"

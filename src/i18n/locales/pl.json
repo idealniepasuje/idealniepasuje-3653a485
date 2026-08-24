@@ -750,7 +750,8 @@
         "inviteAlreadySent": "Zaproszenie dla tego dopasowania zostało już wysłane",
         "inviteSavedNoEmail": "Zaproszenie zostało zapisane, ale powiadomienie e-mail nie zostało wysłane",
         "requestSavedNoEmail": "Prośba została zapisana, ale powiadomienie e-mail nie zostało wysłane",
-        "requestAlreadySent": "Prośba została już wysłana"
+        "requestAlreadySent": "Prośba została już wysłana",
+        "candidateClosed": "Kandydat nie przyjmuje obecnie nowych propozycji od pracodawców."
       },
       "noData": "Brak danych",
       "interestSavedNoEmail": "Zainteresowanie zostało zapisane, ale powiadomienie e-mail nie zostało wysłane"

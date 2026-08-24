@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
+import { assertExternalContactAllowed } from "../_shared/external-contact-guard.ts";
 
 
 const corsHeaders = {
@@ -55,6 +56,10 @@ serve(async (req) => {
         status: 403, headers: { "Content-Type": "application/json", ...corsHeaders },
       });
     }
+
+    // External-market guard: no contact disclosure for opted-out candidates.
+    const blocked = await assertExternalContactAllowed(admin, candidate_user_id, callerId, corsHeaders);
+    if (blocked) return blocked;
 
     const { data: candUser } = await admin.auth.admin.getUserById(candidate_user_id);
     const email = candUser?.user?.email || null;
