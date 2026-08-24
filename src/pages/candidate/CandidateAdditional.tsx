@@ -344,18 +344,19 @@ const CandidateAdditional = () => {
       // Re-read the DB-computed readiness flags after the save
       const { data: readiness, error: readinessError } = await supabase
         .from("candidate_test_results")
-        .select("all_tests_completed")
+        .select("all_tests_completed, additional_completed")
         .eq("user_id", user.id)
         .maybeSingle();
       if (readinessError) logError("CandidateAdditional.readReadiness", readinessError);
       const isReadyForMatching = readiness?.all_tests_completed === true;
 
-      // Auto-mark related employer messages as read once candidate provided the requested info
+      // Auto-mark related employer requests as handled once the underlying data exists.
+      // profile_completion follows the DB-computed required fields — "Daj się poznać" is
+      // optional and must never keep an old request alive.
       try {
         const typesToClear: string[] = [];
-        if (linkedinUrl) typesToClear.push('linkedin_request');
-        const gtkComplete = gtkTasks.trim() && gtkProblems.trim() && gtkMotivation.trim() && gtkProudOf.trim();
-        if (gtkComplete) typesToClear.push('profile_completion');
+        if (linkedinUrl.trim()) typesToClear.push('linkedin_request');
+        if (readiness?.additional_completed === true) typesToClear.push('profile_completion');
         if (tools.length > 0) typesToClear.push('tools_completion_request');
         if (typesToClear.length > 0) {
           await supabase
@@ -368,6 +369,7 @@ const CandidateAdditional = () => {
       } catch (e) {
         logError('CandidateAdditional.clearMessages', e);
       }
+
 
       const [matchesOk, emailOk] = await Promise.all([
         isReadyForMatching ? generateMatches() : Promise.resolve(true),

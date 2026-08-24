@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,16 +12,31 @@ import { useAuth } from "@/contexts/AuthContext";
 import { logError } from "@/lib/errorLogger";
 import { toast } from "sonner";
 
+type MessageType =
+  | 'linkedin_request'
+  | 'profile_completion'
+  | 'interview_invite'
+  | 'interview_response'
+  | 'tools_completion_request'
+  | 'employer_reply';
+
 interface Message {
   id: string;
   match_result_id: string;
   candidate_user_id: string;
   employer_user_id: string;
-  type: 'linkedin_request' | 'profile_completion' | 'interview_invite' | 'interview_response' | 'tools_completion_request' | 'employer_reply';
+  type: MessageType;
   content: string;
   metadata: any;
   read_at: string | null;
   created_at: string;
+}
+
+/** Real state of the candidate profile — drives whether a request is still outstanding. */
+interface Fulfillment {
+  linkedin: boolean;
+  tools: boolean;
+  profile: boolean;
 }
 
 const iconForType = (type: string) => {
@@ -32,10 +47,15 @@ const iconForType = (type: string) => {
   return FileEdit;
 };
 
+/** Action requests: their "done" state comes from the data, never from read_at alone. */
+const REQUEST_TYPES: MessageType[] = ['linkedin_request', 'tools_completion_request', 'profile_completion'];
+
 export const CandidateMessagesInbox = () => {
   const { user } = useAuth();
   const { t } = useTranslation();
   const [messages, setMessages] = useState<Message[]>([]);
+  const [fulfillment, setFulfillment] = useState<Fulfillment>({ linkedin: false, tools: false, profile: false });
+  const [respondedMatchIds, setRespondedMatchIds] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
   const [replyingId, setReplyingId] = useState<string | null>(null);
   // Draft per message id — a draft must never leak between different invitations.
@@ -43,30 +63,78 @@ export const CandidateMessagesInbox = () => {
   const [sendingResponse, setSendingResponse] = useState(false);
   const [historyOpen, setHistoryOpen] = useState(false);
 
-  useEffect(() => {
+  const fetchMessages = useCallback(async () => {
     if (!user) return;
-    fetchMessages();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user]);
-
-  const fetchMessages = async () => {
     try {
-      // Full history (handled + active), newest first.
-      const { data, error } = await supabase
-        .from('candidate_messages')
-        .select('*')
-        .eq('candidate_user_id', user!.id)
-        .neq('type', 'interview_response')
-        .order('created_at', { ascending: false })
-        .limit(50);
-      if (error) throw error;
-      setMessages((data || []) as Message[]);
+      const [msgRes, profileRes] = await Promise.all([
+        supabase
+          .from('candidate_messages')
+          .select('*')
+          .eq('candidate_user_id', user.id)
+          .order('created_at', { ascending: false })
+          .limit(100),
+        supabase
+          .from('candidate_test_results')
+          .select('linkedin_url, tools, additional_completed')
+          .eq('user_id', user.id)
+          .maybeSingle(),
+      ]);
+      if (msgRes.error) throw msgRes.error;
+
+      const all = (msgRes.data || []) as Message[];
+      const toolsArr = Array.isArray(profileRes.data?.tools) ? (profileRes.data?.tools as unknown[]) : [];
+      const state: Fulfillment = {
+        linkedin: !!(profileRes.data?.linkedin_url || "").trim(),
+        tools: toolsArr.length > 0,
+        // profile_completion is satisfied by the DB-computed required fields.
+        // "Daj się poznać" is optional and intentionally NOT part of this check.
+        profile: profileRes.data?.additional_completed === true,
+      };
+
+      const responded = new Set(
+        all.filter((m) => m.type === 'interview_response' && m.match_result_id).map((m) => m.match_result_id),
+      );
+
+      // Visible feed excludes the candidate's own responses.
+      const visible = all.filter((m) => m.type !== 'interview_response');
+
+      // Lazy backfill: a request whose requirement is already met is handled — persist it once.
+      const satisfiedUnread = visible.filter(
+        (m) =>
+          !m.read_at &&
+          ((m.type === 'linkedin_request' && state.linkedin) ||
+            (m.type === 'tools_completion_request' && state.tools) ||
+            (m.type === 'profile_completion' && state.profile) ||
+            (m.type === 'interview_invite' && responded.has(m.match_result_id))),
+      );
+      if (satisfiedUnread.length > 0) {
+        const stamp = new Date().toISOString();
+        const { error: backfillErr } = await supabase
+          .from('candidate_messages')
+          .update({ read_at: stamp })
+          .in('id', satisfiedUnread.map((m) => m.id));
+        if (backfillErr) {
+          logError('CandidateMessagesInbox.backfill', backfillErr);
+        } else {
+          const ids = new Set(satisfiedUnread.map((m) => m.id));
+          for (const m of visible) if (ids.has(m.id)) m.read_at = stamp;
+        }
+      }
+
+      setFulfillment(state);
+      setRespondedMatchIds(responded);
+      setMessages(visible);
     } catch (e) {
       logError('CandidateMessagesInbox.fetch', e);
     } finally {
       setLoading(false);
     }
-  };
+  }, [user]);
+
+  useEffect(() => {
+    if (!user) return;
+    fetchMessages();
+  }, [user, fetchMessages]);
 
   const submitResponse = async (msg: Message, response: 'accepted' | 'declined' | 'reply') => {
     if (!user) return;
@@ -108,8 +176,7 @@ export const CandidateMessagesInbox = () => {
     }
   };
 
-
-  // Persistent "handled" state per user — stored in candidate_messages.read_at (no extra table).
+  /** Hide from the dashboard. History keeps the row and still flags unmet requirements. */
   const markHandled = async (id: string) => {
     const stamp = new Date().toISOString();
     const { error } = await supabase.from('candidate_messages').update({ read_at: stamp }).eq('id', id);
@@ -128,12 +195,40 @@ export const CandidateMessagesInbox = () => {
     type === 'employer_reply' ? t("candidate.inbox.employerReply", "Wiadomość od pracodawcy") :
     t("candidate.inbox.profileCompletion");
 
+  /** true = the underlying requirement is still not met (red dot in history). */
+  const isOutstanding = (m: Message) => {
+    if (m.type === 'linkedin_request') return !fulfillment.linkedin;
+    if (m.type === 'tools_completion_request') return !fulfillment.tools;
+    if (m.type === 'profile_completion') return !fulfillment.profile;
+    return false;
+  };
+
+  /**
+   * Active = needs attention now.
+   * Requests: unread AND requirement still unmet (an explicit X also hides them).
+   * Invitations: unread AND no response sent yet.
+   * Employer replies: unread.
+   */
+  const isActive = (m: Message) => {
+    if (m.read_at) return false;
+    if (REQUEST_TYPES.includes(m.type)) return isOutstanding(m);
+    if (m.type === 'interview_invite') return !respondedMatchIds.has(m.match_result_id);
+    return true;
+  };
+
   if (loading) return null;
 
-  const active = messages.filter((m) => !m.read_at);
-  const handled = messages.filter((m) => !!m.read_at);
+  const active = messages.filter(isActive);
+  const handled = messages.filter((m) => !isActive(m));
 
   if (active.length === 0 && handled.length === 0) return null;
+
+  const contextLine = (m: Message) => {
+    const company = m.metadata?.company_name as string | undefined;
+    const offer = m.metadata?.offer_title as string | undefined;
+    const parts = [company, offer].filter(Boolean).join(" — ");
+    return parts ? `${parts} · ${new Date(m.created_at).toLocaleDateString()}` : new Date(m.created_at).toLocaleDateString();
+  };
 
   const historyDialog = (
     <Dialog open={historyOpen} onOpenChange={setHistoryOpen}>
@@ -147,20 +242,33 @@ export const CandidateMessagesInbox = () => {
               {t("candidate.inbox.historyEmpty", "Brak obsłużonych wiadomości.")}
             </p>
           ) : (
-            handled.map((m) => (
-              <div key={m.id} className="flex flex-wrap items-center justify-between gap-2 border rounded-lg p-3">
-                <div className="min-w-0">
-                  <p className="text-sm font-medium">{typeLabelFor(m.type)}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {m.metadata?.company_name || m.metadata?.offer_title
-                      ? `${m.metadata?.company_name ?? ""}${m.metadata?.company_name && m.metadata?.offer_title ? " — " : ""}${m.metadata?.offer_title ?? ""} · `
-                      : ""}
-                    {new Date(m.created_at).toLocaleDateString()}
-                  </p>
+            handled.map((m) => {
+              const outstanding = isOutstanding(m);
+              return (
+                <div key={m.id} className="flex flex-wrap items-start justify-between gap-2 border rounded-lg p-3">
+                  <div className="min-w-0 flex items-start gap-2">
+                    {outstanding && (
+                      <span
+                        className="mt-1.5 w-2 h-2 rounded-full bg-destructive shrink-0"
+                        aria-hidden="true"
+                      />
+                    )}
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium">{typeLabelFor(m.type)}</p>
+                      <p className="text-xs text-muted-foreground">{contextLine(m)}</p>
+                      {m.content && (
+                        <p className="text-xs text-muted-foreground mt-1 line-clamp-2 whitespace-pre-wrap">{m.content}</p>
+                      )}
+                    </div>
+                  </div>
+                  {outstanding ? (
+                    <Badge variant="destructive">{t("candidate.inbox.needsAction", "Wymaga działania")}</Badge>
+                  ) : (
+                    <Badge variant="secondary">{t("candidate.inbox.handled", "Obsłużone")}</Badge>
+                  )}
                 </div>
-                <Badge variant="secondary">{t("candidate.inbox.handled", "Obsłużone")}</Badge>
-              </div>
-            ))
+              );
+            })
           )}
         </div>
       </DialogContent>
@@ -188,20 +296,18 @@ export const CandidateMessagesInbox = () => {
           {t("candidate.inbox.title")}
           <Badge className="bg-accent text-accent-foreground">{active.length}</Badge>
         </CardTitle>
-        {handled.length > 0 && (
-          <Button variant="ghost" size="sm" className="gap-2" onClick={() => setHistoryOpen(true)}>
-            <History className="w-4 h-4" />
-            {t("candidate.inbox.history", "Historia wiadomości")}
-          </Button>
-        )}
+        <Button variant="ghost" size="sm" className="gap-2" onClick={() => setHistoryOpen(true)}>
+          <History className="w-4 h-4" />
+          {t("candidate.inbox.history", "Historia wiadomości")}
+        </Button>
       </CardHeader>
       <CardContent className="space-y-3">
         {active.map((msg) => {
           const Icon = iconForType(msg.type);
           const typeLabel = typeLabelFor(msg.type);
           const calendarLink = msg.metadata?.calendar_link as string | undefined;
-          // Business actions resolve these types; only informational ones get a manual dismiss.
-          const dismissible = msg.type === 'employer_reply';
+          // Invitations must be answered (accept/decline/reply) — everything else can be hidden manually.
+          const dismissible = msg.type !== 'interview_invite';
           return (
             <div key={msg.id} className="p-4 rounded-lg border bg-accent/5 border-accent/30">
               <div className="flex items-start gap-3">
@@ -270,7 +376,7 @@ export const CandidateMessagesInbox = () => {
                       </a>
                     )}
                     {msg.type === 'profile_completion' && (
-                      <Link to="/candidate/additional#gtk">
+                      <Link to="/candidate/additional">
                         <Button size="sm" variant="outline">{t("candidate.inbox.openProfile")}</Button>
                       </Link>
                     )}
