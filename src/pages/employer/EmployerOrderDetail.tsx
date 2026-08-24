@@ -2,9 +2,9 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Briefcase, Calendar, Users, ChevronRight, FileText, Settings, Edit, Archive, RotateCcw } from "lucide-react";
+import { ArrowLeft, Calendar, Users, ChevronRight, Edit, Archive, RotateCcw } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { logError } from "@/lib/errorLogger";
@@ -92,24 +92,6 @@ const EmployerOrderDetail = () => {
 
   if (!offer) return null;
 
-  const sections = [
-    {
-      title: t("employer.offerForm.roleTitle"),
-      description: offer.role_description || offer.role_responsibilities 
-        ? t("common.completed") 
-        : t("common.toDo"),
-      completed: !!(offer.role_description || offer.role_responsibilities),
-      icon: FileText,
-    },
-    {
-      title: t("employer.offerForm.requirementsTitle"),
-      description: offer.industry && offer.position_level 
-        ? `${offer.industry} · ${offer.position_level}` 
-        : t("common.toDo"),
-      completed: !!(offer.industry && offer.position_level),
-      icon: Settings,
-    },
-  ];
 
   return (
     <DashboardLayout sidebar={<EmployerSidebar />}>
@@ -184,47 +166,6 @@ const EmployerOrderDetail = () => {
         </Card>
         )}
 
-        <Card className="mb-4 sm:mb-6">
-          <CardHeader className="px-4 sm:px-6 py-4 sm:py-6">
-            <CardTitle className="text-base sm:text-lg">{t("employer.orderDetail.detailsTitle")}</CardTitle>
-            <CardDescription className="text-xs sm:text-sm">{t("employer.orderDetail.detailsDescription")}</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-3 sm:space-y-4 px-3 sm:px-6">
-            {sections.map((section) => {
-              const IconComponent = section.icon;
-              return (
-                <div key={section.title} className="flex items-start sm:items-center gap-2 sm:gap-3 p-2 sm:p-3 rounded-lg border overflow-hidden">
-                  <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-accent/10 flex items-center justify-center shrink-0 mt-0.5 sm:mt-0">
-                    <IconComponent className="w-4 h-4 sm:w-5 sm:h-5 text-accent" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between gap-1.5">
-                      <p className="font-medium text-xs sm:text-sm truncate">{section.title}</p>
-                      <Badge variant={section.completed ? "default" : "outline"} className={`text-[10px] sm:text-xs shrink-0 ${section.completed ? "bg-success text-success-foreground" : ""}`}>
-                        {section.completed ? t("common.completed") : t("common.toDo")}
-                      </Badge>
-                    </div>
-                    <p className="text-[10px] sm:text-xs text-muted-foreground truncate">{section.description}</p>
-                  </div>
-                </div>
-              );
-            })}
-
-            {offer.role_description && (
-              <div className="pt-2 border-t">
-                <p className="text-xs sm:text-sm font-medium mb-1">{t("employer.offerForm.roleTitle")}</p>
-                <p className="text-xs sm:text-sm text-muted-foreground break-words">{offer.role_description}</p>
-              </div>
-            )}
-
-            {offer.role_responsibilities && (
-              <div className="pt-2 border-t">
-                <p className="text-xs sm:text-sm font-medium mb-1">{t("candidate.employerDetail.roleResponsibilities")}</p>
-                <p className="text-xs sm:text-sm text-muted-foreground whitespace-pre-line break-words">{offer.role_responsibilities}</p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
       </div>
 
       <AlertDialog open={closeDialogOpen} onOpenChange={setCloseDialogOpen}>
