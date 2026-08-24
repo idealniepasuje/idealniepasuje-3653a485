@@ -239,7 +239,8 @@ const EmployerOfferForm = () => {
         company_name: profile?.company_name || formData.companyName.trim() || null,
         organization_id: organization?.id ?? null,
         analyze_internal_team: analyzeInternalTeam,
-        recruit_external_candidates: recruitExternal,
+        // DB wymusza co najmniej jeden tryb — nowa oferta bez trybów startuje jako zewnętrzna
+        recruit_external_candidates: !analyzeInternalTeam && !recruitExternal ? true : recruitExternal,
         // Nowa oferta powstaje jako draft — aktywacja dopiero po komplecie danych
         is_active: false,
       })
