@@ -23,6 +23,7 @@ const EmployerDashboard = () => {
   const [offerMatchCounts, setOfferMatchCounts] = useState<Record<string, { count: number; avgMatch: number }>>({});
   const [offerInternalCounts, setOfferInternalCounts] = useState<Record<string, number>>({});
   const [hasFeedback, setHasFeedback] = useState(false);
+  const [feedbackBannerDismissed, setFeedbackBannerDismissed] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
