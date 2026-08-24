@@ -102,8 +102,7 @@ export const InternalAssessmentDetails = ({ assessment, subjectLabel, roleTitle,
   const strengths: string[] = Array.isArray(md.strengths) ? md.strengths : [];
   const risks: string[] = Array.isArray(md.risks) ? md.risks : [];
 
-  const subjectScoreLabel = isEmployer ? "Wynik pracownika" : "Twój wynik";
-  const requirementLabel = isEmployer ? "Wymaganie roli" : "Oczekiwanie roli";
+  const subjectLabelKey = isEmployer ? "internal.employeeScore" : "internal.yourScore";
 
   return (
     <div className="space-y-6">
@@ -229,9 +228,9 @@ export const InternalAssessmentDetails = ({ assessment, subjectLabel, roleTitle,
           <ExtraCriteriaList
             details={extraDetails}
             extraStatus={md.extraStatus}
-            requirementLabelKey="employer.candidateDetail.yourRequirement"
+            requirementLabelKey="internal.roleRequirement"
+            subjectLabelKey={subjectLabelKey}
           />
-          <p className="sr-only">{subjectScoreLabel} / {requirementLabel}</p>
         </CardContent>
       </Card>
     </div>
