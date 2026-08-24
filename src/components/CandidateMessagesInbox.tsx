@@ -5,7 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
-import { Mail, Linkedin, CalendarClock, FileEdit, ExternalLink, Wrench, CheckCircle, XCircle, MessageSquare } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Mail, Linkedin, CalendarClock, FileEdit, ExternalLink, Wrench, CheckCircle, XCircle, MessageSquare, History, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { logError } from "@/lib/errorLogger";
@@ -40,6 +41,7 @@ export const CandidateMessagesInbox = () => {
   // Draft per message id — a draft must never leak between different invitations.
   const [drafts, setDrafts] = useState<Record<string, string>>({});
   const [sendingResponse, setSendingResponse] = useState(false);
+  const [historyOpen, setHistoryOpen] = useState(false);
 
   useEffect(() => {
     if (!user) return;
@@ -49,7 +51,7 @@ export const CandidateMessagesInbox = () => {
 
   const fetchMessages = async () => {
     try {
-      // Full history (read + unread), newest first.
+      // Full history (handled + active), newest first.
       const { data, error } = await supabase
         .from('candidate_messages')
         .select('*')
@@ -96,6 +98,7 @@ export const CandidateMessagesInbox = () => {
         delete next[msg.id];
         return next;
       });
+      // Accept/decline resolve the invitation; a plain reply also closes it from the task list.
       await fetchMessages();
     } catch (e) {
       logError('CandidateMessagesInbox.submitResponse', e);
@@ -106,43 +109,101 @@ export const CandidateMessagesInbox = () => {
   };
 
 
-  const markRead = async (id: string) => {
+  // Persistent "handled" state per user — stored in candidate_messages.read_at (no extra table).
+  const markHandled = async (id: string) => {
     const stamp = new Date().toISOString();
     const { error } = await supabase.from('candidate_messages').update({ read_at: stamp }).eq('id', id);
     if (error) {
-      logError('CandidateMessagesInbox.markRead', error);
+      logError('CandidateMessagesInbox.markHandled', error);
       toast.error(t("errors.genericError"));
       return;
     }
     setMessages((prev) => prev.map((m) => (m.id === id ? { ...m, read_at: stamp } : m)));
   };
 
+  const typeLabelFor = (type: string) =>
+    type === 'interview_invite' ? t("candidate.inbox.interviewInvite") :
+    type === 'linkedin_request' ? t("candidate.inbox.linkedinRequest") :
+    type === 'tools_completion_request' ? t("candidate.inbox.toolsRequest", "Prośba o uzupełnienie narzędzi") :
+    type === 'employer_reply' ? t("candidate.inbox.employerReply", "Wiadomość od pracodawcy") :
+    t("candidate.inbox.profileCompletion");
 
-  if (loading || messages.length === 0) return null;
+  if (loading) return null;
+
+  const active = messages.filter((m) => !m.read_at);
+  const handled = messages.filter((m) => !!m.read_at);
+
+  if (active.length === 0 && handled.length === 0) return null;
+
+  const historyDialog = (
+    <Dialog open={historyOpen} onOpenChange={setHistoryOpen}>
+      <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>{t("candidate.inbox.history", "Historia wiadomości")}</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-2">
+          {handled.length === 0 ? (
+            <p className="text-sm text-muted-foreground py-4 text-center">
+              {t("candidate.inbox.historyEmpty", "Brak obsłużonych wiadomości.")}
+            </p>
+          ) : (
+            handled.map((m) => (
+              <div key={m.id} className="flex flex-wrap items-center justify-between gap-2 border rounded-lg p-3">
+                <div className="min-w-0">
+                  <p className="text-sm font-medium">{typeLabelFor(m.type)}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {m.metadata?.company_name || m.metadata?.offer_title
+                      ? `${m.metadata?.company_name ?? ""}${m.metadata?.company_name && m.metadata?.offer_title ? " — " : ""}${m.metadata?.offer_title ?? ""} · `
+                      : ""}
+                    {new Date(m.created_at).toLocaleDateString()}
+                  </p>
+                </div>
+                <Badge variant="secondary">{t("candidate.inbox.handled", "Obsłużone")}</Badge>
+              </div>
+            ))
+          )}
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+
+  // Everything handled — dashboard stays clean, history remains reachable.
+  if (active.length === 0) {
+    return (
+      <div className="mb-8 flex justify-end">
+        <Button variant="ghost" size="sm" className="gap-2 text-muted-foreground" onClick={() => setHistoryOpen(true)}>
+          <History className="w-4 h-4" />
+          {t("candidate.inbox.history", "Historia wiadomości")} ({handled.length})
+        </Button>
+        {historyDialog}
+      </div>
+    );
+  }
 
   return (
     <Card className="mb-8 border-accent/30">
-      <CardHeader>
+      <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0">
         <CardTitle className="flex items-center gap-2">
           <Mail className="w-5 h-5 text-accent" />
           {t("candidate.inbox.title")}
-          {messages.some((m) => !m.read_at) && (
-            <Badge className="bg-accent text-accent-foreground">{messages.filter((m) => !m.read_at).length}</Badge>
-          )}
+          <Badge className="bg-accent text-accent-foreground">{active.length}</Badge>
         </CardTitle>
+        {handled.length > 0 && (
+          <Button variant="ghost" size="sm" className="gap-2" onClick={() => setHistoryOpen(true)}>
+            <History className="w-4 h-4" />
+            {t("candidate.inbox.history", "Historia wiadomości")}
+          </Button>
+        )}
       </CardHeader>
       <CardContent className="space-y-3">
-        {messages.map((msg) => {
+        {active.map((msg) => {
           const Icon = iconForType(msg.type);
-          const typeLabel =
-            msg.type === 'interview_invite' ? t("candidate.inbox.interviewInvite") :
-            msg.type === 'linkedin_request' ? t("candidate.inbox.linkedinRequest") :
-            msg.type === 'tools_completion_request' ? t("candidate.inbox.toolsRequest", "Prośba o uzupełnienie narzędzi") :
-            msg.type === 'employer_reply' ? t("candidate.inbox.employerReply", "Wiadomość od pracodawcy") :
-            t("candidate.inbox.profileCompletion");
+          const typeLabel = typeLabelFor(msg.type);
           const calendarLink = msg.metadata?.calendar_link as string | undefined;
+          // Business actions resolve these types; only informational ones get a manual dismiss.
+          const dismissible = msg.type === 'employer_reply';
           return (
-            <div key={msg.id} className={`p-4 rounded-lg border ${msg.read_at ? 'bg-muted/30' : 'bg-accent/5 border-accent/30'}`}>
+            <div key={msg.id} className="p-4 rounded-lg border bg-accent/5 border-accent/30">
               <div className="flex items-start gap-3">
                 <div className="w-8 h-8 rounded-full bg-accent/20 flex items-center justify-center shrink-0">
                   <Icon className="w-4 h-4 text-accent" />
@@ -150,7 +211,7 @@ export const CandidateMessagesInbox = () => {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1 flex-wrap">
                     <span className="font-medium text-sm">{typeLabel}</span>
-                    {!msg.read_at && <Badge variant="outline" className="text-xs">{t("candidate.inbox.new")}</Badge>}
+                    <Badge variant="outline" className="text-xs">{t("candidate.inbox.new")}</Badge>
                     <span className="text-xs text-muted-foreground">{new Date(msg.created_at).toLocaleDateString()}</span>
                   </div>
                   <p className="text-sm whitespace-pre-wrap text-muted-foreground">{msg.content}</p>
@@ -226,18 +287,25 @@ export const CandidateMessagesInbox = () => {
                         </Button>
                       </Link>
                     )}
-                    {!msg.read_at && (
-                      <Button size="sm" variant="ghost" onClick={() => markRead(msg.id)}>
-                        {t("candidate.inbox.markAsRead")}
-                      </Button>
-                    )}
                   </div>
                 </div>
+                {dismissible && (
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    className="shrink-0 h-7 w-7"
+                    aria-label={t("candidate.inbox.dismiss", "Ukryj")}
+                    onClick={() => markHandled(msg.id)}
+                  >
+                    <X className="w-4 h-4" />
+                  </Button>
+                )}
               </div>
             </div>
           );
         })}
       </CardContent>
+      {historyDialog}
     </Card>
   );
 };
