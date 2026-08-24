@@ -70,6 +70,16 @@ const EmployerDashboard = () => {
           counts[offer.id] = { count: matchList.length, avgMatch: avg };
         }
         setOfferMatchCounts(counts);
+
+        const internalCounts: Record<string, number> = {};
+        for (const offer of offersData.filter((o: any) => o.analyze_internal_team)) {
+          const { count } = await supabase
+            .from("internal_assessments")
+            .select("id", { count: "exact", head: true })
+            .eq("job_offer_id", offer.id);
+          internalCounts[offer.id] = count ?? 0;
+        }
+        setOfferInternalCounts(internalCounts);
       }
     } catch (error) {
       logError("EmployerDashboard.fetchData", error);
