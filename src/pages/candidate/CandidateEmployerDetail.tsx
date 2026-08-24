@@ -70,7 +70,9 @@ const CandidateEmployerDetail = () => {
   const [match, setMatch] = useState<any>(null);
   const [employer, setEmployer] = useState<any>(null);
   const [jobOffer, setJobOffer] = useState<any>(null);
+  const [marketOff, setMarketOff] = useState(false);
   const [loading, setLoading] = useState(true);
+
 
   useEffect(() => {
     if (!authLoading && !user) { navigate("/login"); return; }
@@ -80,6 +82,23 @@ const CandidateEmployerDetail = () => {
   const fetchMatchData = async () => {
     if (!user || !matchId) return;
     try {
+      // Market guard: this route only ever shows EXTERNAL matches (match_results).
+      // When the candidate turned off job-market proposals, no employer/offer data
+      // may be loaded — not even via a direct URL or a page refresh.
+      const { data: pref } = await supabase
+        .from("candidate_test_results")
+        .select("open_to_external_offers")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      if (pref?.open_to_external_offers === false) {
+        setMarketOff(true);
+        setMatch(null);
+        setEmployer(null);
+        setJobOffer(null);
+        setLoading(false);
+        return;
+      }
+
       // First fetch the match to get employer_user_id and job_offer_id
       const { data: matchData, error: matchError } = await supabase
         .from("match_results")
@@ -95,6 +114,8 @@ const CandidateEmployerDetail = () => {
       }
       
       setMatch(matchData);
+      
+
       
       // Fetch employer profile, job offer details, and candidate data in parallel
       const [employerResult, offerResult] = await Promise.all([
@@ -132,6 +153,32 @@ const CandidateEmployerDetail = () => {
           <div className="w-12 h-12 rounded-full bg-accent/20 animate-pulse mx-auto mb-4" />
           <p className="text-muted-foreground">{t("common.loading")}</p>
         </div>
+      </div>
+    );
+  }
+
+  if (marketOff) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center px-4">
+        <Card className="max-w-md w-full">
+          <CardContent className="pt-6 text-center space-y-4">
+            <AlertCircle className="w-12 h-12 text-muted-foreground mx-auto" />
+            <h2 className="text-xl font-semibold">
+              {t("candidate.employerDetail.marketOffTitle", "Propozycje z rynku pracy są wyłączone w Twoim profilu")}
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              {t("candidate.employerDetail.marketOffDescription", "Włącz je w profilu, aby ponownie widzieć oferty od nowych pracodawców. Analizy w Twoich firmach działają niezależnie.")}
+            </p>
+            <div className="flex flex-col sm:flex-row gap-2 justify-center">
+              <Link to="/candidate/profile">
+                <Button className="w-full sm:w-auto">{t("candidate.employerDetail.goToProfile", "Przejdź do profilu")}</Button>
+              </Link>
+              <Link to="/candidate/dashboard">
+                <Button variant="outline" className="w-full sm:w-auto">{t("candidate.employerDetail.backToDashboard", "Wróć do dashboardu")}</Button>
+              </Link>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     );
   }
