@@ -263,7 +263,7 @@ const EmployerOfferForm = () => {
     if (!user) return false;
     const { data: offer, error } = await supabase
       .from("job_offers")
-      .select("title, role_description, work_mode, city, industry, position_level, no_experience_required, required_experience, req_komunikacja, req_myslenie_analityczne, req_out_of_the_box, req_determinacja, req_adaptacja, is_active")
+      .select("title, role_description, work_mode, city, industry, position_level, no_experience_required, required_experience, req_komunikacja, req_myslenie_analityczne, req_out_of_the_box, req_determinacja, req_adaptacja, is_active, analyze_internal_team, recruit_external_candidates")
       .eq("id", realOfferId)
       .eq("user_id", user.id)
       .maybeSingle();
@@ -597,30 +597,30 @@ const EmployerOfferForm = () => {
 
               {/* Tryby ogłoszenia */}
               <div className="space-y-3 rounded-lg border p-4 bg-muted/30">
-                <Label className="text-base font-semibold">Cel ogłoszenia</Label>
+                <Label className="text-base font-semibold">Kogo chcesz analizować dla tej roli?</Label>
                 <p className="text-xs text-muted-foreground">
-                  Możesz analizować własny zespół, szukać nowych osób albo robić obie rzeczy naraz.
+                  Zaznacz co najmniej jedną opcję. Obie mogą działać równocześnie.
                 </p>
                 <div className="flex items-center justify-between gap-4">
                   <div>
-                    <p className="text-sm font-medium">Analizuj mój zespół</p>
+                    <p className="text-sm font-medium">Mój zespół</p>
                     <p className="text-xs text-muted-foreground">
-                      Sprawdź dopasowanie obecnych pracowników do tej roli (za ich zgodą).
+                      Analizuj obecnych pracowników firmy względem tej roli.
                     </p>
                   </div>
                   <Switch checked={analyzeInternalTeam} onCheckedChange={setAnalyzeInternalTeam} />
                 </div>
                 <div className="flex items-center justify-between gap-4">
                   <div>
-                    <p className="text-sm font-medium">Szukaj nowych kandydatów</p>
+                    <p className="text-sm font-medium">Nowi kandydaci</p>
                     <p className="text-xs text-muted-foreground">
-                      Ogłoszenie bierze udział w dopasowaniach z rynku.
+                      Szukaj i analizuj nowych kandydatów z rynku.
                     </p>
                   </div>
                   <Switch checked={recruitExternal} onCheckedChange={setRecruitExternal} />
                 </div>
                 {!analyzeInternalTeam && !recruitExternal && (
-                  <p className="text-xs text-destructive">Wybierz co najmniej jeden tryb.</p>
+                  <p className="text-xs text-destructive">Wybierz co najmniej jedną opcję — inaczej ogłoszenie nie może zostać zapisane ani aktywne.</p>
                 )}
               </div>
 
