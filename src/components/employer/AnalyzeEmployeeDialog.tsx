@@ -12,7 +12,11 @@ import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { logError } from "@/lib/errorLogger";
 import { toast } from "sonner";
-import { Briefcase, RefreshCw, Send, ToggleRight } from "lucide-react";
+import { ArrowLeft, Briefcase, RefreshCw, Send, ToggleRight } from "lucide-react";
+import {
+  InternalAssessmentDetails,
+  type InternalAssessmentRecord,
+} from "@/components/internal/InternalAssessmentDetails";
 
 interface OfferRow {
   id: string;
@@ -22,11 +26,8 @@ interface OfferRow {
   recruit_external_candidates: boolean | null;
 }
 
-interface AssessmentRow {
-  id: string;
+interface AssessmentRow extends InternalAssessmentRecord {
   job_offer_id: string;
-  consent_status: string;
-  overall_percent: number | null;
 }
 
 interface Props {
@@ -49,6 +50,7 @@ export const AnalyzeEmployeeDialog = ({
   const [assessments, setAssessments] = useState<AssessmentRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [busyOfferId, setBusyOfferId] = useState<string | null>(null);
+  const [detailOfferId, setDetailOfferId] = useState<string | null>(null);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -61,7 +63,9 @@ export const AnalyzeEmployeeDialog = ({
           .order("created_at", { ascending: false }),
         supabase
           .from("internal_assessments")
-          .select("id, job_offer_id, consent_status, overall_percent")
+          .select(
+            "id, job_offer_id, consent_status, overall_percent, competence_percent, culture_percent, extra_percent, computed_at, match_details"
+          )
           .eq("organization_id", organizationId)
           .eq("employee_user_id", employeeUserId),
       ]);
@@ -78,7 +82,10 @@ export const AnalyzeEmployeeDialog = ({
   }, [organizationId, employeeUserId]);
 
   useEffect(() => {
-    if (open) fetchData();
+    if (open) {
+      setDetailOfferId(null);
+      fetchData();
+    }
   }, [open, fetchData]);
 
   const requestAssessment = async (offer: OfferRow) => {
@@ -184,12 +191,43 @@ export const AnalyzeEmployeeDialog = ({
     return (
       <div className="flex items-center gap-2">
         <Badge className="bg-accent/15 text-accent border-0">{a.overall_percent}% dopasowania</Badge>
-        <Button size="sm" variant="outline" onClick={() => navigate(`/employer/offer/${offer.id}`)}>
+        <Button size="sm" variant="outline" onClick={() => setDetailOfferId(offer.id)}>
           Zobacz analizę
         </Button>
       </div>
     );
   };
+
+  const detailOffer = detailOfferId ? offers.find((o) => o.id === detailOfferId) : null;
+  const detailAssessment = detailOfferId ? assessments.find((a) => a.job_offer_id === detailOfferId) : null;
+
+  if (detailOffer && detailAssessment) {
+    return (
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="max-w-3xl">
+          <DialogHeader>
+            <DialogTitle>Analiza pracownika</DialogTitle>
+            <DialogDescription>
+              {employeeLabel} — dopasowanie do roli: {detailOffer.title}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="max-h-[70vh] overflow-y-auto pr-1">
+            <InternalAssessmentDetails
+              assessment={detailAssessment}
+              subjectLabel={employeeLabel}
+              roleTitle={detailOffer.title}
+              perspective="employer"
+            />
+          </div>
+          <div>
+            <Button variant="outline" size="sm" className="gap-2" onClick={() => setDetailOfferId(null)}>
+              <ArrowLeft className="w-4 h-4" /> Wróć do ról
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
