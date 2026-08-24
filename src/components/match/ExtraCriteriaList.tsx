@@ -41,7 +41,7 @@ const LEGACY_FIELD_KEYS: Record<string, string> = {
   "Lokalizacja": "city",
 };
 
-export const ExtraCriteriaList = ({ details, extraStatus, requirementLabelKey = "employer.candidateDetail.yourRequirement" }: Props) => {
+export const ExtraCriteriaList = ({ details, extraStatus, requirementLabelKey = "employer.candidateDetail.yourRequirement", subjectLabelKey = "employer.candidateDetail.candidateScore" }: Props) => {
   const { t } = useTranslation();
 
   const list = Array.isArray(details) ? details : [];
@@ -135,7 +135,7 @@ export const ExtraCriteriaList = ({ details, extraStatus, requirementLabelKey = 
 
                 <div className="grid sm:grid-cols-2 gap-2 text-sm">
                   <div className="flex items-center gap-2">
-                    <span className="text-muted-foreground">{t("employer.candidateDetail.candidateScore")}:</span>
+                    <span className="text-muted-foreground">{t(subjectLabelKey)}:</span>
                     <span className="font-medium">{displayValue(d.candidateValue, fieldKey) || '-'}</span>
                   </div>
                   <div className="flex items-center gap-2">
