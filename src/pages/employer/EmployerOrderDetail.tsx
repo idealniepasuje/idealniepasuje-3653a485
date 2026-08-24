@@ -160,7 +160,7 @@ const EmployerOrderDetail = () => {
         )}
 
         {offer.recruit_external_candidates !== false && (
-        <Card className="border-accent/20 hover:shadow-lg transition-shadow">
+        <Card className="mb-4 sm:mb-6 border-accent/20 hover:shadow-lg transition-shadow">
           <Link to={`/employer/candidates?offerId=${offer.id}`} className="block">
             <CardContent className="pt-4 sm:pt-6 px-4 sm:px-6">
               <div className="flex items-center justify-between gap-3">
