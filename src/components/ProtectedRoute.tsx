@@ -36,12 +36,19 @@ export const ProtectedRoute = ({
       // Wait for auth to finish loading
       if (authLoading) return;
 
-      // If no user, redirect to login
+      // If no user, redirect to login preserving the intended destination
       if (!user) {
         handledPath.current = location.pathname;
-        navigate(redirectTo, { replace: true });
+        const intended = `${location.pathname}${location.search}`;
+        const isRelative = intended.startsWith("/") && !intended.startsWith("//");
+        const target =
+          redirectTo === "/login" && isRelative && intended !== "/"
+            ? `/login?next=${encodeURIComponent(intended)}`
+            : redirectTo;
+        navigate(target, { replace: true });
         return;
       }
+
 
       // If no specific user type required, just check authentication
       if (!allowedUserType) {
@@ -81,7 +88,7 @@ export const ProtectedRoute = ({
     };
 
     validateAccess();
-  }, [user, authLoading, allowedUserType, navigate, redirectTo, location.pathname]);
+  }, [user, authLoading, allowedUserType, navigate, redirectTo, location.pathname, location.search]);
 
   // Reset handled path only when location actually changes to a new path
   useEffect(() => {
