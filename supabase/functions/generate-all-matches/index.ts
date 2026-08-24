@@ -47,7 +47,8 @@ Deno.serve(async (req) => {
     const { data: candidates, error: candidatesError } = await supabase
       .from('candidate_test_results')
       .select('*')
-      .eq('all_tests_completed', true);
+      .eq('all_tests_completed', true)
+      .eq('open_to_external_offers', true);
 
     if (candidatesError) {
       console.error('Failed to fetch candidates:', candidatesError);
@@ -61,7 +62,8 @@ Deno.serve(async (req) => {
     const { data: jobOffers, error: offersError } = await supabase
       .from('job_offers')
       .select('*')
-      .eq('is_active', true);
+      .eq('is_active', true)
+      .eq('recruit_external_candidates', true);
 
     if (offersError) {
       console.error('Failed to fetch job offers:', offersError);

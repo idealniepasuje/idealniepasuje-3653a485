@@ -89,7 +89,9 @@ Deno.serve(async (req) => {
       .from('job_offers')
       .select('*')
       .eq('user_id', employer_user_id)
-      .eq('is_active', true);
+      .eq('is_active', true)
+      // Oferty w trybie wyłącznie wewnętrznym nie biorą udziału w rekrutacji zewnętrznej
+      .eq('recruit_external_candidates', true);
     
     // If specific offer ID provided, only process that one
     if (job_offer_id) {
@@ -158,10 +160,12 @@ Deno.serve(async (req) => {
       .eq('profile_ready', true);
 
     // Get eligible candidates: completed tests (profile_ready is NOT a hard filter)
+    // + kandydat musi być otwarty na propozycje z rynku
     const { data: candidates, error: candidatesError } = await supabase
       .from('candidate_test_results')
       .select('*')
-      .eq('all_tests_completed', true);
+      .eq('all_tests_completed', true)
+      .eq('open_to_external_offers', true);
 
     if (candidatesError) {
       return new Response(JSON.stringify({ error: 'Failed to fetch candidates' }), {
