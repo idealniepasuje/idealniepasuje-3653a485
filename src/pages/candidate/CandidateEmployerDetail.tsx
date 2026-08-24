@@ -82,6 +82,23 @@ const CandidateEmployerDetail = () => {
   const fetchMatchData = async () => {
     if (!user || !matchId) return;
     try {
+      // Market guard: this route only ever shows EXTERNAL matches (match_results).
+      // When the candidate turned off job-market proposals, no employer/offer data
+      // may be loaded — not even via a direct URL or a page refresh.
+      const { data: pref } = await supabase
+        .from("candidate_test_results")
+        .select("open_to_external_offers")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      if (pref?.open_to_external_offers === false) {
+        setMarketOff(true);
+        setMatch(null);
+        setEmployer(null);
+        setJobOffer(null);
+        setLoading(false);
+        return;
+      }
+
       // First fetch the match to get employer_user_id and job_offer_id
       const { data: matchData, error: matchError } = await supabase
         .from("match_results")
@@ -97,6 +114,8 @@ const CandidateEmployerDetail = () => {
       }
       
       setMatch(matchData);
+      
+
       
       // Fetch employer profile, job offer details, and candidate data in parallel
       const [employerResult, offerResult] = await Promise.all([
