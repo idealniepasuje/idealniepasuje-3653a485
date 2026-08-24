@@ -303,6 +303,25 @@ const CandidateOrganizations = () => {
           )}
         </CardContent>
       </Card>
+
+      <Dialog open={!!detailsFor} onOpenChange={(open) => !open && setDetailsFor(null)}>
+        <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Twoje dopasowanie do roli</DialogTitle>
+            <DialogDescription>
+              {detailsFor?.organizations?.name || "Firma"} — {detailsFor?.job_offers?.title || "rola"}
+            </DialogDescription>
+          </DialogHeader>
+          {detailsFor && (
+            <InternalAssessmentDetails
+              assessment={detailsFor}
+              subjectLabel={detailsFor.organizations?.name || "Firma"}
+              roleTitle={detailsFor.job_offers?.title || "rola"}
+              perspective="employee"
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </DashboardLayout>
   );
 };
