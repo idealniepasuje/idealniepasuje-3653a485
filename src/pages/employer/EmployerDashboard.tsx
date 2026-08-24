@@ -268,6 +268,9 @@ const EmployerDashboard = () => {
             <CardContent className="space-y-3">
               {displayedOffers.map((offer) => {
                 const stats = offerMatchCounts[offer.id] || { count: 0, avgMatch: 0 };
+                const internalEnabled = offer.analyze_internal_team === true;
+                const externalEnabled = offer.recruit_external_candidates !== false;
+                const internalCount = offerInternalCounts[offer.id] ?? 0;
                 return (
                   <div key={offer.id} className={`p-4 border rounded-lg hover:shadow-md transition-shadow ${!offer.is_active ? "opacity-70" : ""}`}>
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
