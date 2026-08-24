@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { logError } from "@/lib/errorLogger";
 import { DashboardLayout } from "@/components/layouts/DashboardLayout";
 import { EmployerSidebar } from "@/components/layouts/EmployerSidebar";
+import { InternalTeamPanel } from "@/components/internal/InternalTeamPanel";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -194,6 +195,7 @@ const EmployerOrderDetail = () => {
           </CardContent>
         </Card>
 
+        {offer.recruit_external_candidates !== false && (
         <Card className="border-accent/20 hover:shadow-lg transition-shadow">
           <Link to={`/employer/candidates?offerId=${offer.id}`} className="block">
             <CardContent className="pt-4 sm:pt-6 px-4 sm:px-6">
@@ -216,6 +218,13 @@ const EmployerOrderDetail = () => {
             </CardContent>
           </Link>
         </Card>
+        )}
+
+        {offer.analyze_internal_team && (
+          <div className="mt-4 sm:mt-6">
+            <InternalTeamPanel offerId={offer.id} organizationId={offer.organization_id ?? null} />
+          </div>
+        )}
       </div>
 
       <AlertDialog open={closeDialogOpen} onOpenChange={setCloseDialogOpen}>
