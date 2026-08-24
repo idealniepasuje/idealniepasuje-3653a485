@@ -136,7 +136,7 @@ const EmployerOrderDetail = () => {
         </div>
 
         {offer.analyze_internal_team && (
-          <div className="mb-4 sm:mb-6">
+          <div id="team" className="mb-4 sm:mb-6 scroll-mt-24">
             <InternalTeamPanel offerId={offer.id} organizationId={offer.organization_id ?? null} offerTitle={offer.title} />
           </div>
         )}
