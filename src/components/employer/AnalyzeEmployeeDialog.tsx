@@ -123,11 +123,38 @@ export const AnalyzeEmployeeDialog = ({
     }
   };
 
+  const enableInternal = async (offer: OfferRow) => {
+    setBusyOfferId(offer.id);
+    try {
+      const { error } = await supabase
+        .from("job_offers")
+        .update({ analyze_internal_team: true })
+        .eq("id", offer.id);
+      if (error) throw error;
+      toast.success("Analiza zespołu włączona dla tej roli");
+      await fetchData();
+    } catch (e: any) {
+      logError("AnalyzeEmployeeDialog.enableInternal", e);
+      toast.error(e?.message || "Nie udało się włączyć analizy zespołu");
+    } finally {
+      setBusyOfferId(null);
+    }
+  };
+
   const renderState = (offer: OfferRow) => {
     const a = assessments.find((x) => x.job_offer_id === offer.id);
     const busy = busyOfferId === offer.id;
 
+    if (!offer.analyze_internal_team) {
+      return (
+        <Button size="sm" variant="outline" className="gap-2" disabled={busy} onClick={() => enableInternal(offer)}>
+          <ToggleRight className="w-4 h-4" /> Włącz analizę zespołu
+        </Button>
+      );
+    }
+
     if (!a) {
+
       return (
         <Button size="sm" className="gap-2" disabled={busy} onClick={() => requestAssessment(offer)}>
           <Send className="w-4 h-4" /> Poproś o analizę
