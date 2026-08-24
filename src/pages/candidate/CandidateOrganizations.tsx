@@ -3,9 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
-import { Building2, ShieldCheck, Globe, BarChart3 } from "lucide-react";
+import { Building2, ShieldCheck, BarChart3 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { InternalAssessmentDetails, type InternalAssessmentRecord } from "@/components/internal/InternalAssessmentDetails";
 import { useAuth } from "@/contexts/AuthContext";
@@ -38,7 +36,6 @@ const CandidateOrganizations = () => {
 
   const [memberships, setMemberships] = useState<MembershipRow[]>([]);
   const [assessments, setAssessments] = useState<AssessmentRow[]>([]);
-  const [openToExternal, setOpenToExternal] = useState(true);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [detailsFor, setDetailsFor] = useState<AssessmentRow | null>(null);
@@ -46,7 +43,7 @@ const CandidateOrganizations = () => {
   const fetchData = useCallback(async () => {
     if (!user) return;
     try {
-      const [memRes, assessRes, prefRes] = await Promise.all([
+      const [memRes, assessRes] = await Promise.all([
         supabase
           .from("organization_employees")
           .select("id, organization_id, status, joined_at, organizations(name)")
@@ -55,17 +52,11 @@ const CandidateOrganizations = () => {
           .from("internal_assessments")
           .select("id, organization_id, job_offer_id, consent_status, overall_percent, competence_percent, culture_percent, extra_percent, computed_at, match_details, organizations(name), job_offers(title)")
           .eq("employee_user_id", user.id),
-        supabase
-          .from("candidate_test_results")
-          .select("open_to_external_offers")
-          .eq("user_id", user.id)
-          .maybeSingle(),
       ]);
       if (memRes.error) throw memRes.error;
       if (assessRes.error) throw assessRes.error;
       setMemberships((memRes.data || []) as any);
       setAssessments((assessRes.data || []) as any);
-      setOpenToExternal(prefRes.data?.open_to_external_offers !== false);
     } catch (e) {
       logError("CandidateOrganizations.fetchData", e);
     } finally {
@@ -115,22 +106,6 @@ const CandidateOrganizations = () => {
     }
   };
 
-  const toggleExternal = async (value: boolean) => {
-    if (!user) return;
-    setOpenToExternal(value);
-    const { error } = await supabase
-      .from("candidate_test_results")
-      .update({ open_to_external_offers: value })
-      .eq("user_id", user.id);
-    if (error) {
-      logError("CandidateOrganizations.toggleExternal", error);
-      setOpenToExternal(!value);
-      toast.error("Nie udało się zapisać ustawienia");
-      return;
-    }
-    toast.success(value ? "Będziesz otrzymywać propozycje z rynku" : "Nie będziesz otrzymywać propozycji z rynku");
-  };
-
   if (authLoading || loading) {
     return (
       <DashboardLayout sidebar={<CandidateSidebar />}>
@@ -150,7 +125,7 @@ const CandidateOrganizations = () => {
       <div className="mb-6">
         <h1 className="text-3xl font-bold mb-2">Moje firmy</h1>
         <p className="text-muted-foreground">
-          Zarządzaj przynależnością do organizacji, analizami dopasowania do ról oraz udziałem w rynku pracy.
+          Zarządzaj przynależnością do organizacji oraz analizami dopasowania do ról.
         </p>
       </div>
 
@@ -174,24 +149,6 @@ const CandidateOrganizations = () => {
           </CardContent>
         </Card>
       )}
-
-      <Card className="mb-6">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-lg">
-            <Globe className="w-5 h-5 text-accent" /> Propozycje z rynku pracy
-          </CardTitle>
-          <CardDescription>
-            Ustawienie niezależne od przynależności do firmy. Możesz być analizowany wewnętrznie i jednocześnie nie
-            uczestniczyć w rynku — lub odwrotnie.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="flex items-center justify-between gap-4">
-          <Label htmlFor="external-toggle" className="text-sm">
-            Chcę otrzymywać propozycje pracy od nowych pracodawców
-          </Label>
-          <Switch id="external-toggle" checked={openToExternal} onCheckedChange={toggleExternal} />
-        </CardContent>
-      </Card>
 
       <Card className="mb-6">
         <CardHeader>
