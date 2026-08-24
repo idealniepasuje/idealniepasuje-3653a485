@@ -12,12 +12,14 @@ import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { logError } from "@/lib/errorLogger";
 import { toast } from "sonner";
-import { Briefcase, RefreshCw, Send } from "lucide-react";
+import { Briefcase, RefreshCw, Send, ToggleRight } from "lucide-react";
 
 interface OfferRow {
   id: string;
   title: string;
   is_active: boolean | null;
+  analyze_internal_team: boolean | null;
+  recruit_external_candidates: boolean | null;
 }
 
 interface AssessmentRow {
@@ -54,9 +56,8 @@ export const AnalyzeEmployeeDialog = ({
       const [offersRes, assessRes] = await Promise.all([
         supabase
           .from("job_offers")
-          .select("id, title, is_active")
+          .select("id, title, is_active, analyze_internal_team, recruit_external_candidates")
           .eq("organization_id", organizationId)
-          .eq("analyze_internal_team", true)
           .order("created_at", { ascending: false }),
         supabase
           .from("internal_assessments")
@@ -122,11 +123,38 @@ export const AnalyzeEmployeeDialog = ({
     }
   };
 
+  const enableInternal = async (offer: OfferRow) => {
+    setBusyOfferId(offer.id);
+    try {
+      const { error } = await supabase
+        .from("job_offers")
+        .update({ analyze_internal_team: true })
+        .eq("id", offer.id);
+      if (error) throw error;
+      toast.success("Analiza zespołu włączona dla tej roli");
+      await fetchData();
+    } catch (e: any) {
+      logError("AnalyzeEmployeeDialog.enableInternal", e);
+      toast.error(e?.message || "Nie udało się włączyć analizy zespołu");
+    } finally {
+      setBusyOfferId(null);
+    }
+  };
+
   const renderState = (offer: OfferRow) => {
     const a = assessments.find((x) => x.job_offer_id === offer.id);
     const busy = busyOfferId === offer.id;
 
+    if (!offer.analyze_internal_team) {
+      return (
+        <Button size="sm" variant="outline" className="gap-2" disabled={busy} onClick={() => enableInternal(offer)}>
+          <ToggleRight className="w-4 h-4" /> Włącz analizę zespołu
+        </Button>
+      );
+    }
+
     if (!a) {
+
       return (
         <Button size="sm" className="gap-2" disabled={busy} onClick={() => requestAssessment(offer)}>
           <Send className="w-4 h-4" /> Poproś o analizę
@@ -180,9 +208,9 @@ export const AnalyzeEmployeeDialog = ({
           </div>
         ) : offers.length === 0 ? (
           <div className="py-8 text-center space-y-4">
-            <p className="text-muted-foreground">Nie masz jeszcze roli z włączoną analizą zespołu.</p>
+            <p className="text-muted-foreground">Nie masz jeszcze żadnej oferty.</p>
             <Button onClick={() => navigate("/employer/offer/new")} className="gap-2">
-              <Briefcase className="w-4 h-4" /> Dodaj ogłoszenie z analizą zespołu
+              <Briefcase className="w-4 h-4" /> Dodaj ofertę
             </Button>
           </div>
         ) : (
@@ -194,6 +222,10 @@ export const AnalyzeEmployeeDialog = ({
               >
                 <div>
                   <p className="font-medium">{offer.title}</p>
+                  <p className="text-xs text-muted-foreground">
+                    Nowi kandydaci: {offer.recruit_external_candidates ? "włączone" : "wyłączone"} · Analiza zespołu:{" "}
+                    {offer.analyze_internal_team ? "włączona" : "wyłączona"}
+                  </p>
                   {!offer.is_active && (
                     <p className="text-xs text-muted-foreground">Ogłoszenie nieaktywne</p>
                   )}
