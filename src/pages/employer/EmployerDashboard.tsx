@@ -217,9 +217,17 @@ const EmployerDashboard = () => {
         </Card>
       )}
 
-      {/* Thank You Card - Show when profile is complete and has offers */}
-      {hasCompanyProfile && hasCultureCompleted && hasOffers && (
-        <Card className="mb-6 bg-gradient-to-r from-accent to-primary text-primary-foreground border-0">
+      {/* Feedback banner – only until feedback is sent or the banner is dismissed */}
+      {hasCompanyProfile && hasCultureCompleted && hasOffers && !hasFeedback && !feedbackBannerDismissed && (
+        <Card className="mb-6 bg-gradient-to-r from-accent to-primary text-primary-foreground border-0 relative">
+          <button
+            type="button"
+            aria-label={t("common.close", "Zamknij")}
+            onClick={dismissFeedbackBanner}
+            className="absolute top-3 right-3 p-1 rounded-md text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary-foreground/10"
+          >
+            <X className="w-4 h-4" />
+          </button>
           <CardContent className="pt-6">
             <div className="flex items-start gap-4">
               <div className="w-14 h-14 rounded-full bg-primary-foreground/20 flex items-center justify-center shrink-0">
@@ -234,14 +242,12 @@ const EmployerDashboard = () => {
                   <CheckCircle className="w-4 h-4" />
                   <span>{t("employer.dashboard.profileCompleteMatch")}</span>
                 </div>
-                {!hasFeedback && (
-                  <Link to="/employer/feedback">
-                    <Button variant="secondary" size="sm" className="gap-2">
-                      <MessageSquare className="w-4 h-4" />
-                      {t("employer.dashboard.shareFeedback")}
-                    </Button>
-                  </Link>
-                )}
+                <Link to="/employer/feedback">
+                  <Button variant="secondary" size="sm" className="gap-2">
+                    <MessageSquare className="w-4 h-4" />
+                    {t("employer.dashboard.shareFeedback")}
+                  </Button>
+                </Link>
               </div>
             </div>
           </CardContent>
