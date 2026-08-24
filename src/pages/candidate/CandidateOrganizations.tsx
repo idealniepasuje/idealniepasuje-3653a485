@@ -97,29 +97,6 @@ const CandidateOrganizations = () => {
     if (user) fetchData();
   }, [user, authLoading, navigate, fetchData]);
 
-  const updateConsent = async (assessment: AssessmentRow, granted: boolean) => {
-    setBusy(true);
-    try {
-      const now = new Date().toISOString();
-      const { error } = await supabase
-        .from("internal_assessments")
-        .update(
-          granted
-            ? { consent_status: "granted", consent_at: now, revoked_at: null }
-            : { consent_status: assessment.consent_status === "granted" ? "revoked" : "declined", revoked_at: now },
-        )
-        .eq("id", assessment.id);
-      if (error) throw error;
-      toast.success(granted ? "Zgoda udzielona" : "Zgoda wycofana");
-      await fetchData();
-    } catch (e) {
-      logError("CandidateOrganizations.updateConsent", e);
-      toast.error("Nie udało się zapisać decyzji");
-    } finally {
-      setBusy(false);
-    }
-  };
-
   const leaveOrganization = async (row: MembershipRow) => {
     setBusy(true);
     try {
@@ -165,15 +142,15 @@ const CandidateOrganizations = () => {
   }
 
   const activeMemberships = memberships.filter((m) => m.status !== "removed");
-  const pendingConsents = assessments.filter((a) => a.consent_status === "pending");
-  const decidedConsents = assessments.filter((a) => a.consent_status !== "pending");
+  const activeOrgIds = new Set(activeMemberships.map((m) => m.organization_id));
+  const visibleAssessments = assessments.filter((a) => activeOrgIds.has(a.organization_id));
 
   return (
     <DashboardLayout sidebar={<CandidateSidebar />}>
       <div className="mb-6">
         <h1 className="text-3xl font-bold mb-2">Moje firmy</h1>
         <p className="text-muted-foreground">
-          Zarządzaj przynależnością do organizacji, zgodami na analizę Twoich wyników oraz udziałem w rynku pracy.
+          Zarządzaj przynależnością do organizacji, analizami dopasowania do ról oraz udziałem w rynku pracy.
         </p>
       </div>
 
@@ -182,8 +159,11 @@ const CandidateOrganizations = () => {
           <CardHeader>
             <CardTitle className="text-lg">Masz zaproszenie do organizacji</CardTitle>
             <CardDescription>
-              Dołączenie nie zmienia Twojego konta ani wyników testów. Firma zobaczy Twoje wyniki dopiero po Twojej
-              osobnej zgodzie na analizę wobec konkretnej roli.
+              Dołączenie do organizacji oznacza, że udostępniasz tej firmie wyniki swoich testów kompetencji,
+              dopasowania kulturowego oraz dane profilowe potrzebne do analizy dopasowania względem ról i ofert tej
+              organizacji. Firma nie musi prosić o zgodę dla każdej roli osobno. Dostęp trwa tak długo, jak należysz
+              do organizacji — po odłączeniu się firma natychmiast traci dostęp, a wyniki analiz są usuwane.
+              Dołączenie nie zmienia Twojego udziału w rynku pracy ani widoczności dla innych pracodawców.
             </CardDescription>
           </CardHeader>
           <CardContent className="flex gap-2">
@@ -216,64 +196,41 @@ const CandidateOrganizations = () => {
       <Card className="mb-6">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-lg">
-            <ShieldCheck className="w-5 h-5 text-accent" /> Prośby o zgodę na analizę ({pendingConsents.length})
+            <ShieldCheck className="w-5 h-5 text-accent" /> Analizy dopasowania do ról ({visibleAssessments.length})
           </CardTitle>
           <CardDescription>
-            Zgoda dotyczy jednej roli. Firma zobaczy Twoje wyniki kompetencji, dopasowanie kulturowe i kryteria dodatkowe.
+            Firmy, do których należysz, analizują Twoje wyniki względem swoich ról na podstawie aktywnego członkostwa
+            w organizacji. Nie zatwierdzasz każdej analizy osobno. Odłączenie się od organizacji natychmiast cofa
+            firmie dostęp i usuwa wyniki analiz.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
-          {pendingConsents.length === 0 ? (
-            <p className="text-sm text-muted-foreground py-4 text-center">Brak oczekujących próśb.</p>
+          {visibleAssessments.length === 0 ? (
+            <p className="text-sm text-muted-foreground py-4 text-center">Brak analiz dla Twoich organizacji.</p>
           ) : (
-            pendingConsents.map((a) => (
+            visibleAssessments.map((a) => (
               <div key={a.id} className="flex flex-wrap items-center justify-between gap-3 border rounded-lg p-3">
                 <div>
                   <p className="font-medium">{a.organizations?.name || "Firma"}</p>
                   <p className="text-sm text-muted-foreground">Rola: {a.job_offers?.title || "—"}</p>
                 </div>
-                <div className="flex gap-2">
-                  <Button size="sm" disabled={busy} onClick={() => updateConsent(a, true)}>Wyrażam zgodę</Button>
-                  <Button size="sm" variant="outline" disabled={busy} onClick={() => updateConsent(a, false)}>
-                    Odmawiam
-                  </Button>
+                <div className="flex flex-wrap items-center gap-2">
+                  {a.computed_at && a.consent_status === "granted" ? (
+                    <>
+                      <Badge className="bg-accent text-accent-foreground">
+                        {a.overall_percent === null ? "—" : `${a.overall_percent}%`}
+                      </Badge>
+                      <Button size="sm" className="gap-2" onClick={() => setDetailsFor(a)}>
+                        <BarChart3 className="w-4 h-4" /> Zobacz analizę
+                      </Button>
+                    </>
+                  ) : (
+                    <Badge variant="secondary">Analiza jeszcze nieprzeliczona</Badge>
+                  )}
                 </div>
               </div>
             ))
           )}
-
-          {decidedConsents.map((a) => (
-            <div key={a.id} className="flex flex-wrap items-center justify-between gap-3 border rounded-lg p-3">
-              <div>
-                <p className="font-medium">{a.organizations?.name || "Firma"}</p>
-                <p className="text-sm text-muted-foreground">Rola: {a.job_offers?.title || "—"}</p>
-              </div>
-              <div className="flex flex-wrap items-center gap-2">
-                {a.consent_status === "granted" && a.computed_at && (
-                  <>
-                    <Badge className="bg-accent text-accent-foreground">
-                      {a.overall_percent === null ? "—" : `${a.overall_percent}%`}
-                    </Badge>
-                    <Button size="sm" className="gap-2" onClick={() => setDetailsFor(a)}>
-                      <BarChart3 className="w-4 h-4" /> Zobacz analizę
-                    </Button>
-                  </>
-                )}
-                <Badge variant={a.consent_status === "granted" ? "default" : "secondary"}>
-                  {a.consent_status === "granted" ? "Zgoda udzielona" : a.consent_status === "revoked" ? "Zgoda wycofana" : "Odmowa"}
-                </Badge>
-                {a.consent_status === "granted" ? (
-                  <Button size="sm" variant="outline" disabled={busy} onClick={() => updateConsent(a, false)}>
-                    Wycofaj zgodę
-                  </Button>
-                ) : (
-                  <Button size="sm" variant="outline" disabled={busy} onClick={() => updateConsent(a, true)}>
-                    Udziel zgody
-                  </Button>
-                )}
-              </div>
-            </div>
-          ))}
         </CardContent>
       </Card>
 
@@ -295,9 +252,12 @@ const CandidateOrganizations = () => {
                     {m.joined_at ? `Od ${new Date(m.joined_at).toLocaleDateString("pl-PL")}` : "Zaproszenie"}
                   </p>
                 </div>
-                <Button variant="outline" size="sm" disabled={busy} onClick={() => leaveOrganization(m)}>
-                  Odłącz się
-                </Button>
+                <div className="flex items-center gap-2">
+                  <Badge variant="secondary">Firma analizuje Twoje wyniki</Badge>
+                  <Button variant="outline" size="sm" disabled={busy} onClick={() => leaveOrganization(m)}>
+                    Odłącz się
+                  </Button>
+                </div>
               </div>
             ))
           )}

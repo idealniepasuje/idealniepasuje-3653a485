@@ -49,10 +49,10 @@ const cultureNames: Record<string, string> = {
 };
 
 export const consentLabels: Record<string, string> = {
-  pending: "Oczekuje na zgodę",
-  granted: "Zgoda udzielona",
-  declined: "Zgoda odrzucona",
-  revoked: "Zgoda wycofana",
+  pending: "Analiza w przygotowaniu",
+  granted: "Aktywne członkostwo",
+  declined: "Brak aktywnego członkostwa",
+  revoked: "Brak aktywnego członkostwa",
 };
 
 const ScoreTile = ({ label, value }: { label: string; value: number | null }) => (
@@ -81,8 +81,8 @@ export const InternalAssessmentDetails = ({ assessment, subjectLabel, roleTitle,
     return (
       <div className="py-8 text-center text-muted-foreground text-sm">
         {isEmployer
-          ? "Wyniki są niedostępne — pracownik nie udzielił zgody na analizę dla tej roli."
-          : "Wyniki są ukryte, ponieważ nie ma aktywnej zgody na analizę dla tej roli."}
+          ? "Wyniki są niedostępne — pracownik nie jest już aktywnym członkiem organizacji."
+          : "Wyniki są ukryte, ponieważ nie masz już aktywnego członkostwa w tej organizacji."}
       </div>
     );
   }
