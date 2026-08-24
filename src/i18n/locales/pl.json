@@ -11,8 +11,8 @@
     "jobOffers": "Ogłoszenia",
     "profile": "Profil firmy",
     "connectAI": "Połącz z AI",
-    "team": "Mój zespół",
-    "myCompanies": "Moje firmy"
+    "team": "Wybrani kandydaci",
+    "myCompanies": "Zaproszenia"
   },
   "common": {
     "login": "Zaloguj się",
@@ -841,7 +841,7 @@
     "genericError": "Błąd zapisu"
   },
   "internal": {
-    "employeeScore": "Wynik pracownika",
+    "employeeScore": "Wynik wybranego kandydata",
     "yourScore": "Twój wynik",
     "roleRequirement": "Wymaganie roli"
   }

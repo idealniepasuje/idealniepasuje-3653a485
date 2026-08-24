@@ -317,7 +317,7 @@ const EmployerDashboard = () => {
                             <span className="flex items-center gap-1">
                               <Users2 className="w-3 h-3" />
                               {internalCount > 0
-                                ? `${internalCount} ${internalCount === 1 ? t("employer.dashboard.employeeAnalyzed", "pracownik w analizie") : t("employer.dashboard.employeesAnalyzed", "pracowników w analizie")}`
+                                ? `${internalCount} ${internalCount === 1 ? t("employer.dashboard.employeeAnalyzed", "wybrany kandydat w analizie") : t("employer.dashboard.employeesAnalyzed", "wybranych kandydatów w analizie")}`
                                 : t("employer.dashboard.internalEnabled", "Analiza zespołu włączona")}
                             </span>
                           )}
@@ -334,7 +334,7 @@ const EmployerDashboard = () => {
                           <Link to={`/employer/order/${offer.id}#team`}>
                             <Button size="sm" variant="outline" className="gap-1">
                               <Users2 className="w-4 h-4" />
-                              {t("employer.dashboard.viewEmployees", "Twoi pracownicy")}
+                              {t("employer.dashboard.viewEmployees", "Wybrani kandydaci")}
                             </Button>
                           </Link>
                         )}

@@ -604,9 +604,9 @@ const EmployerOfferForm = () => {
                 </p>
                 <div className="flex items-center justify-between gap-4">
                   <div>
-                    <p className="text-sm font-medium">Mój zespół</p>
+                    <p className="text-sm font-medium">Wybrani kandydaci</p>
                     <p className="text-xs text-muted-foreground">
-                      Analizuj obecnych pracowników firmy względem tej roli.
+                      Analizuj wybranych kandydatów względem tej roli.
                     </p>
                   </div>
                   <Switch checked={analyzeInternalTeam} onCheckedChange={setAnalyzeInternalTeam} />

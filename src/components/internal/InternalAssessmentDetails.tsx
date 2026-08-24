@@ -81,7 +81,7 @@ export const InternalAssessmentDetails = ({ assessment, subjectLabel, roleTitle,
     return (
       <div className="py-8 text-center text-muted-foreground text-sm">
         {isEmployer
-          ? "Wyniki są niedostępne — pracownik nie jest już aktywnym członkiem organizacji."
+          ? "Wyniki są niedostępne — wybrany kandydat nie jest już aktywnym członkiem organizacji."
           : "Wyniki są ukryte, ponieważ nie masz już aktywnego członkostwa w tej organizacji."}
       </div>
     );
