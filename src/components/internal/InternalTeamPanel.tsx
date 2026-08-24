@@ -3,7 +3,9 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { RefreshCw, UserPlus, Users } from "lucide-react";
+import { RefreshCw, UserPlus, Users, BarChart3 } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { InternalAssessmentDetails, type InternalAssessmentRecord } from "@/components/internal/InternalAssessmentDetails";
 import { supabase } from "@/integrations/supabase/client";
 import { logError } from "@/lib/errorLogger";
 import { toast } from "sonner";
@@ -11,6 +13,7 @@ import { toast } from "sonner";
 interface Props {
   offerId: string;
   organizationId: string | null;
+  offerTitle?: string;
 }
 
 interface EmployeeRow {
@@ -19,14 +22,8 @@ interface EmployeeRow {
   invited_email: string | null;
 }
 
-interface AssessmentRow {
-  id: string;
+interface AssessmentRow extends InternalAssessmentRecord {
   employee_user_id: string;
-  consent_status: string;
-  overall_percent: number | null;
-  competence_percent: number | null;
-  culture_percent: number | null;
-  computed_at: string | null;
 }
 
 const consentLabel: Record<string, string> = {
@@ -40,11 +37,12 @@ const consentLabel: Record<string, string> = {
  * Analiza obecnych pracowników firmy względem konkretnego ogłoszenia.
  * Pracownicy NIE są kandydatami — dane widoczne są wyłącznie po ich zgodzie.
  */
-export const InternalTeamPanel = ({ offerId, organizationId }: Props) => {
+export const InternalTeamPanel = ({ offerId, organizationId, offerTitle = "ta rola" }: Props) => {
   const [employees, setEmployees] = useState<EmployeeRow[]>([]);
   const [assessments, setAssessments] = useState<AssessmentRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
+  const [detailsFor, setDetailsFor] = useState<{ assessment: AssessmentRow; label: string } | null>(null);
 
   const fetchData = useCallback(async () => {
     if (!organizationId) { setLoading(false); return; }
@@ -57,7 +55,7 @@ export const InternalTeamPanel = ({ offerId, organizationId }: Props) => {
           .eq("status", "active"),
         supabase
           .from("internal_assessments")
-          .select("id, employee_user_id, consent_status, overall_percent, competence_percent, culture_percent, computed_at")
+          .select("id, employee_user_id, consent_status, overall_percent, competence_percent, culture_percent, extra_percent, computed_at, match_details")
           .eq("job_offer_id", offerId),
       ]);
       if (empRes.error) throw empRes.error;
@@ -151,7 +149,7 @@ export const InternalTeamPanel = ({ offerId, organizationId }: Props) => {
 
   return (
     <Card>
-      <CardHeader className="flex flex-row items-start justify-between gap-4">
+      <CardHeader>
         <div>
           <CardTitle className="flex items-center gap-2 text-lg">
             <Users className="w-5 h-5 text-accent" /> Pracownicy firmy
@@ -160,9 +158,6 @@ export const InternalTeamPanel = ({ offerId, organizationId }: Props) => {
             Dopasowanie obecnych pracowników do tej roli. Wynik pojawia się dopiero po zgodzie pracownika.
           </CardDescription>
         </div>
-        <Button variant="outline" size="sm" className="gap-2" onClick={handleRecalculate} disabled={busy}>
-          <RefreshCw className={`w-4 h-4 ${busy ? "animate-spin" : ""}`} /> Przelicz
-        </Button>
       </CardHeader>
       <CardContent className="space-y-3">
         {employees.length === 0 ? (
@@ -198,6 +193,15 @@ export const InternalTeamPanel = ({ offerId, organizationId }: Props) => {
                       {assessment.overall_percent}% dopasowania
                     </Badge>
                   )}
+                  {assessment?.consent_status === "granted" && assessment.computed_at && (
+                    <Button
+                      size="sm"
+                      className="gap-2"
+                      onClick={() => setDetailsFor({ assessment, label: emp.invited_email || "Pracownik" })}
+                    >
+                      <BarChart3 className="w-4 h-4" /> Zobacz analizę
+                    </Button>
+                  )}
                   {assessment ? (
                     <Button variant="ghost" size="sm" disabled={busy} onClick={() => handleRemove(assessment.id)}>
                       Usuń z analizy
@@ -212,7 +216,32 @@ export const InternalTeamPanel = ({ offerId, organizationId }: Props) => {
             );
           })
         )}
+
+        {employees.length > 0 && (
+          <div className="pt-2 border-t flex justify-end">
+            <Button variant="ghost" size="sm" className="gap-2 text-muted-foreground" onClick={handleRecalculate} disabled={busy}>
+              <RefreshCw className={`w-4 h-4 ${busy ? "animate-spin" : ""}`} /> Przelicz analizy
+            </Button>
+          </div>
+        )}
       </CardContent>
+
+      <Dialog open={!!detailsFor} onOpenChange={(open) => !open && setDetailsFor(null)}>
+        <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Analiza pracownika</DialogTitle>
+            <DialogDescription>Dopasowanie pracownika do roli: {offerTitle}</DialogDescription>
+          </DialogHeader>
+          {detailsFor && (
+            <InternalAssessmentDetails
+              assessment={detailsFor.assessment}
+              subjectLabel={detailsFor.label}
+              roleTitle={offerTitle}
+              perspective="employer"
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 };
