@@ -170,6 +170,10 @@ const CandidateDashboard = () => {
     );
   }
 
+  // Market switch OFF => no external proposals are surfaced (internal org analyses are unaffected).
+  const externalOffersDisabled = testResults?.open_to_external_offers === false;
+  const visibleMatches = externalOffersDisabled ? [] : matches;
+
   return (
     <DashboardLayout sidebar={<CandidateSidebar />}>
       {/* Welcome heading */}
@@ -393,7 +397,17 @@ const CandidateDashboard = () => {
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
-              {matches.length === 0 ? (
+              {externalOffersDisabled ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  <Building2 className="w-10 h-10 mx-auto mb-3 opacity-40" />
+                  <p>{t("candidate.dashboard.externalDisabled", "Propozycje z rynku pracy są wyłączone w Twoim profilu")}</p>
+                  <Link to="/candidate/profile" className="inline-block mt-3">
+                    <Button variant="outline" size="sm">
+                      {t("candidate.dashboard.goToProfile", "Przejdź do profilu")}
+                    </Button>
+                  </Link>
+                </div>
+              ) : visibleMatches.length === 0 ? (
                 <div className="text-center py-8 text-muted-foreground">
                   <Building2 className="w-10 h-10 mx-auto mb-3 opacity-40" />
                   <p>{t("candidate.dashboard.searchingMatches")}</p>
@@ -402,7 +416,7 @@ const CandidateDashboard = () => {
               ) : (
                 <>
                   <div className="space-y-4">
-                    {matches.slice(0, 3).map((match) => {
+                    {visibleMatches.slice(0, 3).map((match) => {
                       const employer = employers[match.employer_user_id];
                       return (
                         <EmployerCard 
