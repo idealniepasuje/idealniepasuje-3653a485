@@ -838,5 +838,10 @@
     "saveError": "Nie udało się zapisać",
     "saveProgressError": "Nie udało się zapisać postępu",
     "genericError": "Błąd zapisu"
+  },
+  "internal": {
+    "employeeScore": "Wynik pracownika",
+    "yourScore": "Twój wynik",
+    "roleRequirement": "Wymaganie roli"
   }
 }
