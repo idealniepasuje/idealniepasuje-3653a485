@@ -200,7 +200,10 @@ const Login = () => {
 
             <p className="text-center text-sm text-muted-foreground mt-6">
               {t("login.noAccount")}{" "}
-              <Link to="/register" className="text-accent hover:underline font-medium">
+              <Link
+                to={next ? `/register?next=${encodeURIComponent(next)}` : "/register"}
+                className="text-accent hover:underline font-medium"
+              >
                 {t("common.register")}
               </Link>
             </p>

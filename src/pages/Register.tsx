@@ -17,6 +17,10 @@ const Register = () => {
   const { t } = useTranslation();
   const [searchParams] = useSearchParams();
   const defaultType = searchParams.get("type") || "candidate";
+  // Only accept same-origin relative paths as post-registration redirects.
+  const rawNext = searchParams.get("next");
+  const next = rawNext && rawNext.startsWith("/") && !rawNext.startsWith("//") ? rawNext : null;
+  const loginHref = next ? `/login?next=${encodeURIComponent(next)}` : "/login";
   
   const [userType, setUserType] = useState<"candidate" | "employer">(
     defaultType === "employer" ? "employer" : "candidate"
@@ -55,7 +59,7 @@ const Register = () => {
         email,
         password,
         options: {
-          emailRedirectTo: window.location.origin,
+          emailRedirectTo: next ? `${window.location.origin}${next}` : window.location.origin,
           data: {
             user_type: userType,
             full_name: fullName,
@@ -71,7 +75,7 @@ const Register = () => {
 
       if (data.user) {
         toast.success(t("register.successMessage"));
-        navigate("/login");
+        navigate(loginHref);
       }
     } catch (error: any) {
       toast.error(t("register.errorMessage"));
@@ -202,7 +206,7 @@ const Register = () => {
 
             <p className="text-center text-sm text-muted-foreground mt-6">
               {t("register.hasAccount")}{" "}
-              <Link to="/login" className="text-accent hover:underline font-medium">
+              <Link to={loginHref} className="text-accent hover:underline font-medium">
                 {t("common.login")}
               </Link>
             </p>
