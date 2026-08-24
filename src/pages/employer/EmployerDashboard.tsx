@@ -320,12 +320,6 @@ const EmployerDashboard = () => {
                             </Button>
                           </Link>
                         )}
-                        <Link to={`/employer/offer/${offer.id}`}>
-                          <Button size="sm" variant="outline" className="gap-1">
-                            <Briefcase className="w-4 h-4" />
-                            {t("employer.dashboard.viewOffer", "Oferta")}
-                          </Button>
-                        </Link>
                         <Link to={`/employer/order/${offer.id}`} aria-label={t("employer.dashboard.viewOrder", "Szczegóły")}>
                           <ChevronRight className="w-5 h-5 text-muted-foreground" />
                         </Link>
