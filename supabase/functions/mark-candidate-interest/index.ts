@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
+import { assertExternalContactAllowed } from "../_shared/external-contact-guard.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -52,6 +53,10 @@ serve(async (req) => {
     }
     if (!match) return json({ error: "Not found" }, 404);
     if (match.employer_user_id !== employerId) return json({ error: "Forbidden" }, 403);
+
+    // External-market guard: candidate opted out of new employer proposals.
+    const blocked = await assertExternalContactAllowed(admin, match.candidate_user_id, employerId, corsHeaders);
+    if (blocked) return blocked;
 
     const alreadyConsidering = match.status === "considering";
 

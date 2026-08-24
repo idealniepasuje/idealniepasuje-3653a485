@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
+import { assertExternalContactAllowed } from "../_shared/external-contact-guard.ts";
 import { SMTPClient } from "https://deno.land/x/denomailer@1.6.0/mod.ts";
 import { isValidEmail, sanitizeHeader } from "../_shared/email-validation.ts";
 import { escapeHtml, escapeHtmlMultiline } from "../_shared/html.ts";
@@ -87,6 +88,10 @@ const handler = async (req: Request): Promise<Response> => {
       });
     }
 
+
+    // External-market guard: candidate opted out of new employer proposals.
+    const blocked = await assertExternalContactAllowed(admin, candidate_user_id, callerId, corsHeaders);
+    if (blocked) return blocked;
 
     const { data: candidateUser, error: cErr } = await admin.auth.admin.getUserById(candidate_user_id);
     if (cErr || !candidateUser?.user?.email) throw new Error("Could not fetch candidate email");
