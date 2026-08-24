@@ -15,6 +15,7 @@ import {
   Pencil,
   CheckCircle2,
   AlertCircle,
+  Globe,
 } from "lucide-react";
 import { DashboardLayout } from "@/components/layouts/DashboardLayout";
 import { CandidateSidebar } from "@/components/layouts/CandidateSidebar";
@@ -22,6 +23,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { logError } from "@/lib/errorLogger";
@@ -62,6 +66,7 @@ const CandidateProfile = () => {
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<any>(null);
   const [fullName, setFullName] = useState<string | null>(null);
+  const [openToExternal, setOpenToExternal] = useState(true);
 
   useEffect(() => {
     const load = async () => {
@@ -73,6 +78,7 @@ const CandidateProfile = () => {
         ]);
         if (resultsError) logError("CandidateProfile.load", resultsError);
         setData(results ?? null);
+        setOpenToExternal(results?.open_to_external_offers !== false);
         setFullName(profile?.full_name ?? null);
       } catch (e) {
         logError("CandidateProfile.load", e);
@@ -82,6 +88,30 @@ const CandidateProfile = () => {
     };
     load();
   }, [user]);
+
+  const toggleExternal = async (value: boolean) => {
+    if (!user) return;
+    setOpenToExternal(value);
+    const { error } = await supabase
+      .from("candidate_test_results")
+      .update({ open_to_external_offers: value })
+      .eq("user_id", user.id);
+    if (error) {
+      logError("CandidateProfile.toggleExternal", error);
+      setOpenToExternal(!value);
+      toast.error(i18n.language === "en" ? "Could not save the setting" : "Nie udało się zapisać ustawienia");
+      return;
+    }
+    toast.success(
+      value
+        ? i18n.language === "en"
+          ? "You will receive offers from the market"
+          : "Będziesz otrzymywać propozycje z rynku"
+        : i18n.language === "en"
+          ? "You will not receive offers from the market"
+          : "Nie będziesz otrzymywać propozycji z rynku",
+    );
+  };
 
   const tr = (pl: string, en: string) => (lang === "pl" ? pl : en);
   const empty = tr("Nie uzupełniono", "Not provided");
@@ -175,6 +205,25 @@ const CandidateProfile = () => {
               ? tr("Bierzesz udział w dopasowaniach.", "You are included in matching.")
               : tr("Uzupełnij testy i dane, aby brać udział w dopasowaniach.", "Complete tests and data to join matching.")}
           </span>
+        </CardContent>
+      </Card>
+
+      {/* Propozycje z rynku pracy */}
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <Globe className="w-5 h-5" />
+            {tr("Propozycje z rynku pracy", "Offers from the job market")}
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="flex items-center justify-between gap-4">
+          <Label htmlFor="external-toggle" className="text-sm font-normal">
+            {tr(
+              "Chcę otrzymywać propozycje pracy od nowych pracodawców",
+              "I want to receive job offers from new employers",
+            )}
+          </Label>
+          <Switch id="external-toggle" checked={openToExternal} onCheckedChange={toggleExternal} />
         </CardContent>
       </Card>
 
