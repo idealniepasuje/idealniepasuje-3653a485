@@ -5,7 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
-import { Mail, CheckCircle, XCircle, MessageSquare, Phone, User } from "lucide-react";
+import { Mail, CheckCircle, XCircle, MessageSquare, Phone, User, History } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { logError } from "@/lib/errorLogger";
@@ -40,6 +41,7 @@ export const EmployerMessagesInbox = () => {
   const [requestIds, setRequestIds] = useState<Record<string, string>>({});
 
   const [sending, setSending] = useState(false);
+  const [historyOpen, setHistoryOpen] = useState(false);
 
   useEffect(() => {
     if (!user) return;
@@ -150,21 +152,33 @@ export const EmployerMessagesInbox = () => {
     }
   };
 
-  if (loading || messages.length === 0) return null;
+  // "Requires action" = employer has not replied to / marked the response as handled.
+  const activeMessages = messages.filter((m) => !m.employer_read_at);
+  const handledMessages = messages.filter((m) => m.employer_read_at);
 
-  const unreadCount = messages.filter((m) => !m.employer_read_at).length;
+  if (loading || activeMessages.length === 0) return null;
+
+  const unreadCount = activeMessages.length;
 
   return (
     <Card className="mb-6 border-accent/30">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Mail className="w-5 h-5 text-accent" />
-          {t("employer.inbox.title", "Odpowiedzi kandydatów")}
-          {unreadCount > 0 && <Badge className="bg-accent text-accent-foreground">{unreadCount}</Badge>}
-        </CardTitle>
+        <div className="flex items-center justify-between gap-2 flex-wrap">
+          <CardTitle className="flex items-center gap-2">
+            <Mail className="w-5 h-5 text-accent" />
+            {t("employer.inbox.title", "Odpowiedzi kandydatów")}
+            {unreadCount > 0 && <Badge className="bg-accent text-accent-foreground">{unreadCount}</Badge>}
+          </CardTitle>
+          {handledMessages.length > 0 && (
+            <Button size="sm" variant="ghost" className="gap-1" onClick={() => setHistoryOpen(true)}>
+              <History className="w-4 h-4" />
+              {t("employer.inbox.history", "Historia")}
+            </Button>
+          )}
+        </div>
       </CardHeader>
       <CardContent className="space-y-3">
-        {messages.map((msg) => {
+        {activeMessages.map((msg) => {
           const response = msg.metadata?.response as string | undefined;
           const accepted = response === "accepted";
           const declined = response === "declined";
@@ -262,6 +276,45 @@ export const EmployerMessagesInbox = () => {
           );
         })}
       </CardContent>
+
+      <Dialog open={historyOpen} onOpenChange={setHistoryOpen}>
+        <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <History className="w-5 h-5 text-accent" />
+              {t("employer.inbox.historyTitle", "Historia powiadomień")}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-2">
+            {handledMessages.length === 0 && (
+              <p className="text-sm text-muted-foreground">
+                {t("employer.inbox.historyEmpty", "Brak obsłużonych powiadomień")}
+              </p>
+            )}
+            {handledMessages.map((msg) => {
+              const response = msg.metadata?.response as string | undefined;
+              const label =
+                response === "accepted"
+                  ? t("employer.inbox.accepted", "Potwierdził(a) udział w rozmowie")
+                  : response === "declined"
+                  ? t("employer.inbox.declined", "Odmówił(a) udziału")
+                  : t("employer.inbox.replied", "Odpowiedział(a) na zaproszenie");
+              const contact = contacts[msg.candidate_user_id];
+              return (
+                <div key={msg.id} className="p-3 rounded-lg border bg-muted/30">
+                  <div className="flex items-center justify-between gap-2 flex-wrap">
+                    <span className="text-sm font-medium">{label}</span>
+                    <Badge variant="secondary">{t("employer.inbox.handled", "Obsłużone")}</Badge>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {contact?.email || msg.candidate_user_id.slice(0, 8)} · {new Date(msg.created_at).toLocaleString()}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 };
