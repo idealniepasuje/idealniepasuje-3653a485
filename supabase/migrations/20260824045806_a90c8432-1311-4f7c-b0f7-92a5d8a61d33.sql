@@ -1,0 +1,2 @@
+REVOKE ALL ON FUNCTION public.sync_assessments_on_membership_change() FROM PUBLIC, anon, authenticated;
+REVOKE ALL ON FUNCTION public.sync_internal_assessment_consent_membership() FROM PUBLIC, anon, authenticated;
