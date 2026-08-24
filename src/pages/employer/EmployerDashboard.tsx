@@ -287,19 +287,39 @@ const EmployerDashboard = () => {
                             <Calendar className="w-3 h-3" />
                             {formatDate(offer.created_at)}
                           </span>
-                          <span className="flex items-center gap-1">
-                            <Users className="w-3 h-3" />
-                            {stats.count} {stats.count === 1 ? t("common.matchedCandidate") : t("common.matchedCandidates")}
-                          </span>
+                          {internalEnabled && (
+                            <span className="flex items-center gap-1">
+                              <Users2 className="w-3 h-3" />
+                              {internalCount > 0
+                                ? `${internalCount} ${internalCount === 1 ? t("employer.dashboard.employeeAnalyzed", "pracownik w analizie") : t("employer.dashboard.employeesAnalyzed", "pracowników w analizie")}`
+                                : t("employer.dashboard.internalEnabled", "Analiza zespołu włączona")}
+                            </span>
+                          )}
+                          {externalEnabled && (
+                            <span className="flex items-center gap-1">
+                              <Users className="w-3 h-3" />
+                              {stats.count} {stats.count === 1 ? t("common.matchedCandidate") : t("common.matchedCandidates")}
+                            </span>
+                          )}
                         </div>
                       </Link>
                       <div className="flex items-center gap-2 shrink-0 ml-6 sm:ml-0">
-                        <Link to={`/employer/candidates?offerId=${offer.id}`}>
-                          <Button size="sm" variant="outline" className="gap-1">
-                            <Users className="w-4 h-4" />
-                            {t("employer.dashboard.viewCandidates", "Kandydaci")}
-                          </Button>
-                        </Link>
+                        {internalEnabled && (
+                          <Link to={`/employer/order/${offer.id}#team`}>
+                            <Button size="sm" variant="outline" className="gap-1">
+                              <Users2 className="w-4 h-4" />
+                              {t("employer.dashboard.viewEmployees", "Twoi pracownicy")}
+                            </Button>
+                          </Link>
+                        )}
+                        {externalEnabled && (
+                          <Link to={`/employer/candidates?offerId=${offer.id}`}>
+                            <Button size="sm" variant="outline" className="gap-1">
+                              <Users className="w-4 h-4" />
+                              {t("employer.dashboard.viewCandidates", "Kandydaci")}
+                            </Button>
+                          </Link>
+                        )}
                         <Link to={`/employer/offer/${offer.id}`}>
                           <Button size="sm" variant="outline" className="gap-1">
                             <Briefcase className="w-4 h-4" />
