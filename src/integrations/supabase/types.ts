@@ -171,6 +171,7 @@ export type Database = {
           lang_spanish: string | null
           linkedin_url: string | null
           myslenie_analityczne_score: number | null
+          open_to_external_offers: boolean
           out_of_the_box_score: number | null
           phone: string | null
           position_level: string | null
@@ -213,6 +214,7 @@ export type Database = {
           lang_spanish?: string | null
           linkedin_url?: string | null
           myslenie_analityczne_score?: number | null
+          open_to_external_offers?: boolean
           out_of_the_box_score?: number | null
           phone?: string | null
           position_level?: string | null
@@ -255,6 +257,7 @@ export type Database = {
           lang_spanish?: string | null
           linkedin_url?: string | null
           myslenie_analityczne_score?: number | null
+          open_to_external_offers?: boolean
           out_of_the_box_score?: number | null
           phone?: string | null
           position_level?: string | null
@@ -398,10 +401,83 @@ export type Database = {
         }
         Relationships: []
       }
+      internal_assessments: {
+        Row: {
+          competence_percent: number | null
+          computed_at: string | null
+          consent_at: string | null
+          consent_status: string
+          created_at: string
+          culture_percent: number | null
+          employee_user_id: string
+          extra_percent: number | null
+          id: string
+          job_offer_id: string
+          match_details: Json | null
+          organization_id: string
+          overall_percent: number | null
+          requested_by: string | null
+          revoked_at: string | null
+          updated_at: string
+        }
+        Insert: {
+          competence_percent?: number | null
+          computed_at?: string | null
+          consent_at?: string | null
+          consent_status?: string
+          created_at?: string
+          culture_percent?: number | null
+          employee_user_id: string
+          extra_percent?: number | null
+          id?: string
+          job_offer_id: string
+          match_details?: Json | null
+          organization_id: string
+          overall_percent?: number | null
+          requested_by?: string | null
+          revoked_at?: string | null
+          updated_at?: string
+        }
+        Update: {
+          competence_percent?: number | null
+          computed_at?: string | null
+          consent_at?: string | null
+          consent_status?: string
+          created_at?: string
+          culture_percent?: number | null
+          employee_user_id?: string
+          extra_percent?: number | null
+          id?: string
+          job_offer_id?: string
+          match_details?: Json | null
+          organization_id?: string
+          overall_percent?: number | null
+          requested_by?: string | null
+          revoked_at?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "internal_assessments_job_offer_id_fkey"
+            columns: ["job_offer_id"]
+            isOneToOne: false
+            referencedRelation: "job_offers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "internal_assessments_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       job_offers: {
         Row: {
           accepted_industries: string[] | null
           accepted_industry_requirements: Json | null
+          analyze_internal_team: boolean
           city: string | null
           company_name: string | null
           created_at: string
@@ -421,7 +497,9 @@ export type Database = {
           lang_polish: string | null
           lang_spanish: string | null
           no_experience_required: boolean | null
+          organization_id: string | null
           position_level: string | null
+          recruit_external_candidates: boolean
           req_adaptacja: number | null
           req_determinacja: number | null
           req_komunikacja: number | null
@@ -439,6 +517,7 @@ export type Database = {
         Insert: {
           accepted_industries?: string[] | null
           accepted_industry_requirements?: Json | null
+          analyze_internal_team?: boolean
           city?: string | null
           company_name?: string | null
           created_at?: string
@@ -458,7 +537,9 @@ export type Database = {
           lang_polish?: string | null
           lang_spanish?: string | null
           no_experience_required?: boolean | null
+          organization_id?: string | null
           position_level?: string | null
+          recruit_external_candidates?: boolean
           req_adaptacja?: number | null
           req_determinacja?: number | null
           req_komunikacja?: number | null
@@ -476,6 +557,7 @@ export type Database = {
         Update: {
           accepted_industries?: string[] | null
           accepted_industry_requirements?: Json | null
+          analyze_internal_team?: boolean
           city?: string | null
           company_name?: string | null
           created_at?: string
@@ -495,7 +577,9 @@ export type Database = {
           lang_polish?: string | null
           lang_spanish?: string | null
           no_experience_required?: boolean | null
+          organization_id?: string | null
           position_level?: string | null
+          recruit_external_candidates?: boolean
           req_adaptacja?: number | null
           req_determinacja?: number | null
           req_komunikacja?: number | null
@@ -510,7 +594,15 @@ export type Database = {
           user_id?: string
           work_mode?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "job_offers_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       match_results: {
         Row: {
@@ -592,6 +684,150 @@ export type Database = {
           },
         ]
       }
+      organization_employees: {
+        Row: {
+          created_at: string
+          id: string
+          invited_email: string | null
+          joined_at: string | null
+          organization_id: string
+          removed_at: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          invited_email?: string | null
+          joined_at?: string | null
+          organization_id: string
+          removed_at?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          invited_email?: string | null
+          joined_at?: string | null
+          organization_id?: string
+          removed_at?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "organization_employees_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      organization_invitations: {
+        Row: {
+          created_at: string
+          email: string
+          expires_at: string
+          id: string
+          invited_by: string
+          organization_id: string
+          status: string
+          token: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          expires_at?: string
+          id?: string
+          invited_by: string
+          organization_id: string
+          status?: string
+          token?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          expires_at?: string
+          id?: string
+          invited_by?: string
+          organization_id?: string
+          status?: string
+          token?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "organization_invitations_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      organization_members: {
+        Row: {
+          created_at: string
+          id: string
+          organization_id: string
+          role: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          organization_id: string
+          role?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          organization_id?: string
+          role?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "organization_members_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      organizations: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          owner_user_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          owner_user_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          owner_user_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
@@ -639,6 +875,15 @@ export type Database = {
         }[]
       }
       get_user_type: { Args: { user_uuid: string }; Returns: string }
+      is_active_org_employee: {
+        Args: { _org: string; _user: string }
+        Returns: boolean
+      }
+      is_org_manager: {
+        Args: { _org: string; _user: string }
+        Returns: boolean
+      }
+      is_org_member: { Args: { _org: string; _user: string }; Returns: boolean }
       log_audit_event: {
         Args: {
           _action: string
