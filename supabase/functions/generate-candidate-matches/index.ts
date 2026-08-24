@@ -85,6 +85,17 @@ Deno.serve(async (req) => {
     }
 
     // Require tests completed; profile_ready is NOT a hard filter (used for UI status only)
+    if (candidate.open_to_external_offers === false) {
+      return new Response(JSON.stringify({
+        success: true,
+        matches_count: 0,
+        matches: [],
+        message: 'Candidate opted out of external offers',
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
     if (!candidate.all_tests_completed) {
       return new Response(JSON.stringify({
         success: true,
@@ -100,7 +111,8 @@ Deno.serve(async (req) => {
     const { data: jobOffers, error: offersError } = await supabase
       .from('job_offers')
       .select('*')
-      .eq('is_active', true);
+      .eq('is_active', true)
+      .eq('recruit_external_candidates', true);
 
     if (offersError) {
       console.error('Failed to fetch job offers:', offersError);
