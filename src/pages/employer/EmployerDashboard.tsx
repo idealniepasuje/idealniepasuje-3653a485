@@ -99,6 +99,16 @@ const EmployerDashboard = () => {
     }
   };
 
+  const dismissFeedbackBanner = async () => {
+    setFeedbackBannerDismissed(true);
+    if (!user) return;
+    const { error } = await supabase
+      .from("profiles")
+      .update({ feedback_modal_dismissed_at: new Date().toISOString() })
+      .eq("user_id", user.id);
+    if (error) logError("EmployerDashboard.dismissFeedbackBanner", error);
+  };
+
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('pl-PL', { day: '2-digit', month: '2-digit', year: 'numeric' });
