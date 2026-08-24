@@ -158,51 +158,69 @@ const EmployerCandidates = () => {
           size="sm"
           onClick={() => setFilterStatus('all')}
           className={cn(
-            "gap-2 rounded-full h-auto py-2 w-fit",
+            "gap-2 rounded-full h-9 px-4 inline-flex items-center w-fit",
             filterStatus === 'all' && "bg-accent text-accent-foreground border-accent"
           )}
         >
-          <Users className="w-4 h-4" />
-          <div className="flex flex-col items-center leading-tight">
-            <span>{t("employer.candidates.filters.all")}</span>
-            <Badge variant="secondary" className="bg-accent-foreground/20 text-accent-foreground text-[10px] py-0 px-1 mt-0.5">
-              {matches.length}
-            </Badge>
-          </div>
+          <Users className="w-4 h-4 shrink-0" />
+          <span>{t("employer.candidates.filters.all")}</span>
+          <Badge
+            variant="secondary"
+            className={cn(
+              "text-[10px] py-0 px-1.5 h-4 min-w-[1.25rem] inline-flex items-center justify-center",
+              filterStatus === 'all'
+                ? "bg-accent-foreground/20 text-accent-foreground"
+                : "bg-muted text-muted-foreground"
+            )}
+          >
+            {matches.length}
+          </Badge>
         </Button>
         <Button
           variant="outline"
           size="sm"
           onClick={() => setFilterStatus('viewed')}
           className={cn(
-            "gap-2 rounded-full h-auto py-2 w-fit",
+            "gap-2 rounded-full h-9 px-4 inline-flex items-center w-fit",
             filterStatus === 'viewed' && "bg-accent text-accent-foreground border-accent"
           )}
         >
-          <Eye className="w-4 h-4" />
-          <div className="flex flex-col items-center leading-tight">
-            <span>{t("employer.candidates.filters.viewed")}</span>
-            <Badge variant="secondary" className="bg-accent-foreground/20 text-accent-foreground text-[10px] py-0 px-1 mt-0.5">
-              {matches.filter((m) => isSeen(m.status)).length}
-            </Badge>
-          </div>
+          <Eye className="w-4 h-4 shrink-0" />
+          <span>{t("employer.candidates.filters.viewed")}</span>
+          <Badge
+            variant="secondary"
+            className={cn(
+              "text-[10px] py-0 px-1.5 h-4 min-w-[1.25rem] inline-flex items-center justify-center",
+              filterStatus === 'viewed'
+                ? "bg-accent-foreground/20 text-accent-foreground"
+                : "bg-muted text-muted-foreground"
+            )}
+          >
+            {matches.filter((m) => isSeen(m.status)).length}
+          </Badge>
         </Button>
         <Button
           variant="outline"
           size="sm"
           onClick={() => setFilterStatus('notViewed')}
           className={cn(
-            "gap-2 rounded-full h-auto py-2 w-fit",
+            "gap-2 rounded-full h-9 px-4 inline-flex items-center w-fit",
             filterStatus === 'notViewed' && "bg-accent text-accent-foreground border-accent"
           )}
         >
-          <EyeOff className="w-4 h-4" />
-          <div className="flex flex-col items-center leading-tight">
-            <span>{t("employer.candidates.filters.notViewed")}</span>
-            <Badge variant="secondary" className="bg-accent-foreground/20 text-accent-foreground text-[10px] py-0 px-1 mt-0.5">
-              {matches.filter((m) => !isSeen(m.status)).length}
-            </Badge>
-          </div>
+          <EyeOff className="w-4 h-4 shrink-0" />
+          <span>{t("employer.candidates.filters.notViewed")}</span>
+          <Badge
+            variant="secondary"
+            className={cn(
+              "text-[10px] py-0 px-1.5 h-4 min-w-[1.25rem] inline-flex items-center justify-center",
+              filterStatus === 'notViewed'
+                ? "bg-accent-foreground/20 text-accent-foreground"
+                : "bg-muted text-muted-foreground"
+            )}
+          >
+            {matches.filter((m) => !isSeen(m.status)).length}
+          </Badge>
         </Button>
       </div>
 
