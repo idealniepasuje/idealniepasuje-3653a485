@@ -277,10 +277,7 @@ const CandidateAdditional = () => {
 
     if (targetIndustries.length === 0) nextErrors.targetIndustries = true;
 
-    if (!gtkTasks.trim()) nextErrors.gtkTasks = true;
-    if (!gtkProblems.trim()) nextErrors.gtkProblems = true;
-    if (!gtkMotivation.trim()) nextErrors.gtkMotivation = true;
-    if (!gtkProudOf.trim()) nextErrors.gtkProudOf = true;
+    // "Daj się poznać" (gtk*) is optional — no required validation here.
 
     // Languages: an explicit answer is required for each of the 4 languages
     // ("none" is a valid, deliberate answer).
@@ -303,11 +300,9 @@ const CandidateAdditional = () => {
             ? "experience-section"
             : nextErrors.targetIndustries
               ? "target-industries-section"
-              : (nextErrors.gtkTasks || nextErrors.gtkProblems || nextErrors.gtkMotivation || nextErrors.gtkProudOf)
-                ? "gtk-section"
-                : (nextErrors.langEnglish || nextErrors.langSpanish || nextErrors.langGerman || nextErrors.langPolish)
-                  ? "languages-section"
-                  : "linkedin-section";
+              : (nextErrors.langEnglish || nextErrors.langSpanish || nextErrors.langGerman || nextErrors.langPolish)
+                ? "languages-section"
+                : "linkedin-section";
       document.getElementById(firstSection)?.scrollIntoView({ behavior: "smooth", block: "center" });
       return;
     }
@@ -636,19 +631,19 @@ const CandidateAdditional = () => {
                 </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="gtk-tasks">{t("candidate.additional.gettingToKnow.q1Label")} *</Label>
+                <Label htmlFor="gtk-tasks">{t("candidate.additional.gettingToKnow.q1Label")}</Label>
                 <Textarea id="gtk-tasks" className={errCls("gtkTasks")} rows={2} maxLength={1000} placeholder={t("candidate.additional.gettingToKnow.placeholder")} value={gtkTasks} onChange={(e) => { setGtkTasks(e.target.value); clearError("gtkTasks"); }} />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="gtk-problems">{t("candidate.additional.gettingToKnow.q2Label")} *</Label>
+                <Label htmlFor="gtk-problems">{t("candidate.additional.gettingToKnow.q2Label")}</Label>
                 <Textarea id="gtk-problems" className={errCls("gtkProblems")} rows={2} maxLength={1000} placeholder={t("candidate.additional.gettingToKnow.placeholder")} value={gtkProblems} onChange={(e) => { setGtkProblems(e.target.value); clearError("gtkProblems"); }} />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="gtk-motivation">{t("candidate.additional.gettingToKnow.q3Label")} *</Label>
+                <Label htmlFor="gtk-motivation">{t("candidate.additional.gettingToKnow.q3Label")}</Label>
                 <Textarea id="gtk-motivation" className={errCls("gtkMotivation")} rows={2} maxLength={1000} placeholder={t("candidate.additional.gettingToKnow.placeholder")} value={gtkMotivation} onChange={(e) => { setGtkMotivation(e.target.value); clearError("gtkMotivation"); }} />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="gtk-proud">{t("candidate.additional.gettingToKnow.q4Label")} *</Label>
+                <Label htmlFor="gtk-proud">{t("candidate.additional.gettingToKnow.q4Label")}</Label>
                 <Textarea id="gtk-proud" className={errCls("gtkProudOf")} rows={2} maxLength={1000} placeholder={t("candidate.additional.gettingToKnow.placeholder")} value={gtkProudOf} onChange={(e) => { setGtkProudOf(e.target.value); clearError("gtkProudOf"); }} />
               </div>
               {!(gtkTasks.trim() && gtkProblems.trim() && gtkMotivation.trim() && gtkProudOf.trim()) && (
