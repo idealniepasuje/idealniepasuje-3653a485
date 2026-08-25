@@ -2,8 +2,8 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Home, Briefcase, Users, Settings, LogOut, Building2, UsersRound } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import {
 import { Logo } from "@/components/Logo";
+import {
   Sidebar,
   SidebarContent,
   SidebarHeader,
