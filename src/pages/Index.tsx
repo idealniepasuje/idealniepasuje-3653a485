@@ -5,6 +5,7 @@ import { ArrowRight, Menu, X, ClipboardList, BarChart3, Handshake, Sparkles, Hom
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { Logo } from "@/components/Logo";
 
 // Palette (explicit per brand direction):
 // bg #F8FAFC · navy #0F172A · violet #6366F1 · teal #2DD4BF · gray #E2E8F0 · cta #4F46E5
@@ -172,7 +173,7 @@ const Index = () => {
         <div className="container mx-auto px-4 py-3 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2">
             <span className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#6366F1] to-[#2DD4BF]" />
-            <span className="text-lg font-bold">idealnie<span className="text-[#6366F1]">pasuje</span></span>
+            <Logo className="h-6 md:h-7" />
           </Link>
           <div className="hidden md:flex items-center gap-3">
             <LanguageSwitcher />

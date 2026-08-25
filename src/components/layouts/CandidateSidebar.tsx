@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { Home, Trophy, LogOut, Users, UserCircle, Building2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import {
+import { Logo } from "@/components/Logo";
   Sidebar,
   SidebarContent,
   SidebarHeader,
@@ -41,9 +42,7 @@ export const CandidateSidebar = () => {
         <Link to="/candidate/dashboard" className="flex items-center gap-2">
           <Users className="w-8 h-8 text-cta" />
           {!isCollapsed && (
-            <span className="text-lg font-bold">
-              idealnie<span className="text-cta">pasuje</span>
-            </span>
+            <Logo onDark className="h-6 md:h-7" />
           )}
         </Link>
       </SidebarHeader>

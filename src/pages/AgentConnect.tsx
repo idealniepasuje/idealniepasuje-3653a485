@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { InstagramLink } from "@/components/InstagramIcon";
+import { Logo } from "@/components/Logo";
 
 const APP_NAME = "idealnie pasuje";
 const APP_SLUG = "idealnie-pasuje";
@@ -76,9 +77,7 @@ export default function AgentConnect() {
       <header className="border-b border-border bg-card/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 py-3 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2">
-            <span className="text-xl font-bold text-foreground">
-              idealnie<span className="text-accent">pasuje</span>
-            </span>
+            <Logo className="h-6 md:h-7" />
           </Link>
           <InstagramLink className="w-5 h-5 text-foreground" />
         </div>

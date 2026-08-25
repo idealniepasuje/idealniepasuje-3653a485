@@ -19,6 +19,7 @@ import { getAprobataQuestions } from "@/data/competencyQuestions";
 import { getLinkedinRequestTemplate, getProfileCompletionTemplate, getToolsRequestTemplate, getLanguagesRequestTemplate } from "@/data/messageTemplates";
 import { LANGUAGE_LEVELS, languageLevelLabels, languageNames } from "@/data/additionalQuestions";
 import { ExtraCriteriaList } from "@/components/match/ExtraCriteriaList";
+import { Logo } from "@/components/Logo";
 
 interface MatchDetails {
   competenceDetails: {
@@ -497,7 +498,7 @@ const EmployerCandidateDetail = () => {
       <header className="bg-primary text-primary-foreground">
         <div className="container mx-auto px-4 py-3 flex items-center justify-between">
           <Link to="/" className="flex items-center">
-            <span className="text-xl font-bold">idealnie<span className="text-accent">pasuje</span></span>
+            <Logo onDark className="h-6 md:h-7" />
           </Link>
           <div className="flex items-center gap-2 md:gap-4">
             <LanguageSwitcher />
