@@ -1,5 +1,5 @@
-import darkAsset from "@/assets/logo-dark.png.asset.json";
-import lightAsset from "@/assets/logo-light.png.asset.json";
+import darkLogo from "@/assets/logo-dark.svg";
+import lightLogo from "@/assets/logo-light.svg";
 
 interface LogoProps {
   /** true when placed on a dark surface (navy header/sidebar) — uses the light logo */
@@ -13,14 +13,14 @@ interface LogoProps {
 export const Logo = ({ onDark = false, className = "h-7" }: LogoProps) => {
   if (onDark) {
     return (
-      <img src={lightAsset.url} alt="idealniepasuje" className={`${className} w-auto`} />
+      <img src={lightLogo} alt="idealniepasuje" className={`${className} w-auto`} />
     );
   }
 
   return (
     <>
-      <img src={darkAsset.url} alt="idealniepasuje" className={`${className} w-auto dark:hidden`} />
-      <img src={lightAsset.url} alt="idealniepasuje" className={`${className} w-auto hidden dark:block`} />
+      <img src={darkLogo} alt="idealniepasuje" className={`${className} w-auto dark:hidden`} />
+      <img src={lightLogo} alt="idealniepasuje" className={`${className} w-auto hidden dark:block`} />
     </>
   );
 };
