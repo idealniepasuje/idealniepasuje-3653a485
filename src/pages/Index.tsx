@@ -47,7 +47,6 @@ const DashboardMockup = () => (
     <div className="flex">
       {/* Sidebar */}
       <div className="w-14 md:w-16 bg-[#0F172A] py-6 flex flex-col items-center gap-5">
-        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#6366F1] to-[#2DD4BF]" />
         <div className="w-9 h-9 rounded-lg bg-white/10 flex items-center justify-center">
           <Home className="w-4 h-4 text-white" />
         </div>
@@ -172,7 +171,6 @@ const Index = () => {
       <header className="fixed top-0 left-0 right-0 z-50 bg-[#F8FAFC]/85 backdrop-blur-md border-b border-[#E2E8F0]">
         <div className="container mx-auto px-4 py-3 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2">
-            <span className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#6366F1] to-[#2DD4BF]" />
             <Logo className="h-6 md:h-7" />
           </Link>
           <div className="hidden md:flex items-center gap-3">
