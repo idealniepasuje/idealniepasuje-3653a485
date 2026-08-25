@@ -12,6 +12,7 @@ import { logError } from "@/lib/errorLogger";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { getLevel, getFeedback, getLocalizedLevelLabels } from "@/data/feedbackData";
 import { ExtraCriteriaList } from "@/components/match/ExtraCriteriaList";
+import { Logo } from "@/components/Logo";
 
 interface MatchDetails {
   competenceDetails: {
@@ -206,7 +207,7 @@ const CandidateEmployerDetail = () => {
       <header className="bg-primary text-primary-foreground">
         <div className="container mx-auto px-4 py-3 flex items-center justify-between">
           <Link to="/" className="flex items-center">
-            <span className="text-xl font-bold">idealnie<span className="text-accent">pasuje</span></span>
+            <Logo onDark className="h-6 md:h-7" />
           </Link>
           <div className="flex items-center gap-2 md:gap-4">
             <LanguageSwitcher />

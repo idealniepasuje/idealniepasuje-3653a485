@@ -11,6 +11,7 @@ import { Users, Building2, ArrowLeft } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { Logo } from "@/components/Logo";
 
 const Register = () => {
   const navigate = useNavigate();
@@ -98,7 +99,7 @@ const Register = () => {
         <Card className="border-border/50 shadow-lg">
           <CardHeader className="text-center">
             <div className="flex items-center justify-center gap-2 mb-4">
-              <span className="text-xl font-bold">idealnie<span className="text-accent">pasuje</span></span>
+              <Logo className="h-6 md:h-7" />
             </div>
             <CardTitle className="text-2xl">{t("register.title")}</CardTitle>
             <CardDescription>{t("register.subtitle")}</CardDescription>

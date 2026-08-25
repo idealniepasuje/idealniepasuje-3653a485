@@ -2,6 +2,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Home, Briefcase, Users, Settings, LogOut, Building2, UsersRound } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { Logo } from "@/components/Logo";
 import {
   Sidebar,
   SidebarContent,
@@ -41,9 +42,7 @@ export const EmployerSidebar = () => {
         <Link to="/employer/dashboard" className="flex items-center gap-2">
           <Building2 className="w-8 h-8 text-cta" />
           {!isCollapsed && (
-            <span className="text-lg font-bold">
-              idealnie<span className="text-cta">pasuje</span>
-            </span>
+            <Logo onDark className="h-6 md:h-7" />
           )}
         </Link>
       </SidebarHeader>

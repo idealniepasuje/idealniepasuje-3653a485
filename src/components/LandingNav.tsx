@@ -5,6 +5,7 @@ import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { InstagramLink } from "@/components/InstagramIcon";
+import { Logo } from "@/components/Logo";
 
 interface LandingNavProps {
   variant: "candidate" | "employer";
@@ -26,9 +27,7 @@ export const LandingNav = ({ variant }: LandingNavProps) => {
     <header className="fixed top-0 left-0 right-0 z-50 bg-card/90 backdrop-blur-sm border-b border-border">
       <div className="container mx-auto px-4 py-3 flex items-center justify-between">
         <Link to="/" className="flex items-center">
-          <span className="text-xl font-bold text-foreground">
-            idealnie<span className="text-accent">pasuje</span>
-          </span>
+          <Logo className="h-6 md:h-7" />
         </Link>
 
         {/* Desktop nav */}

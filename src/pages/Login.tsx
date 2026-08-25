@@ -11,6 +11,7 @@ import { lovable } from "@/integrations/lovable";
 import { toast } from "sonner";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { useAuth } from "@/contexts/AuthContext";
+import { Logo } from "@/components/Logo";
 
 // Only accept same-origin relative paths as post-login redirects.
 function sanitizeNext(raw: string | null): string | null {
@@ -134,7 +135,7 @@ const Login = () => {
         <Card className="border-border/50 shadow-lg">
           <CardHeader className="text-center">
             <div className="flex items-center justify-center gap-2 mb-4">
-              <span className="text-xl font-bold">idealnie<span className="text-accent">pasuje</span></span>
+              <Logo className="h-6 md:h-7" />
             </div>
             <CardTitle className="text-2xl">{t("login.title")}</CardTitle>
             <CardDescription>{t("login.subtitle")}</CardDescription>

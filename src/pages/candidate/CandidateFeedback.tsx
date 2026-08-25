@@ -11,6 +11,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { supabase } from "@/integrations/supabase/client";
+import { Logo } from "@/components/Logo";
 
 const CandidateFeedback = () => {
   const { user, signOut } = useAuth();
@@ -67,7 +68,7 @@ const CandidateFeedback = () => {
         <header className="bg-primary text-primary-foreground">
           <div className="container mx-auto px-4 py-4 flex items-center justify-between">
             <Link to="/" className="flex items-center">
-              <span className="text-xl font-bold">idealnie<span className="text-accent">pasuje</span></span>
+              <Logo onDark className="h-6 md:h-7" />
             </Link>
             <div className="flex items-center gap-4">
               <LanguageSwitcher />
@@ -104,7 +105,7 @@ const CandidateFeedback = () => {
       <header className="bg-primary text-primary-foreground">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <Link to="/" className="flex items-center">
-            <span className="text-xl font-bold">idealnie<span className="text-accent">pasuje</span></span>
+            <Logo onDark className="h-6 md:h-7" />
           </Link>
           <div className="flex items-center gap-4">
             <LanguageSwitcher />
