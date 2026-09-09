@@ -1,97 +1,121 @@
-# Audyt READ-ONLY — IdealniePasuje (24.08.2026)
+# Audyt migracyjny: Lovable → Cursor + GitHub + Vercel (backend zostaje w obecnym Supabase)
 
-Nie wprowadzono żadnych zmian. Poniżej wyniki weryfikacji kodu, bazy i testów.
+Audyt wyłącznie analityczny. Nie wprowadzono żadnych zmian w kodzie.
 
-## A. Organizacje / pracownicy
+## 1. Zależności specyficzne dla Lovable
 
-| # | Obszar | Status | Uwagi |
-|---|---|---|---|
-| 1 | Tworzenie organizacji | DZIAŁA | `useOrganization` sprawdza membership → owned org → insert z obsługą 23505. DB: 11 organizacji, 0 duplikatów `owner_user_id`. |
-| 2 | Zaproszenie e-mailem | CZĘŚCIOWO | `invite-employee` istnieje, w bazie 1 zaproszenie. Doręczenie SMTP niezweryfikowane runtime. |
-| 3 | Powrót z loginu do zaproszenia | DZIAŁA (kod) | `ProtectedRoute` → `/login?next=`, `Login.tsx` sanitizuje i nawiguje, `/register?next=` przekazywany. Runtime niezweryfikowany. |
-| 4 | Akceptacja → `active` | CZĘŚCIOWO | 1 aktywny pracownik w bazie; flow potwierdzony kodem `accept-employee-invitation`, brak testu runtime. |
-| 5 | Zgoda z członkostwa, nie per oferta | DZIAŁA | Triggery `sync_assessments_on_membership_change` + `sync_internal_assessment_consent_membership`. DB: 0 aktywnych pracowników bez `granted`. |
-| 6 | Odłączenie → revoke + czyszczenie | DZIAŁA | Trigger `enforce_internal_assessment_consent` zeruje `overall/competence/culture/extra/match_details/computed_at`. DB: 0 wyników przy statusie ≠ granted. |
-| 7 | RLS między organizacjami | DZIAŁA | RLS włączone na wszystkich 4 tabelach org + `internal_assessments`, polityki oparte o `is_org_member/is_org_manager/is_active_org_employee`. |
-
-## B. Oferty / tryby
-
-| # | Status | Uwagi |
+| Element | Gdzie | Status |
 |---|---|---|
-| 8 | DZIAŁA | Kombinacje obsłużone w `EmployerOfferForm`, `EmployerOrderDetail`, `EmployerDashboard`. |
-| 9 | DZIAŁA | `AnalyzeEmployeeDialog.enableInternal` robi UPDATE wyłącznie `analyze_internal_team=true`. |
-| 10 | CZĘŚCIOWO | Blokada w UI (`EmployerOfferForm` linia 302) i w `offerCompleteness.ts`. Brak CHECK constraint w bazie — zapis przez API/Edge mógłby ominąć regułę. DB: 0 takich rekordów. |
-| 11 | DZIAŁA | Generatory matchy filtrują po `recruit_external_candidates`. |
-| 12 | DZIAŁA | `generate-internal-assessments` odrzuca ofertę bez `analyze_internal_team` (400). |
+| `lovable-tagger` (devDependency, plugin Vite tylko w trybie development) | `package.json`, `vite.config.ts` | wymaga zmiany (usunąć albo zostawić — build produkcyjny go nie używa, ale paczka musi być instalowalna z npm) |
+| `@lovable.dev/cloud-auth-js` — logowanie Google i Apple | `src/integrations/lovable/index.ts`, `src/pages/Login.tsx`, `src/pages/Register.tsx` | wymaga zmiany (kluczowe — patrz sekcja 5) |
+| `@lovable.dev/mcp-js` + `mcpPlugin()` generujący `supabase/functions/mcp/index.ts` | `vite.config.ts`, `src/lib/mcp/*`, `supabase/functions/mcp` | opcjonalne (patrz sekcja 7) |
+| `previewAuthStorage.ts` — brokerowanie sesji do edytora Lovable przez postMessage | `src/integrations/supabase/client.ts` | działa bez zmian (poza domenami Lovable zwraca `localStorage`), zalecane uproszczenie |
+| Auto-generowane pliki „nie edytować” (`client.ts`, `types.ts`, `supabase/config.toml`) | `src/integrations/supabase/` | działa bez zmian, po migracji stają się zwykłymi plikami (typy generuje `supabase gen types`) |
+| `.lovable/`, `.workspace/` | katalog główny | opcjonalne (można usunąć) |
+| README z linkami do Lovable | `README.md` | opcjonalne |
 
-## C. Analiza pracownika
+## 2. Zmienne środowiskowe
 
-| # | Status | Uwagi |
-|---|---|---|
-| 13 | DZIAŁA | `AnalyzeEmployeeDialog` renderuje `InternalAssessmentDetails` inline + „Wróć do ról”, bez nawigacji. |
-| 14 | DZIAŁA | `EmployerOrderDetail`: pracownicy (147) → kandydaci (153) → szczegóły. |
-| 15 | DZIAŁA | Zapytanie pobiera wszystkie pola wynikowe i `match_details`; NULL renderowane jako brak danych. |
-| 16 | DZIAŁA | `CandidateOrganizations` bez per-offer consent. |
+Frontend (Vite, prefiks `VITE_`, trafiają do przeglądarki):
+- `VITE_SUPABASE_URL` — `src/integrations/supabase/client.ts`
+- `VITE_SUPABASE_PUBLISHABLE_KEY` (klucz anon — publiczny, OK) — tamże
+- `VITE_SUPABASE_PROJECT_ID` — `src/lib/mcp/index.ts`, `src/pages/AgentConnect.tsx`
 
-## D. Kandydat / rynek zewnętrzny
+Edge Functions (wstrzykiwane automatycznie przez Supabase):
+- `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` — działa bez zmian
 
-| # | Status | Uwagi |
-|---|---|---|
-| 17 | DZIAŁA | Switch tylko w `CandidateProfile.tsx`; brak w `CandidateOrganizations`. |
-| 18 | CZĘŚCIOWO | Backend (3 Edge Functions) i `CandidateDashboard`/`CandidateMatches` respektują OFF. Analizy wewnętrzne niezależne. |
-| 19 | DZIAŁA | Odwrócenie flagi przywraca matching. |
-| 20 | **REGRESJA** | `CandidateEmployerDetail.tsx` nie sprawdza `open_to_external_offers` — wejście bezpośrednim linkiem `/candidate/employer/:id` przy OFF nadal pokazuje zewnętrzną ofertę. |
+Uwaga: plik `.env` **nie jest** w `.gitignore`. Zawiera tylko wartości publiczne, ale przed pushem do GitHuba należy go dodać do `.gitignore` i zostawić `.env.example`.
 
-## E. Formularz kandydata
+## 3. Sekrety wymagane przez Edge Functions
 
-| # | Status | Uwagi |
-|---|---|---|
-| 21 | DZIAŁA | Brak gwiazdek i walidacji dla gtk (komentarz linia 280); trigger `compute_candidate_profile_ready` nie bramkuje gtk. |
-| 22 | DZIAŁA | 4 języki, tryb pracy, branże i doświadczenie nadal obowiązkowe (trigger + UI). |
+- `GMAIL_APP_PASSWORD` — używany w 12 funkcjach mailowych (SMTP Gmail przez `denomailer`). **Musi być ustawiony w Supabase** (Edge Function secrets). Adres nadawcy jest zaszyty w kodzie funkcji.
+- `SUPABASE_SERVICE_ROLE_KEY` — dostarczany przez Supabase automatycznie; funkcje mailowe autoryzują wywołania porównując nagłówek `Authorization` z tym kluczem (tylko server-to-server).
+- Brak zależności od `LOVABLE_API_KEY`, Lovable AI Gateway i connectorów — nic z tego nie jest używane.
 
-## F. Powiadomienia / wiadomości
+## 4. Miejsca zależne od domen lovable.app / preview
 
-| # | Status | Uwagi |
-|---|---|---|
-| 23 | DZIAŁA | Banner feedbacku zapisuje `profiles.feedback_modal_dismissed_at`; `EmployerMessagesInbox` filtruje `!employer_read_at` + Dialog „Historia”. |
-| 24 | DZIAŁA | `CandidateMessagesInbox`: `active = !read_at`, `handled` w Dialogu historii. |
-| 25 | **REGRESJA** | Dwa problemy: (a) ręczne `X` tylko dla `employer_reply` (linia 204) — `linkedin_request`, `profile_completion`, `tools_completion_request`, `interview_*` nie da się zamknąć ręcznie; (b) `CandidateAdditional` czyści `profile_completion` tylko gdy `gtkComplete`, a gtk jest już opcjonalne → prośba zawiśnie na stałe. DB potwierdza zaległości: 5 nieprzeczytanych `profile_completion`, 3 `linkedin_request`. |
+- **15 Edge Functions** ma zaszyty na sztywno `https://idealniepasuje.lovable.app/...` w linkach w e-mailach (`send-*`, `generate-matches`, `generate-candidate-matches`, `invite-employee`). Wymaga zmiany: przenieść do sekretu np. `PUBLIC_APP_URL` (albo podmienić na `https://idealniepasuje.pl`).
+- `src/pages/employer/EmployerCulture.tsx` — `feedback_url: 'https://idealniepasuje.lovable.app/employer/feedback'`. Wymaga zmiany (lepiej `window.location.origin`).
+- `src/integrations/supabase/previewAuthStorage.ts` — lista stref preview Lovable; poza nimi nieaktywne. Działa bez zmian.
+- `index.html` — CSP `connect-src` zawiera `https://*.lovable.dev` i `https://*.lovable.app`. Działa bez zmian; do przeglądu przy usuwaniu logowania Lovable.
 
-## G. Dashboard / UI
+## 5. Auth
 
-| # | Status | Uwagi |
-|---|---|---|
-| 26 | DZIAŁA | Warunkowe „Twoi pracownicy” (`/employer/order/:id#team`) i „Kandydaci”. Usunięcie „Oferta” nie odcięło edycji — dostęp z `EmployerOffers` i `EmployerOrderDetail`. |
-| 27 | DZIAŁA | Chipsy `inline-flex items-center h-9`, count jako inline badge. |
-| 28 | CZĘŚCIOWO | Wszystkie CTA wskazują istniejące trasy; kotwica `#team` obsłużona. Runtime niezweryfikowany. |
+- **Email + hasło** (`supabase.auth.signInWithPassword`, `signUp` z `emailRedirectTo: window.location.origin`) — działa bez zmian; wymaga tylko dodania nowych domen do Redirect URLs w Supabase.
+- **Google i Apple** — idą przez `@lovable.dev/cloud-auth-js`, czyli przez hostowany OAuth Lovable (`https://oauth.lovable.app`). To jest największe ryzyko migracji: **po odłączeniu Lovable logowanie społecznościowe przestanie działać**. Wymaga zmiany na natywne `supabase.auth.signInWithOAuth({ provider: 'google' | 'apple', options: { redirectTo } })` z własnym Client ID/Secret Google i Apple skonfigurowanym w Supabase Auth.
+- Redirecty: `Login.tsx` i `Register.tsx` używają `window.location.origin` + sanitizowanego `next` — poprawne i przenośne. Wymaga zmiany tylko konfiguracja Site URL / Redirect URLs w Supabase.
+- Uwaga: `redirect_uri` do OAuth może wskazywać chronioną trasę przez `?next=` — po przejściu na natywny OAuth kierować na origin lub `/auth/callback`, a docelową ścieżkę trzymać osobno.
 
-## H. Bezpieczeństwo / dane
+## 6. Edge Functions (20)
 
-| # | Status | Wynik |
-|---|---|---|
-| 29 | DZIAŁA | `anon` SELECT/INSERT = false dla `organizations`, `organization_members`, `organization_employees`, `organization_invitations`, `internal_assessments`. |
-| 30 | DZIAŁA | 0 aktywnych pracowników bez `granted`. |
-| 31 | DZIAŁA | 0 `granted` bez aktywnego członkostwa. |
-| 32 | DZIAŁA | 0 wyników przy `revoked/declined/pending`. |
-| 33 | DZIAŁA | 0 duplikatów `owner_user_id`. |
-| 34 | DZIAŁA | `enforce_org_owner_role` blokuje nadanie/zmianę/usunięcie ownera przez admina. |
-| 35 | **PROBLEM (niski)** | 1 osierocona organizacja `IdealniePasuje` (`b72ba214…`, 2026-08-24 03:48) — owner usunięty z `auth.users`, ale ma 1 ofertę i 1 membership. `handle_user_deletion` nie sprząta `organizations`/`organization_members`/`job_offers.organization_id`. Ryzyko: martwe dane i oferta bez właściciela; nie jest to wyciek (RLS wymaga membership). |
+Wszystkie są zwykłym kodem Deno na Supabase — **działają bez zmian po migracji**, pod warunkiem że:
+- zostaje ten sam projekt Supabase (zostaje),
+- `GMAIL_APP_PASSWORD` pozostaje ustawiony,
+- adresy w e-mailach zostaną zaktualizowane (sekcja 4).
 
-## Uwaga dodatkowa (poza listą)
-`anon` ma nadal SELECT/INSERT na `candidate_test_results`, `employer_profiles`, `job_offers`, `profiles`, `candidate_feedback`, `employer_feedback`. Dostęp jest zamknięty politykami RLS, ale to szersze uprawnienia niż potrzebne.
+Zmiana dotyczy tylko sposobu deployu: zamiast Lovable — `supabase functions deploy <nazwa>` z CLI lub GitHub Actions. Wyjątek: `supabase/functions/mcp/index.ts` jest generowany automatycznie (sekcja 7). CORS jest ustawiony na `*`, więc zmiana domeny frontendu niczego nie psuje.
 
-## I. Testy i deploy
+## 7. MCP i funkcje opcjonalne
 
-| # | Status | Wynik |
-|---|---|---|
-| 36 | DZIAŁA | Typecheck bez błędów. Vitest **48/48** przeszło. |
-| 37 | CZĘŚCIOWO | Scenariusze zalogowane ocenione z kodu — **niezweryfikowane runtime** (brak sesji testowej; audyt read-only bez modyfikacji danych). |
-| 38 | CZĘŚCIOWO | Migracje bazy i triggery są **live** (potwierdzone zapytaniami do produkcyjnej bazy). Edge Functions obecne w repo — status ostatniego deployu **niezweryfikowany**. Zmiany frontendu z dzisiejszych commitów (do `780374e`) są **tylko w preview** — brak publikacji. |
+- Serwer MCP (`src/lib/mcp/*` → `supabase/functions/mcp`) jest budowany przez `mcpPlugin()` z `@lovable.dev/mcp-js` w `vite.config.ts`. Paczka jest publiczna na npm, więc może działać dalej, ale to zależność vendorowa. Opcjonalne: zostawić, zamrozić wygenerowany plik funkcji i usunąć plugin, albo usunąć całość razem ze stroną `/agent`.
+- OAuth server dla MCP (`OAuthConsent.tsx`) opiera się na issuerze Supabase, nie na Lovable — działa bez zmian.
+- `AgentConnect.tsx` buduje URL MCP z `VITE_SUPABASE_PROJECT_ID` — działa bez zmian, o ile zmienna jest ustawiona w Vercel.
 
-## TOP 5 do naprawy przed publikacją
+## 8. Do skonfigurowania po migracji
 
-1. **P0 — Zawieszone prośby u kandydata (poz. 25).** `profile_completion` nie jest już czyszczone (gtk opcjonalne), a większości typów nie da się zamknąć ręcznie. 8 nieprzeczytanych rekordów w bazie. Fix: warunek czyszczenia oparty o realnie brakujące dane + dismiss dla wszystkich typów.
-2. **P0 — Wyciek widoku zewnętrznej oferty przy OFF (poz. 20).** Dodać guard `open_to_external_offers` w `CandidateEmployerDetail.tsx`.
-3. **P1 — Brak twardej reguły „oba tryby false” w bazie (poz. 10).** Dodać CHECK constraint na `job_offers`.
-4. **P1 — Osierocona organizacja z ofertą (poz. 35).** Rozszerzyć `handle_user_deletion` o sprzątanie org/members/offers i wyczyścić istniejący rekord.
-5. **P2 — Nadmiarowe granty `anon`** na `candidate_test_results`, `employer_profiles`, `job_offers`, `profiles` — zawęzić do faktycznie publicznych ścieżek.
+Vercel:
+- Framework Vite, `npm run build`, output `dist`
+- Zmienne: `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`, `VITE_SUPABASE_PROJECT_ID` (Production + Preview)
+- SPA rewrite — na Vercel dla Vite deep-linki działają domyślnie; jeśli pojawi się 404 przy odświeżeniu, dodać `vercel.json` z rewrite `/(.*) → /index.html`
+- Domeny `idealniepasuje.pl` i `www` przepiąć DNS z Lovable na Vercel (to jest moment nieodwracalny — robić na końcu)
+
+Supabase:
+- Auth → Site URL i Redirect URLs: domena produkcyjna, `localhost:8080`, wildcard preview Vercel
+- Auth → Providers: własne Google i Apple (nowe Client ID/Secret)
+- Edge Functions secrets: `GMAIL_APP_PASSWORD`, nowy `PUBLIC_APP_URL`
+- Deploy funkcji z CLI/CI zamiast z Lovable
+
+GitHub/Cursor:
+- `.env` do `.gitignore` + `.env.example`
+- `supabase/migrations` (79 plików) już w repo — historia migracji zachowana
+- `supabase link --project-ref ...` do lokalnej pracy; `supabase gen types typescript` zamiast auto-generacji Lovable
+
+## 9. Ryzyka bezpieczeństwa i hardcoded URL
+
+- **Krytyczne funkcjonalnie:** logowanie Google/Apple zależy od infrastruktury Lovable — bez wcześniejszej wymiany na natywny OAuth użytkownicy społecznościowi stracą dostęp do kont.
+- `.env` śledzony przez git (tylko klucze publiczne, ale zły nawyk — przy okazji łatwo wpuścić do repo prawdziwy sekret).
+- 16 miejsc z zaszytym `idealniepasuje.lovable.app` — po wyłączeniu projektu Lovable linki w e-mailach przestaną działać.
+- CORS `Access-Control-Allow-Origin: *` we wszystkich funkcjach — funkcje mailowe są chronione porównaniem z service role key, ale te wywoływane przez użytkownika warto zawęzić do własnej domeny.
+- CSP w `index.html` zawiera domeny Lovable — do usunięcia po odcięciu.
+- Service role key jest używany wyłącznie po stronie Edge Functions — poprawnie, nigdzie nie wycieka do frontendu.
+
+## 10. Checklista migracji (od najbezpieczniejszych kroków)
+
+**Faza 1 — zero ryzyka (Lovable dalej działa)**
+1. Podłączyć GitHub do projektu Lovable, sklonować repo lokalnie, otworzyć w Cursorze.
+2. `npm install`, `npm run dev` — potwierdzić, że aplikacja lokalnie działa na obecnym Supabase.
+3. Dodać `.env` do `.gitignore`, utworzyć `.env.example`.
+4. `supabase login` + `supabase link` — potwierdzić dostęp CLI do bazy i funkcji.
+
+**Faza 2 — przygotowanie, bez odłączania**
+5. Wprowadzić `PUBLIC_APP_URL` jako sekret Supabase i zamienić zaszyte adresy w 15 funkcjach + `EmployerCulture.tsx` (na razie z wartością `https://idealniepasuje.lovable.app`).
+6. Wdrożyć te funkcje z CLI — potwierdzić, że deploy spoza Lovable działa.
+7. Założyć własne aplikacje OAuth: Google Cloud Console i Apple Developer; skonfigurować providerów w Supabase Auth.
+8. Przepisać `Login.tsx`/`Register.tsx` na natywne `supabase.auth.signInWithOAuth`; przetestować lokalnie oba logowania.
+
+**Faza 3 — Vercel równolegle do Lovable**
+9. Zaimportować repo do Vercel, ustawić trzy zmienne `VITE_*`, wdrożyć na tymczasową domenę `*.vercel.app`.
+10. Dodać domenę Vercel do Redirect URLs w Supabase; przetestować pełny flow: rejestracja, logowanie e-mail, Google, Apple, e-maile, dopasowania, zaproszenia, MCP.
+
+**Faza 4 — przełączenie domeny**
+11. Przepiąć `idealniepasuje.pl` i `www` z Lovable na Vercel (DNS).
+12. Zmienić `PUBLIC_APP_URL` na `https://idealniepasuje.pl` i przewdrożyć funkcje.
+13. Zaktualizować Site URL w Supabase, sprawdzić linki w świeżo wysłanych e-mailach.
+
+**Faza 5 — sprzątanie (dopiero po kilku dniach stabilnej pracy)**
+14. Usunąć `lovable-tagger`, `@lovable.dev/cloud-auth-js`, `src/integrations/lovable/`, uprościć `previewAuthStorage.ts`.
+15. Zdecydować o MCP: zamrozić wygenerowaną funkcję i usunąć `mcpPlugin()`, albo usunąć moduł.
+16. Wyczyścić CSP z domen Lovable, zaktualizować README, usunąć `.lovable/`.
+17. Odłączyć/zarchiwizować projekt w Lovable.
+
+**Punkt bez odwrotu:** krok 11. Do tego momentu każdy krok można wycofać.
