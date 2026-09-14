@@ -78,7 +78,8 @@ const handler = async (req: Request): Promise<Response> => {
       throw new Error("GMAIL_APP_PASSWORD not configured");
     }
 
-    const feedbackLink = feedback_url || "https://idealniepasuje.lovable.app/employer/feedback";
+    const siteUrl = Deno.env.get("SITE_URL") || "https://idealniepasuje.pl";
+    const feedbackLink = feedback_url || `${siteUrl}/employer/feedback`;
 
     const emailHtml = [
       '<!DOCTYPE html>',

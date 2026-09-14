@@ -411,7 +411,8 @@ const handler = async (req: Request): Promise<Response> => {
         );
       }
 
-      const dashboardLink = dashboard_url || "https://idealniepasuje.lovable.app/employer/candidates";
+      const siteUrl = Deno.env.get("SITE_URL") || "https://idealniepasuje.pl";
+      const dashboardLink = dashboard_url || `${siteUrl}/employer/candidates`;
       emailHtml = buildMatchesEmail(companyName, candidateCards.join(""), matches.length, dashboardLink);
       emailSubject = `🎉 ${matches.length} ${matches.length === 1 ? 'kandydat dopasowany' : 'kandydatów dopasowanych'} do Twojej oferty - idealniepasuje`;
     }

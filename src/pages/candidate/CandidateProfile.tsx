@@ -29,6 +29,7 @@ import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { logError } from "@/lib/errorLogger";
+import { isEligibleForExternalMatching } from "@/lib/candidate-marketplace-eligibility";
 import { competencyTests } from "@/data/competencyQuestions";
 import { getLocalizedCultureDimensions } from "@/data/cultureQuestions";
 import { languageNames, languageLevelLabels } from "@/data/additionalQuestions";
@@ -166,6 +167,9 @@ const CandidateProfile = () => {
     onsite: tr("Stacjonarnie", "On-site"),
   };
 
+  const marketplaceEligible = data ? isEligibleForExternalMatching(data) : false;
+  const requirementsVersion = data?.profile_requirements_version ?? 1;
+
   return (
     <DashboardLayout sidebar={<CandidateSidebar />}>
       <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
@@ -189,10 +193,15 @@ const CandidateProfile = () => {
       {/* Status */}
       <Card className="mb-6">
         <CardContent className="pt-6 flex flex-wrap items-center gap-3">
-          {data?.all_tests_completed ? (
+          {data?.profile_ready ? (
             <Badge className="gap-1.5">
               <CheckCircle2 className="w-3.5 h-3.5" />
               {tr("Profil kompletny", "Profile complete")}
+            </Badge>
+          ) : data?.all_tests_completed ? (
+            <Badge variant="secondary" className="gap-1.5">
+              <CheckCircle2 className="w-3.5 h-3.5" />
+              {tr("Testy ukończone", "Tests completed")}
             </Badge>
           ) : (
             <Badge variant="outline" className="gap-1.5 border-destructive/40 text-destructive">
@@ -201,9 +210,17 @@ const CandidateProfile = () => {
             </Badge>
           )}
           <span className="text-sm text-muted-foreground">
-            {data?.all_tests_completed
+            {marketplaceEligible
               ? tr("Bierzesz udział w dopasowaniach.", "You are included in matching.")
-              : tr("Uzupełnij testy i dane, aby brać udział w dopasowaniach.", "Complete tests and data to join matching.")}
+              : data?.all_tests_completed && requirementsVersion >= 2
+                ? tr(
+                    "Uzupełnij dane dodatkowe, aby brać udział w dopasowaniach.",
+                    "Complete your additional profile data to join matching.",
+                  )
+                : tr(
+                    "Uzupełnij testy i dane, aby brać udział w dopasowaniach.",
+                    "Complete tests and data to join matching.",
+                  )}
           </span>
         </CardContent>
       </Card>
@@ -263,8 +280,8 @@ const CandidateProfile = () => {
                 {industryExperiences.map((exp, idx) => (
                   <div key={idx} className="flex flex-wrap items-center gap-2 text-sm p-2 rounded-lg border bg-background">
                     <span className="font-medium">{exp.industry}</span>
-                    {exp.experience && <Badge variant="outline">{exp.experience}</Badge>}
-                    {exp.position_level && <Badge variant="outline">{exp.position_level}</Badge>}
+                    {exp.years && <Badge variant="outline">{exp.years}</Badge>}
+                    {exp.positionLevel && <Badge variant="outline">{exp.positionLevel}</Badge>}
                   </div>
                 ))}
               </div>

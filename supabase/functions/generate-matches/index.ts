@@ -12,6 +12,7 @@ import {
   type JobOfferData,
   type EmployerCultureData,
 } from '../_shared/matching.ts'
+import { EXTERNAL_MATCHING_OR_FILTER } from '../_shared/candidate-marketplace-eligibility.ts'
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -22,6 +23,7 @@ Deno.serve(async (req) => {
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const siteUrl = Deno.env.get("SITE_URL") || "https://idealniepasuje.pl";
 
     // Extract and validate JWT token
     const authHeader = req.headers.get('Authorization');
@@ -159,12 +161,11 @@ Deno.serve(async (req) => {
       .select('*', { count: 'exact', head: true })
       .eq('profile_ready', true);
 
-    // Get eligible candidates: completed tests (profile_ready is NOT a hard filter)
-    // + kandydat musi być otwarty na propozycje z rynku
+    // Legacy v1: all_tests_completed (comp + culture). New v2+: profile_ready (full profile).
     const { data: candidates, error: candidatesError } = await supabase
       .from('candidate_test_results')
       .select('*')
-      .eq('all_tests_completed', true)
+      .or(EXTERNAL_MATCHING_OR_FILTER)
       .eq('open_to_external_offers', true);
 
     if (candidatesError) {
@@ -319,7 +320,7 @@ Deno.serve(async (req) => {
                 culture_percent: matchData?.culture_percent,
                 extra_percent: matchData?.extra_percent,
                 job_offer_title: newMatch.offer_title,
-                dashboard_url: 'https://idealniepasuje.lovable.app/candidate/dashboard',
+                dashboard_url: `${siteUrl}/candidate/dashboard`,
               }),
             }
           );
@@ -352,7 +353,7 @@ Deno.serve(async (req) => {
             body: JSON.stringify({
               employer_user_id: employer_user_id,
               employer_email: employerEmail,
-              dashboard_url: 'https://idealniepasuje.lovable.app/employer/candidates',
+              dashboard_url: `${siteUrl}/employer/candidates`,
             }),
           }
         );

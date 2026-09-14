@@ -101,7 +101,8 @@ const handler = async (req: Request): Promise<Response> => {
     const candidateName = sanitizeHeader(callerProfile?.full_name || "Kandydat");
     const safeMessage = escapeHtml((message || "").trim()).replace(/\r?\n/g, "<br>");
     const label = responseLabel(response);
-    const dashboardLink = "https://idealniepasuje.lovable.app/employer/candidates";
+    const siteUrl = Deno.env.get("SITE_URL") || "https://idealniepasuje.pl";
+    const dashboardLink = `${siteUrl}/employer/candidates`;
 
     // Idempotent save: exactly one interview_response per (match_result_id, candidate_user_id).
     const payload = {

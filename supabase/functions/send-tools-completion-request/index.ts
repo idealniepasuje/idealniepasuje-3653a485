@@ -104,7 +104,8 @@ const handler = async (req: Request): Promise<Response> => {
 
     const candidateName = profile?.full_name || "Kandydacie";
     const companyName = sanitizeHeader(employer_company_name || "Pracodawca");
-    const deepLink = "https://idealniepasuje.lovable.app/candidate/additional#tools";
+    const siteUrl = Deno.env.get("SITE_URL") || "https://idealniepasuje.pl";
+    const deepLink = `${siteUrl}/candidate/additional#tools`;
     const defaultMessage = "Pracodawca jest zainteresowany Twoim profilem. Prosimy o uzupełnienie informacji dotyczących znajomości narzędzi, aby umożliwić dalszą ocenę dopasowania do stanowiska.";
     const safeMessage = escapeHtmlMultiline(message?.trim() || defaultMessage);
 

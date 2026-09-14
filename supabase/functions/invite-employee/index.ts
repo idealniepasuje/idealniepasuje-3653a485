@@ -96,7 +96,8 @@ serve(async (req) => {
     // Email (partial success tolerated — invitation is already stored)
     const gmailAppPassword = Deno.env.get("GMAIL_APP_PASSWORD");
     const companyName = sanitizeHeader(org.name || "Firma");
-    const link = `https://idealniepasuje.lovable.app/candidate/organizations?invite=${invitation!.token}`;
+    const siteUrl = Deno.env.get("SITE_URL") || "https://idealniepasuje.pl";
+    const link = `${siteUrl}/candidate/organizations?invite=${invitation!.token}`;
 
     if (!gmailAppPassword) {
       return json({ success: true, email_sent: false, invitation_id: invitation!.id }, 207);

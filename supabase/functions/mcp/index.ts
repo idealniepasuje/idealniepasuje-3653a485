@@ -115,7 +115,7 @@ var list_my_offers_default = defineTool3({
 });
 
 // src/lib/mcp/index.ts
-var projectRef = "yqqubonlxloyhmicdfhi";
+var projectRef = "kcnarxxarmoucxckeqgi";
 var mcp_default = defineMcp({
   name: "idealniepasuje-mcp",
   title: "idealnie pasuje",

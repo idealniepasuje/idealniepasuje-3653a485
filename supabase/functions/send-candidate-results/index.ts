@@ -78,7 +78,8 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    const feedbackLink = feedback_url || "https://idealniepasuje.lovable.app/candidate/feedback";
+    const siteUrl = Deno.env.get("SITE_URL") || "https://idealniepasuje.pl";
+    const feedbackLink = feedback_url || `${siteUrl}/candidate/feedback`;
 
     const emailHtml = [
       '<!DOCTYPE html>',

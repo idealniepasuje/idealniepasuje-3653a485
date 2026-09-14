@@ -118,7 +118,8 @@ serve(async (req: Request): Promise<Response> => {
     }
 
     const safeMessage = escapeHtmlMultiline(text);
-    const dashboardLink = "https://idealniepasuje.lovable.app/candidate/dashboard";
+    const siteUrl = Deno.env.get("SITE_URL") || "https://idealniepasuje.pl";
+    const dashboardLink = `${siteUrl}/candidate/dashboard`;
     const contactLine = employerEmail
       ? `<p style="color:#555;font-size:15px;margin:0 0 20px 0;">Możesz odpowiedzieć bezpośrednio na adres: <a href="mailto:${escapeHtml(employerEmail)}" style="color:#00B2C5;">${escapeHtml(employerEmail)}</a></p>`
       : "";

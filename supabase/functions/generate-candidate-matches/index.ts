@@ -12,6 +12,7 @@ import {
   type JobOfferData,
   type EmployerCultureData,
 } from '../_shared/matching.ts'
+import { isEligibleForExternalMatching } from '../_shared/candidate-marketplace-eligibility.ts'
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -22,6 +23,7 @@ Deno.serve(async (req) => {
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const siteUrl = Deno.env.get("SITE_URL") || "https://idealniepasuje.pl";
 
     // Extract and validate JWT token
     const authHeader = req.headers.get('Authorization');
@@ -84,7 +86,6 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Require tests completed; profile_ready is NOT a hard filter (used for UI status only)
     if (candidate.open_to_external_offers === false) {
       return new Response(JSON.stringify({
         success: true,
@@ -96,12 +97,12 @@ Deno.serve(async (req) => {
       });
     }
 
-    if (!candidate.all_tests_completed) {
+    if (!isEligibleForExternalMatching(candidate)) {
       return new Response(JSON.stringify({
         success: true,
         matches_count: 0,
         matches: [],
-        message: 'Candidate has not completed all tests yet',
+        message: 'Candidate is not eligible for external matching yet',
       }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
@@ -293,7 +294,7 @@ Deno.serve(async (req) => {
                 role_responsibilities: bestMatch.role_responsibilities,
                 industry: bestMatch.industry,
                 position_level: bestMatch.position_level,
-                dashboard_url: 'https://idealniepasuje.lovable.app/candidate/matches',
+                dashboard_url: `${siteUrl}/candidate/matches`,
               }),
             }
           );

@@ -68,8 +68,7 @@ const EmployerOfferForm = () => {
     if (!trimmed) return t("employer.offerForm.titleRequired");
     if (trimmed.length < 3) return t("employer.offerForm.titleMinLength");
     if (trimmed.length > 100) return t("employer.offerForm.titleMaxLength");
-    if (!/^[a-zA-ZąćęłńóśźżĄĆĘŁŃÓŚŹŻ\s\-/]+$/.test(trimmed)) return t("employer.offerForm.titleLettersOnly");
-    return "";
+    if (!/^[a-zA-Z0-9ąćęłńóśźżĄĆĘŁŃÓŚŹŻ\s\-\/+&().,#]+$/.test(trimmed))    return "";
   };
 
   const [acceptFromOtherIndustries, setAcceptFromOtherIndustries] = useState(false);
@@ -398,12 +397,30 @@ const EmployerOfferForm = () => {
       
       if (error) throw error;
 
-      // Aktywacja tylko przy kompletnej ofercie (dane z bazy jako źródło prawdy)
-      await syncOfferActiveState(realOfferId);
+     // Aktywacja tylko przy kompletnej ofercie (dane z bazy jako źródło prawdy)
+const isActive = await syncOfferActiveState(realOfferId);
 
-      setRequirementsCompleted(true);
-      setCurrentStep("overview");
-      toast.success(t("common.saved"));
+// Jeśli oferta jest kompletna, aktywna i rekrutuje zewnętrznie,
+// wygeneruj dopasowania dla tej konkretnej oferty.
+if (isActive && recruitExternal) {
+  const { error: matchError } = await supabase.functions.invoke("generate-matches", {
+    body: {
+      employer_user_id: user.id,
+      job_offer_id: realOfferId,
+    },
+  });
+
+  if (matchError) {
+    logError("EmployerOfferForm.generateMatches", matchError);
+    toast.warning(
+      "Oferta została zapisana, ale nie udało się od razu wygenerować dopasowań."
+    );
+  }
+}
+
+setRequirementsCompleted(true);
+setCurrentStep("overview");
+toast.success(t("common.saved"));
     } catch (error: any) {
       logError("EmployerOfferForm.saveRequirements", error);
       console.error("Save requirements error:", error);

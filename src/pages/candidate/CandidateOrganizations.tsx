@@ -28,6 +28,14 @@ interface AssessmentRow extends InternalAssessmentRecord {
   job_offers: { title: string } | null;
 }
 
+interface InvitationRow {
+  id: string;
+  token: string;
+  organization_id: string;
+  expires_at: string;
+  organizations: { name: string } | null;
+}
+
 const CandidateOrganizations = () => {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
@@ -36,6 +44,7 @@ const CandidateOrganizations = () => {
 
   const [memberships, setMemberships] = useState<MembershipRow[]>([]);
   const [assessments, setAssessments] = useState<AssessmentRow[]>([]);
+  const [pendingInvitations, setPendingInvitations] = useState<InvitationRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [detailsFor, setDetailsFor] = useState<AssessmentRow | null>(null);
@@ -43,7 +52,8 @@ const CandidateOrganizations = () => {
   const fetchData = useCallback(async () => {
     if (!user) return;
     try {
-      const [memRes, assessRes] = await Promise.all([
+      const now = new Date().toISOString();
+      const [memRes, assessRes, invRes] = await Promise.all([
         supabase
           .from("organization_employees")
           .select("id, organization_id, status, joined_at, organizations(name)")
@@ -52,17 +62,41 @@ const CandidateOrganizations = () => {
           .from("internal_assessments")
           .select("id, organization_id, job_offer_id, consent_status, overall_percent, competence_percent, culture_percent, extra_percent, computed_at, match_details, organizations(name), job_offers(title)")
           .eq("employee_user_id", user.id),
+        supabase
+          .from("organization_invitations")
+          .select("id, token, organization_id, expires_at, organizations(name)")
+          .eq("status", "pending")
+          .gt("expires_at", now),
       ]);
       if (memRes.error) throw memRes.error;
       if (assessRes.error) throw assessRes.error;
-      setMemberships((memRes.data || []) as any);
-      setAssessments((assessRes.data || []) as any);
+      if (invRes.error) throw invRes.error;
+
+      let invitations = (invRes.data || []) as InvitationRow[];
+
+      if (inviteToken && !invitations.some((inv) => inv.token === inviteToken)) {
+        const { data: tokenInvite, error: tokenInviteError } = await supabase
+          .from("organization_invitations")
+          .select("id, token, organization_id, expires_at, organizations(name)")
+          .eq("token", inviteToken)
+          .eq("status", "pending")
+          .gt("expires_at", now)
+          .maybeSingle();
+        if (tokenInviteError) throw tokenInviteError;
+        if (tokenInvite) {
+          invitations = [...invitations, tokenInvite as InvitationRow];
+        }
+      }
+
+      setMemberships((memRes.data || []) as MembershipRow[]);
+      setAssessments((assessRes.data || []) as AssessmentRow[]);
+      setPendingInvitations(invitations);
     } catch (e) {
       logError("CandidateOrganizations.fetchData", e);
     } finally {
       setLoading(false);
     }
-  }, [user]);
+  }, [user, inviteToken]);
 
   const acceptInvite = useCallback(async (token: string, action: "accept" | "decline") => {
     setBusy(true);
@@ -129,10 +163,13 @@ const CandidateOrganizations = () => {
         </p>
       </div>
 
-      {inviteToken && (
-        <Card className="mb-6 border-accent/40 bg-accent/5">
+      {pendingInvitations.map((invitation) => (
+        <Card key={invitation.id} className="mb-6 border-accent/40 bg-accent/5">
           <CardHeader>
-            <CardTitle className="text-lg">Masz zaproszenie do organizacji</CardTitle>
+            <CardTitle className="text-lg">
+              Masz zaproszenie do organizacji
+              {invitation.organizations?.name ? `: ${invitation.organizations.name}` : ""}
+            </CardTitle>
             <CardDescription>
               Dołączenie do organizacji oznacza, że udostępniasz tej firmie wyniki swoich testów kompetencji,
               dopasowania kulturowego oraz dane profilowe potrzebne do analizy dopasowania względem ról i ofert tej
@@ -142,13 +179,13 @@ const CandidateOrganizations = () => {
             </CardDescription>
           </CardHeader>
           <CardContent className="flex gap-2">
-            <Button disabled={busy} onClick={() => acceptInvite(inviteToken, "accept")}>Dołącz</Button>
-            <Button variant="outline" disabled={busy} onClick={() => acceptInvite(inviteToken, "decline")}>
+            <Button disabled={busy} onClick={() => acceptInvite(invitation.token, "accept")}>Dołącz</Button>
+            <Button variant="outline" disabled={busy} onClick={() => acceptInvite(invitation.token, "decline")}>
               Odrzuć
             </Button>
           </CardContent>
         </Card>
-      )}
+      ))}
 
       <Card className="mb-6">
         <CardHeader>

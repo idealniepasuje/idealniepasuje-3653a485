@@ -17,7 +17,7 @@ interface NoMatchRequest {
   user_name?: string;
 }
 
-function buildCandidateNoMatchEmail(candidateName: string): string {
+function buildCandidateNoMatchEmail(candidateName: string, siteUrl: string): string {
   return `<!DOCTYPE html>
 <html lang="pl">
 <head>
@@ -66,7 +66,7 @@ function buildCandidateNoMatchEmail(candidateName: string): string {
               <table role="presentation" style="width:100%;">
                 <tr>
                   <td style="text-align:center;">
-                    <a href="https://idealniepasuje.lovable.app/candidate/dashboard" style="display:inline-block;background:linear-gradient(135deg,#FECA41 0%,#f5b82e 100%);color:#233448;text-decoration:none;padding:16px 40px;border-radius:8px;font-weight:700;font-size:16px;box-shadow:0 4px 12px rgba(254,202,65,0.4);">
+                    <a href="${siteUrl}/candidate/dashboard" style="display:inline-block;background:linear-gradient(135deg,#FECA41 0%,#f5b82e 100%);color:#233448;text-decoration:none;padding:16px 40px;border-radius:8px;font-weight:700;font-size:16px;box-shadow:0 4px 12px rgba(254,202,65,0.4);">
                       Przejdz do panelu
                     </a>
                   </td>
@@ -96,7 +96,7 @@ function buildCandidateNoMatchEmail(candidateName: string): string {
 </html>`;
 }
 
-function buildEmployerNoMatchEmail(companyName: string): string {
+function buildEmployerNoMatchEmail(companyName: string, siteUrl: string): string {
   return `<!DOCTYPE html>
 <html lang="pl">
 <head>
@@ -145,7 +145,7 @@ function buildEmployerNoMatchEmail(companyName: string): string {
               <table role="presentation" style="width:100%;">
                 <tr>
                   <td style="text-align:center;">
-                    <a href="https://idealniepasuje.lovable.app/employer/dashboard" style="display:inline-block;background:linear-gradient(135deg,#FECA41 0%,#f5b82e 100%);color:#233448;text-decoration:none;padding:16px 40px;border-radius:8px;font-weight:700;font-size:16px;box-shadow:0 4px 12px rgba(254,202,65,0.4);">
+                    <a href="${siteUrl}/employer/dashboard" style="display:inline-block;background:linear-gradient(135deg,#FECA41 0%,#f5b82e 100%);color:#233448;text-decoration:none;padding:16px 40px;border-radius:8px;font-weight:700;font-size:16px;box-shadow:0 4px 12px rgba(254,202,65,0.4);">
                       Przejdz do panelu
                     </a>
                   </td>
@@ -230,10 +230,11 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     const finalName = sanitizeHeader(displayName || (user_type === "employer" ? "Pracodawco" : "Kandydacie"));
+    const siteUrl = Deno.env.get("SITE_URL") || "https://idealniepasuje.pl";
     
     const emailHtml = user_type === "employer" 
-      ? buildEmployerNoMatchEmail(finalName)
-      : buildCandidateNoMatchEmail(finalName);
+      ? buildEmployerNoMatchEmail(finalName, siteUrl)
+      : buildCandidateNoMatchEmail(finalName, siteUrl);
 
     const emailSubject = user_type === "employer"
       ? "Szukamy dla Ciebie kandydatow - idealniepasuje"

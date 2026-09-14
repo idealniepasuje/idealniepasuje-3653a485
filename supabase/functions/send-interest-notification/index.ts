@@ -83,7 +83,8 @@ const handler = async (req: Request): Promise<Response> => {
     const candidateName = escapeHtml(candidateNameRaw);
     const companyNameRaw = sanitizeHeader(employer_company_name || "Pracodawca");
     const companyName = escapeHtml(companyNameRaw);
-    const dashboardLink = "https://idealniepasuje.lovable.app/candidate/matches";
+    const siteUrl = Deno.env.get("SITE_URL") || "https://idealniepasuje.pl";
+    const dashboardLink = `${siteUrl}/candidate/matches`;
 
     // Calculate culture score out of 30
     const cultureScore = culture_percent ? Math.round((culture_percent / 100) * 30) : null;

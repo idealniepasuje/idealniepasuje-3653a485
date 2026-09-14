@@ -15,6 +15,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { industries, experienceLevels, positionLevels, getLocalizedData, LANGUAGE_LEVELS, languageLevelLabels, languageNames } from "@/data/additionalQuestions";
 import { logError } from "@/lib/errorLogger";
+import { isEligibleForExternalMatching } from "@/lib/candidate-marketplace-eligibility";
 import { WorkModeSelector } from "@/components/WorkModeSelector";
 import { ToolsSelector } from "@/components/tools/ToolsSelector";
 import { normalizeTools, ToolEntry } from "@/data/tools";
@@ -344,11 +345,11 @@ const CandidateAdditional = () => {
       // Re-read the DB-computed readiness flags after the save
       const { data: readiness, error: readinessError } = await supabase
         .from("candidate_test_results")
-        .select("all_tests_completed, additional_completed")
+        .select("all_tests_completed, additional_completed, profile_ready, profile_requirements_version, open_to_external_offers")
         .eq("user_id", user.id)
         .maybeSingle();
       if (readinessError) logError("CandidateAdditional.readReadiness", readinessError);
-      const isReadyForMatching = readiness?.all_tests_completed === true;
+      const isReadyForMatching = readiness ? isEligibleForExternalMatching(readiness) : false;
 
       // Auto-mark related employer requests as handled once the underlying data exists.
       // profile_completion follows the DB-computed required fields — "Daj się poznać" is
