@@ -1,146 +1,166 @@
-import { useCallback, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { UserPlus, Users, Mail, X, ShieldCheck, BarChart3 } from "lucide-react";
+import {
+  Briefcase,
+  ChevronRight,
+  Clock3,
+  Mail,
+  UserCheck,
+  UserPlus,
+  Users,
+} from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { logError } from "@/lib/errorLogger";
 import { DashboardLayout } from "@/components/layouts/DashboardLayout";
 import { EmployerSidebar } from "@/components/layouts/EmployerSidebar";
 import { useOrganization } from "@/hooks/useOrganization";
-import { AnalyzeEmployeeDialog } from "@/components/employer/AnalyzeEmployeeDialog";
-import { toast } from "sonner";
 
-interface EmployeeRow {
+interface OfferRow {
   id: string;
-  user_id: string;
-  invited_email: string | null;
-  status: string;
-  joined_at: string | null;
+  title: string;
+  is_active: boolean | null;
+  analyze_internal_team: boolean | null;
+  created_at: string;
 }
 
 interface InvitationRow {
   id: string;
   email: string;
+  job_offer_id: string | null;
   status: string;
   expires_at: string;
   created_at: string;
+}
+
+interface AssessmentRow {
+  id: string;
+  job_offer_id: string;
+  employee_user_id: string;
+  consent_status: string;
+  overall_percent: number | null;
+  computed_at: string | null;
+}
+
+interface EmployeeRow {
+  user_id: string;
+  invited_email: string | null;
+  status: string;
 }
 
 const EmployerTeam = () => {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const { organization, loading: orgLoading } = useOrganization();
-  const [employees, setEmployees] = useState<EmployeeRow[]>([]);
+
+  const [offers, setOffers] = useState<OfferRow[]>([]);
   const [invitations, setInvitations] = useState<InvitationRow[]>([]);
-  const [email, setEmail] = useState("");
-  const [sending, setSending] = useState(false);
+  const [assessments, setAssessments] = useState<AssessmentRow[]>([]);
+  const [employees, setEmployees] = useState<EmployeeRow[]>([]);
   const [loading, setLoading] = useState(true);
-  const [analyzeTarget, setAnalyzeTarget] = useState<EmployeeRow | null>(null);
 
   const fetchData = useCallback(async () => {
-    if (!organization) return;
+    if (!organization) {
+      setLoading(false);
+      return;
+    }
+
+    setLoading(true);
+
     try {
-      const [empRes, invRes] = await Promise.all([
-        supabase
-          .from("organization_employees")
-          .select("id, user_id, invited_email, status, joined_at")
-          .eq("organization_id", organization.id)
-          .order("created_at", { ascending: false }),
-        supabase
-          .from("organization_invitations")
-          .select("id, email, status, expires_at, created_at")
-          .eq("organization_id", organization.id)
-          .eq("status", "pending")
-          .order("created_at", { ascending: false }),
-      ]);
-      if (empRes.error) throw empRes.error;
-      if (invRes.error) throw invRes.error;
-      setEmployees(empRes.data || []);
-      setInvitations(invRes.data || []);
-    } catch (e) {
-      logError("EmployerTeam.fetchData", e);
+      const [offersRes, invitationsRes, assessmentsRes, employeesRes] =
+        await Promise.all([
+          supabase
+            .from("job_offers")
+            .select(
+              "id, title, is_active, analyze_internal_team, created_at",
+            )
+            .eq("organization_id", organization.id)
+            .eq("analyze_internal_team", true)
+            .order("created_at", { ascending: false }),
+
+          supabase
+            .from("organization_invitations")
+            .select(
+              "id, email, job_offer_id, status, expires_at, created_at",
+            )
+            .eq("organization_id", organization.id)
+            .not("job_offer_id", "is", null)
+            .order("created_at", { ascending: false }),
+
+          supabase
+            .from("internal_assessments")
+            .select(
+              "id, job_offer_id, employee_user_id, consent_status, overall_percent, computed_at",
+            )
+            .eq("organization_id", organization.id)
+            .order("created_at", { ascending: false }),
+
+          supabase
+            .from("organization_employees")
+            .select("user_id, invited_email, status")
+            .eq("organization_id", organization.id),
+        ]);
+
+      if (offersRes.error) throw offersRes.error;
+      if (invitationsRes.error) throw invitationsRes.error;
+      if (assessmentsRes.error) throw assessmentsRes.error;
+      if (employeesRes.error) throw employeesRes.error;
+
+      setOffers((offersRes.data || []) as OfferRow[]);
+      setInvitations((invitationsRes.data || []) as InvitationRow[]);
+      setAssessments((assessmentsRes.data || []) as AssessmentRow[]);
+      setEmployees((employeesRes.data || []) as EmployeeRow[]);
+    } catch (error) {
+      logError("EmployerTeam.fetchData", error);
     } finally {
       setLoading(false);
     }
   }, [organization]);
 
   useEffect(() => {
-    if (!authLoading && !user) { navigate("/login"); return; }
-    if (!orgLoading) fetchData();
+    if (!authLoading && !user) {
+      navigate("/login");
+      return;
+    }
+
+    if (!orgLoading) {
+      void fetchData();
+    }
   }, [user, authLoading, orgLoading, navigate, fetchData]);
 
-  const handleInvite = async () => {
-    if (!organization) return;
-    const value = email.trim().toLowerCase();
-    if (!value) { toast.error("Podaj adres e-mail zaproszonego kandydata"); return; }
-    setSending(true);
-    try {
-      const { data, error } = await supabase.functions.invoke("invite-employee", {
-        body: { organization_id: organization.id, email: value },
-      });
-      if (error) throw error;
-      if ((data as any)?.email_sent === false) {
-        toast.warning("Zaproszenie zapisane, ale nie udało się wysłać e-maila.");
-      } else {
-        toast.success("Zaproszenie wysłane");
-      }
-      setEmail("");
-      await fetchData();
-    } catch (e: any) {
-      logError("EmployerTeam.handleInvite", e);
-      toast.error(e?.message || "Nie udało się wysłać zaproszenia");
-    } finally {
-      setSending(false);
-    }
-  };
+  const employeeEmailByUserId = useMemo(() => {
+    return new Map(
+      employees.map((employee) => [
+        employee.user_id,
+        employee.invited_email,
+      ]),
+    );
+  }, [employees]);
 
-  const handleRevokeInvite = async (id: string) => {
-    try {
-      const { error } = await supabase
-        .from("organization_invitations")
-        .update({ status: "revoked" })
-        .eq("id", id);
-      if (error) throw error;
-      toast.success("Zaproszenie anulowane");
-      await fetchData();
-    } catch (e) {
-      logError("EmployerTeam.handleRevokeInvite", e);
-      toast.error("Nie udało się anulować zaproszenia");
-    }
-  };
+  const pendingInvitations = invitations.filter(
+    (invitation) => invitation.status === "pending",
+  );
 
-  const handleRemoveEmployee = async (row: EmployeeRow) => {
-    if (!organization) return;
-    try {
-      const { error } = await supabase
-        .from("organization_employees")
-        .update({ status: "removed", removed_at: new Date().toISOString() })
-        .eq("id", row.id);
-      if (error) throw error;
+  const activeAssessments = assessments.filter(
+    (assessment) =>
+      assessment.consent_status === "granted" ||
+      assessment.consent_status === "pending",
+  );
 
-      // Odłączenie odbiera firmie dostęp — usuwamy analizy tego zaproszonego kandydata
-      const { error: delErr } = await supabase
-        .from("internal_assessments")
-        .delete()
-        .eq("organization_id", organization.id)
-        .eq("employee_user_id", row.user_id);
-      if (delErr) logError("EmployerTeam.removeAssessments", delErr);
-
-      toast.success("Zaproszony kandydat odłączony od organizacji");
-      await fetchData();
-    } catch (e) {
-      logError("EmployerTeam.handleRemoveEmployee", e);
-      toast.error("Nie udało się odłączyć zaproszonego kandydata");
-    }
-  };
-
-  const activeEmployees = employees.filter((e) => e.status === "active");
-  const removedEmployees = employees.filter((e) => e.status === "removed");
+  const totalPending = pendingInvitations.length;
+  const totalAccepted = activeAssessments.filter(
+    (assessment) => assessment.consent_status === "granted",
+  ).length;
 
   if (authLoading || orgLoading || loading) {
     return (
@@ -155,124 +175,270 @@ const EmployerTeam = () => {
   return (
     <DashboardLayout sidebar={<EmployerSidebar />}>
       <div className="mb-6">
-        <h1 className="text-3xl font-bold mb-2">Zaproszeni kandydaci</h1>
-        <p className="text-muted-foreground">
-          Zaproszeni kandydaci {organization?.name ? `organizacji ${organization.name}` : "Twojej organizacji"}. Analiza ich dopasowania
-          do roli wymaga ich zgody i zawsze dotyczy konkretnego ogłoszenia.
+        <h1 className="text-3xl font-bold mb-2">
+          Zaproszeni kandydaci
+        </h1>
+
+        <p className="text-muted-foreground max-w-3xl">
+          Kandydaci zapraszani bezpośrednio do konkretnych ofert.
+          Zaproszenie i zgoda zawsze dotyczą jednej wskazanej oferty.
         </p>
       </div>
 
-      <Card className="mb-6">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-lg">
-            <UserPlus className="w-5 h-5 text-accent" /> Zaproś kandydata
-          </CardTitle>
-          <CardDescription>
-            Zapraszamy wyłącznie po adresie e-mail. Zaproszony kandydat świadomie akceptuje dołączenie do organizacji.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-col sm:flex-row gap-3 sm:items-end">
-            <div className="flex-1 space-y-2">
-              <Label htmlFor="employee-email">Adres e-mail</Label>
-              <Input
-                id="employee-email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="kandydat@firma.pl"
-              />
-            </div>
-            <Button onClick={handleInvite} disabled={sending} className="gap-2">
-              <Mail className="w-4 h-4" />
-              {sending ? "Wysyłanie..." : "Wyślij zaproszenie"}
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-
-      {invitations.length > 0 && (
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle className="text-lg">Oczekujące zaproszenia ({invitations.length})</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            {invitations.map((inv) => (
-              <div key={inv.id} className="flex items-center justify-between gap-3 border rounded-lg p-3">
-                <div>
-                  <p className="font-medium">{inv.email}</p>
-                  <p className="text-xs text-muted-foreground">
-                    Ważne do {new Date(inv.expires_at).toLocaleDateString("pl-PL")}
-                  </p>
-                </div>
-                <Button variant="ghost" size="sm" className="gap-2" onClick={() => handleRevokeInvite(inv.id)}>
-                  <X className="w-4 h-4" /> Anuluj
-                </Button>
+      <div className="grid gap-4 sm:grid-cols-2 mb-6">
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-accent/15 flex items-center justify-center">
+                <Clock3 className="w-5 h-5 text-accent" />
               </div>
-            ))}
+
+              <div>
+                <p className="text-2xl font-bold">
+                  {totalPending}
+                </p>
+
+                <p className="text-sm text-muted-foreground">
+                  oczekujących zaproszeń
+                </p>
+              </div>
+            </div>
           </CardContent>
         </Card>
-      )}
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-lg">
-            <Users className="w-5 h-5 text-accent" /> Zaproszeni kandydaci ({activeEmployees.length})
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-2">
-          {activeEmployees.length === 0 ? (
-            <p className="text-muted-foreground text-sm py-6 text-center">
-              Nikt jeszcze nie dołączył do organizacji.
-            </p>
-          ) : (
-            activeEmployees.map((emp) => (
-              <div key={emp.id} className="flex items-center justify-between gap-3 border rounded-lg p-3">
-                <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-full bg-accent/15 flex items-center justify-center">
-                    <ShieldCheck className="w-4 h-4 text-accent" />
-                  </div>
-                  <div>
-                    <p className="font-medium">{emp.invited_email || "Zaproszony kandydat"}</p>
-                    <p className="text-xs text-muted-foreground">
-                      W organizacji od {emp.joined_at ? new Date(emp.joined_at).toLocaleDateString("pl-PL") : "—"}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Button size="sm" className="gap-2" onClick={() => setAnalyzeTarget(emp)}>
-                    <BarChart3 className="w-4 h-4" /> Analizuj względem roli
-                  </Button>
-                  <Button variant="outline" size="sm" onClick={() => handleRemoveEmployee(emp)}>
-                    Odłącz
-                  </Button>
-                </div>
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-accent/15 flex items-center justify-center">
+                <UserCheck className="w-5 h-5 text-accent" />
               </div>
-            ))
-          )}
 
-          {removedEmployees.length > 0 && (
-            <div className="pt-4">
-              <p className="text-sm font-medium text-muted-foreground mb-2">Odłączeni ({removedEmployees.length})</p>
-              {removedEmployees.map((emp) => (
-                <div key={emp.id} className="flex items-center justify-between gap-3 border rounded-lg p-3 opacity-60">
-                  <p className="text-sm">{emp.invited_email || "Zaproszony kandydat"}</p>
-                  <Badge variant="secondary">Odłączony</Badge>
-                </div>
-              ))}
+              <div>
+                <p className="text-2xl font-bold">
+                  {totalAccepted}
+                </p>
+
+                <p className="text-sm text-muted-foreground">
+                  zaakceptowanych kandydatów
+                </p>
+              </div>
             </div>
-          )}
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      </div>
 
-      {organization && analyzeTarget && (
-        <AnalyzeEmployeeDialog
-          open={!!analyzeTarget}
-          onOpenChange={(o) => { if (!o) setAnalyzeTarget(null); }}
-          organizationId={organization.id}
-          employeeUserId={analyzeTarget.user_id}
-          employeeLabel={analyzeTarget.invited_email || "Zaproszony kandydat"}
-        />
+      {offers.length === 0 ? (
+        <Card>
+          <CardContent className="py-12 text-center">
+            <Briefcase className="w-10 h-10 text-muted-foreground/40 mx-auto mb-4" />
+
+            <h2 className="font-semibold text-lg mb-2">
+              Brak ofert z zaproszonymi kandydatami
+            </h2>
+
+            <p className="text-sm text-muted-foreground mb-5">
+              Utwórz lub edytuj ofertę i włącz możliwość
+              zapraszania kandydatów.
+            </p>
+
+            <Link to="/employer/offers">
+              <Button>
+                Przejdź do ogłoszeń
+              </Button>
+            </Link>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="space-y-4">
+          {offers.map((offer) => {
+            const offerInvitations = pendingInvitations.filter(
+              (invitation) =>
+                invitation.job_offer_id === offer.id,
+            );
+
+            const offerAssessments = activeAssessments.filter(
+              (assessment) =>
+                assessment.job_offer_id === offer.id,
+            );
+
+            const acceptedAssessments =
+              offerAssessments.filter(
+                (assessment) =>
+                  assessment.consent_status === "granted",
+              );
+
+            return (
+              <Card key={offer.id}>
+                <CardHeader>
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                    <div>
+                      <CardTitle className="flex flex-wrap items-center gap-2 text-lg">
+                        <Briefcase className="w-5 h-5 text-accent" />
+
+                        {offer.title}
+
+                        <Badge
+                          variant={
+                            offer.is_active
+                              ? "default"
+                              : "secondary"
+                          }
+                        >
+                          {offer.is_active
+                            ? "Aktywna"
+                            : "Nieaktywna"}
+                        </Badge>
+                      </CardTitle>
+
+                      <CardDescription className="mt-2">
+                        {offerInvitations.length} oczekujących ·{" "}
+                        {acceptedAssessments.length} zaakceptowanych
+                      </CardDescription>
+                    </div>
+
+                    <Link
+                      to={`/employer/order/${offer.id}#team`}
+                    >
+                      <Button
+                        size="sm"
+                        className="gap-2"
+                      >
+                        <UserPlus className="w-4 h-4" />
+                        Zaproś kandydata
+                      </Button>
+                    </Link>
+                  </div>
+                </CardHeader>
+
+                <CardContent className="space-y-5">
+                  <div>
+                    <div className="flex items-center gap-2 mb-3">
+                      <Mail className="w-4 h-4 text-muted-foreground" />
+
+                      <p className="text-sm font-medium">
+                        Oczekujące zaproszenia (
+                        {offerInvitations.length})
+                      </p>
+                    </div>
+
+                    {offerInvitations.length === 0 ? (
+                      <p className="text-sm text-muted-foreground border rounded-lg p-4">
+                        Brak oczekujących zaproszeń do tej oferty.
+                      </p>
+                    ) : (
+                      <div className="space-y-2">
+                        {offerInvitations.map(
+                          (invitation) => (
+                            <div
+                              key={invitation.id}
+                              className="flex flex-wrap items-center justify-between gap-3 border rounded-lg p-3"
+                            >
+                              <div>
+                                <p className="font-medium">
+                                  {invitation.email}
+                                </p>
+
+                                <p className="text-xs text-muted-foreground">
+                                  Oczekiwanie na odpowiedź · ważne do{" "}
+                                  {new Date(
+                                    invitation.expires_at,
+                                  ).toLocaleDateString(
+                                    "pl-PL",
+                                  )}
+                                </p>
+                              </div>
+
+                              <Badge variant="secondary">
+                                Oczekuje
+                              </Badge>
+                            </div>
+                          ),
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  <div>
+                    <div className="flex items-center gap-2 mb-3">
+                      <Users className="w-4 h-4 text-muted-foreground" />
+
+                      <p className="text-sm font-medium">
+                        Kandydaci w ofercie (
+                        {acceptedAssessments.length})
+                      </p>
+                    </div>
+
+                    {acceptedAssessments.length === 0 ? (
+                      <p className="text-sm text-muted-foreground border rounded-lg p-4">
+                        Nikt jeszcze nie zaakceptował zaproszenia
+                        do tej oferty.
+                      </p>
+                    ) : (
+                      <div className="space-y-2">
+                        {acceptedAssessments.map(
+                          (assessment) => {
+                            const email =
+                              employeeEmailByUserId.get(
+                                assessment.employee_user_id,
+                              ) ||
+                              "Zaproszony kandydat";
+
+                            return (
+                              <div
+                                key={assessment.id}
+                                className="flex flex-wrap items-center justify-between gap-3 border rounded-lg p-3"
+                              >
+                                <div>
+                                  <p className="font-medium">
+                                    {email}
+                                  </p>
+
+                                  <p className="text-xs text-muted-foreground">
+                                    Zaproszenie zaakceptowane
+                                  </p>
+                                </div>
+
+                                <div className="flex items-center gap-2">
+                                  {assessment.computed_at &&
+                                  assessment.overall_percent !==
+                                    null ? (
+                                    <Badge className="bg-accent text-accent-foreground">
+                                      {
+                                        assessment.overall_percent
+                                      }
+                                      % dopasowania
+                                    </Badge>
+                                  ) : (
+                                    <Badge variant="secondary">
+                                      Wynik w przygotowaniu
+                                    </Badge>
+                                  )}
+
+                                  <Link
+                                    to={`/employer/order/${offer.id}#team`}
+                                  >
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      className="gap-1"
+                                    >
+                                      Zobacz
+                                      <ChevronRight className="w-4 h-4" />
+                                    </Button>
+                                  </Link>
+                                </div>
+                              </div>
+                            );
+                          },
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
       )}
     </DashboardLayout>
   );

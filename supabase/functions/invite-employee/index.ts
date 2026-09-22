@@ -436,8 +436,7 @@ serve(async (req) => {
           "idealniepasuje <idealnyserwisrekrutacyjny@gmail.com>",
         to: normalizedEmail,
         subject:
-          `${companyName} zaprasza Cię do oferty „${offerTitle}”`,
-        content: "auto",
+          `${companyName} zaprasza Cię do oferty: ${offerTitle}`,
         html,
       });
 
