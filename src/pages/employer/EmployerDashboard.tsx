@@ -84,11 +84,45 @@ const EmployerDashboard = () => {
 
         const internalCounts: Record<string, number> = {};
         for (const offer of offersData.filter((o: any) => o.analyze_internal_team)) {
-          const { count } = await supabase
+          if (!offer.organization_id) {
+            internalCounts[offer.id] = 0;
+            continue;
+          }
+
+          // Historical assessments can remain after an employee leaves an organization.
+          // Dashboard counters must only include people who are still active members of this offer's organization.
+          const { data: assessments, error: assessmentsError } = await supabase
             .from("internal_assessments")
+            .select("employee_user_id, consent_status")
+            .eq("job_offer_id", offer.id)
+            .eq("organization_id", offer.organization_id);
+
+          if (assessmentsError) {
+            logError("EmployerDashboard.fetchData.internalAssessments", assessmentsError);
+            internalCounts[offer.id] = 0;
+            continue;
+          }
+
+          const eligibleAssessments = (assessments || []).filter((a: any) =>
+            a.employee_user_id && a.consent_status !== "revoked" && a.consent_status !== "declined"
+          );
+          const employeeIds = [...new Set(eligibleAssessments.map((a: any) => a.employee_user_id))];
+          if (employeeIds.length === 0) {
+            internalCounts[offer.id] = 0;
+            continue;
+          }
+
+          const { count, error: activeEmployeesError } = await supabase
+            .from("organization_employees")
             .select("id", { count: "exact", head: true })
-            .eq("job_offer_id", offer.id);
-          internalCounts[offer.id] = count ?? 0;
+            .eq("organization_id", offer.organization_id)
+            .eq("status", "active")
+            .in("user_id", employeeIds);
+
+          if (activeEmployeesError) {
+            logError("EmployerDashboard.fetchData.activeInternalEmployees", activeEmployeesError);
+          }
+          internalCounts[offer.id] = activeEmployeesError ? 0 : (count ?? 0);
         }
         setOfferInternalCounts(internalCounts);
       }
@@ -112,6 +146,13 @@ const EmployerDashboard = () => {
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('pl-PL', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  };
+
+  const formatInvitedCandidates = (count: number) => {
+    if (count === 1) {
+      return `1 ${t("employer.dashboard.invitedCandidate", "zaproszony kandydat")}`;
+    }
+    return `${count} ${t("employer.dashboard.invitedCandidates", "zaproszonych kandydatów")}`;
   };
 
   if (authLoading || loading) {
@@ -316,9 +357,7 @@ const EmployerDashboard = () => {
                           {internalEnabled && (
                             <span className="flex items-center gap-1">
                               <Users2 className="w-3 h-3" />
-                              {internalCount > 0
-                                ? `${internalCount} ${internalCount === 1 ? t("employer.dashboard.employeeAnalyzed", "wybrany kandydat w analizie") : t("employer.dashboard.employeesAnalyzed", "wybranych kandydatów w analizie")}`
-                                : t("employer.dashboard.internalEnabled", "Analiza zespołu włączona")}
+                              {formatInvitedCandidates(internalCount)}
                             </span>
                           )}
                           {externalEnabled && (
@@ -334,7 +373,7 @@ const EmployerDashboard = () => {
                           <Link to={`/employer/order/${offer.id}#team`}>
                             <Button size="sm" variant="outline" className="gap-1">
                               <Users2 className="w-4 h-4" />
-                              {t("employer.dashboard.viewEmployees", "Wybrani kandydaci")}
+                              {t("employer.dashboard.viewEmployees", "Zaproszeni kandydaci")}
                             </Button>
                           </Link>
                         )}

@@ -11,7 +11,7 @@
     "jobOffers": "Ogłoszenia",
     "profile": "Profil firmy",
     "connectAI": "Połącz z AI",
-    "team": "Wybrani kandydaci",
+    "team": "Zaproszeni kandydaci",
     "myCompanies": "Zaproszenia"
   },
   "common": {
@@ -577,6 +577,9 @@
       "yourOrders": "Twoje ogłoszenia",
       "newOffer": "Nowe ogłoszenie",
       "viewMore": "Zobacz wszystkie",
+      "viewEmployees": "Zaproszeni kandydaci",
+      "invitedCandidate": "zaproszony kandydat",
+      "invitedCandidates": "zaproszonych kandydatów",
       "completeProfileTitle": "Uzupełnij profil firmy",
       "completeProfileDescription": "Zanim dodasz pierwsze ogłoszenie, uzupełnij podstawowe informacje o firmie – przede wszystkim nazwę firmy.",
       "goToProfile": "Przejdź do profilu",
@@ -841,7 +844,7 @@
     "genericError": "Błąd zapisu"
   },
   "internal": {
-    "employeeScore": "Wynik wybranego kandydata",
+    "employeeScore": "Wynik zaproszonego kandydata",
     "yourScore": "Twój wynik",
     "roleRequirement": "Wymaganie roli"
   }

@@ -28,7 +28,7 @@ interface AssessmentRow extends InternalAssessmentRecord {
 
 const consentLabel: Record<string, string> = {
   pending: "Analiza w przygotowaniu",
-  granted: "Aktywny wybrany kandydat",
+  granted: "Aktywny zaproszony kandydat",
   declined: "Brak aktywnego członkostwa",
   revoked: "Brak aktywnego członkostwa",
 };
@@ -84,17 +84,17 @@ export const InternalTeamPanel = ({ offerId, organizationId, offerTitle = "ta ro
       });
       if (error) {
         if ((error as any).code === "23505") {
-          toast.info("Ten wybrany kandydat jest już dodany do analizy tej roli");
+          toast.info("Ten zaproszony kandydat jest już dodany do analizy tej roli");
         } else {
           throw error;
         }
       } else {
-        toast.success("Wybrany kandydat dodany do analizy tej roli");
+        toast.success("Zaproszony kandydat dodany do analizy tej roli");
       }
       await fetchData();
     } catch (e) {
       logError("InternalTeamPanel.handleAdd", e);
-      toast.error("Nie udało się dodać wybranego kandydata do analizy");
+      toast.error("Nie udało się dodać zaproszonego kandydata do analizy");
     } finally {
       setBusy(false);
     }
@@ -152,10 +152,10 @@ export const InternalTeamPanel = ({ offerId, organizationId, offerTitle = "ta ro
       <CardHeader>
         <div>
           <CardTitle className="flex items-center gap-2 text-lg">
-            <Users className="w-5 h-5 text-accent" /> Wybrani kandydaci
+            <Users className="w-5 h-5 text-accent" /> Zaproszeni kandydaci
           </CardTitle>
           <CardDescription>
-            Dopasowanie wybranych kandydatów do tej roli. Wynik pojawia się dopiero po ich zgodzie.
+            Sprawdź dopasowanie kandydatów zaproszonych bezpośrednio do tej oferty. Wynik dopasowania będzie dostępny po wyrażeniu przez nich zgody.
           </CardDescription>
         </div>
       </CardHeader>
@@ -163,11 +163,11 @@ export const InternalTeamPanel = ({ offerId, organizationId, offerTitle = "ta ro
         {employees.length === 0 ? (
           <div className="text-center py-8">
             <p className="text-muted-foreground mb-4">
-              W Twojej organizacji nie ma jeszcze wybranych kandydatów.
+              Nie masz jeszcze kandydatów zaproszonych do tej oferty.
             </p>
             <Link to="/employer/team">
               <Button variant="outline" className="gap-2">
-                <UserPlus className="w-4 h-4" /> Zaproś wybranych kandydatów
+                <UserPlus className="w-4 h-4" /> Zaproś kandydata
               </Button>
             </Link>
           </div>
@@ -177,7 +177,7 @@ export const InternalTeamPanel = ({ offerId, organizationId, offerTitle = "ta ro
             return (
               <div key={emp.id} className="flex flex-wrap items-center justify-between gap-3 border rounded-lg p-3">
                 <div>
-                  <p className="font-medium">{emp.invited_email || "Wybrany kandydat"}</p>
+                  <p className="font-medium">{emp.invited_email || "Zaproszony kandydat"}</p>
                   {assessment ? (
                     <p className="text-xs text-muted-foreground">
                       {consentLabel[assessment.consent_status] || assessment.consent_status}
@@ -197,7 +197,7 @@ export const InternalTeamPanel = ({ offerId, organizationId, offerTitle = "ta ro
                     <Button
                       size="sm"
                       className="gap-2"
-                      onClick={() => setDetailsFor({ assessment, label: emp.invited_email || "Wybrany kandydat" })}
+                      onClick={() => setDetailsFor({ assessment, label: emp.invited_email || "Zaproszony kandydat" })}
                     >
                       <BarChart3 className="w-4 h-4" /> Zobacz analizę
                     </Button>
@@ -229,8 +229,8 @@ export const InternalTeamPanel = ({ offerId, organizationId, offerTitle = "ta ro
       <Dialog open={!!detailsFor} onOpenChange={(open) => !open && setDetailsFor(null)}>
         <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Analiza wybranego kandydata</DialogTitle>
-            <DialogDescription>Dopasowanie wybranego kandydata do roli: {offerTitle}</DialogDescription>
+            <DialogTitle>Analiza zaproszonego kandydata</DialogTitle>
+            <DialogDescription>Dopasowanie zaproszonego kandydata do roli: {offerTitle}</DialogDescription>
           </DialogHeader>
           {detailsFor && (
             <InternalAssessmentDetails

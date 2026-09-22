@@ -54,7 +54,7 @@ const EmployerCandidates = () => {
 
   useEffect(() => {
     if (!authLoading && !user) { navigate("/login"); return; }
-    if (user) fetchMatches();
+    if (user) void fetchMatches();
   }, [user, authLoading, navigate, offerId]);
 
   const fetchMatches = async () => {
@@ -62,11 +62,14 @@ const EmployerCandidates = () => {
     try {
       // Fetch offer info if filtering by offer
       if (offerId) {
-        const { data: offerData } = await supabase
+        const { data: offerData, error: offerError } = await supabase
           .from("job_offers")
           .select("title, accepted_industries")
           .eq("id", offerId)
-          .single();
+          .maybeSingle();
+        if (offerError) {
+          logError("EmployerCandidates.fetchOffer", offerError);
+        }
         if (offerData) {
           setOfferTitle(offerData.title);
           setOfferDiagnostics({
@@ -75,15 +78,15 @@ const EmployerCandidates = () => {
         }
       }
 
-      // Build query
+      // Build query: if offerId is specified, query by job_offer_id directly
       let query = supabase
         .from("match_results")
-        .select("*")
-        .eq("employer_user_id", user.id);
+        .select("*");
 
-      // Filter by job offer if specified
       if (offerId) {
         query = query.eq("job_offer_id", offerId);
+      } else {
+        query = query.eq("employer_user_id", user.id);
       }
 
       const { data: matchData, error: matchError } = await query;
