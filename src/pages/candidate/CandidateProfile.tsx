@@ -34,7 +34,14 @@ import { competencyTests } from "@/data/competencyQuestions";
 import { getLocalizedCultureDimensions } from "@/data/cultureQuestions";
 import { languageNames, languageLevelLabels } from "@/data/additionalQuestions";
 import { getToolName, toolLevelLabels, TOOL_CATEGORIES, type ToolEntry } from "@/data/tools";
-import { getLevel, getLocalizedLevelLabels } from "@/data/feedbackData";
+import {
+  getLevel,
+  getLocalizedLevelLabels,
+  getCultureLevel,
+  getCultureLevelLabel,
+  getCandidateCultureFeedback,
+  type CultureDimension,
+} from "@/data/feedbackData";
 
 const COMPETENCY_FIELDS = [
   { code: "komunikacja", field: "komunikacja_score" },
@@ -412,10 +419,27 @@ const CandidateProfile = () => {
                   <p className="text-xs text-muted-foreground">{cultureDims[code]?.description}</p>
                 </div>
                 {score != null ? (
-                  <Badge variant="outline">{levelLabels[getLevel(Number(score))].label}</Badge>
-                ) : (
-                  <span className="text-xs text-muted-foreground">{tr("Test nieukończony", "Test not completed")}</span>
-                )}
+  <div className="flex flex-col items-end gap-2 max-w-xl">
+    <Badge variant="outline">
+      {getCultureLevelLabel(
+        getCultureLevel(Number(score)),
+        "candidate",
+        lang,
+      )}
+    </Badge>
+
+    <p className="text-xs text-muted-foreground text-right leading-relaxed">
+      {getCandidateCultureFeedback(
+        code as CultureDimension,
+        Number(score),
+      )}
+    </p>
+  </div>
+) : (
+  <span className="text-xs text-muted-foreground">
+    {tr("Test nieukończony", "Test not completed")}
+  </span>
+)}
               </div>
             );
           })}

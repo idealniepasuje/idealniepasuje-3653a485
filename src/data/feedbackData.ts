@@ -380,3 +380,188 @@ export const getFeedback = (
 export const getLocalizedLevelLabels = (lang: string) => {
   return lang === 'en' ? levelLabels.en : levelLabels.pl;
 };
+export type CultureLevel = "low" | "medium" | "high";
+export type CulturePerspective = "candidate" | "employer";
+
+export const getCultureLevel = (score: number): CultureLevel => {
+  if (score <= 2.2) return "low";
+  if (score <= 3.7) return "medium";
+  return "high";
+};
+
+export const getCultureLevelLabel = (
+  level: CultureLevel,
+  perspective: CulturePerspective,
+  lang: string = "pl",
+): string => {
+  if (lang === "en") {
+    if (perspective === "candidate") {
+      return {
+        low: "Low importance",
+        medium: "Moderate importance",
+        high: "High importance",
+      }[level];
+    }
+
+    return {
+      low: "Less prominent",
+      medium: "Moderately prominent",
+      high: "More prominent",
+    }[level];
+  }
+
+  if (perspective === "candidate") {
+    return {
+      low: "Niewielkie znaczenie",
+      medium: "Umiarkowane znaczenie",
+      high: "Duże znaczenie",
+    }[level];
+  }
+
+  return {
+    low: "Mniej istotny",
+    medium: "Umiarkowanie istotny",
+    high: "Bardziej istotny",
+  }[level];
+};
+export type CultureDimension =
+  | "relacja_wspolpraca"
+  | "elastycznosc_innowacyjnosc"
+  | "wyniki_cele"
+  | "stabilnosc_struktura"
+  | "autonomia_styl_pracy"
+  | "wlb_dobrostan";
+
+  const candidateCultureInterpretations: Record<
+  CultureDimension,
+  Record<CultureLevel, string>
+> = {
+  relacja_wspolpraca: {
+    low:
+      "Atmosfera zespołu, współpraca oraz relacje w pracy mają dla Ciebie ograniczone znaczenie. Doceniasz wsparcie zespołu, jednak nie jest ono kluczowym czynnikiem przy wyborze miejsca pracy. Preferujesz niezależną pracę i samodzielne realizowanie zadań.",
+    medium:
+      "Przyjazna atmosfera i współpraca są dla Ciebie istotne, ale nie decydują o Twojej satysfakcji z pracy. Możesz pracować zarówno w zespole, jak i samodzielnie.",
+    high:
+      "Bardzo zależy Ci na wspierającej atmosferze i dobrej współpracy w zespole. Relacje z kolegami i przełożonymi są dla Ciebie bardzo ważne przy wyborze pracy.",
+  },
+
+  elastycznosc_innowacyjnosc: {
+    low:
+      "Preferujesz środowisko stabilne, ze znanymi i przewidywalnymi procesami, w którym zmiany nie są częste. Wolniej adaptujesz się do nowych sposobów pracy i lubisz stałe, sprawdzone rozwiązania. Zmiany i testowanie nowych pomysłów są dla Ciebie mniej istotne. Cenisz przewidywalność, choć od czasu do czasu możesz spróbować nowych rozwiązań.",
+    medium:
+      "Czasami angażujesz się w testowanie nowych metod i usprawnień, ale nie jest to dla Ciebie kluczowe w pracy. Możesz pracować zarówno w środowisku stabilnym, jak i innowacyjnym.",
+    high:
+      "Bardzo zależy Ci na testowaniu nowych pomysłów, eksperymentowaniu i wdrażaniu usprawnień. Lubisz kreatywne środowisko, w którym zmiany i innowacje są naturalną częścią pracy.",
+  },
+
+  wyniki_cele: {
+    low:
+      "Jasno określone cele, mierzalne wyniki oraz ambitne zadania mają dla Ciebie ograniczone znaczenie. Nie motywują Cię wysokie wymagania ani rywalizacja w zespole. Sukces organizacji postrzegasz raczej przez pryzmat stabilności i codziennego funkcjonowania niż konkretnych efektów pracy i osiąganych rezultatów.",
+    medium:
+      "Cele i wyniki pracy są dla Ciebie istotne, jednak nie stanowią jedynego źródła motywacji. Doceniasz jasno określone oczekiwania oraz ambitne zadania, o ile są realistyczne. Zdrowa rywalizacja może być dla Ciebie motywująca, ale ważna jest również współpraca. Sukces organizacji oceniasz zarówno przez efekty pracy, jak i inne czynniki, takie jak atmosfera czy stabilność.",
+    high:
+      "Jasno określone cele i mierzalne wyniki są dla Ciebie kluczowe. Ambitne zadania oraz wysokie wymagania silnie Cię motywują, a zdrowa rywalizacja w zespole stanowi pozytywny element środowiska pracy. Sukces organizacji oceniasz przede wszystkim przez pryzmat efektów osiąganych przez pracowników i realizacji założonych celów.",
+  },
+
+  stabilnosc_struktura: {
+    low:
+      "Przewidywalność i stabilność środowiska pracy nie są dla Ciebie kluczowe. Jasny podział ról, formalna hierarchia oraz rozbudowane procedury mają ograniczone znaczenie w codziennym działaniu. Zasady i standardy traktujesz elastycznie, a poczucie bezpieczeństwa w pracy budujesz raczej poprzez autonomię i swobodę działania niż formalne struktury.",
+    medium:
+      "Stabilne i przewidywalne środowisko pracy jest dla Ciebie ważne, jednak nie musi być oparte na sztywnej strukturze. Doceniasz jasny podział ról, procedury oraz standardy, o ile wspierają one sprawną realizację zadań. Hierarchia i formalne zasady są pomocne, ale nie stanowią jedynej podstawy poczucia bezpieczeństwa w pracy.",
+    high:
+      "Cenisz przewidywalne i stabilne środowisko pracy oparte na jasno określonych zasadach. Jasny podział ról i odpowiedzialności, formalna hierarchia oraz procedury i standardy zapewniają Ci poczucie bezpieczeństwa i ułatwiają skuteczne wykonywanie zadań. Respektowanie zasad i ustalonych reguł stanowi dla Ciebie istotny element codziennej pracy.",
+  },
+
+  autonomia_styl_pracy: {
+    low:
+      "Możliwość samodzielnego podejmowania decyzji oraz elastyczna organizacja pracy mają dla Ciebie ograniczone znaczenie. Preferujesz jasno określone wytyczne i regularny nadzór, które wspierają Cię w realizacji zadań. Odpowiedzialność za działania traktujesz jako element pracy, ale nie stanowi ona istotnego źródła motywacji.",
+    medium:
+      "Doceniasz możliwość samodzielnego podejmowania decyzji oraz elastyczność w organizacji pracy, o ile towarzyszą im jasne cele i ramy działania. Potrafisz brać odpowiedzialność za własne zadania, jednocześnie korzystając ze wsparcia i nadzoru w sytuacjach wymagających doprecyzowania. Autonomia jest dla Ciebie ważna, ale nie kluczowa.",
+    high:
+      "Samodzielne podejmowanie decyzji oraz elastyczna organizacja pracy są dla Ciebie istotnymi czynnikami efektywności. Odpowiedzialność za własne działania działa na Ciebie motywująco, a brak stałego nadzoru sprzyja skutecznemu wykonywaniu obowiązków. Cenisz środowisko pracy oparte na zaufaniu i samodzielności.",
+  },
+
+  wlb_dobrostan: {
+    low:
+      "Równowaga między pracą a życiem prywatnym nie jest dla Ciebie kluczowa. Nadgodziny i intensywne tempo pracy są dla Ciebie akceptowalne, a dbałość pracodawcy o dobrostan nie stanowi istotnego czynnika motywującego. Priorytetem może być szybki sukces lub realizacja celów kosztem długofalowej stabilności.",
+    medium:
+      "Równowaga między pracą a życiem prywatnym jest dla Ciebie ważna, choć w niektórych sytuacjach dopuszczasz dodatkowe obciążenie. Doceniasz działania pracodawcy mające na celu ochronę pracowników przed nadmiernym stresem i nadgodzinami, a stabilność długofalowa ma dla Ciebie znaczenie, choć czasem jesteś skłonny/a do elastycznego podejścia.",
+    high:
+      "Równowaga między pracą a życiem prywatnym jest dla Ciebie kluczowa. Nadgodziny nie są akceptowalne jako standard, a dbałość pracodawcy o Twoje samopoczucie i ograniczenie nadmiernego obciążenia stanowi istotny element miejsca pracy. Długofalowa stabilność i zdrowy rytm pracy są dla Ciebie ważniejsze niż szybki sukces.",
+  },
+};
+
+export const getCandidateCultureFeedback = (
+  dimension: CultureDimension,
+  score: number,
+): string => {
+  const level = getCultureLevel(score);
+  return candidateCultureInterpretations[dimension][level];
+};
+
+const employerCultureInterpretations: Record<
+  CultureDimension,
+  Record<CultureLevel, string>
+> = {
+  relacja_wspolpraca: {
+    low:
+      "Współpraca i wsparcie między pracownikami występują w ograniczonym stopniu. W zespole mogą pojawiać się trudności w komunikacji i wzajemnym wsparciu. Kultura organizacyjna często opiera się głównie na indywidualnych osiągnięciach i rywalizacji.",
+    medium:
+      "Zespoły współpracują, ale nie zawsze w pełni. Relacje i wsparcie są umiarkowane.",
+    high:
+      "W firmie panuje silna kultura współpracy, wzajemnego wsparcia i otwartości. Pracownicy chętnie dzielą się wiedzą, a sukcesy zespołu są doceniane.",
+  },
+
+  elastycznosc_innowacyjnosc: {
+    low:
+      "W firmie zmiany i usprawnienia pojawiają się rzadko, a procesy są sztywne i ustalone z góry. Pracownicy mają ograniczony wpływ na sposób realizacji zadań oraz na testowanie nowych pomysłów. Możliwości udziału w usprawnianiu procesów są minimalne.",
+    medium:
+      "W firmie pojawiają się okazjonalne usprawnienia i zmiany w procesach, ale nie są one systematycznie wdrażane. Pracownicy mają umiarkowany wpływ na procesy i mogą uczestniczyć we wprowadzaniu nowych rozwiązań, jednak stopień ich oddziaływania zależy od zespołu lub konkretnego projektu.",
+    high:
+      "W firmie zmiany i eksperymenty są naturalną częścią codziennej pracy. Pracownicy aktywnie uczestniczą w testowaniu nowych rozwiązań i mają realny wpływ na usprawnianie procesów.",
+  },
+
+  wyniki_cele: {
+    low:
+      "Oczekiwane rezultaty pracy nie są jasno komunikowane pracownikom lub pojawiają się nieregularnie. Cele i priorytety nie zawsze są precyzyjnie określone w trakcie realizacji zadań. Rywalizacja i porównywanie wyników nie są wspierane jako element kultury organizacyjnej, a efekty pracy mają ograniczony wpływ na ocenę realizacji zadań.",
+    medium:
+      "Pracownicy otrzymują informacje dotyczące oczekiwanych rezultatów swojej pracy, choć nie zawsze są one konsekwentnie komunikowane. Cele i priorytety są przekazywane w trakcie realizacji zadań, jednak ich znaczenie może się różnić w zależności od zespołu lub sytuacji. Wyniki pracy są brane pod uwagę przy ocenie realizacji zadań, a elementy rywalizacji pojawiają się w ograniczonym zakresie.",
+    high:
+      "Oczekiwane rezultaty pracy są jasno i regularnie komunikowane pracownikom. Cele oraz priorytety są konsekwentnie przekazywane i aktualizowane w trakcie realizacji zadań. Organizacja zarządza celami oraz do ich wyznaczania, pracy nad nimi zachęca. Efekty pracy stanowią kluczowe kryterium oceny realizacji zadań i osiąganych rezultatów.",
+  },
+
+  stabilnosc_struktura: {
+    low:
+      "Zakres obowiązków pracowników nie zawsze jest jasno określony na początku współpracy lub projektu. Odpowiedzialności decyzyjne są rozproszone lub zmienne, a procedury i standardy dotyczące sposobu pracy funkcjonują w ograniczonym zakresie. Decyzje organizacyjne nie są jednoznacznie przypisane do określonych poziomów struktury, a zasady obowiązujące w organizacji są komunikowane nieregularnie.",
+    medium:
+      "Zakres obowiązków pracowników jest zazwyczaj określany na początku współpracy lub projektu, choć może ulegać zmianom w trakcie realizacji zadań. Odpowiedzialności decyzyjne są przypisane do ról lub stanowisk, jednak w praktyce bywa to stosowane z różną konsekwencją. Procedury i standardy funkcjonują w organizacji, a zasady są komunikowane pracownikom, choć ich stosowanie może różnić się pomiędzy zespołami.",
+    high:
+      "Zakres obowiązków pracowników jest jasno określony na początku współpracy lub projektu. Odpowiedzialności decyzyjne są jednoznacznie przypisane do konkretnych ról lub stanowisk. W organizacji funkcjonują spójne procedury i standardy dotyczące sposobu pracy, a decyzje organizacyjne są podejmowane na jasno określonych poziomach struktury. Zasady obowiązujące w organizacji są konsekwentnie i jasno komunikowane pracownikom.",
+  },
+
+  autonomia_styl_pracy: {
+    low:
+      "Pracownicy mają ograniczoną możliwość samodzielnego podejmowania decyzji dotyczących bieżących zadań. Organizacja pracy jest w dużej mierze narzucana odgórnie, a sposób realizacji zadań podlega stałemu nadzorowi. Skutki decyzji rzadko są omawiane z pracownikami, a praca częściej oceniana jest przez pryzmat sposobu działania niż osiąganych rezultatów.",
+    medium:
+      "Pracownicy mogą samodzielnie podejmować decyzje w określonym zakresie. Organizacja pracy bywa ustalana przez pracownika lub zespół, jednak w ramach jasno wyznaczonych zasad. Skutki podejmowanych decyzji są omawiane, choć nie zawsze w sposób systematyczny. Praca jest rozliczana zarówno na podstawie realizacji zadań, jak i osiąganych rezultatów.",
+    high:
+      "Pracownicy samodzielnie podejmują decyzje dotyczące bieżących zadań i mają realny wpływ na organizację swojej pracy. Sposób, tempo i kolejność realizacji zadań są ustalane przez pracownika lub zespół. Skutki podjętych decyzji są regularnie omawiane, a praca rozliczana przede wszystkim na podstawie osiąganych rezultatów i wykonanych zadań.",
+  },
+
+  wlb_dobrostan: {
+    low:
+      "Praca ponad normy czasu pracy jest standardem funkcjonowania w firmie. Obciążenie pracą nie jest monitorowane ani omawiane z pracownikami. Organizacja nie wprowadza zmian w zadaniach w odpowiedzi na nadmierne obciążenie, a krótkoterminowe działania nie są oceniane pod kątem wpływu na stabilność zespołu czy procesów.",
+    medium:
+      "Obciążenie pracą bywa omawiane w rozmowach z przełożonymi, a praca ponad normy czasu pracy nie jest standardem w każdym dziale. Organizacja monitoruje sytuację pracowników i w razie potrzeby wprowadza zmiany w organizacji zadań. Skutki krótkoterminowych działań są częściowo analizowane pod kątem wpływu na stabilność zespołu i procesów.",
+    high:
+      "Organizacja aktywnie dba o równowagę pracy i życia prywatnego pracowników. Praca ponad normy czasu pracy nie jest standardem. Obciążenie pracą jest monitorowane i omawiane regularnie. W razie potrzeby wprowadza się zmiany w organizacji zadań, a krótkoterminowe działania są oceniane pod kątem ich wpływu na stabilność zespołu i procesów.",
+  },
+};
+
+export const getEmployerCultureFeedback = (
+  dimension: CultureDimension,
+  score: number,
+): string => {
+  const level = getCultureLevel(score);
+  return employerCultureInterpretations[dimension][level];
+};

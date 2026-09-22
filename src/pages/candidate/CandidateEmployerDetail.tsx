@@ -10,7 +10,15 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { logError } from "@/lib/errorLogger";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
-import { getLevel, getFeedback, getLocalizedLevelLabels } from "@/data/feedbackData";
+import {
+  getLevel,
+  getFeedback,
+  getLocalizedLevelLabels,
+  getCultureLevel,
+  getCultureLevelLabel,
+  getEmployerCultureFeedback,
+  type CultureDimension,
+} from "@/data/feedbackData";
 import { ExtraCriteriaList } from "@/components/match/ExtraCriteriaList";
 import { Logo } from "@/components/Logo";
 
@@ -404,9 +412,25 @@ const CandidateEmployerDetail = () => {
           <CardContent>
             <div className="space-y-6">
               {matchDetails?.cultureDetails?.map((cult) => {
-                const employerLevel = getLevel(cult.employerScore);
-                const feedback = getFeedback('culture', cult.dimension, employerLevel, 'employer', i18n.language);
-                const levelLabels = getLocalizedLevelLabels(i18n.language);
+               const candidateLevel = getCultureLevel(cult.candidateScore);
+               const employerLevel = getCultureLevel(cult.employerScore);
+               
+               const candidateLabel = getCultureLevelLabel(
+                 candidateLevel,
+                 "candidate",
+                 i18n.language,
+               );
+               
+               const employerLabel = getCultureLevelLabel(
+                 employerLevel,
+                 "employer",
+                 i18n.language,
+               );
+               
+               const feedback = getEmployerCultureFeedback(
+                 cult.dimension as CultureDimension,
+                 cult.employerScore,
+               );
                 
                 return (
                   <div key={cult.dimension} className="space-y-2">
@@ -422,18 +446,27 @@ const CandidateEmployerDetail = () => {
                       </Badge>
                     </div>
                     <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                      <span>{t("candidate.employerDetail.yourScore")}: {levelLabels[getLevel(cult.candidateScore)].label}</span>
-                      <span>{t("candidate.employerDetail.companyScore")}: {levelLabels[employerLevel].label}</span>
+                    <span>
+  {t("candidate.employerDetail.yourScore")}: {candidateLabel}
+</span>
+<span>
+  {t("candidate.employerDetail.companyScore")}: {employerLabel}
+</span>
                     </div>
                     <Progress value={cult.matchPercent} className="h-2" />
                     <div className="p-3 rounded-lg bg-muted/50 border border-border">
                       <div className="flex items-center gap-2 mb-1">
-                        <span className={`text-xs font-semibold px-2 py-0.5 rounded ${
-                          employerLevel === 'high' ? 'bg-success/20 text-success' : 
-                          employerLevel === 'medium' ? 'bg-cta/20 text-cta' : 'bg-destructive/20 text-destructive'
-                        }`}>
-                          {levelLabels[employerLevel].label}
-                        </span>
+                      <span
+  className={`text-xs font-semibold px-2 py-0.5 rounded ${
+    employerLevel === "high"
+      ? "bg-success/20 text-success"
+      : employerLevel === "medium"
+        ? "bg-cta/20 text-cta"
+        : "bg-muted text-muted-foreground"
+  }`}
+>
+  {employerLabel}
+</span>
                       </div>
                       <p className="text-xs text-muted-foreground leading-relaxed">{feedback}</p>
                     </div>
