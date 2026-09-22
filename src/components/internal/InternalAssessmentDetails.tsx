@@ -3,6 +3,12 @@ import { Progress } from "@/components/ui/progress";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Target, Heart, Briefcase, TrendingUp, TrendingDown } from "lucide-react";
 import { ExtraCriteriaList, type ExtraDetailItem } from "@/components/match/ExtraCriteriaList";
+import {
+  getCultureLevel,
+  getCultureLevelLabel,
+  getEmployerCultureFeedback,
+  type CultureDimension,
+} from "@/data/feedbackData";
 
 export interface InternalAssessmentRecord {
   id: string;
@@ -203,17 +209,79 @@ export const InternalAssessmentDetails = ({ assessment, subjectLabel, roleTitle,
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            {cultureDetails.map((c) => (
-              <div key={c.dimension} className="space-y-1.5">
-                <div className="flex items-center justify-between">
-                  <span className="font-medium text-sm">{cultureNames[c.dimension] || c.dimension}</span>
-                  <Badge variant={c.status === "aligned" ? "default" : c.status === "partial" ? "secondary" : "outline"}>
-                    {Math.round(c.matchPercent)}%
-                  </Badge>
-                </div>
-                <Progress value={c.matchPercent} className="h-2" />
-              </div>
-            ))}
+          {cultureDetails.map((c) => {
+  const candidateLevel = getCultureLevel(c.candidateScore);
+  const employerLevel = getCultureLevel(c.employerScore);
+
+  const candidateLabel = getCultureLevelLabel(
+    candidateLevel,
+    "candidate",
+    "pl",
+  );
+
+  const employerLabel = getCultureLevelLabel(
+    employerLevel,
+    "employer",
+    "pl",
+  );
+
+  const employerFeedback = getEmployerCultureFeedback(
+    c.dimension as CultureDimension,
+    c.employerScore,
+  );
+
+  return (
+    <div key={c.dimension} className="space-y-2">
+      <div className="flex items-center justify-between gap-3">
+        <span className="font-medium text-sm">
+          {cultureNames[c.dimension] || c.dimension}
+        </span>
+
+        <Badge
+          variant={
+            c.status === "aligned"
+              ? "default"
+              : c.status === "partial"
+                ? "secondary"
+                : "outline"
+          }
+        >
+          {Math.round(c.matchPercent)}%
+        </Badge>
+      </div>
+
+      <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
+        <span>
+          {isEmployer ? "Kandydat" : "Twój wynik"}: {candidateLabel}
+        </span>
+
+        <span>
+          {isEmployer ? "Organizacja" : "Firma"}: {employerLabel}
+        </span>
+      </div>
+
+      <Progress value={c.matchPercent} className="h-2" />
+
+      <div className="rounded-lg bg-muted/50 border p-3">
+        <span
+          className={`inline-block text-xs font-semibold px-2 py-0.5 rounded mb-2 ${
+            employerLevel === "high"
+              ? "bg-success/20 text-success"
+              : employerLevel === "medium"
+                ? "bg-cta/20 text-cta"
+                : "bg-muted text-muted-foreground"
+          }`}
+        >
+          {employerLabel}
+        </span>
+
+        <p className="text-xs text-muted-foreground leading-relaxed">
+          {employerFeedback}
+        </p>
+      </div>
+    </div>
+  );
+})}
           </CardContent>
         </Card>
       )}

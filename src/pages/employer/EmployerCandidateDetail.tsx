@@ -14,7 +14,15 @@ import { supabase } from "@/integrations/supabase/client";
 import { logError } from "@/lib/errorLogger";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { toast } from "sonner";
-import { getLevel, getFeedback, getLocalizedLevelLabels } from "@/data/feedbackData";
+import {
+  getLevel,
+  getFeedback,
+  getLocalizedLevelLabels,
+  getCultureLevel,
+  getCultureLevelLabel,
+  getEmployerCultureFeedback,
+  type CultureDimension,
+} from "@/data/feedbackData";
 import { getAprobataQuestions } from "@/data/competencyQuestions";
 import { getLinkedinRequestTemplate, getProfileCompletionTemplate, getToolsRequestTemplate, getLanguagesRequestTemplate } from "@/data/messageTemplates";
 import { LANGUAGE_LEVELS, languageLevelLabels, languageNames } from "@/data/additionalQuestions";
@@ -957,9 +965,25 @@ const EmployerCandidateDetail = () => {
           <CardContent>
             <div className="space-y-6">
               {matchDetails?.cultureDetails?.map((cult) => {
-                const level = getLevel(cult.candidateScore);
-                const feedback = getFeedback('culture', cult.dimension, level, 'employer', i18n.language);
-                const levelLabels = getLocalizedLevelLabels(i18n.language);
+                const candidateLevel = getCultureLevel(cult.candidateScore);
+                const employerLevel = getCultureLevel(cult.employerScore);
+                
+                const candidateLabel = getCultureLevelLabel(
+                  candidateLevel,
+                  "candidate",
+                  i18n.language,
+                );
+                
+                const employerLabel = getCultureLevelLabel(
+                  employerLevel,
+                  "employer",
+                  i18n.language,
+                );
+                
+                const feedback = getEmployerCultureFeedback(
+                  cult.dimension as CultureDimension,
+                  cult.employerScore,
+                );
                 
                 return (
                   <div key={cult.dimension} className="space-y-2">
@@ -975,19 +999,25 @@ const EmployerCandidateDetail = () => {
                       </Badge>
                     </div>
                     <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                      <span>{t("employer.candidateDetail.candidateScore")}: {levelLabels[level].label}</span>
-                      <span>{t("employer.candidateDetail.yourScore")}: {levelLabels[getLevel(cult.employerScore)].label}</span>
+                    <span>
+  {t("employer.candidateDetail.candidateScore")}: {candidateLabel}
+</span>
+<span>
+  {t("employer.candidateDetail.yourScore")}: {employerLabel}
+</span>
                     </div>
                     <Progress value={cult.matchPercent} className="h-2" />
                     <div className="p-3 rounded-lg bg-muted/50 border border-border">
                       <div className="flex items-center gap-2 mb-1">
-                        <span className={`text-xs font-semibold px-2 py-0.5 rounded ${
-                          level === 'high' ? 'bg-success/20 text-success' : 
-                          level === 'medium' ? 'bg-cta/20 text-cta' : 
-                          'bg-destructive/20 text-destructive'
-                        }`}>
-                          {levelLabels[level].label}
-                        </span>
+                      <span className={`text-xs font-semibold px-2 py-0.5 rounded ${
+  employerLevel === 'high'
+    ? 'bg-success/20 text-success'
+    : employerLevel === 'medium'
+      ? 'bg-cta/20 text-cta'
+      : 'bg-muted text-muted-foreground'
+}`}>
+  {employerLabel}
+</span>
                       </div>
                       <p className="text-xs text-muted-foreground leading-relaxed">{feedback}</p>
                     </div>
