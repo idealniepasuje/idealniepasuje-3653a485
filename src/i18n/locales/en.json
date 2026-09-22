@@ -11,7 +11,7 @@
     "jobOffers": "Job Offers",
     "profile": "Company Profile",
     "connectAI": "Connect AI",
-    "team": "Selected candidates",
+    "team": "Invited candidates",
     "myCompanies": "Invitations"
   },
   "common": {
@@ -577,6 +577,9 @@
       "yourOrders": "Your listings",
       "newOffer": "New offer",
       "viewMore": "View all",
+      "viewEmployees": "Invited candidates",
+      "invitedCandidate": "invited candidate",
+      "invitedCandidates": "invited candidates",
       "completeProfileTitle": "Complete your company profile",
       "completeProfileDescription": "Before adding your first job offer, complete basic company information – above all your company name.",
       "goToProfile": "Go to profile",
@@ -841,7 +844,7 @@
     "genericError": "Save error"
   },
   "internal": {
-    "employeeScore": "Employee score",
+    "employeeScore": "Invited candidate score",
     "yourScore": "Your score",
     "roleRequirement": "Role requirement"
   }

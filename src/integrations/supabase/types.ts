@@ -729,38 +729,77 @@ export type Database = {
         ]
       }
       organization_invitations: {
+
         Row: {
+      
           created_at: string
+      
           email: string
+      
           expires_at: string
+      
           id: string
+      
           invited_by: string
+      
+          job_offer_id: string | null
+      
           organization_id: string
+      
           status: string
+      
           token: string
+      
           updated_at: string
+      
         }
+      
         Insert: {
+      
           created_at?: string
+      
           email: string
+      
           expires_at?: string
+      
           id?: string
+      
           invited_by: string
+      
+          job_offer_id?: string | null
+      
           organization_id: string
+      
           status?: string
+      
           token?: string
+      
           updated_at?: string
+      
         }
+      
         Update: {
+      
           created_at?: string
+      
           email?: string
+      
           expires_at?: string
+      
           id?: string
+      
           invited_by?: string
+      
+          job_offer_id?: string | null
+      
           organization_id?: string
+      
           status?: string
+      
           token?: string
+      
           updated_at?: string
+      
         }
         Relationships: [
           {
@@ -770,7 +809,15 @@ export type Database = {
             referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "organization_invitations_job_offer_id_fkey"
+            columns: ["job_offer_id"]
+            isOneToOne: false
+            referencedRelation: "job_offers"
+            referencedColumns: ["id"]
+          }
         ]
+
       }
       organization_members: {
         Row: {

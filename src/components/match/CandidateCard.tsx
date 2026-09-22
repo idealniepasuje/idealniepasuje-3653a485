@@ -96,7 +96,7 @@ export const CandidateCard = ({ match, candidateData, offerTitle }: CandidateCar
             
             {/* Candidate ID */}
             <h3 className="font-semibold text-lg sm:text-xl text-foreground">
-              {t("employer.candidates.candidateNumber")} #{match.candidate_user_id.slice(0, 8)}
+              {t("employer.candidates.candidateNumber")} #{match.candidate_user_id ? match.candidate_user_id.slice(0, 8) : "---"}
             </h3>
             
             {/* Industry/Position info */}
@@ -142,7 +142,7 @@ export const CandidateCard = ({ match, candidateData, offerTitle }: CandidateCar
               <span className="text-2xl sm:text-3xl font-bold text-accent">{match.overall_percent}%</span>
               <p className="text-xs text-muted-foreground">{t("common.match")}</p>
             </div>
-            <Link to={`/employer/candidate/${match.candidate_user_id}?matchId=${encodeURIComponent(match.id)}`}>
+            <Link to={`/employer/candidate/${match.candidate_user_id || ''}?matchId=${encodeURIComponent(match.id)}`}>
               <Button className="gap-2" size="sm">
                 {t("common.viewProfile")}
                 <ChevronRight className="w-4 h-4" />

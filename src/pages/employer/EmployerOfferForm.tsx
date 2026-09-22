@@ -621,9 +621,9 @@ toast.success(t("common.saved"));
                 </p>
                 <div className="flex items-center justify-between gap-4">
                   <div>
-                    <p className="text-sm font-medium">Wybrani kandydaci</p>
+                    <p className="text-sm font-medium">Zaproszeni kandydaci</p>
                     <p className="text-xs text-muted-foreground">
-                      Analizuj wybranych kandydatów względem tej roli.
+                      Analizuj zaproszonych kandydatów względem tej roli.
                     </p>
                   </div>
                   <Switch checked={analyzeInternalTeam} onCheckedChange={setAnalyzeInternalTeam} />
