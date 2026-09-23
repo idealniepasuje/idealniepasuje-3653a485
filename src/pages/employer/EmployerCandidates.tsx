@@ -136,10 +136,15 @@ const EmployerCandidates = () => {
     <DashboardLayout sidebar={<EmployerSidebar />}>
       <div className="mb-6 flex items-start justify-between gap-4 flex-wrap">
         <div>
-          <Button variant="ghost" size="sm" onClick={() => navigate(-1)} className="mb-4 gap-2">
-            <ArrowLeft className="w-4 h-4" />
-            {t("common.back")}
-          </Button>
+        <Button
+  variant="ghost"
+  size="sm"
+  onClick={() => navigate("/employer/offers")}
+  className="mb-4 gap-2"
+>
+  <ArrowLeft className="w-4 h-4" />
+  {t("common.back")}
+</Button>
           <h1 className="text-3xl font-bold mb-2">{t("employer.candidates.title")}</h1>
           <p className="text-muted-foreground">
             {offerTitle 

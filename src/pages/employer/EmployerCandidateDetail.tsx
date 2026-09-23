@@ -81,6 +81,7 @@ const EmployerCandidateDetail = () => {
   const { candidateId } = useParams<{ candidateId: string }>();
   const [searchParams] = useSearchParams();
   const matchId = searchParams.get("matchId");
+  const offerId = searchParams.get("offerId");
   const { user, signOut, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
@@ -490,7 +491,13 @@ const EmployerCandidateDetail = () => {
           <CardContent className="pt-6 text-center">
             <AlertCircle className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
             <h2 className="text-xl font-semibold mb-2">{t("employer.candidateDetail.notFound")}</h2>
-            <Link to="/employer/candidates">
+            <Link
+  to={
+    offerId
+      ? `/employer/candidates?offerId=${encodeURIComponent(offerId)}`
+      : "/employer/candidates"
+  }
+>
               <Button variant="outline">{t("common.back")}</Button>
             </Link>
           </CardContent>
@@ -520,7 +527,13 @@ const EmployerCandidateDetail = () => {
 
       <main className="container mx-auto px-4 py-8">
         <div className="mb-6">
-          <Link to="/employer/candidates">
+        <Link
+  to={
+    offerId
+      ? `/employer/candidates?offerId=${encodeURIComponent(offerId)}`
+      : "/employer/candidates"
+  }
+>
             <Button variant="ghost" size="sm" className="gap-2">
               <ArrowLeft className="w-4 h-4" />{t("common.back")}
             </Button>
@@ -1047,7 +1060,13 @@ const EmployerCandidateDetail = () => {
         </Card>
 
         <div className="mt-8 flex justify-center">
-          <Link to="/employer/candidates">
+        <Link
+  to={
+    offerId
+      ? `/employer/candidates?offerId=${encodeURIComponent(offerId)}`
+      : "/employer/candidates"
+  }
+>
             <Button variant="outline" size="lg">
               <ArrowLeft className="w-4 h-4 mr-2" />
               {t("employer.candidateDetail.backToList")}
