@@ -352,30 +352,100 @@ const CandidateAdditional = () => {
       const isReadyForMatching = readiness ? isEligibleForExternalMatching(readiness) : false;
 
       // Auto-mark related employer requests as handled once the underlying data exists.
-      // profile_completion follows the DB-computed required fields — "Daj się poznać" is
-      // optional and must never keep an old request alive.
-      try {
-        const typesToClear: string[] = [];
-        if (linkedinUrl.trim()) typesToClear.push('linkedin_request');
-        if (readiness?.additional_completed === true) typesToClear.push('profile_completion');
-        if (tools.length > 0) typesToClear.push('tools_completion_request');
-        if (typesToClear.length > 0) {
-          await supabase
-            .from('candidate_messages')
-            .update({ read_at: new Date().toISOString() })
-            .eq('candidate_user_id', user.id)
-            .is('read_at', null)
-            .in('type', typesToClear);
-        }
-      } catch (e) {
-        logError('CandidateAdditional.clearMessages', e);
+// profile_completion follows the DB-computed required fields — "Daj się poznać" is
+// optional and must never keep an old request alive.
+
+let handledProfileCompletionRequestIds: string[] = [];
+
+try {
+  // Najpierw pobieramy requesty profile_completion, zanim oznaczymy je jako obsłużone.
+  if (readiness?.additional_completed === true) {
+    const { data: openRequests, error: openRequestsError } = await supabase
+      .from("candidate_messages")
+      .select("id")
+      .eq("candidate_user_id", user.id)
+      .eq("type", "profile_completion")
+      .is("read_at", null)
+      .filter("metadata->>request", "eq", "missing_additional");
+
+    if (openRequestsError) {
+      logError("CandidateAdditional.openRequests", openRequestsError);
+    } else if (openRequests?.length) {
+      handledProfileCompletionRequestIds = openRequests.map(
+        (request) => request.id
+      );
+
+      const { error: closeRequestsError } = await supabase
+        .from("candidate_messages")
+        .update({ read_at: new Date().toISOString() })
+        .in("id", handledProfileCompletionRequestIds);
+
+      if (closeRequestsError) {
+        logError(
+          "CandidateAdditional.closeMissingDataRequests",
+          closeRequestsError
+        );
+
+        handledProfileCompletionRequestIds = [];
       }
+    }
+  }
 
+  // Pozostałe typy requestów mogą być zamknięte normalnie.
+  const otherTypesToClear: string[] = [];
 
-      const [matchesOk, emailOk] = await Promise.all([
-        isReadyForMatching ? generateMatches() : Promise.resolve(true),
-        sendResultsEmail(),
-      ]);
+  if (linkedinUrl.trim()) {
+    otherTypesToClear.push("linkedin_request");
+  }
+
+  if (tools.length > 0) {
+    otherTypesToClear.push("tools_completion_request");
+  }
+
+  if (otherTypesToClear.length > 0) {
+    await supabase
+      .from("candidate_messages")
+      .update({ read_at: new Date().toISOString() })
+      .eq("candidate_user_id", user.id)
+      .is("read_at", null)
+      .in("type", otherTypesToClear);
+  }
+} catch (e) {
+  logError("CandidateAdditional.clearMessages", e);
+}
+const [matchesOk, emailOk] = await Promise.all([
+  isReadyForMatching ? generateMatches() : Promise.resolve(true),
+  sendResultsEmail(),
+]);
+
+if (
+  matchesOk &&
+  handledProfileCompletionRequestIds.length > 0
+) {
+  try {
+    const { error: notifyEmployerError } =
+      await supabase.functions.invoke(
+        "send-employer-profile-updated",
+        {
+          body: {
+            request_ids: handledProfileCompletionRequestIds,
+          },
+        }
+      );
+
+    if (notifyEmployerError) {
+      logError(
+        "CandidateAdditional.notifyEmployerProfileUpdated",
+        notifyEmployerError
+      );
+    }
+  } catch (error) {
+    logError(
+      "CandidateAdditional.notifyEmployerProfileUpdated",
+      error
+    );
+  }
+}
 
       // Profil jest już zapisany — błąd matchingu/maila nie cofa zapisu
       setShowSuccess(true);

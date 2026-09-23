@@ -46,6 +46,7 @@ interface MatchDetails {
   }[];
   extraDetails: {
     field: string;
+    key?: string;
     matched: boolean;
     status?: 'matched' | 'unmatched' | 'no_data';
     candidateValue?: string | null;
@@ -97,6 +98,7 @@ const EmployerCandidateDetail = () => {
   const [requestingGtk, setRequestingGtk] = useState(false);
   const [requestingTools, setRequestingTools] = useState(false);
   const [requestingLanguages, setRequestingLanguages] = useState(false);
+  const [requestingMissingData, setRequestingMissingData] = useState(false);
 
   /** Best-effort email step: DB is already saved, so SMTP problems are reported as a warning only. */
   const notifyByEmail = async (scope: string, msg: string): Promise<boolean> => {
@@ -119,6 +121,81 @@ const EmployerCandidateDetail = () => {
       toast.success(t(successKey, successFallback ?? ''));
     } else {
       toast.warning(t("employer.candidateDetail.contact.requestSavedNoEmail", "Prośba została zapisana, ale powiadomienie e-mail nie zostało wysłane"));
+    }
+  };
+
+  const requestMissingAdditionalData = async () => {
+    if (!match || !user || !candidateId || requestingMissingData) return;
+  
+    const missingItems =
+      (match.match_details as MatchDetails | null)?.extraDetails?.filter(
+        (item) => item.status === "no_data",
+      ) ?? [];
+  
+    const missingFields = missingItems
+      .map((item) => item.key || item.field)
+      .filter(Boolean);
+  
+    if (missingFields.length === 0) {
+      toast.info(
+        t(
+          "employer.candidateDetail.contact.noMissingAdditionalData",
+          "Kandydat ma już uzupełnione wszystkie wymagane dane.",
+        ),
+      );
+      return;
+    }
+  
+    setRequestingMissingData(true);
+  
+    try {
+      const msg = `Prośba o uzupełnienie brakujących danych: ${missingItems
+        .map((item) => item.field)
+        .join(", ")}`;
+  
+      const { error: insertErr } = await supabase
+        .from("candidate_messages")
+        .insert({
+          match_result_id: match.id,
+          candidate_user_id: candidateId,
+          employer_user_id: user.id,
+          type: "profile_completion",
+          content: msg,
+          metadata: {
+            request: "missing_additional",
+            fields: missingFields,
+          },
+        });
+  
+      if (insertErr) {
+        if ((insertErr as any).code === "23505") {
+          toast.info(
+            t(
+              "employer.candidateDetail.contact.requestAlreadySent",
+              "Prośba została już wysłana.",
+            ),
+          );
+          return;
+        }
+  
+        throw insertErr;
+      }
+  
+      const sent = await notifyByEmail(
+        "EmployerCandidateDetail.requestMissingAdditionalData.email",
+        msg,
+      );
+  
+      requestToast(
+        sent,
+        "employer.candidateDetail.contact.completionRequested",
+        "Prośba o uzupełnienie danych została wysłana.",
+      );
+    } catch (e) {
+      logError("EmployerCandidateDetail.requestMissingAdditionalData", e);
+      toast.error(t("errors.genericError"));
+    } finally {
+      setRequestingMissingData(false);
     }
   };
 
@@ -1056,6 +1133,28 @@ const EmployerCandidateDetail = () => {
               extraStatus={matchDetails?.extraStatus}
               requirementLabelKey="employer.candidateDetail.yourRequirement"
             />
+            {matchDetails?.extraDetails?.some(
+  (item) => item.status === "no_data"
+) && (
+  <div className="mt-4 flex justify-end">
+    <Button
+      variant="outline"
+      onClick={requestMissingAdditionalData}
+      disabled={requestingMissingData}
+    >
+      <Mail className="w-4 h-4 mr-2" />
+      {requestingMissingData
+        ? t(
+            "employer.candidateDetail.contact.sending",
+            "Wysyłanie..."
+          )
+        : t(
+            "employer.candidateDetail.contact.requestMissingData",
+            "Poproś o uzupełnienie danych"
+          )}
+    </Button>
+  </div>
+)}
           </CardContent>
         </Card>
 
